@@ -1,0 +1,52 @@
+/* make the customizations */
+$theme-colors: (
+    'primary': #133495,
+    'info': tomato,
+    'danger': teal
+);
+
+$navbar-light-color: #133495;
+$navbar-light-hover-color: #5f82eb;
+$nav-link-font-size: 1.5rem; 
+$nav-link-font-weight: 700; 
+
+$form-select-border-width: 0;
+$form-select-border-color: transparent;
+$form-select-border-radius: 0;
+$form-select-focus-border-color:  transparent;
+$form-select-focus-width: 0;
+$form-select-box-shadow: none;
+$form-select-focus-box-shadow: none;
+
+.blue-bg {
+    background-color: #95c2d7;
+    color: white;
+
+}
+
+.logo-header {
+    width: 50%;
+}
+
+.custom-button {
+    background-color: #fc9a41;
+    border-color: #fc9a41;
+    border-radius: 50px;
+    padding: 5px 20px; /* Дополнительно для красивого внешнего вида */
+    color: white;       /* Цвет текста */
+    font-weight: bold;  /* Толщина шрифта */
+}
+
+.custom-button:hover {
+    background-color: #e78936; /* Цвет при наведении */
+    border-color: #e78936;
+}
+
+.custom-caption-bg {
+    background-color: rgba(149, 194, 215, 0.596);
+    padding: 20px;
+    border-radius: 10px;
+  }
+
+/* import bootstrap to set changes */
+@import '~bootstrap/scss/bootstrap';

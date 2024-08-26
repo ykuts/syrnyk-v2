@@ -1,11 +1,11 @@
 /* make the customizations */
 $theme-colors: (
-    'primary': #133495,
+    'primary': #000000,
     'info': tomato,
     'danger': teal
 );
 
-$navbar-light-color: #133495;
+$navbar-light-color: #000000;
 $navbar-light-hover-color: #5f82eb;
 $nav-link-font-size: 1.5rem; 
 $nav-link-font-weight: 700; 
@@ -29,12 +29,10 @@ $form-select-focus-box-shadow: none;
 }
 
 .custom-button {
-    background-color: #fc9a41;
-    border-color: #fc9a41;
+    background-color: #ff961c;
+    border-color: #ff961c;
     border-radius: 50px;
-    padding: 5px 20px; /* Дополнительно для красивого внешнего вида */
-    color: white;       /* Цвет текста */
-    font-weight: bold;  /* Толщина шрифта */
+    padding: 5px 20px; 
 }
 
 .custom-button:hover {

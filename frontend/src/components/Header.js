@@ -1,12 +1,11 @@
 
-import Menu from './Menu';
 import Image from 'react-bootstrap/esm/Image';
 
 const Header = () => {
     return ( 
         <div>
             
-        <Menu />
+        
         
         <Image src="/assets/logo2.png" alt="logo" fluid className='logo-header'/>
         

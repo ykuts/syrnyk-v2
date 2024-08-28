@@ -7,12 +7,12 @@ import Container from "react-bootstrap/esm/Container";
 const Products = () => {
     return ( 
         <Container>
-            <h2>Products</h2>
-        <Row>
+            {/* <h2>Products</h2> */}
+        <Row >
                         {products.map(
                             (product) => {
                              return(
-                                <Col>
+                                <Col className="p-3">
                                 <ProductCard product={product}/>
                                 </Col>
                             )

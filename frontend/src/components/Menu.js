@@ -38,8 +38,7 @@ const Menu = () => {
                 Про нас
             </Nav.Link>
         </Nav>
-       
-        {/* style={{ backgroundColor: '#ff961c' }}  */}
+
 
         <Nav className='icons ms-auto'>
             <Nav.Link href="#signeIn" className="custom-font">

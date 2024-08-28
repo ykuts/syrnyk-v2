@@ -38,6 +38,7 @@ $form-select-focus-box-shadow: none;
     border-color: #ff961c;
     border-radius: 50px;
     padding: 5px 20px; 
+    font-size: small;
 }
 
 .custom-button:hover {
@@ -50,6 +51,20 @@ $form-select-focus-box-shadow: none;
     padding: 20px;
     border-radius: 10px;
   }
+
+.custom-link{
+    font-weight: bold;
+    text-decoration: none;
+    color: #000000;
+}
+
+.card-recipe{
+    background-color: #a8a6a6;
+}
+
+.card-ingredient{
+    background-color: #94c4d8;
+}
 
 /* import bootstrap to set changes */
 @import '~bootstrap/scss/bootstrap';

@@ -21,7 +21,7 @@
     },
     {
         "id": 3,
-        "image": "/assets/products/syrki1.png",
+        "image": "/assets/products/syrki2.png",
         "title": "Сирки в шоколаді",
         "weight": "4 шт",
         "description": "сирки ванільні солодкі з натурального фермерського сиру, вкриті шоколадом (молочним, білим або чорним)",
@@ -37,15 +37,15 @@
     },
     {
         "id": 5,
-        "image": "/assets/products/tvorog1.png",
+        "image": "/assets/products/tvorog2.png",
         "title": "СИР КИСЛОМОЛОЧНИЙ (ТВОРОГ)",
         "weight": "0,5 кг",
-        "description": "сир натуральний зі швейцарського молока, вироблений на фермі. Жирність 15%. значок - Фермерський продукт",
+        "description": "сир натуральний зі швейцарського молока, вироблений на фермі",
         "price": 10
     },
     {
         "id": 6,
-        "image": "/assets/products/syrnyki1.png",
+        "image": "/assets/products/syrnyki2.png",
         "title": "СИРНИКИ",
         "weight": "0,5 кг",
         "description": "ніжні сирники з натурального сиру, в міру солодкі",

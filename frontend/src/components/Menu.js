@@ -41,10 +41,10 @@ const Menu = () => {
 
 
         <Nav className='icons ms-auto'>
-            <Nav.Link href="#signeIn" className="custom-font">
+            <Nav.Link href="#signeIn" className="">
                 <button className="custom-button">
                     <Image src="/assets/account.png" roundedCircle 
-                        style={{ width: '40px', height: '40px' }}/>
+                        style={{ width: '30px', height: '30px' }}/>
                     Профіль
                 </button>
             {/* <Image src="/assets/account.png" roundedCircle 
@@ -54,7 +54,7 @@ const Menu = () => {
             <Nav.Link eventKey={2} href="#cart">
                 <button className="custom-button">
                     <Image src="/assets/cart.png" roundedCircle 
-                        style={{ width: '40px', height: '40px' }}/>
+                        style={{ width: '30px', height: '30px' }}/>
                     Кошик
                 </button>
             

@@ -5,11 +5,13 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Footer from './components/Footer';
 import ProductDetails from './components/ProductDetails';
 import Menu from './components/Menu';
+import ScrollToTop from './components/ScrollToTop';
 
 
 function App() {
   return (
     <Router>
+      <ScrollToTop />
       <div className="app">
         
         <div>
@@ -19,6 +21,7 @@ function App() {
                 
         
         <Routes>
+        
             <Route path="/" element={<Home />} />
             <Route path="/products/:id" element={<ProductDetails />} />
             {/* <Route path="/delivery" element={<DeliveryDetails />} /> */}

@@ -14,7 +14,7 @@ const Footer = () => {
                 &copy; {new Date().getFullYear()} Copyright:{' SYRNYK '}
               </div>
               <div className='col text-end p-3'>
-                <Link className='' to='https://ykn-portfolio.netlify.app/' style={{ color: '#000000' }}> 
+                <Link className='' to='' style={{ color: '#000000' }}> 
                   Created by YKStudio
                 </Link>
               </div>

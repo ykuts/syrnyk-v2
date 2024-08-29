@@ -6,6 +6,8 @@ import Image from 'react-bootstrap/esm/Image';
 
 
 const ProductCard = ({product}) => {
+    
+
     return ( 
         
         <Card style={{ width: '15rem', backgroundColor: '#95c2d7', borderRadius: '20px' }} className="h-100 d-flex flex-column">

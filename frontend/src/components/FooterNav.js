@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+/* import { Link } from 'react-router-dom'; */
 import Image from 'react-bootstrap/esm/Image';
 import Container from 'react-bootstrap/esm/Container';
 import Col from 'react-bootstrap/esm/Col';
@@ -12,7 +12,7 @@ const FooterNav = () => {
                 <Row className="justify-content-evenly align-items-center flex-nowrap">
                     <Col xs={6} md="auto" className="text-center text-md-left">
                         <ul style={{ listStyleType: 'none', padding: 0, margin: '20px' }}>
-                            <li style={{ marginBottom: '30px' }}><a href="/" style={{ color: '#fff', textDecoration: 'none' }}>Меню</a></li>
+                            <li style={{ marginBottom: '30px' }}><a href="#products" style={{ color: '#fff', textDecoration: 'none' }}>Меню</a></li>
                             <li style={{ marginBottom: '30px' }}><a href="/" style={{ color: '#fff', textDecoration: 'none' }}>Доставка</a></li>
                             <li style={{ marginBottom: '30px' }}><a href="/" style={{ color: '#fff', textDecoration: 'none' }}>Про нас</a></li>
                         </ul>
@@ -32,14 +32,14 @@ const FooterNav = () => {
                                 </a>
                             </p>
                             <div>
-                                <Link href="#products" className="px-auto">
+                                <a href="https://www.instagram.com/syrnyk.ch" target='_blank'  rel="noopener noreferrer" className="px-auto">
                                     <Image src="/assets/facebook-white.png"
                                         style={{ width: '50px', height: '50px' }} />
-                                </Link>
-                                <Link href="#products" className="px-auto">
+                                </a>
+                                <a href="https://www.instagram.com/syrnyk.ch" target='_blank'  rel="noopener noreferrer" className="px-auto">
                                     <Image src="/assets/instagram-white.png"
                                         style={{ width: '50px', height: '50px' }} />
-                                </Link>
+                                </a>
                             </div>
                         </div>
                     </Col>

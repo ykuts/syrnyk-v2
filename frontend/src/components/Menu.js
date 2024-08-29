@@ -13,11 +13,11 @@ const Menu = () => {
         <Navbar.Collapse id="responsive-navbar-nav">
         
         <Nav className='select-lg me-auto'>
-        <Nav.Link href="#products" className="px-auto">
+        <Nav.Link href="https://www.instagram.com/syrnyk.ch" className="px-auto">
         <Image src="/assets/facebook.png"  
                         style={{ width: '40px', height: '40px' }}/>
             </Nav.Link>
-            <Nav.Link href="#products" className="px-auto">
+            <Nav.Link href="https://www.instagram.com/syrnyk.ch" className="px-auto">
             <Image src="/assets/instagram.png"  
                         style={{ width: '40px', height: '40px' }}/>
             </Nav.Link>

@@ -7,12 +7,12 @@ import Container from "react-bootstrap/esm/Container";
 const Products = () => {
     return ( 
         <Container>
-            {/* <h2>Products</h2> */}
+            
         <Row >
                         {products.map(
                             (product) => {
                              return(
-                                <Col className="p-3">
+                                <Col className="d-flex justify-content-center align-items-center p-3" key={product.id}>
                                 <ProductCard product={product}/>
                                 </Col>
                             )

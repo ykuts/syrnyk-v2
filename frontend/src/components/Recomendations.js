@@ -1,28 +1,55 @@
+import { useState, useEffect } from 'react';
 import Row from "react-bootstrap/esm/Row";
 import products from "../data/products.json"
-import ProductCard from "./ProductCard";
+import ProductCardRec from "./ProductCardRec";
 import Col from "react-bootstrap/esm/Col";
 import Container from "react-bootstrap/esm/Container";
 
-const Recomendations = () => {
-    return (
-        <div >
-            <Container>
-                <div className='mb-3' style={{ textAlign: 'start', }}>
-                    <h3 style={{ marginBottom: '15px' }}>Вам також сподобається</h3>
-                    <Row>
-                        {products.slice(0, 4).map((product) => {
-                            return (
-                                <Col key={product.id}>
-                                    <ProductCard product={product} />
-                                </Col>
-                            );
-                        })}
-                    </Row>
-                </div>
-            </Container>
+const getRandomProducts = (count) => {
+    let shuffled = products.sort(() => 0.5 - Math.random());
+    return shuffled.slice(0, count);
+};
 
-        </div>
+const handleResize = (setVisibleProducts) => {
+    const width = window.innerWidth;
+    if (width >= 1200) {
+        setVisibleProducts(getRandomProducts(4));
+    } else if (width >= 768) {
+        setVisibleProducts(getRandomProducts(3));
+    } else if (width >= 576) {
+        setVisibleProducts(getRandomProducts(2));
+    } else {
+        setVisibleProducts(getRandomProducts(1));
+    }
+};
+
+const Recomendations = () => {
+    const [visibleProducts, setVisibleProducts] = useState([]);
+
+    useEffect(() => {
+        handleResize(setVisibleProducts); // Initial load
+        const onResize = () => handleResize(setVisibleProducts);
+        window.addEventListener('resize', onResize);
+
+        return () => {
+            window.removeEventListener('resize', onResize);
+        };
+    }, []);
+
+    return (
+        <Container>
+            <Row>
+                {visibleProducts.map((product) => (
+                    <Col 
+                        key={product.id} 
+                        xs={12} sm={6} md={4} lg={3} 
+                        className="d-flex justify-content-center align-items-center p-3"
+                    >
+                        <ProductCardRec product={product} />
+                    </Col>
+                ))}
+            </Row>
+        </Container>
     );
 }
 

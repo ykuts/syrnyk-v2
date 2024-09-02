@@ -5,8 +5,6 @@ const Header = () => {
     return ( 
         <div>
             
-        
-        
         <Image src="/assets/logo2.png" alt="logo" fluid className='logo-header'/>
         
         {/* <OrderBox /> */}

@@ -1,0 +1,12 @@
+{
+    "menu": {
+        "menu_top": "Menu",
+        "delivery": "Livraison",
+        "about_us": "À propos de nous"
+    },
+
+    "buttons": {
+        "profile": "Profil",
+        "cart": "Panier"
+    }
+}

@@ -1,0 +1,12 @@
+{
+    "menu": {
+        "menu_top": "Меню",
+        "delivery": "Доставка",
+        "about_us": "Про нас"
+    },
+
+    "buttons": {
+        "profile": "Профіль",
+        "cart": "Кошик"
+    }
+}

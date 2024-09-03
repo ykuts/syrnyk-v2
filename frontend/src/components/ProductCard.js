@@ -10,7 +10,7 @@ const ProductCard = ({product}) => {
 
     return ( 
         
-        <Card style={{ width: '15rem', backgroundColor: '#95c2d7', borderRadius: '20px' }} className="h-100 d-flex flex-column">
+        <Card style={{ backgroundColor: '#95c2d7', borderRadius: '20px' }} className="h-100 d-flex flex-column">
             <Link to={`/products/${product.id}`}>
                 <Card.Img 
                     variant="top" 

@@ -27,7 +27,7 @@ const Menu = () => {
       };
 
     return ( 
-        <Navbar collapseOnSelect expand="lg" className="bg-body-tertiary justify-content-between">
+        <Navbar collapseOnSelect expand="lg" className=" justify-content-between">
         <Container>
         <Navbar.Toggle aria-controls="responsive-navbar-nav" />
         <Navbar.Collapse id="responsive-navbar-nav">

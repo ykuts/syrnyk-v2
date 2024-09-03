@@ -8,7 +8,7 @@ import Image from 'react-bootstrap/esm/Image';
 const ProductCardRec = ({product}) => {
     return ( 
         
-        <Card style={{ width: '15rem', borderRadius: '20px' }} className="h-100 d-flex flex-column">
+        <Card style={{  borderRadius: '20px' }} className="h-100 d-flex flex-column">
             <Link to={`/products/${product.id}`}>
                 <Card.Img 
                     variant="top" 

@@ -24,18 +24,47 @@ $form-select-focus-box-shadow: none;
 
 }
 
+
+
 .logo-header {
     width: 10%;
 }
+
+@media (max-width: 992px) and (min-width: 769px) {
+    .logo-header {
+      width: 35%; /* Ширина для средних экранов */
+    }
+  }
+
+@media (max-width: 768px) {
+    /* Ширина для мобильных устройств */
+    .logo-header {
+      width: 50%;
+    }
+  }
 
 .logo-footer {
     width: 25%;
 }
 
+.image-container {
+    position: relative;
+    width: 100%; /* По умолчанию ширина контейнера 100% */
+    overflow: hidden; /* Обрезаем всё, что выходит за пределы контейнера */
+  }
+  
+  .image-to-crop {
+    width: 100%; /* Изображение растягивается на всю ширину контейнера */
+    height: auto; /* Высота изменяется пропорционально ширине */
+    object-fit: cover; /* Обрезаем изображение по ширине, если оно больше контейнера */
+    object-position: left; /* Обрезаем изображение справа, смещая его влево */
+  }
+
 
 .custom-button {
     background-color: #ff961c;
     border-color: #ff961c;
+    border-style: none;
     border-radius: 50px;
     padding: 5px 20px; 
     font-size: small;

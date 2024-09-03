@@ -95,5 +95,29 @@ $form-select-focus-box-shadow: none;
     background-color: #94c4d8;
 }
 
+.cart-button {
+    background: #FFFFFF;
+    border-radius: 20px;
+    padding: 5px 10px;
+    display: flex;
+    align-items: center;
+    border-style: none;
+    transition: background 0.3s ease; /* Добавляем плавный переход */
+}
+
+.cart-button:hover {
+    background: #a8cfe0; 
+}
+
+.text-price {
+    font-size: 0.85rem; /* Размер шрифта по умолчанию для десктопа */
+}
+
+@media (max-width: 576px) {
+    .text-price {
+        font-size: 1.1rem; /* Увеличенный размер шрифта для мобильных устройств */
+    }
+}
+
 /* import bootstrap to set changes */
 @import '~bootstrap/scss/bootstrap';

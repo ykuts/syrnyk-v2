@@ -3,25 +3,26 @@ import Card from 'react-bootstrap/Card';
 import { Link } from 'react-router-dom';
 import Button from 'react-bootstrap/esm/Button';
 import Image from 'react-bootstrap/esm/Image';
+import '../custom.scss';
 
 
-const ProductCard = ({product}) => {
-    
+const ProductCard = ({ product }) => {
+    const isMobile = window.innerWidth <= 576;
 
-    return ( 
-        
+    return (
+
         <Card style={{ backgroundColor: '#95c2d7', borderRadius: '20px' }} className="h-100 d-flex flex-column">
             <Link to={`/products/${product.id}`}>
-                <Card.Img 
-                    variant="top" 
-                    src={product.image} 
-                    style={{ borderTopLeftRadius: '20px', borderTopRightRadius: '20px' }} 
+                <Card.Img
+                    variant="top"
+                    src={product.image}
+                    style={{ borderTopLeftRadius: '20px', borderTopRightRadius: '20px' }}
                 />
             </Link>
             <Card.Body className="d-flex flex-column">
                 <div>
-                    <Link 
-                        to={`/products/${product.id}`} 
+                    <Link
+                        to={`/products/${product.id}`}
                         style={{ textDecoration: 'none', color: 'black' }}
                     >
                         <Card.Title className='text-start'>{product.title}</Card.Title>
@@ -33,33 +34,27 @@ const ProductCard = ({product}) => {
                 {/* Этот блок будет заполнять пространство между описанием и нижней частью */}
                 <div className="flex-grow-1"></div>
                 <div>
-                    <Card.Text className="text-dark fs-6">
-                        {product.price} CHF / {product.weight}
-                    </Card.Text>
-                    <div className='d-flex justify-content-center mt-3'>
-                        <Button 
-                            variant="light" 
-                            style={{ 
-                                borderRadius: '20px', 
-                                padding: '5px 15px', 
-                                display: 'flex', 
-                                alignItems: 'center', 
-                                boxShadow: '0px 0px 5px rgba(0,0,0,0.1)' 
-                            }}
+                    <div className="d-flex justify-content-between align-items-center">
+                        <Card.Text className="text-dark mb-0 text-price">
+                            {product.price} CHF / {product.weight}
+                        </Card.Text>
+                        <button
+                            variant="light"
+                            className="cart-button"
                         >
-                            <Image 
-                                src="/assets/cart.png" 
-                                roundedCircle 
-                                style={{ width: '40px', height: '40px', marginRight: '8px' }}
+                            <Image
+                                src="/assets/cart.png"
+                                roundedCircle
+                                style={{ width: '25px', height: '25px', marginRight: '3px' }}
                             />
-                            До кошика
-                        </Button>
+                            <span style={{ fontSize: '0.85rem' }}>До кошика</span>
+                        </button>
                     </div>
                 </div>
             </Card.Body>
         </Card>
-       
-     );
+
+    );
 }
- 
+
 export default ProductCard;

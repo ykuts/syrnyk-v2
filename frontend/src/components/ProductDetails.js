@@ -74,6 +74,11 @@ const ProductDetails = () => {
                     </Col>
                 </Row>
             </Container>
+            <Container>
+            <h4 className="text-start pt-3">
+                Вам також сподобається
+            </h4>
+            </Container>
              <Recomendations />
         </div>
     );

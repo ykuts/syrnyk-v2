@@ -12,7 +12,7 @@ const FooterNav = () => {
                 <Row className="justify-content-evenly align-items-center flex-nowrap">
                     <Col xs={6} md="auto" className="text-center text-md-left">
                         <ul style={{ listStyleType: 'none', padding: 0, margin: '20px' }}>
-                            <li style={{ marginBottom: '30px' }}><a href="#products" style={{ color: '#fff', textDecoration: 'none' }}>Меню</a></li>
+                            <li style={{ marginBottom: '30px' }}><a href="/" style={{ color: '#fff', textDecoration: 'none' }}>Меню</a></li>
                             <li style={{ marginBottom: '30px' }}><a href="/" style={{ color: '#fff', textDecoration: 'none' }}>Доставка</a></li>
                             <li style={{ marginBottom: '30px' }}><a href="/" style={{ color: '#fff', textDecoration: 'none' }}>Про нас</a></li>
                         </ul>

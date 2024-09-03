@@ -63,6 +63,7 @@ $form-select-focus-box-shadow: none;
 
 .custom-button {
     background-color: #ff961c;
+    color: #000000;
     border-color: #ff961c;
     border-style: none;
     border-radius: 50px;
@@ -71,6 +72,7 @@ $form-select-focus-box-shadow: none;
 }
 
 .custom-button:hover {
+    color: #000000;
     background-color: #e78936; /* Цвет при наведении */
     border-color: #e78936;
 }
@@ -97,6 +99,7 @@ $form-select-focus-box-shadow: none;
 
 .cart-button {
     background: #FFFFFF;
+    color: #000000;
     border-radius: 20px;
     padding: 5px 10px;
     display: flex;
@@ -106,6 +109,7 @@ $form-select-focus-box-shadow: none;
 }
 
 .cart-button:hover {
+    color: #000000;
     background: #a8cfe0; 
 }
 

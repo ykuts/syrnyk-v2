@@ -14,7 +14,7 @@ const ProductCard = ({ product }) => {
                 <Card.Img
                     variant="top"
                     src={product.image}
-                    style={{ borderTopLeftRadius: '20px', borderTopRightRadius: '20px' }}
+                    style={{ borderTopLeftRadius: '20px', borderTopRightRadius: '20px', height: '' }}
                 />
             </Link>
             <Card.Body className="d-flex flex-column">

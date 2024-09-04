@@ -56,7 +56,19 @@ const ProductDetails = () => {
                             <Card.Body>
                                 <Card.Title>Склад</Card.Title>
                                 <Card.Text>
-                                    {product['description-full']}
+                                    <p>{product['description-full']}</p>
+                                    {product.assortment && product.assortment.length > 0 && (
+                                        <div>
+                                        <h5>Асортимент</h5>
+                                        <ul>
+                                            {product.assortment.map((item, index) => (
+                                                <li key={index}>{item}</li>
+                                            ))}
+                                        </ul>
+                                        </div>
+                                    )}
+                                    <h5>Період та умови зберігання:</h5>
+                                    <p>{product.umovy}</p>
                                 </Card.Text>
 
                             </Card.Body>

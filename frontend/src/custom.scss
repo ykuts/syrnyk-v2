@@ -123,5 +123,45 @@ $form-select-focus-box-shadow: none;
     }
 }
 
+/* Скрыть текст на мобильных устройствах */
+@media (max-width: 768px) {
+    .button-text {
+        display: none;
+    }
+
+    /* Обеспечить горизонтальное расположение кнопок */
+    .icons {
+        display: flex;
+        flex-direction: row;
+        justify-content: flex-end; /* Выравнивание по правой стороне */
+    }
+
+    /* Удалить любые отступы, чтобы кнопки были вплотную */
+    .nav-link-custom {
+        margin-right: 0;
+        padding: 0 5px; /* Небольшие отступы между кнопками */
+    }
+}
+
+@media (max-width: 768px) {
+    .profile-text {
+        display: none;
+    }
+
+    .round-button{
+        width: 50px; /* Задайте нужную ширину и высоту */
+    height: 50px;
+    border-radius: 50%; /* Скругляем углы до круга */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0; /* Убираем внутренние отступы */
+    border: none;
+        
+    }
+}
+
+
+
 /* import bootstrap to set changes */
 @import '~bootstrap/scss/bootstrap';

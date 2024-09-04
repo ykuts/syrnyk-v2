@@ -53,7 +53,7 @@ const Menu2 = () => {
 
                     {/* nav-links будет первым блоком в мобильной версии */}
                     <Nav className='links mx-auto order-lg-3 ' id='nav-links'>
-                        <Nav.Link href="#products" className="px-auto">
+                        <Nav.Link href="/" className="px-auto">
                             {t('menu.menu_top')}
                         </Nav.Link>
                         <Nav.Link href="#delivery" className="px-auto">

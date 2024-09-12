@@ -12,7 +12,7 @@ const FooterNav = () => {
                 <Row className="justify-content-evenly align-items-center flex-nowrap p-1">
                     <Col md={3} className="d-none d-md-block">
                     </Col>
-                    <Col xs={6} md={3} className="text-start text-md-left align-items-start">
+                    <Col xs={5} md={3} className="text-start text-md-left align-items-start">
                         <ul style={{ listStyleType: 'none', padding: 0 }}>
                             <li style={{ marginBottom: '40px' }}><a href="/" className='menu-footer-link'>Меню</a></li>
                             <li style={{ marginBottom: '40px' }}><a href="/" className='menu-footer-link'>Доставка</a></li>
@@ -23,7 +23,7 @@ const FooterNav = () => {
                         <Col md={1} className="d-none d-md-block">
                             {/* Место для дополнительного контента */}
                         </Col>
-                    <Col xs={6} md={5} className="text-center" >
+                    <Col xs={7} md={5} className="text-center" >
                         <div>
                             <div style={{ marginBottom: '10px' }}>
                                 <Image src="/assets/logo-white.png" alt="logo" fluid className='logo-footer' />

@@ -6,7 +6,7 @@ import Container from "react-bootstrap/esm/Container";
 
 const Products = () => {
     return ( 
-        <Container id='products'>
+        <Container id='products' fluid>
             
         <Row >
         {products.map((product) => (

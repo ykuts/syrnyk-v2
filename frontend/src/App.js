@@ -4,8 +4,9 @@ import NotFound from './components/NotFound';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Footer from './components/Footer';
 import ProductDetails from './components/ProductDetails';
-import Menu2 from './components/Menu2';
+
 import ScrollToTop from './components/ScrollToTop';
+import Menu2 from './components/Menu2';
 
 
 

@@ -8,7 +8,7 @@ import Row from 'react-bootstrap/esm/Row';
 const FooterNav = () => {
     return (
         <footer style={{ paddingTop: '30px' }}>
-            <Container>
+            <Container fluid>
                 <Row className="justify-content-evenly align-items-center flex-nowrap">
                     <Col xs={6} md="auto" className="text-center text-md-left">
                         <ul style={{ listStyleType: 'none', padding: 0, margin: '20px' }}>
@@ -17,7 +17,7 @@ const FooterNav = () => {
                             <li style={{ marginBottom: '30px' }}><a href="/" style={{ color: '#fff', textDecoration: 'none' }}>Про нас</a></li>
                         </ul>
                     </Col>
-                    <Col xs={6} className="text-center">
+                    <Col xs={6} className="text-end">
                         <div>
                             <div style={{ marginBottom: '10px' }}>
                                 <Image src="/assets/logo-white.png" alt="logo" fluid className='logo-footer' />

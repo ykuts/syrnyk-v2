@@ -5,6 +5,8 @@ import Navbar from 'react-bootstrap/Navbar';
 import Image from 'react-bootstrap/esm/Image';
 import Form from 'react-bootstrap/Form';
 import '../custom.scss';
+import Row from "react-bootstrap/esm/Row";
+import Col from "react-bootstrap/esm/Col";
 
 
 import { useTranslation } from 'react-i18next';
@@ -26,14 +28,19 @@ const Menu2 = () => {
         i18n.changeLanguage(newLanguage);
     };
 
+
+    
+
+
     return (
         <Navbar collapseOnSelect expand="lg" className="justify-content-between">
-            <Container>
-                {/* Тоггл перемещен влево на мобильных устройствах */}
-                <Navbar.Toggle aria-controls="responsive-navbar-nav" className="" />
-                {/* nav-account фиксирован справа, независимо от устройства */}
+            <Container fluid>
+                {/* Тоггл для мобильных устройств */}
+                <Navbar.Toggle aria-controls="responsive-navbar-nav" 
+                style={{ border: 'none', boxShadow: 'none', outline: 'none' }} />
                 
-                <Nav className='icons ms-auto d-flex flex-row order-lg-4' id='nav-account'>
+                {/* Блок профиля и корзины */}
+                <Nav className='icons ms-auto d-flex flex-row align-self-start order-lg-4' id='nav-account'>
                     <Nav.Link href="#signeIn" className='p-2'>
                         <button className="custom-button round-button">
                             <Image src="/assets/account.png" roundedCircle
@@ -49,51 +56,66 @@ const Menu2 = () => {
                         </button>
                     </Nav.Link>
                 </Nav>
-                <Navbar.Collapse id="responsive-navbar-nav" className="">
 
-                    {/* nav-links будет первым блоком в мобильной версии */}
-                    <Nav className='links mx-auto order-lg-3 ' id='nav-links'>
-                        <Nav.Link href="/" className="px-auto">
-                            {t('menu.menu_top')}
-                        </Nav.Link>
-                        <Nav.Link href="#delivery" className="px-auto">
-                            {t('menu.delivery')}
-                        </Nav.Link>
-                        <Nav.Link href="#about" className="px-auto">
-                            {t('menu.about_us')}
-                        </Nav.Link>
+                {/* Коллапсируемые элементы */}
+                <Navbar.Collapse id="responsive-navbar-nav" className='align-items-baseline'>
+                    {/* Ссылки в навигации */}
+                    <Nav className='links mx-auto  order-lg-3 flex-column '>
+                        <Row className="justify-content-md-center">
+                            <Col md="auto">
+                                <Nav.Link href="/" className="text-center">
+                                    {t('menu.menu_top')}
+                                </Nav.Link>
+                            </Col>
+                            <Col md="auto">
+                                <Nav.Link href="#delivery" className="text-center">
+                                    {t('menu.delivery')}
+                                </Nav.Link>
+                            </Col>
+                            <Col md="auto">
+                                <Nav.Link href="#about" className="text-center">
+                                    {t('menu.about_us')}
+                                </Nav.Link>
+                            </Col>
+                        </Row>
+                        <Row className="d-none d-lg-block">
+                            <Col md="auto">
+                                <Image src="/assets/logo2.png" alt="logo" fluid className='logo-header' />
+                            </Col>
+                        </Row>
                     </Nav>
 
-                    {/* nav-social будет вторым блоком в мобильной версии */}
-                    <Nav className='select-lg d-flex flex-row justify-content-center order-lg-1' id='nav-social'>
-                        <Nav.Link href="https://www.instagram.com/syrnyk.ch" className="px-auto">
+                    {/* Социальные иконки */}
+                    <Nav className='select-lg d-flex flex-row justify-content-center order-lg-1'>
+                        <Nav.Link href="https://www.instagram.com/syrnyk.ch">
                             <Image src="/assets/facebook.png"
                                 style={{ width: '40px', height: '40px' }} />
                         </Nav.Link>
-                        <Nav.Link href="https://www.instagram.com/syrnyk.ch" className="px-auto">
+                        <Nav.Link href="https://www.instagram.com/syrnyk.ch">
                             <Image src="/assets/instagram.png"
                                 style={{ width: '40px', height: '40px' }} />
                         </Nav.Link>
                     </Nav>
 
-                    {/* nav-lang будет третьим блоком в мобильной версии */}
-                    <Nav className='select-lg me-auto order-lg-2 d-flex justify-content-center align-items-center' id='nav-lang'>
+                    {/* Выбор языка */}
+                    <Nav className='select-lg me-auto order-lg-2 d-flex justify-content-center align-items-center'>
                         <Form.Select 
-                        value={selectedValue}
-                        onChange={handleChange}
-                        style={{ width: 'auto' }}
-                        className="text-center">
+                            value={selectedValue}
+                            onChange={handleChange}
+                            style={{ width: 'auto' }}
+                            className="text-center">
                             <option value="ua">UA</option>
                             <option value="en">EN</option>
                             <option value="fr">FR</option>
                         </Form.Select>
                     </Nav>
-
                 </Navbar.Collapse>
-
+                <Row className="d-lg-none ">
+                            <Col md="auto">
+                                <Image src="/assets/logo2.png" alt="logo" fluid className='logo-header' />
+                            </Col>
+                        </Row>
             </Container>
-            
-            
         </Navbar>
     );
 }

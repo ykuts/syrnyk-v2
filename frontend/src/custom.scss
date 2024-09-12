@@ -188,7 +188,36 @@ $form-select-focus-box-shadow: none;
     }
 }
 
+.menu-footer-link {
+    font-size: 16px; /* Базовый размер для маленьких экранов */
+    color: #fff;
+    text-decoration: none;
+}
 
+.menu-footer-link:hover {
+    color: #e4eef1;
+}
+
+/* Для экранов шире 576px (например, планшеты) */
+@media (min-width: 576px) {
+    .menu-footer-link {
+        font-size: 18px;
+    }
+}
+
+/* Для экранов шире 768px (например, небольшие ноутбуки) */
+@media (min-width: 768px) {
+    .menu-footer-link {
+        font-size: 20px;
+    }
+}
+
+/* Для экранов шире 992px (например, десктопы) */
+@media (min-width: 992px) {
+    .menu-footer-link {
+        font-size: 22px;
+    }
+}
 
 
 /* import bootstrap to set changes */

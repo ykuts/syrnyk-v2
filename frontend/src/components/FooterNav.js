@@ -9,14 +9,14 @@ const FooterNav = () => {
     return (
         <footer style={{ paddingTop: '30px' }}>
             <Container fluid>
-                <Row className="justify-content-evenly align-items-center flex-nowrap">
+                <Row className="justify-content-evenly align-items-center flex-nowrap p-1">
                     <Col md={3} className="d-none d-md-block">
                     </Col>
                     <Col xs={6} md={3} className="text-start text-md-left align-items-start">
                         <ul style={{ listStyleType: 'none', padding: 0 }}>
-                            <li style={{ marginBottom: '40px' }}><a href="/" style={{ color: '#fff', textDecoration: 'none' }}>Меню</a></li>
-                            <li style={{ marginBottom: '40px' }}><a href="/" style={{ color: '#fff', textDecoration: 'none' }}>Доставка</a></li>
-                            <li style={{ marginBottom: '40px' }}><a href="/" style={{ color: '#fff', textDecoration: 'none' }}>Про нас</a></li>
+                            <li style={{ marginBottom: '40px' }}><a href="/" className='menu-footer-link'>Меню</a></li>
+                            <li style={{ marginBottom: '40px' }}><a href="/" className='menu-footer-link'>Доставка</a></li>
+                            <li style={{ marginBottom: '40px' }}><a href="/" className='menu-footer-link'>Про нас</a></li>
                         </ul>
                     </Col>
                     {/* Третья колонка, пока пустая */}

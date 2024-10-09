@@ -13,7 +13,7 @@ $nav-link-font-weight: 700;
 $form-select-border-width: 0;
 $form-select-border-color: transparent;
 $form-select-border-radius: 0;
-$form-select-focus-border-color:  transparent;
+$form-select-focus-border-color: transparent;
 $form-select-focus-width: 0;
 $form-select-box-shadow: none;
 $form-select-focus-box-shadow: none;
@@ -21,10 +21,7 @@ $form-select-focus-box-shadow: none;
 .blue-bg {
     background-color: #95c2d7;
     color: white;
-
 }
-
-
 
 .logo-header {
     width: 30%;
@@ -32,16 +29,16 @@ $form-select-focus-box-shadow: none;
 
 @media (max-width: 992px) and (min-width: 769px) {
     .logo-header {
-      width: 35%; /* Ширина для средних экранов */
+        width: 35%; /* Width for medium screens */
     }
-  }
+}
 
 @media (max-width: 768px) {
-    /* Ширина для мобильных устройств */
+    /* Width for mobile devices */
     .logo-header {
-      width: 50%;
+        width: 50%;
     }
-  }
+}
 
 .logo-footer {
     width: 25%;
@@ -49,32 +46,31 @@ $form-select-focus-box-shadow: none;
 
 @media (max-width: 992px) and (min-width: 769px) {
     .logo-footer {
-      width: 35%; /* Ширина для средних экранов */
+        width: 35%; /* Width for medium screens */
     }
-  }
+}
 
 @media (max-width: 768px) {
-    /* Ширина для мобильных устройств */
+    /* Width for mobile devices */
     .logo-footer {
-      width: 50%;
+        width: 50%;
     }
-  }
+}
 
 .image-container {
     position: relative;
-    width: 100%; /* По умолчанию ширина контейнера 100% */
-    overflow: hidden; /* Обрезаем всё, что выходит за пределы контейнера */
-  }
-  
-  .image-to-crop {
-    width: 100%; /* Изображение растягивается на всю ширину контейнера */
-    height: auto; /* Высота изменяется пропорционально ширине */
-    object-fit: cover; /* Обрезаем изображение по ширине, если оно больше контейнера */
-    object-position: left; /* Обрезаем изображение справа, смещая его влево */
-  }
+    width: 100%; /* Default container width is 100% */
+    overflow: hidden; /* Crop everything that overflows the container */
+}
 
+.image-to-crop {
+    width: 100%; /* Image stretches to the full width of the container */
+    height: auto; /* Height adjusts proportionally to width */
+    object-fit: cover; /* Crop the image to width if it's larger than the container */
+    object-position: left; /* Crop the image from the right by shifting it left */
+}
 
-  .custom-button {
+.custom-button {
     display: flex;
     align-items: center;
     background-color: #ff961c;
@@ -84,23 +80,20 @@ $form-select-focus-box-shadow: none;
     border-radius: 50px;
     padding: 5px 20px; 
     font-size: small;
-    
 }
 
 .round-button {
-    padding: 5px 10px; /* Пространство внутри кнопки */
+    padding: 5px 10px; /* Space inside the button */
 }
 
 .profile-text {
-    margin-left: 4px; /* Отступ между иконкой и текстом */
+    margin-left: 4px; /* Space between icon and text */
     font-size: 16px;
 }
 
-
-
 .custom-button:hover {
     color: #000000;
-    background-color: #e78936; /* Цвет при наведении */
+    background-color: #e78936; /* Color on hover */
     border-color: #e78936;
 }
 
@@ -108,19 +101,19 @@ $form-select-focus-box-shadow: none;
     background-color: rgba(149, 194, 215, 0.596);
     padding: 20px;
     border-radius: 10px;
-  }
+}
 
-.custom-link{
+.custom-link {
     font-weight: bold;
     text-decoration: none;
     color: #000000;
 }
 
-.card-recipe{
+.card-recipe {
     background-color: #a8a6a6;
 }
 
-.card-ingredient{
+.card-ingredient {
     background-color: #94c4d8;
 }
 
@@ -132,7 +125,7 @@ $form-select-focus-box-shadow: none;
     display: flex;
     align-items: center;
     border-style: none;
-    transition: background 0.3s ease; /* Добавляем плавный переход */
+    transition: background 0.3s ease; /* Add smooth transition */
 }
 
 .cart-button:hover {
@@ -141,32 +134,32 @@ $form-select-focus-box-shadow: none;
 }
 
 .text-price {
-    font-size: 0.85rem; /* Размер шрифта по умолчанию для десктопа */
+    font-size: 0.85rem; /* Default font size for desktop */
 }
 
 @media (max-width: 576px) {
     .text-price {
-        font-size: 1.1rem; /* Увеличенный размер шрифта для мобильных устройств */
+        font-size: 1.1rem; /* Increased font size for mobile devices */
     }
 }
 
-/* Скрыть текст на мобильных устройствах */
+/* Hide text on mobile devices */
 @media (max-width: 768px) {
     .button-text {
         display: none;
     }
 
-    /* Обеспечить горизонтальное расположение кнопок */
+    /* Ensure horizontal button layout */
     .icons {
         display: flex;
         flex-direction: row;
-        justify-content: flex-end; /* Выравнивание по правой стороне */
+        justify-content: flex-end; /* Align to the right */
     }
 
-    /* Удалить любые отступы, чтобы кнопки были вплотную */
+    /* Remove any margins to make buttons flush */
     .nav-link-custom {
         margin-right: 0;
-        padding: 0 5px; /* Небольшие отступы между кнопками */
+        padding: 0 5px; /* Small margins between buttons */
     }
 }
 
@@ -175,21 +168,20 @@ $form-select-focus-box-shadow: none;
         display: none;
     }
 
-    .round-button{
-        width: 50px; /* Задайте нужную ширину и высоту */
-    height: 50px;
-    border-radius: 50%; /* Скругляем углы до круга */
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0; /* Убираем внутренние отступы */
-    border: none;
-        
+    .round-button {
+        width: 50px; /* Set desired width and height */
+        height: 50px;
+        border-radius: 50%; /* Round the corners to a circle */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0; /* Remove inner padding */
+        border: none;
     }
 }
 
 .menu-footer-link {
-    font-size: 16px; /* Базовый размер для маленьких экранов */
+    font-size: 16px; /* Base size for small screens */
     color: #fff;
     text-decoration: none;
 }
@@ -198,27 +190,26 @@ $form-select-focus-box-shadow: none;
     color: #e4eef1;
 }
 
-/* Для экранов шире 576px (например, планшеты) */
+/* For screens wider than 576px (e.g., tablets) */
 @media (min-width: 576px) {
     .menu-footer-link {
         font-size: 18px;
     }
 }
 
-/* Для экранов шире 768px (например, небольшие ноутбуки) */
+/* For screens wider than 768px (e.g., small laptops) */
 @media (min-width: 768px) {
     .menu-footer-link {
         font-size: 20px;
     }
 }
 
-/* Для экранов шире 992px (например, десктопы) */
+/* For screens wider than 992px (e.g., desktops) */
 @media (min-width: 992px) {
     .menu-footer-link {
         font-size: 22px;
     }
 }
-
 
 /* import bootstrap to set changes */
 @import '~bootstrap/scss/bootstrap';

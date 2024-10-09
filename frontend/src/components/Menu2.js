@@ -8,9 +8,7 @@ import '../custom.scss';
 import Row from "react-bootstrap/esm/Row";
 import Col from "react-bootstrap/esm/Col";
 
-
 import { useTranslation } from 'react-i18next';
-
 
 const Menu2 = () => {
     const { t, i18n } = useTranslation();
@@ -18,7 +16,7 @@ const Menu2 = () => {
     const [selectedValue, setSelectedValue] = useState('');
 
     useEffect(() => {
-        // Устанавливаем язык по умолчанию при загрузке компонента
+        // Set the default language when the component loads
         i18n.changeLanguage('ua');
     }, [i18n]);
 
@@ -28,18 +26,14 @@ const Menu2 = () => {
         i18n.changeLanguage(newLanguage);
     };
 
-
-    
-
-
     return (
         <Navbar collapseOnSelect expand="lg" className="justify-content-between">
             <Container fluid>
-                {/* Тоггл для мобильных устройств */}
+                {/* Toggle for mobile devices */}
                 <Navbar.Toggle aria-controls="responsive-navbar-nav" 
                 style={{ border: 'none', boxShadow: 'none', outline: 'none' }} />
                 
-                {/* Блок профиля и корзины */}
+                {/* Profile and cart section */}
                 <Nav className='icons ms-auto d-flex flex-row align-self-start order-lg-4' id='nav-account'>
                     <Nav.Link href="#signeIn" className='p-2'>
                         <button className="custom-button round-button">
@@ -57,9 +51,9 @@ const Menu2 = () => {
                     </Nav.Link>
                 </Nav>
 
-                {/* Коллапсируемые элементы */}
+                {/* Collapsible items */}
                 <Navbar.Collapse id="responsive-navbar-nav" className='align-items-baseline'>
-                    {/* Ссылки в навигации */}
+                    {/* Navigation links */}
                     <Nav className='links mx-auto  order-lg-3 flex-column '>
                         <Row className="justify-content-md-center">
                             <Col md="auto">
@@ -85,7 +79,7 @@ const Menu2 = () => {
                         </Row>
                     </Nav>
 
-                    {/* Социальные иконки */}
+                    {/* Social icons */}
                     <Nav className='select-lg d-flex flex-row justify-content-center order-lg-1'>
                         <Nav.Link href="https://www.instagram.com/syrnyk.ch">
                             <Image src="/assets/facebook.png"
@@ -97,7 +91,7 @@ const Menu2 = () => {
                         </Nav.Link>
                     </Nav>
 
-                    {/* Выбор языка */}
+                    {/* Language selection */}
                     <Nav className='select-lg me-auto order-lg-2 d-flex justify-content-center align-items-center'>
                         <Form.Select 
                             value={selectedValue}
@@ -111,10 +105,10 @@ const Menu2 = () => {
                     </Nav>
                 </Navbar.Collapse>
                 <Row className="d-lg-none ">
-                            <Col md="auto">
-                                <Image src="/assets/logo2.png" alt="logo" fluid className='logo-header' />
-                            </Col>
-                        </Row>
+                    <Col md="auto">
+                        <Image src="/assets/logo2.png" alt="logo" fluid className='logo-header' />
+                    </Col>
+                </Row>
             </Container>
         </Navbar>
     );

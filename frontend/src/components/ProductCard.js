@@ -1,14 +1,10 @@
-
 import Card from 'react-bootstrap/Card';
 import { Link } from 'react-router-dom';
 import Image from 'react-bootstrap/esm/Image';
 import '../custom.scss';
 
-
 const ProductCard = ({ product }) => {
-
     return (
-
         <Card style={{ backgroundColor: '#95c2d7', borderRadius: '20px' }} className="h-100 d-flex flex-column">
             <Link to={`/products/${product.id}`}>
                 <Card.Img
@@ -29,7 +25,7 @@ const ProductCard = ({ product }) => {
                         {product.description}
                     </Card.Text>
                 </div>
-                {/* Этот блок будет заполнять пространство между описанием и нижней частью */}
+                {/* This block will fill the space between the description and the bottom part */}
                 <div className="flex-grow-1"></div>
                 <div>
                     <div className="d-flex justify-content-between align-items-center">
@@ -45,13 +41,12 @@ const ProductCard = ({ product }) => {
                                 roundedCircle
                                 style={{ width: '25px', height: '25px', marginRight: '3px' }}
                             />
-                            <span style={{ fontSize: '0.85rem' }}>До кошика</span>
+                            <span style={{ fontSize: '0.85rem' }}>Add to cart</span>
                         </button>
                     </div>
                 </div>
             </Card.Body>
         </Card>
-
     );
 }
 

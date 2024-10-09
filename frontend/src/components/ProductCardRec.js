@@ -25,7 +25,7 @@ const ProductCardRec = ({ product }) => {
                     </Link>
 
                 </div>
-                {/* Этот блок будет заполнять пространство между описанием и нижней частью */}
+                {/* This block will fill the space between the description and the bottom part */}
                 <div className="flex-grow-1"></div>
                 <div>
                 <div className="d-flex justify-content-between align-items-center">

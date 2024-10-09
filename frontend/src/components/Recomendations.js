@@ -40,9 +40,9 @@ const Recomendations = () => {
         <Container>
             <Row>
                 {visibleProducts.map((product) => (
-                    <Col 
-                        key={product.id} 
-                        xs={12} sm={6} md={4} lg={3} 
+                    <Col
+                        key={product.id}
+                        xs={12} sm={6} md={4} lg={3}
                         className="d-flex justify-content-center align-items-center p-3"
                     >
                         <ProductCardRec product={product} />

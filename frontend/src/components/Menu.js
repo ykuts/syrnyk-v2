@@ -6,9 +6,7 @@ import Image from 'react-bootstrap/esm/Image';
 import Form from 'react-bootstrap/Form';
 import '../custom.scss';
 
-
 import { useTranslation } from 'react-i18next';
-
 
 const Menu = () => {
     const { t, i18n } = useTranslation();
@@ -16,7 +14,7 @@ const Menu = () => {
     const [selectedValue, setSelectedValue] = useState('');
 
     useEffect(() => {
-        // Устанавливаем язык по умолчанию при загрузке компонента
+        // Set the default language when the component loads
         i18n.changeLanguage('ua');
     }, [i18n]);
 
@@ -29,11 +27,11 @@ const Menu = () => {
     return (
         <Navbar collapseOnSelect expand="lg" className="justify-content-between">
             <Container fluid>
-                {/* Тоггл перемещен влево на мобильных устройствах */}
+                {/* Toggle moved to the left on mobile devices */}
                 <Navbar.Toggle aria-controls="responsive-navbar-nav" className="" 
                 style={{ border: 'none', boxShadow: 'none', outline: 'none' }} />
-                {/* nav-account фиксирован справа, независимо от устройства */}
-                
+                {/* nav-account is fixed to the right, regardless of the device */}
+
                 <Nav className='icons ms-auto d-flex flex-row order-lg-4' id='nav-account'>
                     <Nav.Link href="#signeIn" className='p-2'>
                         <button className="custom-button round-button">
@@ -52,7 +50,7 @@ const Menu = () => {
                 </Nav>
                 <Navbar.Collapse id="responsive-navbar-nav" className="">
 
-                    {/* nav-links будет первым блоком в мобильной версии */}
+                    {/* nav-links will be the first block in the mobile version */}
                     <Nav className='links mx-auto order-lg-3 ' id='nav-links'>
                         <Nav.Link href="/" className="px-auto">
                             {t('menu.menu_top')}
@@ -65,7 +63,7 @@ const Menu = () => {
                         </Nav.Link>
                     </Nav>
 
-                    {/* nav-social будет вторым блоком в мобильной версии */}
+                    {/* nav-social will be the second block in the mobile version */}
                     <Nav className='select-lg d-flex flex-row justify-content-center order-lg-1' id='nav-social'>
                         <Nav.Link href="https://www.instagram.com/syrnyk.ch" className="px-auto">
                             <Image src="/assets/facebook.png"
@@ -77,7 +75,7 @@ const Menu = () => {
                         </Nav.Link>
                     </Nav>
 
-                    {/* nav-lang будет третьим блоком в мобильной версии */}
+                    {/* nav-lang will be the third block in the mobile version */}
                     <Nav className='select-lg me-auto order-lg-2 d-flex justify-content-center align-items-center' id='nav-lang'>
                         <Form.Select 
                         value={selectedValue}
@@ -93,8 +91,6 @@ const Menu = () => {
                 </Navbar.Collapse>
 
             </Container>
-            
-            
         </Navbar>
     );
 }

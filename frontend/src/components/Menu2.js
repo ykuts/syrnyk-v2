@@ -4,19 +4,22 @@ import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
 import Image from 'react-bootstrap/esm/Image';
 import Form from 'react-bootstrap/Form';
-import '../custom.scss';
-import Row from "react-bootstrap/esm/Row";
-import Col from "react-bootstrap/esm/Col";
-
+import Row from 'react-bootstrap/esm/Row';
+import Col from 'react-bootstrap/esm/Col';
+import Modal from 'react-bootstrap/Modal';
+import Button from 'react-bootstrap/Button';
+import ListGroup from 'react-bootstrap/ListGroup';
 import { useTranslation } from 'react-i18next';
+import '../custom.scss';
 
 const Menu2 = () => {
     const { t, i18n } = useTranslation();
-
     const [selectedValue, setSelectedValue] = useState('');
+    const [cartItems, setCartItems] = useState([]);
+    const [showCart, setShowCart] = useState(false);
 
     useEffect(() => {
-        // Set the default language when the component loads
+        // Устанавливаем язык по умолчанию при загрузке компонента
         i18n.changeLanguage('ua');
     }, [i18n]);
 
@@ -26,92 +29,149 @@ const Menu2 = () => {
         i18n.changeLanguage(newLanguage);
     };
 
+    const addToCart = (product) => {
+        setCartItems(prevItems => {
+            const existingItem = prevItems.find(item => item.id === product.id);
+            if (existingItem) {
+                return prevItems.map(item =>
+                    item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
+                );
+            } else {
+                return [...prevItems, { ...product, quantity: 1 }];
+            }
+        });
+    };
+
+    const updateCartItem = (product, quantity) => {
+        setCartItems(prevItems => 
+            prevItems.map(item => 
+                item.id === product.id ? { ...item, quantity: Math.max(quantity, 0) } : item
+            ).filter(item => item.quantity > 0)
+        );
+    };
+
+    const removeFromCart = (product) => {
+        setCartItems(prevItems => prevItems.filter(item => item.id !== product.id));
+    };
+
+    const totalPrice = cartItems.reduce((total, item) => total + item.price * item.quantity, 0);
+
+    const handleShowCart = () => setShowCart(true);
+    const handleCloseCart = () => setShowCart(false);
+
     return (
-        <Navbar collapseOnSelect expand="lg" className="justify-content-between">
-            <Container fluid>
-                {/* Toggle for mobile devices */}
-                <Navbar.Toggle aria-controls="responsive-navbar-nav" 
-                style={{ border: 'none', boxShadow: 'none', outline: 'none' }} />
-                
-                {/* Profile and cart section */}
-                <Nav className='icons ms-auto d-flex flex-row align-self-start order-lg-4' id='nav-account'>
-                    <Nav.Link href="#signeIn" className='p-2'>
-                        <button className="custom-button round-button">
-                            <Image src="/assets/account.png" roundedCircle
-                                style={{ width: '30px', height: '30px' }} />
-                            <span className="profile-text">{t('buttons.profile')}</span>
-                        </button>
-                    </Nav.Link>
-                    <Nav.Link eventKey={2} href="#cart">
-                        <button className="custom-button round-button">
-                            <Image src="/assets/cart.png" roundedCircle
-                                style={{ width: '30px', height: '30px' }} />
-                            <span className="profile-text">{t('buttons.cart')}</span>
-                        </button>
-                    </Nav.Link>
-                </Nav>
-
-                {/* Collapsible items */}
-                <Navbar.Collapse id="responsive-navbar-nav" className='align-items-baseline'>
-                    {/* Navigation links */}
-                    <Nav className='links mx-auto  order-lg-3 flex-column '>
-                        <Row className="justify-content-md-center">
-                            <Col md="auto">
-                                <Nav.Link href="/" className="text-center">
-                                    {t('menu.menu_top')}
-                                </Nav.Link>
-                            </Col>
-                            <Col md="auto">
-                                <Nav.Link href="#delivery" className="text-center">
-                                    {t('menu.delivery')}
-                                </Nav.Link>
-                            </Col>
-                            <Col md="auto">
-                                <Nav.Link href="#about" className="text-center">
-                                    {t('menu.about_us')}
-                                </Nav.Link>
-                            </Col>
-                        </Row>
-                        <Row className="d-none d-lg-block">
-                            <Col md="auto">
-                                <Image src="/assets/logo2.png" alt="logo" fluid className='logo-header' />
-                            </Col>
-                        </Row>
-                    </Nav>
-
-                    {/* Social icons */}
-                    <Nav className='select-lg d-flex flex-row justify-content-center order-lg-1'>
-                        <Nav.Link href="https://www.instagram.com/syrnyk.ch">
-                            <Image src="/assets/facebook.png"
-                                style={{ width: '40px', height: '40px' }} />
+        <>
+            <Navbar collapseOnSelect expand="lg" className="justify-content-between">
+                <Container fluid>
+                    <Navbar.Toggle aria-controls="responsive-navbar-nav"
+                        style={{ border: 'none', boxShadow: 'none', outline: 'none' }} />
+                    
+                    <Nav className='icons ms-auto d-flex flex-row align-self-start order-lg-4' id='nav-account'>
+                        <Nav.Link href="#signeIn" className='p-2'>
+                            <button className="custom-button round-button">
+                                <Image src="/assets/account.png" roundedCircle
+                                    style={{ width: '30px', height: '30px' }} />
+                                <span className="profile-text">{t('buttons.profile')}</span>
+                            </button>
                         </Nav.Link>
-                        <Nav.Link href="https://www.instagram.com/syrnyk.ch">
-                            <Image src="/assets/instagram.png"
-                                style={{ width: '40px', height: '40px' }} />
+                        <Nav.Link eventKey={2} onClick={handleShowCart}>
+                            <button className="custom-button round-button">
+                                <Image src="/assets/cart.png" roundedCircle
+                                    style={{ width: '30px', height: '30px' }} />
+                                <span className="profile-text">{t('buttons.cart')} ({cartItems.length})</span>
+                            </button>
                         </Nav.Link>
                     </Nav>
 
-                    {/* Language selection */}
-                    <Nav className='select-lg me-auto order-lg-2 d-flex justify-content-center align-items-center'>
-                        <Form.Select 
-                            value={selectedValue}
-                            onChange={handleChange}
-                            style={{ width: 'auto' }}
-                            className="text-center">
-                            <option value="ua">UA</option>
-                            <option value="en">EN</option>
-                            <option value="fr">FR</option>
-                        </Form.Select>
-                    </Nav>
-                </Navbar.Collapse>
-                <Row className="d-lg-none ">
-                    <Col md="auto">
-                        <Image src="/assets/logo2.png" alt="logo" fluid className='logo-header' />
-                    </Col>
-                </Row>
-            </Container>
-        </Navbar>
+                    <Navbar.Collapse id="responsive-navbar-nav" className='align-items-baseline'>
+                        <Nav className='links mx-auto order-lg-3 flex-column'>
+                            <Row className="justify-content-md-center">
+                                <Col md="auto">
+                                    <Nav.Link href="/" className="text-center">
+                                        {t('menu.menu_top')}
+                                    </Nav.Link>
+                                </Col>
+                                <Col md="auto">
+                                    <Nav.Link href="#delivery" className="text-center">
+                                        {t('menu.delivery')}
+                                    </Nav.Link>
+                                </Col>
+                                <Col md="auto">
+                                    <Nav.Link href="#about" className="text-center">
+                                        {t('menu.about_us')}
+                                    </Nav.Link>
+                                </Col>
+                            </Row>
+                            <Row className="d-none d-lg-block">
+                                <Col md="auto">
+                                    <Image src="/assets/logo2.png" alt="logo" fluid className='logo-header' />
+                                </Col>
+                            </Row>
+                        </Nav>
+
+                        <Nav className='select-lg d-flex flex-row justify-content-center order-lg-1'>
+                            <Nav.Link href="https://www.instagram.com/syrnyk.ch">
+                                <Image src="/assets/facebook.png" style={{ width: '40px', height: '40px' }} />
+                            </Nav.Link>
+                            <Nav.Link href="https://www.instagram.com/syrnyk.ch">
+                                <Image src="/assets/instagram.png" style={{ width: '40px', height: '40px' }} />
+                            </Nav.Link>
+                        </Nav>
+
+                        <Nav className='select-lg me-auto order-lg-2 d-flex justify-content-center align-items-center'>
+                            <Form.Select value={selectedValue} onChange={handleChange} style={{ width: 'auto' }} className="text-center">
+                                <option value="ua">UA</option>
+                                <option value="en">EN</option>
+                                <option value="fr">FR</option>
+                            </Form.Select>
+                        </Nav>
+                    </Navbar.Collapse>
+                    <Row className="d-lg-none">
+                        <Col md="auto">
+                            <Image src="/assets/logo2.png" alt="logo" fluid className='logo-header' />
+                        </Col>
+                    </Row>
+                </Container>
+            </Navbar>
+
+            {/* Modal for Shopping Cart */}
+            <Modal show={showCart} onHide={handleCloseCart}>
+                <Modal.Header closeButton>
+                    <Modal.Title>{t('buttons.cart')}</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    {cartItems.length === 0 ? (
+                        <p>{t('cart.empty')}</p>
+                    ) : (
+                        <ListGroup>
+                            {cartItems.map(item => (
+                                <ListGroup.Item key={item.id}>
+                                    <div className="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <h5>{item.title}</h5>
+                                            <p>{item.price} CHF x {item.quantity}</p>
+                                        </div>
+                                        <div>
+                                            <Button variant="light" onClick={() => updateCartItem(item, item.quantity - 1)}>-</Button>
+                                            <span className="mx-2">{item.quantity}</span>
+                                            <Button variant="light" onClick={() => updateCartItem(item, item.quantity + 1)}>+</Button>
+                                            <Button variant="danger" className="ml-2" onClick={() => removeFromCart(item)}>
+                                                {t('cart.remove')}
+                                            </Button>
+                                        </div>
+                                    </div>
+                                </ListGroup.Item>
+                            ))}
+                        </ListGroup>
+                    )}
+                </Modal.Body>
+                <Modal.Footer>
+                    <h5>{t('cart.total')}: {totalPrice.toFixed(2)} CHF</h5>
+                    <Button variant="success" onClick={handleCloseCart}>{t('cart.checkout')}</Button>
+                </Modal.Footer>
+            </Modal>
+        </>
     );
-}
+};
 
 export default Menu2;

@@ -1,0 +1,192 @@
+// This is your Prisma schema file
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// User model
+model User {
+  id           Int        @id @default(autoincrement())
+  firstName    String     
+  lastName     String     
+  email        String     @unique
+  phone        String?    
+  role         UserRole   @default(CLIENT)  // Added default value
+  password     String     
+  isActive     Boolean    @default(true)    // Added status flag
+  tokens       Token[]    
+  preferredDeliveryLocation String?  
+  orders       Order[]    
+  cart         Cart?      
+  reviews      Review[]   // Added relation to reviews
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  @@index([email])  // Added index for email searches
+}
+
+model Token {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token     String   @unique  // Added unique constraint
+  type      TokenType // Added token type
+  createdAt DateTime @default(now())
+  expiresAt DateTime
+
+  @@index([token])  // Added index for token searches
+}
+
+enum TokenType {
+  ACCESS
+  REFRESH
+  RESET_PASSWORD
+}
+
+enum UserRole {
+  ADMIN
+  CLIENT
+}
+
+// Added Address model for multiple delivery addresses
+model Address {
+  id          Int      @id @default(autoincrement())
+  city        String
+  station     String?
+  orders      Order[]  // Added relation to orders
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+}
+
+// Added Order model
+model Order {
+  id              Int         @id @default(autoincrement())
+  userId          Int
+  user            User        @relation(fields: [userId], references: [id])
+  addressId       Int
+  address         Address     @relation(fields: [addressId], references: [id])
+  status          OrderStatus @default(PENDING)
+  items           OrderItem[]
+  totalAmount     Decimal     @db.Decimal(10, 2)
+  paymentStatus   PaymentStatus @default(PENDING)
+  paymentMethod   PaymentMethod?
+  discount        Decimal?    @db.Decimal(10, 2)
+  trackingNumber  String?
+  notes           String?
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  @@index([userId])
+  @@index([status])
+}
+
+// Added OrderItem model
+model OrderItem {
+  id        Int      @id @default(autoincrement())
+  orderId   Int
+  order     Order    @relation(fields: [orderId], references: [id])
+  productId Int
+  product   Product  @relation(fields: [productId], references: [id])
+  quantity  Int
+  price     Decimal  @db.Decimal(10, 2)
+  
+  @@index([orderId])
+  @@index([productId])
+}
+
+// Added Product model
+model Product {
+  id          Int         @id @default(autoincrement())
+  name        String
+  description String
+  price       Decimal     @db.Decimal(10, 2)
+  stock       Int         @default(0)
+  categoryId  Int
+  category    Category    @relation(fields: [categoryId], references: [id])
+  images      String[]    // Array of image URLs
+  isActive    Boolean     @default(true)
+  orderItems  OrderItem[]
+  cartItems   CartItem[]
+  reviews     Review[]
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  @@index([categoryId])
+  @@index([name])
+}
+
+// Added Category model
+model Category {
+  id          Int       @id @default(autoincrement())
+  name        String    @unique
+  description String?
+  products    Product[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+// Added Cart model
+model Cart {
+  id        Int        @id @default(autoincrement())
+  userId    Int        @unique
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items     CartItem[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+}
+
+// Added CartItem model
+model CartItem {
+  id        Int      @id @default(autoincrement())
+  cartId    Int
+  cart      Cart     @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  productId Int
+  product   Product  @relation(fields: [productId], references: [id])
+  quantity  Int
+
+  @@index([cartId])
+  @@index([productId])
+}
+
+// Added Review model
+model Review {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+  productId Int
+  product   Product  @relation(fields: [productId], references: [id])
+  rating    Int      @db.SmallInt
+  comment   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([productId])
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  DELIVERED
+  CANCELLED
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  REFUNDED
+}
+
+enum PaymentMethod {
+  CREDIT_CARD
+  DEBIT_CARD
+  BANK_TRANSFER
+  TWINT
+  CASH
+}

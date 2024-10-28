@@ -1,0 +1,219 @@
+import React, { useState } from 'react';
+import './App.css';
+
+const Header = ({ cartCount }) => {
+    return (
+        <header className="header">
+            <div>
+                <a href="#"><img src="https://via.placeholder.com/20" alt="Instagram" /></a>
+                <a href="#"><img src="https://via.placeholder.com/20" alt="Facebook" /></a>
+                <a href="#">FR UA</a>
+            </div>
+            <div className="logo">
+                <img src="https://via.placeholder.com/100" alt="SYRNYK Handmade" />
+            </div>
+            <div>
+                <a href="#">Меню</a>
+                <a href="#">Доставка</a>
+                <a href="#">Про нас</a>
+                <button>Профіль</button>
+                <button>Кошик {cartCount > 0 && <span className="cart-count">({cartCount})</span>}</button>
+            </div>
+        </header>
+    );
+};
+
+const ProductCard = ({ title, price, imageUrl, onAddToCart, onRemoveFromCart, cartItems }) => {
+    const [quantity, setQuantity] = useState(0);
+
+    const handleAddClick = () => {
+        setQuantity(quantity + 1);
+        onAddToCart();
+    };
+
+    const handleRemoveClick = () => {
+        if (quantity > 0) {
+            setQuantity(quantity - 1);
+            onRemoveFromCart();
+        }
+    };
+
+    return (
+        <div className="product-card">
+            <img src={imageUrl} alt="Product Image" />
+            <div className="info">
+                <div className="title">{title}</div>
+                <div className="price">{price}</div>
+                {quantity === 0 ? (
+                    <button onClick={handleAddClick}>До кошика</button>
+                ) : (
+                    <div className="quantity-controls">
+                        <button onClick={handleRemoveClick}>-</button>
+                        <span>{quantity}</span>
+                        <button onClick={handleAddClick}>+</button>
+                    </div>
+                )}
+            </div>
+        </div>
+    );
+};
+
+const ProductContainer = ({ onAddToCart, onRemoveFromCart, cartItems }) => {
+    const products = [
+        { title: "Голубці з м'ясом", price: "30 CHF / 1 кг", imageUrl: "https://via.placeholder.com/200" },
+        { title: "Голубці з м'ясом", price: "30 CHF / 1 кг", imageUrl: "https://via.placeholder.com/200" },
+        { title: "Голубці з м'ясом", price: "30 CHF / 1 кг", imageUrl: "https://via.placeholder.com/200" }
+    ];
+
+    return (
+        <div className="product-container">
+            {products.map((product, index) => (
+                <ProductCard
+                    key={index}
+                    title={product.title}
+                    price={product.price}
+                    imageUrl={product.imageUrl}
+                    onAddToCart={onAddToCart}
+                    onRemoveFromCart={onRemoveFromCart}
+                    cartItems={cartItems}
+                />
+            ))}
+        </div>
+    );
+};
+
+const App = () => {
+    const [cartCount, setCartCount] = useState(0);
+
+    const handleAddToCart = () => {
+        setCartCount(cartCount + 1);
+    };
+
+    const handleRemoveFromCart = () => {
+        if (cartCount > 0) {
+            setCartCount(cartCount - 1);
+        }
+    };
+
+    return (
+        <div>
+            <Header cartCount={cartCount} />
+            <div className="milk-drip"></div>
+            <ProductContainer 
+                onAddToCart={handleAddToCart} 
+                onRemoveFromCart={handleRemoveFromCart} 
+                cartItems={cartCount} 
+            />
+        </div>
+    );
+};
+
+export default App;
+
+/* CSS (App.css) */
+
+body {
+    font-family: 'Open Sans', sans-serif;
+    background-color: #f0f4f8;
+    margin: 0;
+    padding: 0;
+}
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    background-color: #ffffff;
+}
+.header .logo {
+    text-align: center;
+}
+.header a {
+    margin: 0 10px;
+    text-decoration: none;
+    color: #333;
+    font-weight: bold;
+}
+.cart-count {
+    background-color: #ff8800;
+    color: white;
+    border-radius: 50%;
+    padding: 2px 8px;
+    margin-left: 5px;
+}
+.milk-drip {
+    background-color: #add8e6;
+    height: 100px;
+    position: relative;
+    z-index: 1;
+}
+.milk-drip::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    height: 150px;
+    background: url('https://image-placeholder-for-drip.com') no-repeat;
+    background-size: cover;
+}
+.product-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    padding: 40px 20px;
+}
+.product-card {
+    background-color: #ffffff;
+    border-radius: 10px;
+    width: 200px;
+    margin: 20px;
+    overflow: hidden;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+.product-card img {
+    width: 100%;
+    height: auto;
+}
+.product-card .info {
+    padding: 15px;
+    text-align: center;
+}
+.product-card .info .title {
+    font-size: 1.2em;
+    margin-bottom: 10px;
+}
+.product-card .info .price {
+    font-size: 1em;
+    color: #444;
+}
+.product-card button {
+    margin-top: 10px;
+    padding: 10px 20px;
+    border: none;
+    background-color: #ff8800;
+    color: white;
+    border-radius: 5px;
+    cursor: pointer;
+}
+.product-card button:hover {
+    background-color: #ff6600;
+}
+.quantity-controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin-top: 10px;
+}
+.quantity-controls button {
+    padding: 5px 10px;
+    border: none;
+    background-color: #ff8800;
+    color: white;
+    border-radius: 5px;
+    cursor: pointer;
+}
+.quantity-controls button:hover {
+    background-color: #ff6600;
+}

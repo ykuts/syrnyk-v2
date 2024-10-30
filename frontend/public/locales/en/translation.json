@@ -8,5 +8,12 @@
     "buttons": {
         "profile": "Profile",
         "cart": "Cart"
+    },
+
+    "cart": {
+        "empty": "Your cart is empty",
+        "remove": "Delete",
+        "total": "Total",
+        "checkout": "Checkout"
     }
 }

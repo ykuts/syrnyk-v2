@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import Container from 'react-bootstrap/Container';
 import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
@@ -10,16 +10,27 @@ import Modal from 'react-bootstrap/Modal';
 import Button from 'react-bootstrap/Button';
 import ListGroup from 'react-bootstrap/ListGroup';
 import { useTranslation } from 'react-i18next';
+/* import { useNavigate } from 'react-router-dom'; */
+import LoginForm from './LoginForm';
 import '../custom.scss';
+import { CartContext } from '../context/CartContext';
 
 const Menu2 = () => {
     const { t, i18n } = useTranslation();
     const [selectedValue, setSelectedValue] = useState('');
-    const [cartItems, setCartItems] = useState([]);
+
+    const [showLogin, setShowLogin] = useState(false); // to display Modal
+    /* const navigate = useNavigate(); */
+
+
+    const { cartItems, removeFromCart, totalItems, totalPrice, addOneToCart, removeAllFromCart } = useContext(CartContext);
     const [showCart, setShowCart] = useState(false);
 
+    const handleCloseCart = () => setShowCart(false);
+
+
     useEffect(() => {
-        // Устанавливаем язык по умолчанию при загрузке компонента
+        // Set default language
         i18n.changeLanguage('ua');
     }, [i18n]);
 
@@ -29,55 +40,24 @@ const Menu2 = () => {
         i18n.changeLanguage(newLanguage);
     };
 
-    const addToCart = (product) => {
-        setCartItems(prevItems => {
-            const existingItem = prevItems.find(item => item.id === product.id);
-            if (existingItem) {
-                return prevItems.map(item =>
-                    item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
-                );
-            } else {
-                return [...prevItems, { ...product, quantity: 1 }];
-            }
-        });
-    };
-
-    const updateCartItem = (product, quantity) => {
-        setCartItems(prevItems => 
-            prevItems.map(item => 
-                item.id === product.id ? { ...item, quantity: Math.max(quantity, 0) } : item
-            ).filter(item => item.quantity > 0)
-        );
-    };
-
-    const removeFromCart = (product) => {
-        setCartItems(prevItems => prevItems.filter(item => item.id !== product.id));
-    };
-
-    const totalPrice = cartItems.reduce((total, item) => total + item.price * item.quantity, 0);
-
-    const handleShowCart = () => setShowCart(true);
-    const handleCloseCart = () => setShowCart(false);
-
     return (
         <>
             <Navbar collapseOnSelect expand="lg" className="justify-content-between">
                 <Container fluid>
                     <Navbar.Toggle aria-controls="responsive-navbar-nav"
                         style={{ border: 'none', boxShadow: 'none', outline: 'none' }} />
-                    
+
                     <Nav className='icons ms-auto d-flex flex-row align-self-start order-lg-4' id='nav-account'>
-                        <Nav.Link href="#signeIn" className='p-2'>
-                            <button className="custom-button round-button">
+                        <Nav.Link className='p-2'>
+                            <button className="custom-button round-button" onClick={() => setShowLogin(true)}>
                                 <Image src="/assets/account.png" roundedCircle
                                     style={{ width: '30px', height: '30px' }} />
                                 <span className="profile-text">{t('buttons.profile')}</span>
                             </button>
                         </Nav.Link>
-                        <Nav.Link eventKey={2} onClick={handleShowCart}>
+                        <Nav.Link eventKey={2} onClick={() => setShowCart(true)}>
                             <button className="custom-button round-button">
-                                <Image src="/assets/cart.png" roundedCircle
-                                    style={{ width: '30px', height: '30px' }} />
+                                <Image src="/assets/cart.png" roundedCircle style={{ width: '30px', height: '30px' }} />
                                 <span className="profile-text">{t('buttons.cart')} ({cartItems.length})</span>
                             </button>
                         </Nav.Link>
@@ -134,6 +114,7 @@ const Menu2 = () => {
                 </Container>
             </Navbar>
 
+
             {/* Modal for Shopping Cart */}
             <Modal show={showCart} onHide={handleCloseCart}>
                 <Modal.Header closeButton>
@@ -152,10 +133,10 @@ const Menu2 = () => {
                                             <p>{item.price} CHF x {item.quantity}</p>
                                         </div>
                                         <div>
-                                            <Button variant="light" onClick={() => updateCartItem(item, item.quantity - 1)}>-</Button>
+                                            <Button variant="light" onClick={() => removeFromCart(item.id)}>-</Button>
                                             <span className="mx-2">{item.quantity}</span>
-                                            <Button variant="light" onClick={() => updateCartItem(item, item.quantity + 1)}>+</Button>
-                                            <Button variant="danger" className="ml-2" onClick={() => removeFromCart(item)}>
+                                            <Button variant="light" onClick={() => addOneToCart(item.id)}>+</Button>
+                                            <Button variant="danger" className="ml-2" onClick={() => removeAllFromCart(item.id)}>
                                                 {t('cart.remove')}
                                             </Button>
                                         </div>
@@ -167,8 +148,19 @@ const Menu2 = () => {
                 </Modal.Body>
                 <Modal.Footer>
                     <h5>{t('cart.total')}: {totalPrice.toFixed(2)} CHF</h5>
-                    <Button variant="success" onClick={handleCloseCart}>{t('cart.checkout')}</Button>
+                    {/* <h5>{totalItems}</h5> */}
+                    <Button variant="success" onClick={() => setShowCart(false)}>{t('cart.checkout')}</Button>
                 </Modal.Footer>
+            </Modal>
+
+            {/* Modal for Login form */}
+            <Modal show={showLogin} onHide={() => setShowLogin(false)} centered>
+                <Modal.Header closeButton>
+                    <Modal.Title>Увійти</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <LoginForm closeModal={() => setShowLogin(false)} />
+                </Modal.Body>
             </Modal>
         </>
     );

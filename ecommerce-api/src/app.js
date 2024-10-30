@@ -5,10 +5,18 @@ import productRoutes from './routes/productRoutes.js';
 import cartRoutes from './routes/cartRoutes.js';
 import categoryRoutes from './routes/categoryRoutes.js';
 import addressRoutes from './routes/addressRoutes.js';
+import cors from 'cors';
 
 const app = express();
 
 app.use(express.json()); // Middleware for parsing JSON
+
+// CORS to allow requests from localhost:3000
+app.use(cors({
+  origin: 'http://localhost:3000',
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
 
 // Use routes
 app.use('/api/users', userRoutes);

@@ -71,6 +71,7 @@ export const registerUser = async (req, res) => {
         createdAt: true,
         // Explicitly exclude password from response
         password: false,
+        role: true,
       },
     });
 
@@ -119,6 +120,7 @@ export const loginUser = async (req, res) => {
         email: true,
         password: true,
         phone: true,
+        role: true,
       },
     });
 
@@ -182,6 +184,7 @@ export const getUserProfile = async (req, res) => {
         phone: true,
         createdAt: true,
         password: false,
+        role: true,
       },
     });
 

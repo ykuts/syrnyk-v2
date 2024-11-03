@@ -10,7 +10,7 @@ import Modal from 'react-bootstrap/Modal';
 import Button from 'react-bootstrap/Button';
 import ListGroup from 'react-bootstrap/ListGroup';
 import { useTranslation } from 'react-i18next';
-/* import { useNavigate } from 'react-router-dom'; */
+import { useNavigate } from 'react-router-dom'; 
 import LoginForm from './LoginForm';
 import '../custom.scss';
 import { CartContext } from '../context/CartContext';
@@ -20,13 +20,21 @@ const Menu2 = () => {
     const [selectedValue, setSelectedValue] = useState('');
 
     const [showLogin, setShowLogin] = useState(false); // to display Modal
-    /* const navigate = useNavigate(); */
 
 
     const { cartItems, removeFromCart, totalItems, totalPrice, addOneToCart, removeAllFromCart } = useContext(CartContext);
     const [showCart, setShowCart] = useState(false);
 
     const handleCloseCart = () => setShowCart(false);
+
+    const navigate = useNavigate(); // Хук для навигации
+
+    const handleCheckout = () => {
+        // Закрываем модальное окно корзины
+        setShowCart(false);
+        // Перенаправляем на страницу оформления заказа
+        navigate('/checkout');
+    };
 
 
     useEffect(() => {
@@ -149,7 +157,11 @@ const Menu2 = () => {
                 <Modal.Footer>
                     <h5>{t('cart.total')}: {totalPrice.toFixed(2)} CHF</h5>
                     {/* <h5>{totalItems}</h5> */}
-                    <Button variant="success" onClick={() => setShowCart(false)}>{t('cart.checkout')}</Button>
+                    <Button variant="success" 
+                        onClick={handleCheckout}
+                        disabled={cartItems.length === 0}>
+                            {t('cart.checkout')}
+                    </Button>
                 </Modal.Footer>
             </Modal>
 

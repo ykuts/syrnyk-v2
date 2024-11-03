@@ -1,0 +1,62 @@
+.login-modal .modal-content {
+    border-radius: 15px;
+    border: none;
+    box-shadow: 0 0 20px rgba(0,0,0,0.1);
+  }
+  
+  .login-modal .modal-header {
+    border-bottom: none;
+    padding: 1.5rem 1.5rem 0.5rem;
+  }
+  
+  .login-modal .modal-title {
+    font-weight: 600;
+    font-size: 1.5rem;
+  }
+  
+  .login-modal .modal-body {
+    padding: 1.5rem;
+  }
+  
+  .form-control {
+    border: 1.5px solid #dee2e6;
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+  }
+  
+  .form-control:focus {
+    box-shadow: 0 0 0 0.25rem rgba(13,110,253,0.15);
+    border-color: #0d6efd;
+  }
+  
+  .input-group-text {
+    background-color: transparent;
+    border: 1.5px solid #dee2e6;
+    border-left: none;
+  }
+  
+  .custom-checkbox .form-check-input:checked {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+  }
+  
+  .btn-primary {
+    background-color: #0d6efd;
+    border: none;
+    font-weight: 500;
+    transition: background-color 0.2s ease;
+  }
+  
+  .btn-primary:hover {
+    background-color: #0b5ed7;
+  }
+  
+  .close {
+    font-size: 1.5rem;
+    opacity: 0.5;
+    transition: opacity 0.2s ease;
+  }
+  
+  .close:hover {
+    opacity: 1;
+  }

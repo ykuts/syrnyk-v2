@@ -11,6 +11,7 @@ import ClientPage from './components/ClientPage';
 import AdminPage from './components/AdminPage';
 import Register from './components/Register';
 import { CartProvider } from './context/CartContext';
+import CheckoutPage from './components/ChackoutPage';
 
 
 
@@ -37,6 +38,7 @@ function App() {
         <Route path="/client" element={<ClientPage />} />
         <Route path="/admin" element={<AdminPage />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/checkout" element={<CheckoutPage />} />
             <Route path="*" element={<NotFound />} />
         </Routes>
         <Footer/>

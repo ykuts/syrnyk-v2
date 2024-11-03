@@ -22,7 +22,7 @@ const Menu2 = () => {
     const [showLogin, setShowLogin] = useState(false); // to display Modal
 
 
-    const { cartItems, removeFromCart, totalItems, totalPrice, addOneToCart, removeAllFromCart } = useContext(CartContext);
+    const { cartItems, removeFromCart, totalPrice, addOneToCart, removeAllFromCart } = useContext(CartContext);
     const [showCart, setShowCart] = useState(false);
 
     const handleCloseCart = () => setShowCart(false);

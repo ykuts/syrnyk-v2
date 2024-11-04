@@ -14,6 +14,7 @@ import { useNavigate } from 'react-router-dom';
 import LoginForm from './LoginForm';
 import '../custom.scss';
 import { CartContext } from '../context/CartContext';
+import { Trash } from "lucide-react";
 
 const Menu2 = () => {
     const { t, i18n } = useTranslation();
@@ -124,46 +125,66 @@ const Menu2 = () => {
 
 
             {/* Modal for Shopping Cart */}
-            <Modal show={showCart} onHide={handleCloseCart}>
-                <Modal.Header closeButton>
-                    <Modal.Title>{t('buttons.cart')}</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                    {cartItems.length === 0 ? (
-                        <p>{t('cart.empty')}</p>
-                    ) : (
-                        <ListGroup>
-                            {cartItems.map(item => (
-                                <ListGroup.Item key={item.id}>
-                                    <div className="d-flex justify-content-between align-items-center">
-                                        <div>
-                                            <h5>{item.title}</h5>
-                                            <p>{item.price} CHF x {item.quantity}</p>
-                                        </div>
-                                        <div>
-                                            <Button variant="light" onClick={() => removeFromCart(item.id)}>-</Button>
-                                            <span className="mx-2">{item.quantity}</span>
-                                            <Button variant="light" onClick={() => addOneToCart(item.id)}>+</Button>
-                                            <Button variant="danger" className="ml-2" onClick={() => removeAllFromCart(item.id)}>
-                                                {t('cart.remove')}
-                                            </Button>
-                                        </div>
-                                    </div>
-                                </ListGroup.Item>
-                            ))}
-                        </ListGroup>
-                    )}
-                </Modal.Body>
-                <Modal.Footer>
-                    <h5>{t('cart.total')}: {totalPrice.toFixed(2)} CHF</h5>
-                    {/* <h5>{totalItems}</h5> */}
-                    <Button variant="success" 
-                        onClick={handleCheckout}
-                        disabled={cartItems.length === 0}>
-                            {t('cart.checkout')}
-                    </Button>
-                </Modal.Footer>
-            </Modal>
+<Modal show={showCart} onHide={handleCloseCart}>
+    <Modal.Header closeButton>
+        <Modal.Title>{t('buttons.cart')}</Modal.Title>
+    </Modal.Header>
+    <Modal.Body>
+        {cartItems.length === 0 ? (
+            <p>{t('cart.empty')}</p>
+        ) : (
+            <ListGroup>
+                {cartItems.map(item => (
+                    <ListGroup.Item key={item.id}>
+                        <div className="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h5>{item.title}</h5>
+                                <p>{item.price} CHF x {item.quantity}</p>
+                            </div>
+                            <div>
+                                <Button variant="light" onClick={() => removeFromCart(item.id)}>-</Button>
+                                <span className="mx-2">{item.quantity}</span>
+                                <Button variant="light" onClick={() => addOneToCart(item.id)}>+</Button>
+                                <Button 
+                                    variant="danger" 
+                                    className="ml-2" 
+                                    onClick={() => removeAllFromCart(item.id)}
+                                >
+                                    <Trash size={16} />
+                                </Button>
+                            </div>
+                        </div>
+                    </ListGroup.Item>
+                ))}
+            </ListGroup>
+        )}
+    </Modal.Body>
+    <Modal.Footer>
+        <div className="d-flex justify-content-between w-100">
+            <div className='w-30' style={{ width: '30%' }}>
+            <Button variant="secondary" onClick={handleCloseCart}>
+                {t('cart.continueShopping')}
+            </Button>
+            </div>
+            <div className="d-flex align-items-center gap-3 flex-column">
+                <h5 className="mb-0">{t('cart.total')}: </h5>
+                <h6 className="mb-0">{totalPrice.toFixed(2)} CHF</h6>
+            </div>
+
+            <div className='w-30' style={{ width: '30%' }}>
+
+                <Button 
+                    variant="success"
+                    onClick={handleCheckout}
+                    disabled={cartItems.length === 0}
+                >
+                    {t('cart.checkout')}
+                </Button>
+                </div>
+            
+        </div>
+    </Modal.Footer>
+</Modal>
 
             {/* Modal for Login form */}
             <Modal show={showLogin} onHide={() => setShowLogin(false)} centered>

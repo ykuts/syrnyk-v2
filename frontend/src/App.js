@@ -8,7 +8,12 @@ import ScrollToTop from './components/ScrollToTop';
 import Menu2 from './components/Menu2';
 import Profile from './components/Profile';
 import ClientPage from './components/ClientPage';
-import AdminPage from './components/AdminPage';
+import AdminDashboard from './components/admin/AdminDashboard';
+import OrdersPanel from './components/admin/panels/OrdersPanel';
+import CustomersPanel from './components/admin/panels/CustomersPanel';
+import ProductsPanel from './components/admin/panels/ProductsPanel';
+import ReportsPanel from './components/admin/panels/ReportsPanel';
+import { Navigate } from 'react-router-dom';
 import Register from './components/Register';
 import { CartProvider } from './context/CartContext';
 import CheckoutPage from './components/ChackoutPage';
@@ -36,7 +41,14 @@ function App() {
             {/* <Route path="/delivery" element={<DeliveryDetails />} /> */}
             <Route path="/profile" element={<Profile />} />
         <Route path="/client" element={<ClientPage />} />
-        <Route path="/admin" element={<AdminPage />} />
+        {/* Админ маршруты */}
+      <Route path="/admin" element={<AdminDashboard />}>
+        <Route index element={<Navigate to="/admin/orders" replace />} />
+        <Route path="orders" element={<OrdersPanel />} />
+        <Route path="customers" element={<CustomersPanel />} />
+        <Route path="products" element={<ProductsPanel />} />
+        <Route path="reports" element={<ReportsPanel />} />
+      </Route>
         <Route path="/register" element={<Register />} />
         <Route path="/checkout" element={<CheckoutPage />} />
             <Route path="*" element={<NotFound />} />

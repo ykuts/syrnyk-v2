@@ -1,5 +1,7 @@
 import React, { useState, useContext} from 'react';
 import { CartContext } from '../context/CartContext'; 
+import { Form, Row, Col, Button, Alert } from 'react-bootstrap';
+import { Container, Table } from 'react-bootstrap';
 
 const CheckoutPage = () => {
   const { cartItems, totalPrice } = useContext(CartContext);
@@ -12,7 +14,6 @@ const CheckoutPage = () => {
     phone: '',
     address: '',
     city: '',
-    zipCode: '',
     paymentMethod: 'card',
     deliveryMethod: 'standard',
     notes: ''
@@ -34,7 +35,7 @@ const CheckoutPage = () => {
 
   // Валидация формы
   const validateForm = () => {
-    const requiredFields = ['firstName', 'lastName', 'email', 'phone', 'address', 'city', 'zipCode'];
+    const requiredFields = ['firstName', 'lastName', 'email', 'phone', 'address', 'city'];
     return requiredFields.every(field => formData[field].trim() !== '');
   };
 
@@ -107,135 +108,185 @@ const CheckoutPage = () => {
       <h1 className="text-3xl font-bold mb-6">Оформлення замовлення</h1>
       
       {/* Список товаров */}
-      <div className="mb-6">
-        <h2 className="text-xl font-semibold mb-4">Ваші товари:</h2>
-        {cartItems.map(item => (
-          <div key={item.id} className="flex justify-between border-b py-2">
-            <span>{item.title}</span>
-            <span>{item.quantity} x {item.price} CHF</span>
-          </div>
-        ))}
-        <div className="font-bold text-xl mt-4">
-          Всього: {totalPrice} CHF
-        </div>
-      </div>
+      <Container>
+      <div className="mb-4">
+      <h2 className="h4 mb-3">Ваші товари:</h2>
+      <Table striped bordered hover>
+        <thead>
+          <tr>
+            <th>Назва товару</th>
+            <th className="text-center">Кількість</th>
+            <th className="text-end">Ціна</th>
+            <th className="text-end">Сума</th>
+          </tr>
+        </thead>
+        <tbody>
+          {cartItems.map(item => (
+            <tr key={item.id}>
+              <td>{item.title}</td>
+              <td className="text-center">{item.quantity}</td>
+              <td className="text-end">{item.price.toFixed(2)} CHF</td>
+              <td className="text-end">{(item.quantity * item.price).toFixed(2)} CHF</td>
+            </tr>
+          ))}
+        </tbody>
+        <tfoot>
+          <tr>
+            <td colSpan="3" className="text-end fw-bold">Всього:</td>
+            <td className="text-end fw-bold">{totalPrice.toFixed(2)} CHF</td>
+          </tr>
+        </tfoot>
+      </Table>
+    </div>
+    </Container>
 
       {/* Форма оформления заказа */}
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div className="grid grid-cols-2 gap-4">
-          <input
-            type="text"
-            name="firstName"
-            placeholder="Имя"
-            value={formData.firstName}
-            onChange={handleChange}
-            className="border p-2 rounded"
-            required
-          />
-          <input
-            type="text"
-            name="lastName"
-            placeholder="Фамилия"
-            value={formData.lastName}
-            onChange={handleChange}
-            className="border p-2 rounded"
-            required
-          />
-        </div>
+      <Container className="d-flex justify-content-center align-items-center my-4">
+      <div className="w-50 w-md-75 w-lg-50">
+      <Form onSubmit={handleSubmit} className="mb-4">
+      <Row className="mb-3">
+        <Col md={6}>
+          <Form.Group>
+            <Form.Control
+              type="text"
+              name="firstName"
+              placeholder="Ім'я"
+              value={formData.firstName}
+              onChange={handleChange}
+              required
+            />
+          </Form.Group>
+        </Col>
+        <Col md={6}>
+          <Form.Group>
+            <Form.Control
+              type="text"
+              name="lastName"
+              placeholder="Прізвище"
+              value={formData.lastName}
+              onChange={handleChange}
+              required
+            />
+          </Form.Group>
+        </Col>
+      </Row>
 
-        <input
+      <Form.Group className="mb-3">
+        <Form.Control
           type="email"
           name="email"
           placeholder="Email"
           value={formData.email}
           onChange={handleChange}
-          className="w-full border p-2 rounded"
           required
         />
+      </Form.Group>
 
-        <input
+      <Form.Group className="mb-3">
+        <Form.Control
           type="tel"
           name="phone"
           placeholder="Телефон"
           value={formData.phone}
           onChange={handleChange}
-          className="w-full border p-2 rounded"
           required
         />
+      </Form.Group>
 
-        <input
+      <Form.Group className="mb-3">
+        <Form.Control
           type="text"
           name="address"
-          placeholder="Адрес доставки"
+          placeholder="Адреса доставки"
           value={formData.address}
           onChange={handleChange}
-          className="w-full border p-2 rounded"
           required
         />
+      </Form.Group>
 
-        <div className="grid grid-cols-2 gap-4">
-          <input
-            type="text"
-            name="city"
-            placeholder="Город"
-            value={formData.city}
-            onChange={handleChange}
-            className="border p-2 rounded"
-            required
-          />
-          <input
-            type="text"
-            name="zipCode"
-            placeholder="Индекс"
-            value={formData.zipCode}
-            onChange={handleChange}
-            className="border p-2 rounded"
-            required
-          />
-        </div>
+      <Row className="mb-3">
+        <Col md={6}>
+          <Form.Group>
+            <Form.Control
+              type="text"
+              name="city"
+              placeholder="Місто"
+              value={formData.city}
+              onChange={handleChange}
+              required
+            />
+          </Form.Group>
+        </Col>
+        {/* <Col md={6}>
+          <Form.Group>
+            <Form.Control
+              type="text"
+              name="zipCode"
+              placeholder="Индекс"
+              value={formData.zipCode}
+              onChange={handleChange}
+              required
+            />
+          </Form.Group>
+        </Col> */}
+      </Row>
 
-        <select
+      <Row className="mb-3">
+        <Col md={6}>
+      <Form.Group className="mb-3">
+        <Form.Select 
           name="paymentMethod"
           value={formData.paymentMethod}
           onChange={handleChange}
-          className="w-full border p-2 rounded"
         >
           <option value="card">TWINT</option>
           <option value="cash">CASH</option>
-        </select>
+        </Form.Select>
+      </Form.Group>
+      </Col>
 
-        <select
+      <Col md={6}>
+      <Form.Group className="mb-3">
+        <Form.Select
           name="deliveryMethod"
           value={formData.deliveryMethod}
           onChange={handleChange}
-          className="w-full border p-2 rounded"
         >
-          <option value="standard">Стандартная доставка</option>
-          <option value="express">Экспресс-доставка</option>
-        </select>
+          <option value="standard">Самовивіз</option>
+          <option value="express">Кур'єр</option>
+        </Form.Select>
+      </Form.Group>
+      </Col>
+      </Row>
 
-        <textarea
+      <Form.Group className="mb-3">
+        <Form.Control
+          as="textarea"
           name="notes"
-          placeholder="Дополнительные комментарии (опционально)"
+          placeholder="Додати коментар"
           value={formData.notes}
           onChange={handleChange}
-          className="w-full border p-2 rounded"
+          rows={3}
         />
+      </Form.Group>
 
-        {submitError && (
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
-            {submitError}
-          </div>
-        )}
+      {submitError && (
+        <Alert variant="danger" className="mb-3">
+          {submitError}
+        </Alert>
+      )}
 
-        <button
-          type="submit"
-          disabled={isSubmitting}
-          className="w-full bg-blue-500 text-white p-3 rounded hover:bg-blue-600 disabled:opacity-50"
-        >
-          {isSubmitting ? 'Оформление...' : 'Оформить заказ'}
-        </button>
-      </form>
+      <Button
+        type="submit"
+        variant="primary"
+        disabled={isSubmitting}
+        className="w-100"
+      >
+        {isSubmitting ? 'Оформление...' : 'Оформити замовлення'}
+      </Button>
+    </Form>
+    </div>
+    </Container>
     </div>
   );
 };

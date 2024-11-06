@@ -17,6 +17,9 @@ import { Navigate } from 'react-router-dom';
 import Register from './components/Register';
 import { CartProvider } from './context/CartContext';
 import CheckoutPage from './components/ChackoutPage';
+import DeliveryPage from './components/DeliveryPage';
+import DeliveryPanel from './components/admin/panels/DeliveryPanel';
+
 
 
 
@@ -38,7 +41,6 @@ function App() {
             <Route path="/" element={<Home />} />
 
             <Route path="/products/:id" element={<ProductDetails />} />
-            {/* <Route path="/delivery" element={<DeliveryDetails />} /> */}
             <Route path="/profile" element={<Profile />} />
         <Route path="/client" element={<ClientPage />} />
         {/* Админ маршруты */}
@@ -48,10 +50,12 @@ function App() {
         <Route path="customers" element={<CustomersPanel />} />
         <Route path="products" element={<ProductsPanel />} />
         <Route path="reports" element={<ReportsPanel />} />
+        <Route path="delivery" element={<DeliveryPanel />} />
       </Route>
+      <Route path="/delivery" element={<DeliveryPage />} />
         <Route path="/register" element={<Register />} />
         <Route path="/checkout" element={<CheckoutPage />} />
-            <Route path="*" element={<NotFound />} />
+        <Route path="*" element={<NotFound />} />
         </Routes>
         <Footer/>
       </div>

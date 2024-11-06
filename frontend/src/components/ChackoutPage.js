@@ -1,10 +1,17 @@
 import React, { useState, useContext} from 'react';
 import { CartContext } from '../context/CartContext'; 
-import { Form, Row, Col, Button, Alert } from 'react-bootstrap';
+import { Form, Row, Col, Button, Alert, ButtonGroup  } from 'react-bootstrap';
 import { Container, Table } from 'react-bootstrap';
+import { Trash, Plus, Minus } from 'lucide-react';
 
 const CheckoutPage = () => {
-  const { cartItems, totalPrice } = useContext(CartContext);
+  const { 
+    cartItems, 
+    totalPrice, 
+    removeAllFromCart, 
+    addOneToCart, 
+    removeFromCart 
+  } = useContext(CartContext);
   
   // Состояния для формы
   const [formData, setFormData] = useState({
@@ -45,7 +52,7 @@ const CheckoutPage = () => {
     
     // Проверка валидности формы
     if (!validateForm()) {
-      alert('Пожалуйста, заполните все обязательные поля');
+      alert("Будь ласка, заповніть усі обов'язкові поля");
       return;
     }
 
@@ -84,10 +91,10 @@ const CheckoutPage = () => {
         // FIXME: Очистите корзину после успешного заказа
         // clearCart();
       } else {
-        setSubmitError(result.message || 'Произошла ошибка при оформлении заказа');
+        setSubmitError(result.message || 'Виникла помилка при оформленні замовлення');
       }
     } catch (error) {
-      setSubmitError('Ошибка сети. Пожалуйста, проверьте подключение.');
+      setSubmitError('Помилка мережі. Будь ласка, перевірте підключення.');
     } finally {
       setIsSubmitting(false);
     }
@@ -97,48 +104,95 @@ const CheckoutPage = () => {
   if (submitSuccess) {
     return (
       <div className="max-w-md mx-auto mt-10 p-6 bg-white rounded-lg shadow-md">
-        <h2 className="text-2xl font-bold text-green-600 mb-4">Заказ оформлен!</h2>
+        <h2 className="text-2xl font-bold text-green-600 mb-4">Замовлення оформлено!</h2>
         <p>Дякуємо за Ваше замовлення. Ми зв'яжемося з Вами найближчим часом.</p>
       </div>
     );
   }
 
+
+  const CartTable = () => (
+    <div className="mb-4">
+      <h2 className="h4 mb-3">Ваші товари:</h2>
+      <div className="table-responsive">
+        <Table striped bordered hover>
+          <thead>
+            <tr>
+              <th>Назва товару</th>
+              <th className="text-center">Кількість</th>
+              <th className="text-end">Ціна</th>
+              <th className="text-end">Сума</th>
+              <th className="text-center">Дії</th>
+            </tr>
+          </thead>
+          <tbody>
+            {cartItems.map(item => (
+              <tr key={item.id}>
+                <td>{item.title}</td>
+                <td className="text-center">
+                  <ButtonGroup size="sm">
+                    <Button 
+                      variant="outline-secondary"
+                      onClick={() => removeFromCart(item.id)}
+                      disabled={item.quantity <= 1}
+                    >
+                      <Minus size={16} />
+                    </Button>
+                    <Button variant="light" disabled>
+                      {item.quantity}
+                    </Button>
+                    <Button 
+                      variant="outline-secondary"
+                      onClick={() => addOneToCart(item.id)}
+                    >
+                      <Plus size={16} />
+                    </Button>
+                  </ButtonGroup>
+                </td>
+                <td className="text-end">{item.price.toFixed(2)} CHF</td>
+                <td className="text-end">{(item.quantity * item.price).toFixed(2)} CHF</td>
+                <td className="text-center">
+                  <Button 
+                    variant="outline-danger" 
+                    size="sm"
+                    onClick={() => removeAllFromCart(item.id)}
+                    title="Видалити товар"
+                  >
+                    <Trash size={16} />
+                  </Button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+          <tfoot className="table-active">
+            <tr>
+              <td colSpan="3" className="text-end fw-bold">Всього:</td>
+              <td className="text-end fw-bold fs-5">{totalPrice.toFixed(2)} CHF</td>
+              <td></td>
+            </tr>
+          </tfoot>
+        </Table>
+      </div>
+    </div>
+  );
+
+  if (submitSuccess) {
+    return (
+      <div className="max-w-md mx-auto mt-10 p-6 bg-white rounded-lg shadow-md">
+        <h2 className="text-2xl font-bold text-green-600 mb-4">Замовлення оформлено!</h2>
+        <p>Дякуємо за Ваше замовлення. Ми зв'яжемося з Вами найближчим часом.</p>
+      </div>
+    );
+  }
+
+
   return (
     <div className="max-w-2xl mx-auto mt-10 p-6 bg-white rounded-lg shadow-md">
       <h1 className="text-3xl font-bold mb-6">Оформлення замовлення</h1>
       
-      {/* Список товаров */}
       <Container>
-      <div className="mb-4">
-      <h2 className="h4 mb-3">Ваші товари:</h2>
-      <Table striped bordered hover>
-        <thead>
-          <tr>
-            <th>Назва товару</th>
-            <th className="text-center">Кількість</th>
-            <th className="text-end">Ціна</th>
-            <th className="text-end">Сума</th>
-          </tr>
-        </thead>
-        <tbody>
-          {cartItems.map(item => (
-            <tr key={item.id}>
-              <td>{item.title}</td>
-              <td className="text-center">{item.quantity}</td>
-              <td className="text-end">{item.price.toFixed(2)} CHF</td>
-              <td className="text-end">{(item.quantity * item.price).toFixed(2)} CHF</td>
-            </tr>
-          ))}
-        </tbody>
-        <tfoot>
-          <tr>
-            <td colSpan="3" className="text-end fw-bold">Всього:</td>
-            <td className="text-end fw-bold">{totalPrice.toFixed(2)} CHF</td>
-          </tr>
-        </tfoot>
-      </Table>
-    </div>
-    </Container>
+        <CartTable />
+      </Container>
 
       {/* Форма оформления заказа */}
       <Container className="d-flex justify-content-center align-items-center my-4">
@@ -282,7 +336,7 @@ const CheckoutPage = () => {
         disabled={isSubmitting}
         className="w-100"
       >
-        {isSubmitting ? 'Оформление...' : 'Оформити замовлення'}
+        {isSubmitting ? 'Оформлення...' : 'Оформити замовлення'}
       </Button>
     </Form>
     </div>

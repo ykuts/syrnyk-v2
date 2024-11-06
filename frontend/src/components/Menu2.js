@@ -81,7 +81,7 @@ const Menu2 = () => {
                                     </Nav.Link>
                                 </Col>
                                 <Col md="auto">
-                                    <Nav.Link href="#delivery" className="text-center">
+                                    <Nav.Link href="/delivery" className="text-center">
                                         {t('menu.delivery')}
                                     </Nav.Link>
                                 </Col>
@@ -99,7 +99,7 @@ const Menu2 = () => {
                         </Nav>
 
                         <Nav className='select-lg d-flex flex-row justify-content-center order-lg-1'>
-                            <Nav.Link href="https://www.instagram.com/syrnyk.ch">
+                            <Nav.Link href="https://www.facebook.com/">
                                 <Image src="/assets/facebook.png" style={{ width: '40px', height: '40px' }} />
                             </Nav.Link>
                             <Nav.Link href="https://www.instagram.com/syrnyk.ch">

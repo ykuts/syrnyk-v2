@@ -9,25 +9,125 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// User model
+// Existing User model remains the same
 model User {
   id           Int        @id @default(autoincrement())
   firstName    String     
   lastName     String     
   email        String     @unique
   phone        String?    
-  role         UserRole   @default(CLIENT)  // Added default value
+  role         UserRole   @default(CLIENT)
   password     String     
-  isActive     Boolean    @default(true)    // Added status flag
+  isActive     Boolean    @default(true)
   tokens       Token[]    
   preferredDeliveryLocation String?  
   orders       Order[]    
   cart         Cart?      
-  reviews      Review[]   // Added relation to reviews
+  reviews      Review[]
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
 
-  @@index([email])  // Added index for email searches
+  @@index([email])
+}
+
+// Modified Order model with new delivery options
+model Order {
+  id              Int         @id @default(autoincrement())
+  userId          Int
+  user            User        @relation(fields: [userId], references: [id])
+  deliveryType    DeliveryType @default(RAILWAY_STATION)
+  // Conditional relations based on delivery type
+  addressDelivery AddressDelivery?
+  stationDelivery StationDelivery?
+  pickupDelivery  PickupDelivery?
+  status          OrderStatus @default(PENDING)
+  items           OrderItem[]
+  totalAmount     Decimal     @db.Decimal(10, 2)
+  paymentStatus   PaymentStatus @default(PENDING)
+  paymentMethod   PaymentMethod?
+  discount        Decimal?    @db.Decimal(10, 2)
+  trackingNumber  String?
+  notesAdmin      String?
+  notesClient     String?
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  @@index([userId])
+  @@index([status])
+}
+
+// New enum for delivery types
+enum DeliveryType {
+  PICKUP
+  ADDRESS
+  RAILWAY_STATION
+}
+
+// New model for address delivery
+model AddressDelivery {
+  id          Int      @id @default(autoincrement())
+  orderId     Int      @unique
+  order       Order    @relation(fields: [orderId], references: [id])
+  street      String
+  house       String
+  apartment   String?
+  city        String
+  postalCode  String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// New model for railway station delivery
+model StationDelivery {
+  id          Int          @id @default(autoincrement())
+  orderId     Int          @unique
+  order       Order        @relation(fields: [orderId], references: [id])
+  stationId   Int
+  station     RailwayStation @relation(fields: [stationId], references: [id])
+  meetingTime DateTime
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+}
+
+// New model for pickup delivery
+model PickupDelivery {
+  id          Int      @id @default(autoincrement())
+  orderId     Int      @unique
+  order       Order    @relation(fields: [orderId], references: [id])
+  storeId     Int
+  store       Store    @relation(fields: [storeId], references: [id])
+  pickupTime  DateTime
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// New model for railway stations
+model RailwayStation {
+  id            Int               @id @default(autoincrement())
+  indexNumber   Int?
+  city          String
+  name          String
+  meetingPoint  String
+  photo         String?
+  deliveries    StationDelivery[]
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+
+  @@unique([city, name])
+}
+
+// New model for store locations
+model Store {
+  id          Int              @id @default(autoincrement())
+  name        String
+  address     String
+  city        String
+  postalCode  String
+  phone       String?
+  workingHours String
+  pickups     PickupDelivery[]
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
 }
 
 model Token {
@@ -53,38 +153,6 @@ enum UserRole {
   CLIENT
 }
 
-// Added Address model for multiple delivery addresses
-model Address {
-  id          Int      @id @default(autoincrement())
-  city        String
-  station     String?
-  orders      Order[]  // Added relation to orders
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-}
-
-// Added Order model
-model Order {
-  id              Int         @id @default(autoincrement())
-  userId          Int
-  user            User        @relation(fields: [userId], references: [id])
-  addressId       Int
-  address         Address     @relation(fields: [addressId], references: [id])
-  status          OrderStatus @default(PENDING)
-  items           OrderItem[]
-  totalAmount     Decimal     @db.Decimal(10, 2)
-  paymentStatus   PaymentStatus @default(PENDING)
-  paymentMethod   PaymentMethod?
-  discount        Decimal?    @db.Decimal(10, 2)
-  trackingNumber  String?
-  notes           String?
-  createdAt       DateTime    @default(now())
-  updatedAt       DateTime    @updatedAt
-
-  @@index([userId])
-  @@index([status])
-}
 
 // Added OrderItem model
 model OrderItem {

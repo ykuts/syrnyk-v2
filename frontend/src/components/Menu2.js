@@ -15,6 +15,7 @@ import LoginForm from './LoginForm';
 import '../custom.scss';
 import { CartContext } from '../context/CartContext';
 import { Trash } from "lucide-react";
+import './CartNavItem.css';
 
 const Menu2 = () => {
     const { t, i18n } = useTranslation();
@@ -65,10 +66,21 @@ const Menu2 = () => {
                             </button>
                         </Nav.Link>
                         <Nav.Link eventKey={2} onClick={() => setShowCart(true)}>
-                            <button className="custom-button round-button">
+                        <div className="cart-icon-container">
+        <img
+          src="/assets/cart.png"
+          alt="Cart"
+          className="cart-icon"
+        />
+        {cartItems.length > 0 && (
+          <span className="cart-counter">{cartItems.length}</span>
+        )}
+      </div>
+      <span className="cart-text">Кошик</span>
+                            {/* <button className="custom-button round-button">
                                 <Image src="/assets/cart.png" roundedCircle style={{ width: '30px', height: '30px' }} />
                                 <span className="profile-text">{t('buttons.cart')} ({cartItems.length})</span>
-                            </button>
+                            </button> */}
                         </Nav.Link>
                     </Nav>
 
@@ -138,7 +150,7 @@ const Menu2 = () => {
                     <ListGroup.Item key={item.id}>
                         <div className="d-flex justify-content-between align-items-center">
                             <div>
-                                <h5>{item.title}</h5>
+                                <h5>{item.name}</h5>
                                 <p>{item.price} CHF x {item.quantity}</p>
                             </div>
                             <div>

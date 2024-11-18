@@ -49,20 +49,20 @@ const prisma = new PrismaClient();
             ]);
     
             // Добавляем полные URL для фото
-            const stationsWithFullUrls = stations.map(station => ({
+              const stationsWithPhotos = stations.map(station => ({
                 ...station,
-                photo: station.photo ? `http://localhost:3001/uploads/${station.photo}` : null
+                photo: station.photo ? `/uploads/${station.photo}` : null
             }));
     
             res.json({
-                data: stationsWithFullUrls,
+                data: stationsWithPhotos,
                 meta: {
-                    total: stations.length
+                    total
                 }
             });
         } catch (error) {
-            console.error('Error fetching stations:', error);
-            res.status(500).json({ error: 'Internal server error' });
+          console.error('Error fetching stations:', error);
+          res.status(500).json({ error: 'Internal server error' });
         }
     };
   
@@ -105,109 +105,107 @@ const prisma = new PrismaClient();
     }
   
     export const createStation = async (req, res) => {
-        try {
-            console.log('Request body:', req.body); // Для отладки
-    
-            const stationData = {
-                city: req.body.city,
-                name: req.body.name,
-                meetingPoint: req.body.meetingPoint,
-                photo: req.file ? `stations/${req.file.filename}` : null
-            };
-    
-            console.log('Station data:', stationData); // Для отладки
-    
-            // Используем validateStationData напрямую, без this
-            const errors = validateStationData(stationData);
-            if (errors.length > 0) {
-                return res.status(400).json({ errors });
-            }
-    
-            // Проверка на существование станции с таким же названием в городе
-            const existing = await prisma.railwayStation.findFirst({
-                where: {
-                    city: stationData.city,
-                    name: stationData.name
-                }
-            });
-    
-            if (existing) {
-                return res.status(400).json({
-                    error: 'Station with this name already exists in this city'
-                });
-            }
-    
-            const station = await prisma.railwayStation.create({
-                data: stationData
-            });
-    
-            res.status(201).json({
-                ...station,
-                photo: station.photo ? `http://localhost:3001/uploads/${station.photo}` : null
-            });
-        } catch (error) {
-            console.error('Error creating station. Details:', error); // Улучшенное логирование
-            res.status(500).json({ 
-                error: 'Internal server error',
-                details: error.message 
-            });
-        }
-    };
-  
-    // Обновить станцию
-    export const updateStation = async (req, res) => {
       try {
-        const stationId = parseInt(req.params.id);
-        const stationData = {
-          city: req.body.city,
-          name: req.body.name,
-          meetingPoint: req.body.meetingPoint,
-          ...(req.file && { photo: req.file.path })
-        };
+          const { city, name, meetingPoint, photo } = req.body;
   
-        // Валидация данных
-        const errors = validateStationData(stationData);
-        if (errors.length > 0) {
-          return res.status(400).json({ errors });
-        }
+          const cleanPhotoPath = photo ? photo.replace(/^\/uploads\//, '') : null;
+
+          const stationData = {
+              city,
+              name,
+              meetingPoint,
+              photo: cleanPhotoPath
+          };
   
-        // Проверка существования станции
-        const existingStation = await prisma.railwayStation.findUnique({
-          where: { id: stationId }
-        });
+          // Валидация
+          const errors = validateStationData(stationData);
+          if (errors.length > 0) {
+              return res.status(400).json({ errors });
+          }
   
-        if (!existingStation) {
-          return res.status(404).json({ error: 'Station not found' });
-        }
-  
-        // Проверка уникальности имени в городе
-        if (stationData.name !== existingStation.name || stationData.city !== existingStation.city) {
-          const duplicate = await prisma.railwayStation.findFirst({
-            where: {
-              city: stationData.city,
-              name: stationData.name,
-              id: { not: stationId }
-            }
+          // Проверка на существование станции
+          const existing = await prisma.railwayStation.findFirst({
+              where: {
+                  city: stationData.city,
+                  name: stationData.name
+              }
           });
   
-          if (duplicate) {
-            return res.status(400).json({
-              error: 'Station with this name already exists in this city'
-            });
+          if (existing) {
+              return res.status(400).json({
+                  error: 'Station with this name already exists in this city'
+              });
           }
-        }
   
-        const updatedStation = await prisma.railwayStation.update({
-          where: { id: stationId },
-          data: stationData
-        });
+          const station = await prisma.railwayStation.create({
+              data: stationData
+          });
   
-        res.json(updatedStation);
+          res.status(201).json(station);
       } catch (error) {
-        console.error('Error updating station:', error);
-        res.status(500).json({ error: 'Internal server error' });
+        console.error('Error creating station:', error);
+          res.status(500).json({ 
+              error: 'Internal server error',
+              details: error.message 
+          });
       }
-    }
+  };
+  
+  export const updateStation = async (req, res) => {
+      try {
+          const stationId = parseInt(req.params.id);
+          const { city, name, meetingPoint, photo } = req.body;
+  
+          const stationData = {
+              city,
+              name,
+              meetingPoint,
+              photo // Используем URL фото из тела запроса
+          };
+  
+          // Валидация
+          const errors = validateStationData(stationData);
+          if (errors.length > 0) {
+              return res.status(400).json({ errors });
+          }
+  
+          // Проверка существования станции
+          const existingStation = await prisma.railwayStation.findUnique({
+              where: { id: stationId }
+          });
+  
+          if (!existingStation) {
+              return res.status(404).json({ error: 'Station not found' });
+          }
+  
+          // Проверка уникальности
+          if (stationData.name !== existingStation.name || stationData.city !== existingStation.city) {
+              const duplicate = await prisma.railwayStation.findFirst({
+                  where: {
+                      city: stationData.city,
+                      name: stationData.name,
+                      id: { not: stationId }
+                  }
+              });
+  
+              if (duplicate) {
+                  return res.status(400).json({
+                      error: 'Station with this name already exists in this city'
+                  });
+              }
+          }
+  
+          const updatedStation = await prisma.railwayStation.update({
+              where: { id: stationId },
+              data: stationData
+          });
+  
+          res.json(updatedStation);
+      } catch (error) {
+          console.error('Error updating station:', error);
+          res.status(500).json({ error: 'Internal server error' });
+      }
+  };
   
     // Удалить станцию
     export const deleteStation = async (req, res) => {

@@ -1,0 +1,82 @@
+.cart-nav-link {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px !important;
+    text-decoration: none;
+    color: #333;
+    transition: all 0.3s ease;
+  }
+  
+  .cart-icon-container {
+    position: relative;
+    display: inline-block;
+  }
+  
+  .cart-icon {
+    width: 24px;
+    height: 24px;
+    transition: transform 0.3s ease;
+  }
+  
+  .cart-counter {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background-color: white;
+    color: black;
+    border-radius: 50%;
+    padding: 2px;
+    min-width: 18px;
+    height: 18px;
+    font-size: 11px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid black;
+ 
+  }
+  
+  .cart-text {
+    font-size: 14px;
+    font-weight: 500;
+  }
+  
+  /* Hover эффекты */
+  .cart-nav-link:hover {
+    color: #007bff;
+  }
+  
+  .cart-nav-link:hover .cart-icon {
+    transform: scale(1.1);
+  }
+  
+  /* Анимация появления счетчика */
+  @keyframes counterPop {
+    0% {
+      transform: scale(0);
+    }
+    50% {
+      transform: scale(1.2);
+    }
+    100% {
+      transform: scale(1);
+    }
+  }
+  
+  .cart-counter {
+    animation: counterPop 0.3s ease-out;
+  }
+  
+  /* Адаптивность */
+  @media (max-width: 768px) {
+    .cart-text {
+      display: none;
+    }
+    
+    .cart-nav-link {
+      padding: 8px !important;
+    }
+  }

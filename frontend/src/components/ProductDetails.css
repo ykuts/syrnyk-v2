@@ -1,0 +1,107 @@
+/* Стили для кнопки "До кошика" */
+.cart-button-round-det {
+    display: flex;
+    align-items: center;
+    padding: 8px 16px;
+    border-radius: 25px !important;
+    background-color: #ff961c !important;
+    border: none !important;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.cart-button-round-det:hover {
+    background-color: #fd9e33 !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.cart-button-round-det span {
+    font-size: 0.85rem;
+    margin-left: 4px;
+}
+
+/* Стили для контролов количества */
+.quantity-controls-det {
+    display: flex;
+    align-items: center;
+    background-color: #ff961c;
+    padding: 4px;
+    border-radius: 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.quantity-button-det {
+    width: 30px;
+    height: 30px;
+    border-radius: 50% !important;
+    padding: 0 !important;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    font-weight: bold;
+    background-color: #ff961c !important;
+    border: none !important;
+    transition: all 0.3s ease;
+}
+
+.quantity-button-det:hover {
+    background-color: #ff961c !important;
+    transform: scale(1.1);
+}
+
+.quantity-display-det {
+    margin: 0 12px;
+    font-weight: 500;
+    min-width: 20px;
+    text-align: center;
+}
+
+/* Анимации */
+.quantity-button-det:active {
+    transform: scale(0.95);
+}
+
+.cart-button-round-det:active {
+    transform: translateY(0);
+}
+
+/* Стили для галереи изображений */
+.product-gallery {
+    display: flex;
+    gap: 8px;
+    margin-top: 16px;
+    overflow-x: auto;
+    padding: 8px;
+}
+
+.product-gallery img {
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.product-gallery img:hover {
+    transform: scale(1.05);
+}
+
+.product-gallery img.selected {
+    border: 2px solid #007bff;
+}
+
+/* Стили для модального окна с каруселью */
+.modal-content {
+    background-color: #f8f9fa;
+}
+
+.carousel-control-prev,
+.carousel-control-next {
+    width: 10%;
+    opacity: 0.8;
+}
+
+.carousel-control-prev:hover,
+.carousel-control-next:hover {
+    opacity: 1;
+}

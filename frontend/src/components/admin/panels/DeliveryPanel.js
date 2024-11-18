@@ -12,8 +12,18 @@ const DeliveryPanel = () => {
     city: '',
     name: '',
     meetingPoint: '',
-    photo: null
+    photo: ''
   });
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
+
+  // Вспомогательная функция для формирования полного URL изображения
+  const getImageUrl = (imagePath) => {
+    if (!imagePath) return null;
+    if (imagePath.startsWith('http')) return imagePath;
+    // Убираем дублирование /uploads/ если оно есть
+    const cleanPath = imagePath.replace(/^\/uploads\//, '');
+    return `http://localhost:3001/uploads/${cleanPath}`;
+  };
 
   // Загрузка станций
   const fetchStations = async () => {
@@ -43,34 +53,56 @@ const DeliveryPanel = () => {
     }));
   };
 
-  const handleFileChange = (e) => {
-    setFormData(prev => ({
-      ...prev,
-      photo: e.target.files[0]
-    }));
+  const handleFileChange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    setUploadingPhoto(true);
+    setError(null);
+
+    try {
+      const formData = new FormData();
+      formData.append('photo', file);
+
+      const response = await fetch('http://localhost:3001/api/upload/stations', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) throw new Error('Failed to upload photo');
+
+      const data = await response.json();
+
+      setFormData(prev => ({
+        ...prev,
+        photo: data.url
+      }));
+    } catch (err) {
+      setError('Помилка при завантаженні фото');
+      console.error('Error uploading photo:', err);
+    } finally {
+      setUploadingPhoto(false);
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-
-    const formDataToSend = new FormData();
-    Object.keys(formData).forEach(key => {
-      if (formData[key] !== null) {
-        formDataToSend.append(key, formData[key]);
-      }
-    });
+    setError(null);
 
     try {
       const url = selectedStation
         ? `http://localhost:3001/api/railway-stations/${selectedStation.id}`
         : 'http://localhost:3001/api/railway-stations';
-      
+
       const method = selectedStation ? 'PUT' : 'POST';
 
       const response = await fetch(url, {
         method,
-        body: formDataToSend,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
       });
 
       if (!response.ok) {
@@ -80,7 +112,7 @@ const DeliveryPanel = () => {
       await fetchStations();
       setShowModal(false);
       setSelectedStation(null);
-      setFormData({ city: '', name: '', meetingPoint: '', photo: null });
+      setFormData({ city: '', name: '', meetingPoint: '', photo: '' });
     } catch (err) {
       setError(err.message);
     } finally {
@@ -91,6 +123,17 @@ const DeliveryPanel = () => {
   const handleDelete = async (id) => {
     if (window.confirm('Ви впевнені, що хочете видалити цю станцію?')) {
       try {
+        const station = stations.find(s => s.id === id);
+
+        // Сначала удаляем фото, если оно есть
+        if (station.photo) {
+          const filename = station.photo.split('/').pop();
+          await fetch(`http://localhost:3001/api/upload/stations/${filename}`, {
+            method: 'DELETE',
+          });
+        }
+
+        // Затем удаляем станцию
         const response = await fetch(`http://localhost:3001/api/railway-stations/${id}`, {
           method: 'DELETE',
         });
@@ -112,7 +155,7 @@ const DeliveryPanel = () => {
       city: station.city,
       name: station.name,
       meetingPoint: station.meetingPoint,
-      photo: null
+      photo: station.photo || ''
     });
     setShowModal(true);
   };
@@ -126,11 +169,11 @@ const DeliveryPanel = () => {
       <Card className="mb-4">
         <Card.Header className="d-flex justify-content-between align-items-center">
           <h5 className="mb-0">Управління залізничними станціями</h5>
-          <Button 
+          <Button
             variant="primary"
             onClick={() => {
               setSelectedStation(null);
-              setFormData({ city: '', name: '', meetingPoint: '', photo: null });
+              setFormData({ city: '', name: '', meetingPoint: '', photo: '' });
               setShowModal(true);
             }}
             className="d-flex align-items-center gap-2"
@@ -141,7 +184,7 @@ const DeliveryPanel = () => {
         </Card.Header>
         <Card.Body>
           {error && <Alert variant="danger">{error}</Alert>}
-          
+
           <Table responsive striped hover>
             <thead>
               <tr>
@@ -158,15 +201,22 @@ const DeliveryPanel = () => {
                   <td>{station.city}</td>
                   <td>{station.name}</td>
                   <td>{station.meetingPoint}</td>
-                  <td>
+                  {<td>
                     {station.photo && (
-                      <img 
-                        src={station.photo} 
-                        alt="Station" 
-                        style={{ height: '50px', width: '50px', objectFit: 'cover' }} 
+                      <img
+                        src={getImageUrl(station.photo)}
+                        alt={station.name}
+                        style={{ height: '50px', width: '50px', objectFit: 'cover' }}
+                        onError={(e) => {
+                          if (!e.target.dataset.tried) {
+                            console.error('Error loading image:', station.photo);
+                            e.target.dataset.tried = 'true';
+                            e.target.src = '/placeholder.jpg';
+                          }
+                        }}
                       />
                     )}
-                  </td>
+                  </td>}
                   <td>
                     <Button
                       variant="outline-primary"
@@ -234,19 +284,35 @@ const DeliveryPanel = () => {
 
             <Form.Group className="mb-3">
               <Form.Label>Фото станції</Form.Label>
-              <Form.Control
-                type="file"
-                name="photo"
-                onChange={handleFileChange}
-                accept="image/*"
-              />
+              <div>
+                {formData.photo && (
+                  <div className="mb-2">
+                    <img
+                      src={getImageUrl(formData.photo)}
+                      alt="Preview"
+                      style={{ height: '100px', objectFit: 'cover' }}
+                    />
+                  </div>
+                )}
+                <Form.Control
+                  type="file"
+                  onChange={handleFileChange}
+                  accept="image/*"
+                  disabled={uploadingPhoto}
+                />
+                {uploadingPhoto && <div className="mt-2">Завантаження фото...</div>}
+              </div>
             </Form.Group>
 
             <div className="d-flex justify-content-end gap-2">
               <Button variant="secondary" onClick={() => setShowModal(false)}>
                 Скасувати
               </Button>
-              <Button variant="primary" type="submit" disabled={loading}>
+              <Button
+                variant="primary"
+                type="submit"
+                disabled={loading || uploadingPhoto}
+              >
                 {loading ? 'Збереження...' : 'Зберегти'}
               </Button>
             </div>
@@ -258,5 +324,3 @@ const DeliveryPanel = () => {
 };
 
 export default DeliveryPanel;
-
-

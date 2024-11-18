@@ -1,6 +1,9 @@
-import { Container } from 'react-bootstrap';
+import { Container, Row, Col  } from 'react-bootstrap';
 import { useState, useEffect } from 'react';
 import "./DeliveryPayment.css";
+import "./DeliveryContent.css";
+import './MeetingCard.css';
+
 
 const DeliveryPage = () => {
   const [stations, setStations] = useState([]);
@@ -33,24 +36,36 @@ const DeliveryPage = () => {
     <Container>
       <div className="delivery-payment">
         <h1 className="page-title">ДОСТАВКА ТА ОПЛАТА</h1>
-        <div className="content-sections">
-          <ContentSection
-            title="Оплата за продукцію"
-            content="Ми пропонуємо кілька зручних способів оплати для вашого комфорту. Оплата при отриманні замовлення: Ви можете сплатити готівкою нашому кур'єру під час отримання вашого замовлення. Оплата на рахунок нашої асоціації: Ви можете здійснити оплату через TWINT або за реквізитами асоціації при отриманні замовлення, реквізити вам надішлуть у повідомленні з підтвердженням вашого замовлення. Прозора ціна на продукцію, сплачуєте сума після отримання замовлення. Обирайте найбільш зручний для вас спосіб оплати, ми забезпечимо швидку та надійну доставку вашого замовлення."
-          />
-          <ContentSection
-            title="Доставка на залізничні вокзали"
-            content="Ми пропонуємо безкоштовну доставку на основні залізничні вокзали кантону Во та Женева (VULLY, GENEVE). Мінімальне замовлення для безкоштовної доставки — 20 франків. Дні та час доставки щоденно з 10:00 до 19:00 (залежить графік на кожну станцію нижче)"
-          />
-          <ContentSection
-            title="Доставка за адресою"
-            content="Ми пропонуємо нашу послугу доставки продукції додому або в офіс. Мінімальне замовлення для адресної доставки: 100 франків. Доставки здійснюються щоденно, за винятком вихідних. Ви отримаєте підтвердження щодо доставки з нашим оператором."
-          />
-          <ContentSection
-            title="Порядок прийому замовлень"
-            content="Після оформлення замовлення ви отримуєте повідомлення, що ми прийняли його в обробку. Після перевірки ми надішлемо вам статус вашого замовлення, що воно готове до отримання. Зв'яжемося з вами перед вказаним часом доставки."
-          />
-        </div>
+        <Container>
+      <div className="content-sections-container">
+        <Row xs={1} md={2} className="g-5">
+          <Col>
+            <ContentSection
+              title="Оплата за продукцію"
+              content="Ми пропонуємо кілька зручних способів оплати для вашого комфорту. Оплата при отриманні замовлення: Ви можете сплатити готівкою нашому кур'єру під час отримання вашого замовлення. Оплата на рахунок нашої асоціації: Ви можете здійснити оплату через TWINT або за реквізитами асоціації при отриманні замовлення, реквізити вам надішлуть у повідомленні з підтвердженням вашого замовлення. Прозора ціна на продукцію, сплачуєте сума після отримання замовлення. Обирайте найбільш зручний для вас спосіб оплати, ми забезпечимо швидку та надійну доставку вашого замовлення."
+            />
+          </Col>
+          <Col>
+            <ContentSection
+              title="Доставка на залізничні вокзали"
+              content="Ми пропонуємо безкоштовну доставку на основні залізничні вокзали кантону Во та Женева (VULLY, GENEVE). Мінімальне замовлення для безкоштовної доставки — 20 франків. Дні та час доставки щоденно з 10:00 до 19:00 (залежить графік на кожну станцію нижче)"
+            />
+          </Col>
+          <Col>
+            <ContentSection
+              title="Доставка за адресою"
+              content="Ми пропонуємо нашу послугу доставки продукції додому або в офіс. Мінімальне замовлення для адресної доставки: 100 франків. Доставки здійснюються щоденно, за винятком вихідних. Ви отримаєте підтвердження щодо доставки з нашим оператором."
+            />
+          </Col>
+          <Col>
+            <ContentSection
+              title="Порядок прийому замовлень"
+              content="Після оформлення замовлення ви отримуєте повідомлення, що ми прийняли його в обробку. Після перевірки ми надішлемо вам статус вашого замовлення, що воно готове до отримання. Зв'яжемося з вами перед вказаним часом доставки."
+            />
+          </Col>
+        </Row>
+      </div>
+    </Container>
         
         <div className="meeting-cards">
           {loading ? (
@@ -71,7 +86,7 @@ const DeliveryPage = () => {
               }, {})
             ).map(([city, cityStations]) => (
               <div key={city} className="city-group">
-                <h3 className="city-title">{city}</h3>
+                {/* <h3 className="city-title">{city}</h3> */}
                 <div className="city-stations">
                   {cityStations.map(station => (
                     <MeetingCard
@@ -102,34 +117,49 @@ const ContentSection = ({ title, content }) => (
 
 // Обновленный компонент карточки встречи
 const MeetingCard = ({ city, station, location, imageSrc }) => {
+
+    const [imageError, setImageError] = useState(false);
+
     console.log('MeetingCard props:', { city, station, location, imageSrc });
+
+    const getImageUrl = (path) => {
+      if (!path) return null;
+      if (path.startsWith('http')) return path;
+      // Убираем возможное дублирование /uploads/
+      const cleanPath = path.replace(/^\/uploads\//, '');
+      return `http://localhost:3001/uploads/${cleanPath}`;
+  };
+
+  // URL изображения по умолчанию
+  const defaultImageUrl = 'http://localhost:3001/uploads/default-station.jpg';
+
+  // Определяем итоговый URL изображения
+  const finalImageUrl = imageError ? defaultImageUrl : getImageUrl(imageSrc);
+  
+  console.log('MeetingCard props:', { city, station, location, imageSrc });
+  console.log('Final image URL:', finalImageUrl);
     
     return (
-        <div className="meeting-card">
-          <div className="meeting-info">
-            <div className="city">{`Місто: ${city}`}</div>
-            <div className="station">{`Станція: ${station}`}</div>
-            <div className="location">{`Місце зустрічі: ${location}`}</div>
-          </div>
-          <div className="meeting-image">
-            {imageSrc ? (
-              <img 
-                src={imageSrc}
-                alt={`Meeting location at ${station}`} 
-                onError={(e) => {
+      <div className="meeting-card">
+      <div className="meeting-info">
+          <div className="city">{`Місто: ${city}`}</div>
+          <div className="station">{`Дата/час: ${station}`}</div>
+          <div className="location">{`Місце зустрічі:`}</div>
+          <div className="location">{`${location}`}</div>
+      </div>
+      <div className="meeting-image">
+          <img 
+              src={finalImageUrl || defaultImageUrl}
+              alt={`Meeting location at ${station}`} 
+              onError={(e) => {
                   console.log('Failed to load image:', e.target.src);
-                  e.target.src = 'http://localhost:3001/uploads/default-station.jpg';
-                  e.target.onerror = null;
-                }}
-              />
-            ) : (
-              <img 
-                src='http://localhost:3001/uploads/default-station.jpg'
-                alt={`Default station`}
-              />
-            )}
-          </div>
-        </div>
+                  if (!imageError) {
+                      setImageError(true);
+                  }
+              }}
+          />
+      </div>
+  </div>
       );
     };
 

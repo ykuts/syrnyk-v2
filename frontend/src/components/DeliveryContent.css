@@ -1,0 +1,41 @@
+.content-sections-container {
+    border: 1px solid #070707;
+    border-radius: 1rem;
+    padding: 2rem;
+    margin-bottom: 2rem;
+  }
+  
+  .content-section {
+    margin-bottom: 1.5rem;
+  }
+  
+  .content-section h2 {
+    text-align: left;
+    color: #0d6efd;
+    margin-bottom: 1rem;
+    font-size: 1.25rem;
+    font-weight: 600;
+  }
+  
+  .content-section p {
+    text-align: justify;
+    line-height: 1.5;
+    color: #212529;
+    margin-bottom: 0;
+  }
+  
+  /* Медиа-запросы для адаптивности */
+  @media (max-width: 768px) {
+    .content-sections-container {
+      padding: 1rem;
+    }
+    
+    .content-section h2 {
+      font-size: 1.1rem;
+    }
+  }
+  
+  /* Добавление hover-эффектов */
+  .content-section:hover h2 {
+    color: #0a58ca;
+  }

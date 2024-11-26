@@ -93,6 +93,7 @@
 /* Стили для модального окна с каруселью */
 .modal-content {
     background-color: #f8f9fa;
+    /* width: max-content; */
 }
 
 .carousel-control-prev,

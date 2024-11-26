@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Table, Button } from 'react-bootstrap';
 import { useTranslation } from 'react-i18next';
+import { Edit, Trash2 } from 'lucide-react';
 
 const ProductList = ({ products, onDelete, onEdit, onAddNew }) => {
   const { t } = useTranslation();
@@ -39,13 +40,13 @@ const ProductList = ({ products, onDelete, onEdit, onAddNew }) => {
         <thead>
           <tr>
             <th>ID</th>
-            <th>Изображение</th>
-            <th>Название</th>
-            <th>Категория</th>
-            <th>Цена</th>
-            <th>Вес</th>
-            <th>В наличии</th>
-            <th>Действия</th>
+            <th>Зображення</th>
+            <th>Назва</th>
+            <th>Категорія</th>
+            <th>Ціна</th>
+            <th>Вага</th>
+            <th>Склад</th>
+            <th>Дія</th>
           </tr>
         </thead>
         <tbody>
@@ -80,14 +81,14 @@ const ProductList = ({ products, onDelete, onEdit, onAddNew }) => {
                     size="sm" 
                     onClick={() => onEdit(product)}
                   >
-                    Редактировать
+                    <Edit size={16} />
                   </Button>
                   <Button 
                     variant="outline-danger" 
                     size="sm"
                     onClick={() => onDelete(product.id)}
                   >
-                    Удалить
+                    <Trash2 size={16} />
                   </Button>
                 </div>
               </td>

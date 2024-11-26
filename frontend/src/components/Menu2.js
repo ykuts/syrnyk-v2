@@ -66,17 +66,17 @@ const Menu2 = () => {
                             </button>
                         </Nav.Link>
                         <Nav.Link eventKey={2} onClick={() => setShowCart(true)}>
-                        <div className="cart-icon-container">
-        <img
-          src="/assets/cart.png"
-          alt="Cart"
-          className="cart-icon"
-        />
-        {cartItems.length > 0 && (
-          <span className="cart-counter">{cartItems.length}</span>
-        )}
-      </div>
-      <span className="cart-text">Кошик</span>
+                        <div className="cart-icon-container custom-button round-button">
+                            <img
+                                src="/assets/cart.png"
+                                alt="Cart"
+                                className="cart-icon"
+                            />
+                            {cartItems.length > 0 && (
+                            <span className="cart-counter">{cartItems.length}</span>
+                            )}
+                            <span className="cart-text">Кошик</span>
+                            </div>
                             {/* <button className="custom-button round-button">
                                 <Image src="/assets/cart.png" roundedCircle style={{ width: '30px', height: '30px' }} />
                                 <span className="profile-text">{t('buttons.cart')} ({cartItems.length})</span>
@@ -178,10 +178,6 @@ const Menu2 = () => {
                 {t('cart.continueShopping')}
             </Button>
             </div>
-            <div className="d-flex align-items-center gap-3 flex-column">
-                <h5 className="mb-0">{t('cart.total')}: </h5>
-                <h6 className="mb-0">{totalPrice.toFixed(2)} CHF</h6>
-            </div>
 
             <div className='w-30' style={{ width: '30%' }}>
 
@@ -192,7 +188,12 @@ const Menu2 = () => {
                 >
                     {t('cart.checkout')}
                 </Button>
-                </div>
+            </div>
+
+            <div className="d-flex align-items-center gap-3 flex-column">
+                <h5 className="mb-0">{t('cart.total')}: </h5>
+                <h6 className="mb-0">{(totalPrice || 0).toFixed(2)}  CHF</h6>
+            </div>
             
         </div>
     </Modal.Footer>

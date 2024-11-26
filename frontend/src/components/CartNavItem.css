@@ -11,12 +11,12 @@
   
   .cart-icon-container {
     position: relative;
-    display: inline-block;
+    /* display: inline-block; */
   }
   
   .cart-icon {
-    width: 24px;
-    height: 24px;
+    width: 30px;
+    height: 30px;
     transition: transform 0.3s ease;
   }
   
@@ -40,8 +40,9 @@
   }
   
   .cart-text {
-    font-size: 14px;
-    font-weight: 500;
+    font-size: 16px;
+    font-weight: 400;
+    margin-left: 4px;
   }
   
   /* Hover эффекты */

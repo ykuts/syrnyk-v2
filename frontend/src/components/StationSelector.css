@@ -1,0 +1,36 @@
+.station-option {
+    min-height: 120px;
+    background-color: white;
+    border: 2px solid #dee2e6;
+    transition: all 0.2s;
+    cursor: pointer;
+    text-decoration: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1rem;
+    width: 100%;
+  }
+  
+  .station-option:hover:not(.selected) {
+    border-color: var(--bs-primary);
+  }
+  
+  .station-option.selected {
+    background-color: var(--bs-primary) !important;
+    border-color: var(--bs-primary) !important;
+    color: white !important;
+  }
+  
+  .station-option:focus {
+    outline: none;
+    box-shadow: none;
+  }
+  
+  .station-option small {
+    color: #6c757d;
+  }
+  
+  .station-option.selected small {
+    color: rgba(255, 255, 255, 0.9) !important;
+  }

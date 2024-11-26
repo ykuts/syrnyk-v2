@@ -1,119 +1,74 @@
-import React, { useState, useContext} from 'react';
-import { CartContext } from '../context/CartContext'; 
-import { Form, Row, Col, Button, Alert, ButtonGroup  } from 'react-bootstrap';
-import { Container, Table } from 'react-bootstrap';
+import React, { useState, useContext, useEffect } from 'react';
+import { CartContext } from '../context/CartContext';
+import { Form, Button, Alert, ButtonGroup, Container, Table } from 'react-bootstrap';
 import { Trash, Plus, Minus } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import CheckoutForm from './CheckoutForm';
+
+const STORE_ADDRESS = {
+  id: 1,
+  name: "Магазин у Nyon",
+  address: "Chemin de Pre-Fleuri, 5",
+  city: "Nyon",
+  workingHours: "щодня 9.00-20.00"
+};
 
 const CheckoutPage = () => {
+  const navigate = useNavigate();
   const { 
     cartItems, 
     totalPrice, 
     removeAllFromCart, 
     addOneToCart, 
-    removeFromCart 
+    removeFromCart,
+    clearCart 
   } = useContext(CartContext);
-  
-  // Состояния для формы
+
+  const [railwayStations, setRailwayStations] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
     email: '',
     phone: '',
-    address: '',
+    deliveryType: 'PICKUP',
+    street: '',
+    house: '',
+    apartment: '',
     city: '',
-    paymentMethod: 'card',
-    deliveryMethod: 'standard',
+    postalCode: '',
+    stationId: '',
+    meetingTime: '',
+    storeId: '',
+    pickupTime: '',
+    paymentMethod: 'TWINT',
     notes: ''
   });
 
-  // Состояния для управления процессом
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState(null);
   const [submitSuccess, setSubmitSuccess] = useState(false);
 
-  // Обработчик изменений в форме
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prevState => ({
-      ...prevState,
-      [name]: value
-    }));
-  };
-
-  // Валидация формы
-  const validateForm = () => {
-    const requiredFields = ['firstName', 'lastName', 'email', 'phone', 'address', 'city'];
-    return requiredFields.every(field => formData[field].trim() !== '');
-  };
-
-  // Обработчик отправки формы
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    
-    // Проверка валидности формы
-    if (!validateForm()) {
-      alert("Будь ласка, заповніть усі обов'язкові поля");
-      return;
-    }
-
-    // Подготовка данных для отправки
-    const orderData = {
-      userId: 2, // FIXME: Подставьте реальный ID пользователя
-      addressId: 1, // FIXME: Создайте адрес или используйте существующий
-      status: 'PENDING',
-      totalAmount: totalPrice,
-      paymentStatus: 'PENDING',
-      paymentMethod: 'TWINT',
-      notes: formData.notes,
-      items: cartItems.map(item => ({
-        productId: item.id,
-        quantity: item.quantity,
-        price: item.price
-      }))
+  useEffect(() => {
+    const fetchDeliveryData = async () => {
+      try {
+        const response = await fetch('http://localhost:3001/api/railway-stations');
+        const result = await response.json();
+        setRailwayStations(result.data);
+      } catch (error) {
+        console.error('Error fetching delivery data:', error);
+        setSubmitError('Failed to load delivery options');
+      } finally {
+        setLoading(false);
+      }
     };
 
-    setIsSubmitting(true);
-    setSubmitError(null);
-
-    try {
-      const response = await fetch('http://localhost:3001/api/orders', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(orderData)
-      });
-
-      const result = await response.json();
-
-      if (response.ok) {
-        setSubmitSuccess(true);
-        // FIXME: Очистите корзину после успешного заказа
-        // clearCart();
-      } else {
-        setSubmitError(result.message || 'Виникла помилка при оформленні замовлення');
-      }
-    } catch (error) {
-      setSubmitError('Помилка мережі. Будь ласка, перевірте підключення.');
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  // Если заказ успешен, покажем сообщение
-  if (submitSuccess) {
-    return (
-      <div className="max-w-md mx-auto mt-10 p-6 bg-white rounded-lg shadow-md">
-        <h2 className="text-2xl font-bold text-green-600 mb-4">Замовлення оформлено!</h2>
-        <p>Дякуємо за Ваше замовлення. Ми зв'яжемося з Вами найближчим часом.</p>
-      </div>
-    );
-  }
-
+    fetchDeliveryData();
+  }, []);
 
   const CartTable = () => (
-    <div className="mb-4">
-      <h2 className="h4 mb-3">Ваші товари:</h2>
+    <div className="mb-5">
+      <h2 className="h4 mb-4">Ваші товари</h2>
       <div className="table-responsive">
         <Table striped bordered hover>
           <thead>
@@ -128,7 +83,7 @@ const CheckoutPage = () => {
           <tbody>
             {cartItems.map(item => (
               <tr key={item.id}>
-                <td>{item.title}</td>
+                <td>{item.name}</td>
                 <td className="text-center">
                   <ButtonGroup size="sm">
                     <Button 
@@ -163,185 +118,171 @@ const CheckoutPage = () => {
                 </td>
               </tr>
             ))}
-          </tbody>
-          <tfoot className="table-active">
-            <tr>
-              <td colSpan="3" className="text-end fw-bold">Всього:</td>
+            <tr className="table-active">
+              <td colSpan="3" className="text-end fw-bold">Усього:</td>
               <td className="text-end fw-bold fs-5">{totalPrice.toFixed(2)} CHF</td>
               <td></td>
             </tr>
-          </tfoot>
+          </tbody>
         </Table>
       </div>
     </div>
   );
 
-  if (submitSuccess) {
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prevState => ({
+      ...prevState,
+      [name]: value
+    }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    setIsSubmitting(true);
+    setSubmitError(null);
+
+    try {
+      const response = await fetch('http://localhost:3001/api/orders', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          customer: {
+            firstName: formData.firstName,
+            lastName: formData.lastName,
+            email: formData.email,
+            phone: formData.phone,
+          },
+          deliveryType: formData.deliveryType,
+          deliveryData: getDeliveryData(),
+          items: cartItems.map(item => ({
+            productId: item.id,
+            quantity: item.quantity,
+            price: item.price
+          })),
+          totalAmount: totalPrice,
+          paymentMethod: formData.paymentMethod,
+          notes: formData.notes,
+          status: 'PENDING',
+          paymentStatus: 'PENDING'
+        })
+      });
+
+      if (!response.ok) throw new Error('Failed to create order');
+
+      setSubmitSuccess(true);
+      clearCart();
+      
+    } catch (error) {
+      setSubmitError('Помилка при оформленні замовлення. Спробуйте ще раз пізніше.');
+      console.error('Order submission error:', error);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const getDeliveryData = () => {
+    switch (formData.deliveryType) {
+      case 'ADDRESS':
+        return {
+          street: formData.street,
+          house: formData.house,
+          apartment: formData.apartment,
+          city: formData.city,
+          postalCode: formData.postalCode
+        };
+      case 'RAILWAY_STATION':
+        return {
+          stationId: parseInt(formData.stationId),
+          meetingTime: formData.meetingTime
+        };
+      case 'PICKUP':
+        return {
+          storeId: parseInt(formData.storeId),
+          pickupTime: formData.pickupTime
+        };
+      default:
+        return {};
+    }
+  };
+
+  if (loading) {
     return (
-      <div className="max-w-md mx-auto mt-10 p-6 bg-white rounded-lg shadow-md">
-        <h2 className="text-2xl font-bold text-green-600 mb-4">Замовлення оформлено!</h2>
-        <p>Дякуємо за Ваше замовлення. Ми зв'яжемося з Вами найближчим часом.</p>
-      </div>
+      <Container className="py-5 text-center">
+        <p>Завантаження...</p>
+      </Container>
     );
   }
 
+  if (cartItems.length === 0 && !submitSuccess) {
+    return (
+      <Container className="py-5 text-center">
+        <h2>Ваш кошик порожній</h2>
+        <Button 
+          variant="primary" 
+          className="mt-3"
+          onClick={() => navigate('/')}
+        >
+          Повернутися до покупок
+        </Button>
+      </Container>
+    );
+  }
+
+  if (submitSuccess) {
+    return (
+      <Container className="py-5 text-center">
+        <h2 className="text-success mb-4">Замовлення успішно оформлено!</h2>
+        <p>Дякуємо за Ваше замовлення. Ми зв'яжемося з Вами найближчим часом.</p>
+        <Button 
+          variant="primary" 
+          className="mt-3"
+          onClick={() => navigate('/')}
+        >
+          Повернутися до покупок
+        </Button>
+      </Container>
+    );
+  }
 
   return (
-    <div className="max-w-2xl mx-auto mt-10 p-6 bg-white rounded-lg shadow-md">
-      <h1 className="text-3xl font-bold mb-6">Оформлення замовлення</h1>
+    <Container className="py-5">
+      <h1 className="text-center mb-5">Оформлення замовлення</h1>
       
-      <Container>
-        <CartTable />
-      </Container>
+      <Form onSubmit={handleSubmit}>
+        <div className="max-w-3xl mx-auto">
+          <CartTable />
+          
+          <CheckoutForm 
+            formData={formData}
+            handleChange={handleChange}
+            deliveryType={formData.deliveryType}
+            railwayStations={railwayStations}
+            stores={[STORE_ADDRESS]}
+          />
 
-      {/* Форма оформления заказа */}
-      <Container className="d-flex justify-content-center align-items-center my-4">
-      <div className="w-50 w-md-75 w-lg-50">
-      <Form onSubmit={handleSubmit} className="mb-4">
-      <Row className="mb-3">
-        <Col md={6}>
-          <Form.Group>
-            <Form.Control
-              type="text"
-              name="firstName"
-              placeholder="Ім'я"
-              value={formData.firstName}
-              onChange={handleChange}
-              required
-            />
-          </Form.Group>
-        </Col>
-        <Col md={6}>
-          <Form.Group>
-            <Form.Control
-              type="text"
-              name="lastName"
-              placeholder="Прізвище"
-              value={formData.lastName}
-              onChange={handleChange}
-              required
-            />
-          </Form.Group>
-        </Col>
-      </Row>
+          {submitError && (
+            <Alert variant="danger" className="mb-4">
+              {submitError}
+            </Alert>
+          )}
 
-      <Form.Group className="mb-3">
-        <Form.Control
-          type="email"
-          name="email"
-          placeholder="Email"
-          value={formData.email}
-          onChange={handleChange}
-          required
-        />
-      </Form.Group>
-
-      <Form.Group className="mb-3">
-        <Form.Control
-          type="tel"
-          name="phone"
-          placeholder="Телефон"
-          value={formData.phone}
-          onChange={handleChange}
-          required
-        />
-      </Form.Group>
-
-      <Form.Group className="mb-3">
-        <Form.Control
-          type="text"
-          name="address"
-          placeholder="Адреса доставки"
-          value={formData.address}
-          onChange={handleChange}
-          required
-        />
-      </Form.Group>
-
-      <Row className="mb-3">
-        <Col md={6}>
-          <Form.Group>
-            <Form.Control
-              type="text"
-              name="city"
-              placeholder="Місто"
-              value={formData.city}
-              onChange={handleChange}
-              required
-            />
-          </Form.Group>
-        </Col>
-        {/* <Col md={6}>
-          <Form.Group>
-            <Form.Control
-              type="text"
-              name="zipCode"
-              placeholder="Индекс"
-              value={formData.zipCode}
-              onChange={handleChange}
-              required
-            />
-          </Form.Group>
-        </Col> */}
-      </Row>
-
-      <Row className="mb-3">
-        <Col md={6}>
-      <Form.Group className="mb-3">
-        <Form.Select 
-          name="paymentMethod"
-          value={formData.paymentMethod}
-          onChange={handleChange}
-        >
-          <option value="card">TWINT</option>
-          <option value="cash">CASH</option>
-        </Form.Select>
-      </Form.Group>
-      </Col>
-
-      <Col md={6}>
-      <Form.Group className="mb-3">
-        <Form.Select
-          name="deliveryMethod"
-          value={formData.deliveryMethod}
-          onChange={handleChange}
-        >
-          <option value="standard">Самовивіз</option>
-          <option value="express">Кур'єр</option>
-        </Form.Select>
-      </Form.Group>
-      </Col>
-      </Row>
-
-      <Form.Group className="mb-3">
-        <Form.Control
-          as="textarea"
-          name="notes"
-          placeholder="Додати коментар"
-          value={formData.notes}
-          onChange={handleChange}
-          rows={3}
-        />
-      </Form.Group>
-
-      {submitError && (
-        <Alert variant="danger" className="mb-3">
-          {submitError}
-        </Alert>
-      )}
-
-      <Button
-        type="submit"
-        variant="primary"
-        disabled={isSubmitting}
-        className="w-100"
-      >
-        {isSubmitting ? 'Оформлення...' : 'Оформити замовлення'}
-      </Button>
-    </Form>
-    </div>
+          <div className="d-grid gap-2">
+            <Button
+              type="submit"
+              size="lg"
+              variant="primary"
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? 'Оформлення...' : 'Оформити замовлення'}
+            </Button>
+          </div>
+        </div>
+      </Form>
     </Container>
-    </div>
   );
 };
 

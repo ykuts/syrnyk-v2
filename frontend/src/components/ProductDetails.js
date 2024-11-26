@@ -6,7 +6,7 @@ import Col from "react-bootstrap/Col";
 import Card from 'react-bootstrap/Card';
 import Image from "react-bootstrap/Image";
 import Button from 'react-bootstrap/Button';
-import Nav from 'react-bootstrap/Nav';
+
 import Modal from 'react-bootstrap/Modal';
 import Carousel from 'react-bootstrap/Carousel';
 import { CartContext } from '../context/CartContext';

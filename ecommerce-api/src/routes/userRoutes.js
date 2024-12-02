@@ -1,16 +1,24 @@
 import express from 'express';
-import { registerUser, loginUser, getUserProfile } from '../controllers/userController.js';
-import { protect } from '../middleware/authMiddleware.js';
-
-const router = express.Router();
-
-// Register a new user
-router.post('/register', registerUser);
-
-// Login a user
-router.post('/login', loginUser);
-
-// Get user profile
-router.get('/profile', protect, getUserProfile); // Auth middleware will be needed here
-
-export default router;
+import { 
+    registerUser, 
+    loginUser, 
+    getUserProfile,
+    updateUserProfile,
+    changePassword,
+    getUserOrders
+  } from '../controllers/userController.js';
+  import { protect } from '../middleware/authMiddleware.js';
+  
+  const router = express.Router();
+  
+  // Public routes
+  router.post('/register', registerUser);
+  router.post('/login', loginUser);
+  
+  // Protected routes
+  router.get('/profile', protect, getUserProfile);
+  router.put('/profile', protect, updateUserProfile);
+  router.put('/password', protect, changePassword);
+  router.get('/orders', protect, getUserOrders);
+  
+  export default router;

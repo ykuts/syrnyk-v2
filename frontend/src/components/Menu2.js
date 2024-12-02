@@ -7,19 +7,24 @@ import Form from 'react-bootstrap/Form';
 import Row from 'react-bootstrap/esm/Row';
 import Col from 'react-bootstrap/esm/Col';
 import Modal from 'react-bootstrap/Modal';
+import Dropdown from 'react-bootstrap/Dropdown';
 import Button from 'react-bootstrap/Button';
 import ListGroup from 'react-bootstrap/ListGroup';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom'; 
 import LoginForm from './LoginForm';
 import '../custom.scss';
+import { useAuth } from '../context/AuthContext';
 import { CartContext } from '../context/CartContext';
-import { Trash } from "lucide-react";
+import { Trash, User, Package, Box, LogOut, Settings } from "lucide-react";
 import './CartNavItem.css';
+import './Menu2.css';
 
 const Menu2 = () => {
+    const [isSticky, setIsSticky] = useState(false);
     const { t, i18n } = useTranslation();
     const [selectedValue, setSelectedValue] = useState('');
+    const { user, logout } = useAuth();
 
     const [showLogin, setShowLogin] = useState(false); // to display Modal
 
@@ -38,6 +43,44 @@ const Menu2 = () => {
         navigate('/checkout');
     };
 
+    const handleLogout = () => {
+        logout();
+        navigate('/');
+    };
+
+    useEffect(() => {
+        const handleScroll = () => {
+            const offset = window.scrollY;
+            setIsSticky(offset > 100); // меняем состояние когда скролл больше 100px
+        };
+
+        window.addEventListener('scroll', handleScroll);
+
+        return () => {
+            window.removeEventListener('scroll', handleScroll);
+        };
+    }, []);
+
+    const [isHidden, setIsHidden] = useState(false);
+let lastScroll = 0;
+
+useEffect(() => {
+    const handleScroll = () => {
+        const currentScroll = window.scrollY;
+        setIsSticky(currentScroll > 100);
+        
+        // Скрываем меню при скролле вниз и показываем при скролле вверх
+        if (currentScroll > lastScroll && !isHidden && currentScroll > 300) {
+            setIsHidden(true);
+        } else if (currentScroll < lastScroll && isHidden) {
+            setIsHidden(false);
+        }
+        lastScroll = currentScroll;
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+}, [isHidden]);
 
     useEffect(() => {
         // Set default language
@@ -50,21 +93,106 @@ const Menu2 = () => {
         i18n.changeLanguage(newLanguage);
     };
 
+
+    const ProfileButton = () => {
+        const navigate = useNavigate();
+        const { t } = useTranslation();
+    
+        if (!user) {
+            return (
+                <button className="custom-button round-button" onClick={() => setShowLogin(true)}>
+                    <Image src="/assets/account.png" roundedCircle
+                        style={{ width: '30px', height: '30px' }} />
+                    <span className="profile-text">{t('buttons.profile')}</span>
+                </button>
+            );
+        }
+    
+        return (
+            <Dropdown className="position-relative">
+                <Dropdown.Toggle as="div" className="custom-button round-button d-flex align-items-center">
+                    <div 
+                        className="rounded-circle d-flex align-items-center justify-content-center text-white"
+                        style={{
+                            width: '30px',
+                            height: '30px',
+                            fontWeight: '700',
+                            fontSize: '16px'
+                        }}
+                    >
+                        {user.firstName[0]}
+                    </div>
+                    <span className="profile-text ms-2">{user.firstName}</span>
+                </Dropdown.Toggle>
+    
+                <Dropdown.Menu 
+                    className="position-absolute" 
+                    style={{
+                        zIndex: 1000,
+                        right: 0,
+                        marginTop: '0.5rem'
+                    }}
+                >
+                    {user.role === 'CLIENT' ? (
+                        <>
+                            <Dropdown.Item onClick={() => navigate('/client')}>
+                                <User size={16} className="me-2" />
+                                Профіль
+                            </Dropdown.Item>
+                            <Dropdown.Item onClick={() => navigate('/orders')}>
+                                <Package size={16} className="me-2" />
+                                Історія замовлень
+                            </Dropdown.Item>
+                        </>
+                    ) : (
+                        <>
+                            <Dropdown.Item onClick={() => navigate('/admin/orders')}>
+                                <Package size={16} className="me-2" />
+                                Управління замовленнями
+                            </Dropdown.Item>
+                            <Dropdown.Item onClick={() => navigate('/admin/products')}>
+                                <Box size={16} className="me-2" />
+                                Управління продуктами
+                            </Dropdown.Item>
+                            <Dropdown.Item onClick={() => navigate('/admin/settings')}>
+                                <Settings size={16} className="me-2" />
+                                Налаштування
+                            </Dropdown.Item>
+                        </>
+                    )}
+                    <Dropdown.Divider />
+                    <Dropdown.Item onClick={handleLogout} className="text-danger">
+                        <LogOut size={16} className="me-2" />
+                        Вихід
+                    </Dropdown.Item>
+                </Dropdown.Menu>
+            </Dropdown>
+        );
+    };
+
     return (
         <>
-            <Navbar collapseOnSelect expand="lg" className="justify-content-between">
+            <div className={isSticky ? 'navbar-spacer' : ''} />
+            <Navbar 
+                collapseOnSelect 
+                expand="lg" 
+                className={`justify-content-between ${isSticky ? 'sticky-navbar' : ''} ${isHidden ? 'hidden' : ''}`}
+            >
                 <Container fluid>
                     <Navbar.Toggle aria-controls="responsive-navbar-nav"
                         style={{ border: 'none', boxShadow: 'none', outline: 'none' }} />
 
                     <Nav className='icons ms-auto d-flex flex-row align-self-start order-lg-4' id='nav-account'>
-                        <Nav.Link className='p-2'>
-                            <button className="custom-button round-button" onClick={() => setShowLogin(true)}>
+                    <div className='p-2'>
+                        
+                            <ProfileButton />
+                        
+                            {/* <button className="custom-button round-button" onClick={() => setShowLogin(true)}>
                                 <Image src="/assets/account.png" roundedCircle
                                     style={{ width: '30px', height: '30px' }} />
                                 <span className="profile-text">{t('buttons.profile')}</span>
-                            </button>
-                        </Nav.Link>
+                            </button> */}
+                        </div>
                         <Nav.Link eventKey={2} onClick={() => setShowCart(true)}>
                         <div className="cart-icon-container custom-button round-button">
                             <img

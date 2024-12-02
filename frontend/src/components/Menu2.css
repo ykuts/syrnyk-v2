@@ -1,0 +1,16 @@
+/* Menu2.css */
+.sticky-navbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1030;
+    background-color: #fff;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+  }
+  
+  /* Добавляем отступ для контента под фиксированным меню */
+  .navbar-spacer {
+    height: 76px; /* Высота должна соответствовать высоте вашего navbar */
+  }

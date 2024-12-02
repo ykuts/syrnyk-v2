@@ -1,12 +1,13 @@
 import express from 'express';
 import userRoutes from './routes/userRoutes.js';
+import adminRoutes from './routes/adminRoutes.js'
 import orderRoutes from './routes/orderRoutes.js';
 import productRoutes from './routes/productRoutes.js';
 import cartRoutes from './routes/cartRoutes.js';
 import categoryRoutes from './routes/categoryRoutes.js';
 import addressRoutes from './routes/addressRoutes.js';
 import railwayStationsRouter from './routes/railwayStationsRouter.js';
-import uploadRoutes from './routes/uploadRoutes.js';  // Добавляем импорт роутов загрузки
+import uploadRoutes from './routes/uploadRoutes.js'; 
 import { handleMulterError } from './middleware/upload.js';
 import cors from 'cors';
 import path from 'path';
@@ -51,13 +52,15 @@ app.use(cors({
 
 // Use routes
 app.use('/api/users', userRoutes);
+app.use('/api/admin', adminRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/cart', cartRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/addresses', addressRoutes);
 app.use('/api/railway-stations', railwayStationsRouter);
-app.use('/api/upload', uploadRoutes); // Добавляем роуты для загрузки файлов
+app.use('/api/upload', uploadRoutes); // Routes for files upload
+
 
 app.use(handleMulterError);
 

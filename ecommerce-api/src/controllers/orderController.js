@@ -8,55 +8,101 @@ export const createOrder = async (req, res) => {
   try {
     const {
       userId,
-      addressId,
-      status,
+      deliveryType,
       totalAmount,
-      paymentStatus,
       paymentMethod,
-      trackingNumber,
-      notes,
+      notesClient,
+      status,
+      paymentStatus,
       items,
+      addressDelivery,
+      stationDelivery,
+      pickupDelivery,
+      customer
     } = req.body;
 
-    // Проверка обязательных полей
-    if (!userId || !addressId || !totalAmount || !items || items.length === 0) {
-      return res.status(400).json({ message: 'Пожалуйста, заполните все обязательные поля.' });
+    // Проверяем обязательные поля
+    if (!deliveryType || !totalAmount || !items || items.length === 0) {
+      return res.status(400).json({ 
+        message: 'Не заполнены обязательные поля заказа' 
+      });
     }
 
-    // Создание заказа и связанных элементов заказа
+    // Если тип доставки PICKUP, проверяем существование магазина
+    if (deliveryType === 'PICKUP') {
+      const store = await prisma.store.findUnique({
+        where: { id: pickupDelivery.storeId }
+      });
+
+      if (!store) {
+        return res.status(400).json({
+          message: 'Указанный магазин не найден'
+        });
+      }
+    }
+
+    // Создаем заказ
     const order = await prisma.order.create({
       data: {
-        userId,
-        addressId,
-        status,
+        ...(userId && {
+          user: {
+            connect: { id: userId }
+          }
+        }),
+        deliveryType,
         totalAmount,
-        paymentStatus,
         paymentMethod,
-        trackingNumber,
-        notes,
+        notesClient,
+        status,
+        paymentStatus,
         items: {
           create: items.map(item => ({
-            productId: item.productId,
+            product: {
+              connect: { id: item.productId }
+            },
             quantity: item.quantity,
             price: item.price
-          })),
+          }))
         },
+        ...(deliveryType === 'ADDRESS' && addressDelivery && {
+          addressDelivery: {
+            create: addressDelivery
+          }
+        }),
+        ...(deliveryType === 'RAILWAY_STATION' && stationDelivery && {
+          stationDelivery: {
+            create: {
+              stationId: stationDelivery.stationId,
+              meetingTime: stationDelivery.meetingTime
+            }
+          }
+        }),
+        ...(deliveryType === 'PICKUP' && pickupDelivery && {
+          pickupDelivery: {
+            create: {
+              storeId: pickupDelivery.storeId,
+              pickupTime: pickupDelivery.pickupTime
+            }
+          }
+        })
       },
       include: {
         items: true,
-      },
+        addressDelivery: true,
+        stationDelivery: true,
+        pickupDelivery: true,
+        user: true
+      }
     });
 
-    await sendOrderConfirmation(order);
-
     res.status(201).json({
-      message: 'Заказ успешно создан',
+      message: 'Замовлення успішно створено',
       order,
     });
   } catch (error) {
-    console.error('Ошибка при создании заказа:', error);
+    console.error('Помилка при створенні замовлення:', error);
     res.status(500).json({
-      message: 'Ошибка при создании заказа',
+      message: 'Помилка при створенні замовлення',
       error: process.env.NODE_ENV === 'development' ? error.message : undefined,
     });
   }
@@ -136,22 +182,50 @@ export const updatePaymentStatus = async (req, res) => {
 
 // Get all orders
 export const getAllOrders = async (req, res) => {
-  //const { userId } = req.user;
-
   try {
     const orders = await prisma.order.findMany({
       orderBy: {
-        createdAt: 'desc' // Sort descende. New at the top
+        createdAt: 'desc'
       },
       include: {
-        items: true,
+        items: {
+          include: {
+            product: true
+          }
+        },
         user: true,
-        address: true
+        addressDelivery: true,
+        stationDelivery: {
+          include: {
+            station: true
+          }
+        },
+        pickupDelivery: {
+          include: {
+            store: true
+          }
+        }
       }
     });
     res.json(orders);
   } catch (error) {
     res.status(500).json({ message: error.message });
+  }
+};
+
+export const updateOrderNotes = async (req, res) => {
+  try {
+    const { orderId } = req.params;
+    const { notesAdmin } = req.body;
+    
+    const order = await prisma.order.update({
+      where: { id: Number(orderId) },
+      data: { notesAdmin }
+    });
+
+    res.json(order);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
   }
 };
 

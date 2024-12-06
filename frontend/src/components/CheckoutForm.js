@@ -4,7 +4,7 @@ import DeliveryMethodSelector from './DeliveryMethodSelector';
 import PaymentMethodSelector from './PaymentMethodSelector';
 import StationSelector from './StationSelector';
 
-const CheckoutForm = ({ formData, handleChange, deliveryType, railwayStations, stores }) => {
+const CheckoutForm = ({ formData, handleChange, deliveryType, railwayStations, stores, isAuthenticated }) => {
   const renderDeliveryFields = () => {
     switch (deliveryType) {
       case 'ADDRESS':
@@ -82,20 +82,64 @@ const CheckoutForm = ({ formData, handleChange, deliveryType, railwayStations, s
         );
 
         case 'RAILWAY_STATION':
-  return (
-    <div className="delivery-details mt-4">
-      <Card>
-        <Card.Body>
-          <h5 className="mb-3">Виберіть станцію</h5>
-          <StationSelector
-            stations={railwayStations}
-            selectedStation={formData.stationId}
-            onChange={handleChange}
-          />
-        </Card.Body>
-      </Card>
-    </div>
-  );
+      return (
+        <div className="delivery-details mt-4">
+          <Card>
+            <Card.Body>
+              <h5 className="mb-3">Виберіть станцію</h5>
+              <Form.Group className="mb-4">
+                <Form.Select
+                  name="stationId"
+                  value={formData.stationId}
+                  onChange={handleChange}
+                  required
+                >
+                  <option value="">Оберіть станцію</option>
+                  {railwayStations.map(station => (
+                    <option key={station.id} value={station.id}>
+                      {station.city} - {station.name}
+                    </option>
+                  ))}
+                </Form.Select>
+              </Form.Group>
+
+              {formData.stationId && (
+                <div className="mt-4">
+                  <Card className="bg-light">
+                    <Card.Body>
+                      {railwayStations.find(s => s.id === parseInt(formData.stationId))?.photo && (
+                        <img
+                          src={`http://localhost:3001${railwayStations.find(s => s.id === parseInt(formData.stationId)).photo}`}
+                          alt="Місце зустрічі"
+                          className="img-fluid rounded mb-3 w-100"
+                        />
+                      )}
+                      <div className="mb-3">
+                        <strong>Місце зустрічі:</strong>
+                        <p className="mb-0 mt-1">
+                          {railwayStations.find(s => s.id === parseInt(formData.stationId))?.meetingPoint}
+                        </p>
+                      </div>
+
+                      <Form.Group>
+                        <Form.Label className="fw-medium">Оберіть час зустрічі</Form.Label>
+                        <Form.Control
+                          type="datetime-local"
+                          name="meetingTime"
+                          value={formData.meetingTime}
+                          onChange={handleChange}
+                          min={new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().slice(0, 16)}
+                          required
+                        />
+                      </Form.Group>
+                    </Card.Body>
+                  </Card>
+                </div>
+              )}
+            </Card.Body>
+          </Card>
+        </div>
+      );
 
       /* case 'RAILWAY_STATION':
         return (
@@ -197,6 +241,8 @@ const CheckoutForm = ({ formData, handleChange, deliveryType, railwayStations, s
                     value={formData.firstName}
                     onChange={handleChange}
                     required
+                    readOnly={isAuthenticated}
+                    className={isAuthenticated ? 'bg-light' : ''}
                   />
                 </Form.Group>
               </Col>
@@ -209,6 +255,8 @@ const CheckoutForm = ({ formData, handleChange, deliveryType, railwayStations, s
                     value={formData.lastName}
                     onChange={handleChange}
                     required
+                    readOnly={isAuthenticated}
+                    className={isAuthenticated ? 'bg-light' : ''}
                   />
                 </Form.Group>
               </Col>
@@ -222,6 +270,8 @@ const CheckoutForm = ({ formData, handleChange, deliveryType, railwayStations, s
                 value={formData.email}
                 onChange={handleChange}
                 required
+                readOnly={isAuthenticated}
+                className={isAuthenticated ? 'bg-light' : ''}
               />
             </Form.Group>
 
@@ -233,11 +283,18 @@ const CheckoutForm = ({ formData, handleChange, deliveryType, railwayStations, s
                 value={formData.phone}
                 onChange={handleChange}
                 required
+                readOnly={isAuthenticated}
+                className={isAuthenticated ? 'bg-light' : ''}
               />
             </Form.Group>
           </Card.Body>
         </Card>
       </section>
+      {isAuthenticated && (
+                <Form.Text className="text-muted">
+                  Для зміни особистих даних перейдіть до налаштувань профілю
+                </Form.Text>
+              )}
 
       <section className="mb-5">
         <h4 className="mb-3">Спосіб доставки</h4>

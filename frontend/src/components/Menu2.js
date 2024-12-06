@@ -16,7 +16,7 @@ import LoginForm from './LoginForm';
 import '../custom.scss';
 import { useAuth } from '../context/AuthContext';
 import { CartContext } from '../context/CartContext';
-import { Trash, User, Package, Box, LogOut, Settings } from "lucide-react";
+import { Trash, User, Package, Box, LogOut, Settings, Truck, SquareUserRound } from "lucide-react";
 import './CartNavItem.css';
 import './Menu2.css';
 
@@ -129,7 +129,6 @@ useEffect(() => {
                     className="position-absolute" 
                     style={{
                         zIndex: 1000,
-                        right: 0,
                         marginTop: '0.5rem'
                     }}
                 >
@@ -150,9 +149,17 @@ useEffect(() => {
                                 <Package size={16} className="me-2" />
                                 Управління замовленнями
                             </Dropdown.Item>
+                            <Dropdown.Item onClick={() => navigate('/admin/users')}>
+                                <SquareUserRound size={16} className="me-2" />
+                                Управління клієнтами
+                            </Dropdown.Item>
                             <Dropdown.Item onClick={() => navigate('/admin/products')}>
                                 <Box size={16} className="me-2" />
                                 Управління продуктами
+                            </Dropdown.Item>
+                            <Dropdown.Item onClick={() => navigate('/admin/delivery')}>
+                                <Truck size={16} className="me-2" />
+                                Управління доставкою
                             </Dropdown.Item>
                             <Dropdown.Item onClick={() => navigate('/admin/settings')}>
                                 <Settings size={16} className="me-2" />
@@ -203,7 +210,7 @@ useEffect(() => {
                             {cartItems.length > 0 && (
                             <span className="cart-counter">{cartItems.length}</span>
                             )}
-                            <span className="cart-text">Кошик</span>
+                            <span className="cart-text">{t('buttons.cart')}</span>
                             </div>
                             {/* <button className="custom-button round-button">
                                 <Image src="/assets/cart.png" roundedCircle style={{ width: '30px', height: '30px' }} />
@@ -255,11 +262,11 @@ useEffect(() => {
                             </Form.Select>
                         </Nav>
                     </Navbar.Collapse>
-                    <Row className="d-lg-none">
+                    {/* <Row className="d-lg-none">
                         <Col md="auto">
                             <Image src="/assets/logo2.png" alt="logo" fluid className='logo-header' />
                         </Col>
-                    </Row>
+                    </Row> */}
                 </Container>
             </Navbar>
 

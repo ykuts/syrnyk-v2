@@ -38,7 +38,7 @@ const Register = () => {
       const result = await register(formData);
 
       if (result.success) {
-        navigate('/profile');
+        navigate('/client');
       } else {
         setError(result.error || 'Failed to register');
       }

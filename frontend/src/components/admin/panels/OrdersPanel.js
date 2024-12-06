@@ -19,6 +19,9 @@ const OrdersPanel = () => {
   const [error, setError] = useState(null);
   const [expandedOrder, setExpandedOrder] = useState(null);
   const [adminComments, setAdminComments] = useState({});
+  const [filterStatus, setFilterStatus] = useState('ALL');
+  const [filterPaymentStatus, setFilterPaymentStatus] = useState('ALL');
+  const [sortBy, setSortBy] = useState('date_desc');
 
   useEffect(() => {
     fetchInitialData();
@@ -40,7 +43,6 @@ const OrdersPanel = () => {
         productsResponse.json()
       ]);
 
-      // Преобразуем массив продуктов в объект для быстрого доступа
       const productsMap = productsData.reduce((acc, product) => {
         acc[product.id] = product;
         return acc;
@@ -48,11 +50,10 @@ const OrdersPanel = () => {
 
       setOrders(ordersData);
       setProducts(productsMap);
-
-      // Инициализация комментариев админа
+      
       const comments = {};
       ordersData.forEach(order => {
-        comments[order.id] = order.notes || '';
+        comments[order.id] = order.notesAdmin || '';
       });
       setAdminComments(comments);
     } catch (err) {
@@ -63,7 +64,7 @@ const OrdersPanel = () => {
   };
 
   const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleString('ru-RU', {
+    return new Date(dateString).toLocaleString('uk-UA', {
       year: 'numeric',
       month: 'long',
       day: 'numeric',
@@ -77,22 +78,28 @@ const OrdersPanel = () => {
       'PENDING': 'warning',
       'CONFIRMED': 'primary',
       'DELIVERED': 'success',
-      'CANCELLED': 'danger',
-      'PAID': 'success',
-      'REFUNDED': 'warning'
+      'CANCELLED': 'danger'
     };
     return statusVariants[status] || 'secondary';
   };
 
-  const getPaymentMethodLabel = (method) => {
-    const methodLabels = {
-      'CREDIT_CARD': 'Кредитная карта',
-      'DEBIT_CARD': 'Дебетовая карта',
-      'BANK_TRANSFER': 'Банковский перевод',
-      'TWINT': 'TWINT',
-      'CASH': 'Наличные'
-    };
-    return methodLabels[method] || method;
+  const getDeliveryDetails = (order) => {
+    switch (order.deliveryType) {
+      case 'ADDRESS':
+        return order.addressDelivery ? 
+          `${order.addressDelivery.city}, ${order.addressDelivery.street} ${order.addressDelivery.house}` :
+          'Адреса не вказана';
+      case 'RAILWAY_STATION':
+        return order.stationDelivery ?
+          `Залізнична станція: ${order.stationDelivery.station?.name}, Час: ${formatDate(order.stationDelivery.meetingTime)}` :
+          'Станція не вказана';
+      case 'PICKUP':
+        return order.pickupDelivery ?
+          `Самовивіз: ${order.pickupDelivery.store?.name}, Час: ${formatDate(order.pickupDelivery.pickupTime)}` :
+          'Магазин не вказаний';
+      default:
+        return 'Тип доставки не вказаний';
+    }
   };
 
   const handleStatusChange = async (orderId, newStatus) => {
@@ -148,7 +155,7 @@ const OrdersPanel = () => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ notes: comment }),
+        body: JSON.stringify({ notesAdmin: comment }),
       });
 
       if (!response.ok) {
@@ -163,7 +170,7 @@ const OrdersPanel = () => {
     return (
       <Container className="d-flex justify-content-center align-items-center" style={{ minHeight: '200px' }}>
         <Spinner animation="border" role="status">
-          <span className="visually-hidden">Загрузка...</span>
+          <span className="visually-hidden">Завантаження...</span>
         </Spinner>
       </Container>
     );
@@ -173,38 +180,114 @@ const OrdersPanel = () => {
     return (
       <Container className="mt-4">
         <Alert variant="danger">
-          Ошибка: {error}
+          Помилка: {error}
         </Alert>
       </Container>
     );
   }
 
+  const filteredOrders = orders.filter(order => {
+    if (filterStatus !== 'ALL' && order.status !== filterStatus) return false;
+    if (filterPaymentStatus !== 'ALL' && order.paymentStatus !== filterPaymentStatus) return false;
+    return true;
+  }).sort((a, b) => {
+    switch (sortBy) {
+      case 'date_asc':
+        return new Date(a.createdAt) - new Date(b.createdAt);
+      case 'date_desc':
+        return new Date(b.createdAt) - new Date(a.createdAt);
+      case 'amount_asc':
+        return Number(a.totalAmount) - Number(b.totalAmount);
+      case 'amount_desc':
+        return Number(b.totalAmount) - Number(a.totalAmount);
+      default:
+        return 0;
+    }
+  });
+
   return (
     <Container fluid className="py-4">
       <h1 className="mb-4">Замовлення</h1>
-      {orders.map((order) => (
+      
+      <Row className="mb-4">
+        <Col md={3}>
+          <Form.Group>
+            <Form.Label>Статус замовлення</Form.Label>
+            <Form.Select 
+              value={filterStatus}
+              onChange={(e) => setFilterStatus(e.target.value)}
+            >
+              <option value="ALL">Всі статуси</option>
+              <option value="PENDING">Нові замовлення</option>
+              <option value="CONFIRMED">Підтверджені</option>
+              <option value="DELIVERED">Виконані</option>
+              <option value="CANCELLED">Скасовані</option>
+            </Form.Select>
+          </Form.Group>
+        </Col>
+        
+        <Col md={3}>
+          <Form.Group>
+            <Form.Label>Статус оплати</Form.Label>
+            <Form.Select
+              value={filterPaymentStatus}
+              onChange={(e) => setFilterPaymentStatus(e.target.value)}
+            >
+              <option value="ALL">Всі статуси</option>
+              <option value="PENDING">Очікує оплати</option>
+              <option value="PAID">Оплачено</option>
+              <option value="REFUNDED">Повернення</option>
+            </Form.Select>
+          </Form.Group>
+        </Col>
+        
+        <Col md={3}>
+          <Form.Group>
+            <Form.Label>Сортування</Form.Label>
+            <Form.Select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+            >
+              <option value="date_desc">Спочатку нові</option>
+              <option value="date_asc">Спочатку старі</option>
+              <option value="amount_desc">Спочатку дорожчі</option>
+              <option value="amount_asc">Спочатку дешевші</option>
+            </Form.Select>
+          </Form.Group>
+        </Col>
+      </Row>
+      
+      <div className="mb-3">
+        <p className="text-muted">
+          {filteredOrders.length === orders.length 
+            ? `Всього замовлень: ${orders.length}`
+            : `Показано ${filteredOrders.length} з ${orders.length} замовлень`
+          }
+        </p>
+      </div>
+      {filteredOrders.map((order) => (
         <Card key={order.id} className="mb-4">
           <Card.Body>
             <Row>
               <Row>
                 <Col>
                   <div className="d-flex justify-content-between align-items-start mb-3">
-                    <h5 className="mb-0">Замовлення #{order.id} от {formatDate(order.createdAt)}</h5>
+                    <h5 className="mb-0">Замовлення #{order.id} від {formatDate(order.createdAt)}</h5>
                     <Badge bg={getStatusVariant(order.status)}>
                       {order.status}
                     </Badge>
                   </div>
-                  </Col>
-                </Row>
-                <Col md={8} > 
+                </Col>
+              </Row>
+              <Col md={8}>
                 <Row className="text-start">
                   <Col md={6}>
-                    <p><strong>Клієнт:</strong> {order.user.firstName} {order.user.lastName}</p>
-                    <p><strong>Email:</strong> {order.user.email}</p>
-                    <p><strong>Телефон:</strong> {order.user.phone}</p>
+                    <p><strong>Клієнт:</strong> {order.user?.firstName} {order.user?.lastName}</p>
+                    <p><strong>Email:</strong> {order.user?.email}</p>
+                    <p><strong>Телефон:</strong> {order.user?.phone}</p>
                   </Col>
                   <Col md={6}>
-                    <p><strong>Сумма замовлення:</strong> {Number(order.totalAmount).toLocaleString()} CHF</p>
+                    <p><strong>Сума замовлення:</strong> {Number(order.totalAmount).toLocaleString()} CHF</p>
                     <p><strong>Спосіб оплати:</strong> {order.paymentMethod}</p>
                     <p>
                       <strong>Статус оплати:</strong>{' '}
@@ -216,43 +299,42 @@ const OrdersPanel = () => {
                 </Row>
                 <Row className="mt-2">
                   <Col>
-                    <p><strong>Адреса доставки:</strong> {order.address.city}, {order.address.station}</p>
+                    <p><strong>Доставка:</strong> {getDeliveryDetails(order)}</p>
                   </Col>
                 </Row>
               </Col>
               <Col md={4}>
-              <Form.Group className="mb-3 text-start">
-                <Form.Label><strong>Статус замовлення</strong></Form.Label>
-                <Form.Select 
-                  value={order.status}
-                  onChange={(e) => handleStatusChange(order.id, e.target.value)}
+                <Form.Group className="mb-3 text-start">
+                  <Form.Label><strong>Статус замовлення</strong></Form.Label>
+                  <Form.Select 
+                    value={order.status}
+                    onChange={(e) => handleStatusChange(order.id, e.target.value)}
+                  >
+                    <option value="PENDING">Нове замовлення</option>
+                    <option value="CONFIRMED">Підтверджено</option>
+                    <option value="DELIVERED">Виконано</option>
+                    <option value="CANCELLED">Скасовано</option>
+                  </Form.Select>
+                </Form.Group>
+                <Form.Group className="mb-3 text-start">
+                  <Form.Label><strong>Статус оплати</strong></Form.Label>
+                  <Form.Select 
+                    value={order.paymentStatus}
+                    onChange={(e) => handlePaymentStatusChange(order.id, e.target.value)}
+                  >
+                    <option value="PENDING">Очікує оплати</option>
+                    <option value="PAID">Оплачено</option>
+                    <option value="REFUNDED">Повернення</option>
+                  </Form.Select>
+                </Form.Group>
+                <Button
+                  variant="outline-primary"
+                  onClick={() => setExpandedOrder(expandedOrder === order.id ? null : order.id)}
+                  className="w-100"
                 >
-                  <option value="PENDING">Нове замовлення</option>
-                  <option value="CONFIRMED">Затверждено</option>
-                  <option value="DELIVERED">Виконано</option>
-                  <option value="CANCELLED">Відміна</option>
-                </Form.Select>
-              </Form.Group>
-              <Form.Group className="mb-3 text-start">
-                <Form.Label><strong>Статус оплати</strong></Form.Label>
-                <Form.Select 
-                  value={order.paymentStatus}
-                  onChange={(e) => handlePaymentStatusChange(order.id, e.target.value)}
-                >
-                  <option value="PENDING">Очікує оплати</option>
-                  <option value="PAID">Оплачено</option>
-                  <option value="REFUNDED">Повернення</option>
-                </Form.Select>
-              </Form.Group>
-              <p><strong>Спосіб оплати:</strong> {getPaymentMethodLabel(order.paymentMethod)}</p>
-              <Button
-                variant="outline-primary"
-                onClick={() => setExpandedOrder(expandedOrder === order.id ? null : order.id)}
-                className="w-100"
-              >
-                {expandedOrder === order.id ? 'Скрыть детали' : 'Показать детали'}
-              </Button>
-            </Col>
+                  {expandedOrder === order.id ? 'Приховати деталі' : 'Показати деталі'}
+                </Button>
+              </Col>
             </Row>
 
             {expandedOrder === order.id && (
@@ -268,8 +350,8 @@ const OrdersPanel = () => {
                         )}
                       </div>
                       <div className="text-end">
-                        <div>Количество: {item.quantity}</div>
-                        <div>Цена: {Number(item.price).toLocaleString()} CHF</div>
+                        <div>Кількість: {item.quantity}</div>
+                        <div>Ціна: {Number(item.price).toLocaleString()} CHF</div>
                         <div className="text-muted small">
                           Всього: {(Number(item.price) * item.quantity).toLocaleString()} CHF
                         </div>

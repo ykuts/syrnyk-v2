@@ -1,5 +1,6 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { CartContext } from '../context/CartContext';
+import { useAuth } from '../context/AuthContext';
 import { Form, Button, Alert, ButtonGroup, Container, Table } from 'react-bootstrap';
 import { Trash, Plus, Minus } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -15,6 +16,7 @@ const STORE_ADDRESS = {
 
 const CheckoutPage = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const { 
     cartItems, 
     totalPrice, 
@@ -38,16 +40,35 @@ const CheckoutPage = () => {
     city: '',
     postalCode: '',
     stationId: '',
-    meetingTime: '',
-    storeId: '',
-    pickupTime: '',
+    meetingTime: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().slice(0, 16), 
+    storeId: '1',
+    pickupTime: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().slice(0, 16),
     paymentMethod: 'TWINT',
-    notes: ''
+    notesClient: ''
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState(null);
   const [submitSuccess, setSubmitSuccess] = useState(false);
+
+  // Autofill user data when component mounts or user changes
+  useEffect(() => {
+    if (user) {
+      setFormData(prevState => ({
+        ...prevState,
+        firstName: user.firstName || prevState.firstName,
+        lastName: user.lastName || prevState.lastName,
+        email: user.email || prevState.email,
+        phone: user.phone || prevState.phone,
+        // If user has a preferred delivery location, we can set it here
+        ...(user.preferredDeliveryLocation && {
+          deliveryType: 'ADDRESS',
+          // Assuming preferredDeliveryLocation is stored in a structured format
+          // You might need to parse it if it's stored as a string
+        })
+      }));
+    }
+  }, [user]);
 
   useEffect(() => {
     const fetchDeliveryData = async () => {
@@ -131,6 +152,25 @@ const CheckoutPage = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+    
+    // Специальная обработка для полей с датой
+    if (name === 'meetingTime' || name === 'pickupTime') {
+      // Проверяем, что значение не пустое
+      if (value) {
+        const selectedDate = new Date(value);
+        const minDate = new Date(Date.now() + 24 * 60 * 60 * 1000); // минимум следующий день
+        
+        // Если выбранная дата раньше минимальной, устанавливаем минимальную
+        if (selectedDate < minDate) {
+          setFormData(prevState => ({
+            ...prevState,
+            [name]: minDate.toISOString().slice(0, 16)
+          }));
+          return;
+        }
+      }
+    }
+    
     setFormData(prevState => ({
       ...prevState,
       [name]: value
@@ -139,45 +179,79 @@ const CheckoutPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
     setIsSubmitting(true);
     setSubmitError(null);
-
+  
     try {
+      const orderData = {
+        userId: user?.id,
+        deliveryType: formData.deliveryType,
+        totalAmount: totalPrice,
+        paymentMethod: formData.paymentMethod,
+        notesClient: formData.notes,
+        status: 'PENDING',
+        paymentStatus: 'PENDING',
+        items: cartItems.map(item => ({
+          productId: item.id,
+          quantity: item.quantity,
+          price: item.price
+        }))
+      };
+  
+      if (!user) {
+        orderData.customer = {
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          email: formData.email,
+          phone: formData.phone,
+        };
+      }
+  
+      // В зависимости от типа доставки добавляем соответствующие данные
+      if (formData.deliveryType === 'ADDRESS') {
+        orderData.addressDelivery = {
+          street: formData.street,
+          house: formData.house,
+          apartment: formData.apartment || null,
+          city: formData.city,
+          postalCode: formData.postalCode
+        };
+      } else if (formData.deliveryType === 'RAILWAY_STATION') {
+        orderData.stationDelivery = {
+          stationId: parseInt(formData.stationId),
+          meetingTime: new Date(formData.meetingTime).toISOString()
+        };
+      } else if (formData.deliveryType === 'PICKUP') {
+        orderData.pickupDelivery = {
+          storeId: 1, // Используем существующий ID магазина из базы данных
+          pickupTime: new Date(formData.pickupTime).toISOString()
+        };
+      }
+  
+      console.log('Sending order data:', orderData);
+  
       const response = await fetch('http://localhost:3001/api/orders', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          ...(user?.token && { 'Authorization': `Bearer ${user.token}` })
         },
-        body: JSON.stringify({
-          customer: {
-            firstName: formData.firstName,
-            lastName: formData.lastName,
-            email: formData.email,
-            phone: formData.phone,
-          },
-          deliveryType: formData.deliveryType,
-          deliveryData: getDeliveryData(),
-          items: cartItems.map(item => ({
-            productId: item.id,
-            quantity: item.quantity,
-            price: item.price
-          })),
-          totalAmount: totalPrice,
-          paymentMethod: formData.paymentMethod,
-          notes: formData.notes,
-          status: 'PENDING',
-          paymentStatus: 'PENDING'
-        })
+        body: JSON.stringify(orderData)
       });
-
-      if (!response.ok) throw new Error('Failed to create order');
-
+  
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to create order');
+      }
+  
+      const result = await response.json();
+      console.log('Order created:', result);
+  
       setSubmitSuccess(true);
       clearCart();
       
     } catch (error) {
-      setSubmitError('Помилка при оформленні замовлення. Спробуйте ще раз пізніше.');
+      setSubmitError(`Помилка при оформленні замовлення: ${error.message}`);
       console.error('Order submission error:', error);
     } finally {
       setIsSubmitting(false);
@@ -262,6 +336,7 @@ const CheckoutPage = () => {
             deliveryType={formData.deliveryType}
             railwayStations={railwayStations}
             stores={[STORE_ADDRESS]}
+            isAuthenticated={!!user}
           />
 
           {submitError && (

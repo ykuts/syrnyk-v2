@@ -34,6 +34,11 @@ const productsDir = path.join(uploadsDir, 'products'); // Добавляем д�
     }
 });
 
+app.use((req, res, next) => {
+    console.log(`${req.method} ${req.url}`);
+    next();
+  });
+
 // Настраиваем статические файлы
 app.use('/uploads', express.static(uploadsDir));
 

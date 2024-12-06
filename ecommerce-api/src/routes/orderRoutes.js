@@ -1,30 +1,23 @@
 import express from 'express';
 import { createOrder, getOrders, updateOrderStatus, getAllOrders, 
-    updatePaymentStatus,  updateOrderItem, removeOrderItem, addOrderItem} from '../controllers/orderController.js';
+    updatePaymentStatus,  updateOrderItem, removeOrderItem, addOrderItem, updateOrderNotes} from '../controllers/orderController.js';
 
 const router = express.Router();
 
-// Create a new order
+// Base routes
 router.post('/', createOrder);
-
-// Get all orders for a user
 router.get('/', getOrders);
+router.get('/all', getAllOrders);
 
-// Update the status of an order
-//router.put('/:id/status', updateOrderStatus);
-
-//Get all orders
-router.get('/all', getAllOrders)
-
+// Order status and payment routes
 router.patch('/:orderId/status', updateOrderStatus);
-
 router.patch('/:orderId/payment-status', updatePaymentStatus);
+router.patch('/:orderId/notes', updateOrderNotes);
 
-router.put('/orders/:orderId/items/:itemId', updateOrderItem);
-
-router.delete('/orders/:orderId/items/:itemId', removeOrderItem);
-
-router.post('/orders/:orderId/items', addOrderItem);
+// Order items routes
+router.put('/:orderId/items/:itemId', updateOrderItem);
+router.delete('/:orderId/items/:itemId', removeOrderItem);
+router.post('/:orderId/items', addOrderItem);
 
 export default router;
 

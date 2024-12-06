@@ -44,7 +44,7 @@ function LoginForm({ closeModal }) {
   const handleRegisterClick = (e) => {
     e.preventDefault();
     closeModal();
-    navigate('/client');
+    navigate('/register');
   };
 
   const handleForgotPassword = (e) => {

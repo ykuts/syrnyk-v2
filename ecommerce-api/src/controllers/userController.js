@@ -103,14 +103,6 @@ export const loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    // Validate input
-    if (!email || !password) {
-      return res.status(400).json({ 
-        message: 'Email and password are required' 
-      });
-    }
-
-    // Find user by email
     const user = await prisma.user.findUnique({ 
       where: { email },
       select: {
@@ -119,47 +111,30 @@ export const loginUser = async (req, res) => {
         lastName: true,
         email: true,
         password: true,
-        phone: true,
         role: true,
       },
     });
 
-    if (!user) {
-      return res.status(401).json({ 
-        message: 'Invalid credentials' 
-      });
+    if (!user || !(await bcrypt.compare(password, user.password))) {
+      return res.status(401).json({ message: 'Invalid credentials' });
     }
 
-    // Check password
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
-      return res.status(401).json({ 
-        message: 'Invalid credentials' 
-      });
-    }
-
-    // Remove password from response
-    const { password: _, ...userWithoutPassword } = user;
-
-    // Generate JWT
+    // Генерируем JWT
     const token = jwt.sign(
-      { userId: user.id },
+      { userId: user.id },  // убедитесь, что здесь передается userId
       process.env.JWT_SECRET,
       { expiresIn: '24h' }
     );
 
+    const { password: _, ...userWithoutPassword } = user;
+
     res.json({
-      message: 'Login successful',
       user: userWithoutPassword,
       token
     });
-
   } catch (error) {
     console.error('Login error:', error);
-    res.status(500).json({ 
-      message: 'Error during login',
-      error: process.env.NODE_ENV === 'development' ? error.message : undefined
-    });
+    res.status(500).json({ message: 'Error during login' });
   }
 };
 
@@ -343,6 +318,73 @@ export const getUserOrders = async (req, res) => {
     console.error('Orders retrieval error:', error);
     res.status(500).json({ 
       message: 'Error retrieving orders',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+};
+
+export const getAllUsers = async (req, res) => {
+  try {
+    const users = await prisma.user.findMany({
+      select: {
+        id: true,
+        firstName: true,
+        lastName: true,
+        email: true,
+        phone: true,
+        role: true,
+        isActive: true,
+        preferredDeliveryLocation: true,
+        createdAt: true,
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+
+    // Возвращаем массив пользователей в объекте
+    res.json({
+      users,
+      total: users.length
+    });
+  } catch (error) {
+    console.error('Get users error:', error);
+    res.status(500).json({ 
+      message: 'Error retrieving users',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+};
+
+export const updateUserStatus = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { isActive } = req.body;
+    console.log('Updating user status:', { id, isActive });
+
+    const updatedUser = await prisma.user.update({
+      where: { id: parseInt(id) },
+      data: { isActive },
+      select: {
+        id: true,
+        firstName: true,
+        lastName: true,
+        email: true,
+        phone: true,
+        role: true,
+        isActive: true,
+        createdAt: true,
+      },
+    });
+
+    res.json({
+      message: 'User status updated successfully',
+      user: updatedUser,
+    });
+  } catch (error) {
+    console.error('Update user status error:', error);
+    res.status(500).json({ 
+      message: 'Error updating user status',
       error: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }

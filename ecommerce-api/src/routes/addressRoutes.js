@@ -3,10 +3,10 @@ import { addAddress, getAllAddresses } from '../controllers/addressController.js
 
 const router = express.Router();
 
-// Маршрут для добавления нового адреса
+// Add new address
 router.post('/', addAddress);
 
-// Маршрут для получения всех адресов
+// Get all addresses
 router.get('/', getAllAddresses);
 
 export default router;

@@ -3,7 +3,7 @@ import { createCategory, getCategories } from '../controllers/categoryController
 
 const router = express.Router();
 
-// Добавление новой категории
+// Add new category
 router.post('/', createCategory);
 router.get('/', getCategories)
 

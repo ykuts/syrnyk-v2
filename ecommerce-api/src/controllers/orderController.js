@@ -21,14 +21,14 @@ export const createOrder = async (req, res) => {
       customer
     } = req.body;
 
-    // Проверяем обязательные поля
+    // Checking required fields
     if (!deliveryType || !totalAmount || !items || items.length === 0) {
       return res.status(400).json({ 
         message: 'Не заполнены обязательные поля заказа' 
       });
     }
 
-    // Если тип доставки PICKUP, проверяем существование магазина
+    // If the delivery type is PICKUP, we check the existence of the store
     if (deliveryType === 'PICKUP') {
       const store = await prisma.store.findUnique({
         where: { id: pickupDelivery.storeId }
@@ -41,7 +41,7 @@ export const createOrder = async (req, res) => {
       }
     }
 
-    // Создаем заказ
+    // Create order
     const order = await prisma.order.create({
       data: {
         ...(userId && {
@@ -126,7 +126,7 @@ export const updateOrderStatus = async (req, res) => {
     const { orderId } = req.params;
     const { status } = req.body;
     
-    // Проверяем, что статус является одним из допустимых значений OrderStatus
+    // Check that the status is one of the valid OrderStatus values
     if (!['PENDING', 'CONFIRMED', 'DELIVERED', 'CANCELLED'].includes(status)) {
       return res.status(400).json({ error: 'Invalid order status' });
     }
@@ -147,7 +147,7 @@ export const updatePaymentStatus = async (req, res) => {
     const { orderId } = req.params;
     const { paymentStatus } = req.body;
     
-    // Проверяем, что статус является одним из допустимых значений PaymentStatus
+    // Check status PaymentStatus
     if (!['PENDING', 'PAID', 'REFUNDED'].includes(paymentStatus)) {
       return res.status(400).json({ error: 'Invalid payment status' });
     }
@@ -229,7 +229,7 @@ export const updateOrderNotes = async (req, res) => {
   }
 };
 
-// Обновление количества товара в заказе
+// Updating the quantity of goods in the order
 export const updateOrderItem = async (req, res) => {
   const { orderId, itemId } = req.params;
   const { quantity } = req.body;
@@ -243,7 +243,7 @@ export const updateOrderItem = async (req, res) => {
   });
 
   try {
-    // Проверяем существование записи перед обновлением
+    // Checking the existence of a record before updating
     const existingItem = await prisma.orderItem.findUnique({
       where: {
         id: Number(itemId)
@@ -302,15 +302,15 @@ export const updateOrderItem = async (req, res) => {
   }
 };
 
-// Добавление товара в заказ
+// Add items to order
 export const addOrderItem = async (req, res) => {
   const { orderId } = req.params;
   const { productId, quantity } = req.body;
 
   try {
-    // Начинаем транзакцию
+    
     const result = await prisma.$transaction(async (prisma) => {
-      // Получаем информацию о продукте
+      // Get product info
       const product = await prisma.product.findUnique({
         where: {
           id: Number(productId)
@@ -321,29 +321,29 @@ export const addOrderItem = async (req, res) => {
         throw new Error('Product not found');
       }
 
-      // Создаем новый товар в заказе
+      // Create a new product in the order
       const newOrderItem = await prisma.orderItem.create({
         data: {
           orderId: Number(orderId),
           productId: Number(productId),
           quantity: Number(quantity),
-          price: product.price // Используем цену из продукта
+          price: product.price 
         }
       });
 
-      // Получаем все товары заказа для пересчета общей суммы
+      // We receive all the goods in the order to recalculate the total amount
       const orderItems = await prisma.orderItem.findMany({
         where: {
           orderId: Number(orderId)
         }
       });
 
-      // Пересчитываем общую сумму заказа
+      // Recalculate the total order amount
       const totalAmount = orderItems.reduce((sum, item) => {
         return sum + (Number(item.price) * item.quantity);
       }, 0);
 
-      // Обновляем общую сумму заказа
+      // Updating the total order amount
       const updatedOrder = await prisma.order.update({
         where: {
           id: Number(orderId)
@@ -368,14 +368,14 @@ export const addOrderItem = async (req, res) => {
   }
 };
 
-// Удаление товара из заказа
+// Removing a product from an order
 export const removeOrderItem = async (req, res) => {
   const { orderId, itemId } = req.params;
 
   try {
-    // Начинаем транзакцию
+    
     const result = await prisma.$transaction(async (prisma) => {
-      // Удаляем товар из заказа
+      // Delete item form order
       await prisma.orderItem.delete({
         where: {
           id: Number(itemId),
@@ -383,19 +383,19 @@ export const removeOrderItem = async (req, res) => {
         }
       });
 
-      // Получаем оставшиеся товары заказа
+      // We receive the remaining items of the order
       const orderItems = await prisma.orderItem.findMany({
         where: {
           orderId: Number(orderId)
         }
       });
 
-      // Пересчитываем общую сумму заказа
+      // Recalculate the total order amount
       const totalAmount = orderItems.reduce((sum, item) => {
         return sum + (Number(item.price) * item.quantity);
       }, 0);
 
-      // Обновляем общую сумму заказа
+      // Updating the total order amount
       const updatedOrder = await prisma.order.update({
         where: {
           id: Number(orderId)

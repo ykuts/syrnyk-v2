@@ -9,7 +9,7 @@ const __dirname = path.dirname(__filename);
 
 const router = express.Router();
 
-// Загрузка изображений продукта
+// Upload product img
 router.post('/products', uploadProducts.array('images', 10), async (req, res) => {
     try {
         const files = req.files;
@@ -28,14 +28,14 @@ router.post('/products', uploadProducts.array('images', 10), async (req, res) =>
     }
 });
 
-// Загрузка изображения станции
+// Upload station img
 router.post('/stations', uploadStations.single('photo'), async (req, res) => {
     try {
         if (!req.file) {
             return res.status(400).json({ message: 'No file uploaded' });
         }
 
-        // Возвращаем путь без /uploads/
+        // rout without /uploads/
         const imageUrl = `/stations/${req.file.filename}`;
         
         res.json({
@@ -51,7 +51,7 @@ router.post('/stations', uploadStations.single('photo'), async (req, res) => {
     }
 });
 
-// Удаление изображения продукта
+// Delete product img
 router.delete('/products/:filename', async (req, res) => {
     try {
         const { filename } = req.params;
@@ -71,7 +71,7 @@ router.delete('/products/:filename', async (req, res) => {
     }
 });
 
-// Удаление изображения станции
+// Delete station img
 router.delete('/stations/:filename', async (req, res) => {
     try {
         const { filename } = req.params;

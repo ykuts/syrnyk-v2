@@ -2,17 +2,17 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-// Добавление нового адреса
+// Add new address
 export const addAddress = async (req, res) => {
   try {
     const { city, station } = req.body;
 
-    // Проверка обязательных полей
+    // Check required fields
     if (!city) {
       return res.status(400).json({ message: 'City is required' });
     }
 
-    // Создание нового адреса
+    // Create new address
     const address = await prisma.address.create({
       data: {
         city,
@@ -33,7 +33,7 @@ export const addAddress = async (req, res) => {
   }
 };
 
-// Получение всех адресов
+// Get all addresses
 export const getAllAddresses = async (req, res) => {
   try {
     const addresses = await prisma.address.findMany();

@@ -21,12 +21,12 @@ app.use(express.json()); // Middleware for parsing JSON
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Создаем директории для загрузок
+// Create directories for downloads
 const uploadsDir = path.join(__dirname, '../uploads');
 const stationsDir = path.join(uploadsDir, 'stations');
-const productsDir = path.join(uploadsDir, 'products'); // Добавляем директорию для продуктов
+const productsDir = path.join(uploadsDir, 'products'); 
 
-// Создаем все необходимые директории
+// Create all necessary directories
 [uploadsDir, stationsDir, productsDir].forEach(dir => {
     if (!fs.existsSync(dir)) {
         fs.mkdirSync(dir, { recursive: true });
@@ -39,10 +39,10 @@ app.use((req, res, next) => {
     next();
   });
 
-// Настраиваем статические файлы
+// Setting up static files
 app.use('/uploads', express.static(uploadsDir));
 
-// Добавляем middleware для логирования запросов к файлам
+// Adding middleware for logging file requests
 app.use('/uploads', (req, res, next) => {
     console.log('Requesting file:', req.url);
     next();
@@ -69,7 +69,7 @@ app.use('/api/upload', uploadRoutes); // Routes for files upload
 
 app.use(handleMulterError);
 
-// Общий обработчик ошибок
+// General error handler
 app.use((err, req, res, next) => {
   console.error('Error:', err);
   res.status(err.status || 500).json({
@@ -80,7 +80,7 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Обработка несуществующих маршрутов
+// Handling unavailable routes
 app.use((req, res) => {
   res.status(404).json({
       message: 'Маршрут не найден'

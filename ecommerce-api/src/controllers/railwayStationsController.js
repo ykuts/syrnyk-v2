@@ -3,7 +3,7 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 
-    // Валидация данных станции
+    // Station data validation
     const validateStationData = (data) => {
       const errors = [];
       
@@ -23,7 +23,7 @@ const prisma = new PrismaClient();
     }
 
   
-    // Получить все станции
+    // Get all stations
     export const getAllStations = async (req, res) => {
         try {
             const page = parseInt(req.query.page) || 1;
@@ -48,7 +48,7 @@ const prisma = new PrismaClient();
                 prisma.railwayStation.count({ where })
             ]);
     
-            // Добавляем полные URL для фото
+            // Adding full URLs for photos
               const stationsWithPhotos = stations.map(station => ({
                 ...station,
                 photo: station.photo ? `/uploads/${station.photo}` : null

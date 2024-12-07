@@ -2,19 +2,19 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-// Вспомогательная функция для обработки массива изображений
+// Helper function for processing an array of images
 const processImages = (image, images) => {
   const mainImage = image || '';
   let imageArray = [];
 
-  // Обрабатываем массив images
+  // Processing an array of images
   if (Array.isArray(images) && images.length > 0) {
     imageArray = images;
   } else if (typeof images === 'string' && images) {
     imageArray = [images];
   }
 
-  // Если есть главное изображение и его нет в массиве, добавляем
+  // If there is a main image and it is not in the array, we add it
   if (mainImage && !imageArray.includes(mainImage)) {
     imageArray.push(mainImage);
   }
@@ -45,19 +45,19 @@ export const createProduct = async (req, res) => {
 
     console.log('Received images:', { image, images }); // Для отладки
 
-    // Проверка обязательных полей
+    // Checking required fields
     if (!name || !description || !price || !categoryId || !weight) {
       return res.status(400).json({
         message: 'Необходимо указать название, описание, цену, вес и категорию продукта.'
       });
     }
 
-    // Обработка изображений
+    // Image processing
     const { mainImage, imageArray } = processImages(image, images);
 
     console.log('Processed images:', { mainImage, imageArray }); // Для отладки
 
-    // Создание нового продукта
+    // Create new product
     const product = await prisma.product.create({
       data: {
         name,
@@ -146,19 +146,19 @@ export const updateProduct = async (req, res) => {
 
     console.log('Update received images:', { image, images }); // Для отладки
 
-    // Валидация обязательных полей
+    // Validation of required fields
     if (!name || !description || !price || !categoryId || !weight) {
       return res.status(400).json({
         message: 'Необходимо указать название, описание, цену, вес и категорию продукта.'
       });
     }
 
-    // Обработка изображений
+    // Image processing
     const { mainImage, imageArray } = processImages(image, images);
 
     console.log('Update processed images:', { mainImage, imageArray }); // Для отладки
 
-    // Подготавливаем данные для обновления
+    // Preparing data for update
     const updateData = {
       name,
       description,
@@ -175,7 +175,7 @@ export const updateProduct = async (req, res) => {
       isActive: isActive ?? true
     };
 
-    // Обновляем продукт
+    // Update product
     const updatedProduct = await prisma.product.update({
       where: {
         id: parseInt(id)

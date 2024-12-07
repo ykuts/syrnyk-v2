@@ -1,7 +1,9 @@
 node_modules/
 .env
+.env_local
 .DS_Store
 *.log
 dist/
 coverage/
 .vscode/
+backup.sql

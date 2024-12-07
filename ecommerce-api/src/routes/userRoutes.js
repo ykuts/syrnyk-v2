@@ -6,8 +6,8 @@ import {
   updateUserProfile,
   changePassword,
   getUserOrders,
-  getAllUsers,         // добавьте эти
-  updateUserStatus     // импорты
+  getAllUsers,         
+  updateUserStatus     
 } from '../controllers/userController.js';
 import { protect, isAdmin } from '../middleware/authMiddleware.js';
 

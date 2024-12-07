@@ -12,19 +12,19 @@ export const getCategories = async (req, res) => {
     }
   };
 
-// Создание новой категории
+// Create new category
 export const createCategory = async (req, res) => {
   try {
     const { name, description } = req.body;
 
-    // Проверка обязательных полей
+    // Checking required fields
     if (!name) {
       return res.status(400).json({ 
         message: 'Название категории обязательно' 
       });
     }
 
-    // Проверка, существует ли категория с таким же именем
+    // Check if a category with the same name exists
     const existingCategory = await prisma.category.findUnique({
       where: { name },
     });
@@ -35,7 +35,7 @@ export const createCategory = async (req, res) => {
       });
     }
 
-    // Создание категории
+    
     const category = await prisma.category.create({
       data: {
         name,

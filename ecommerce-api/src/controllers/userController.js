@@ -69,7 +69,6 @@ export const registerUser = async (req, res) => {
         email: true,
         phone: true,
         createdAt: true,
-        // Explicitly exclude password from response
         password: false,
         role: true,
       },
@@ -121,7 +120,7 @@ export const loginUser = async (req, res) => {
 
     // Генерируем JWT
     const token = jwt.sign(
-      { userId: user.id },  // убедитесь, что здесь передается userId
+      { userId: user.id },  
       process.env.JWT_SECRET,
       { expiresIn: '24h' }
     );
@@ -342,7 +341,7 @@ export const getAllUsers = async (req, res) => {
       },
     });
 
-    // Возвращаем массив пользователей в объекте
+    // Return an array of users in an object
     res.json({
       users,
       total: users.length

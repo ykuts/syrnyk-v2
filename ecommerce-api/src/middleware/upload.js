@@ -5,7 +5,7 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Конфигурация для разных типов файлов
+// Configuration for different file types
 const createStorage = (folder) => {
     return multer.diskStorage({
         destination: function (req, file, cb) {
@@ -19,9 +19,9 @@ const createStorage = (folder) => {
     });
 };
 
-// Проверка типа файла
+// Check file type
 const fileFilter = (req, file, cb) => {
-    // Разрешенные типы файлов
+    // Allowed Types
     const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
     
     if (allowedTypes.includes(file.mimetype)) {
@@ -31,13 +31,13 @@ const fileFilter = (req, file, cb) => {
     }
 };
 
-// Создаем отдельные загрузчики для разных типов файлов
+// Iploader for different file types
 const uploadProducts = multer({
     storage: createStorage('products'),
     fileFilter: fileFilter,
     limits: {
         fileSize: 10 * 2048 * 2048, // 10MB
-        files: 10 // максимальное количество файлов за один раз
+        files: 10 // max files
     }
 });
 
@@ -46,11 +46,11 @@ const uploadStations = multer({
     fileFilter: fileFilter,
     limits: {
         fileSize: 10 * 2048 * 2048, // 10MB
-        files: 1 // для станций только один файл
+        files: 1 // for stations only one file
     }
 });
 
-// Обработчик ошибок multer
+// Handle Multer errors
 const handleMulterError = (err, req, res, next) => {
     if (err instanceof multer.MulterError) {
         if (err.code === 'LIMIT_FILE_SIZE') {

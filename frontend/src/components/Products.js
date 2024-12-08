@@ -30,9 +30,9 @@ const Products = () => {
 
                     return {
                         ...product,
-                        image: imageUrl,          // Replace with processed URL
-                        images: imageUrls,        // Process additional images
-                        fullImageUrl: imageUrl    // Maintain compatibility if needed
+                        image: imageUrl,          
+                        images: imageUrls,       
+                        fullImageUrl: imageUrl    
                     };
                 });
 

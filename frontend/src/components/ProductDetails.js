@@ -1,5 +1,7 @@
 import { Link, useParams } from "react-router-dom";
 import React, { useState, useEffect, useContext } from 'react';
+import { getImageUrl } from '../config';
+import { apiClient } from '../utils/api';
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
@@ -10,7 +12,7 @@ import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
 import Carousel from 'react-bootstrap/Carousel';
 import { CartContext } from '../context/CartContext';
-import { Alert, Spinner } from 'react-bootstrap';
+//import { Alert, Spinner } from 'react-bootstrap';
 import Recomendations from "./Recomendations";
 import './ProductDetails.css';
 
@@ -22,17 +24,17 @@ const ProductDetails = () => {
     const [showGallery, setShowGallery] = useState(false);
     const [selectedImageIndex, setSelectedImageIndex] = useState(0);
 
-    // Получаем функции из контекста корзины
+
     const { cartItems, addToCart, removeFromCart } = useContext(CartContext);
     
-    // Получаем количество товара в корзине
+    // Items in the cart
     const quantity = cartItems.find((item) => item?.id === parseInt(id))?.quantity || 0;
 
-    // Получение данных о продукте
+    // Fetch product data
     useEffect(() => {
         const fetchProduct = async () => {
             try {
-                const response = await fetch(`${process.env.REACT_APP_API_URL}/api/products/${id}`);
+                const response = await apiClient.get(`/api/products/${id}`);
                 if (!response.ok) throw new Error('Product not found');
                 const data = await response.json();
                 setProduct(data);
@@ -48,7 +50,7 @@ const ProductDetails = () => {
         fetchProduct();
     }, [id]);
 
-    // Вспомогательная функция для формирования URL изображения
+    /* // Вспомогательная функция для формирования URL изображения
     const getImageUrl = (path) => {
         if (!path) return null;
         if (path.startsWith('http')) return path;
@@ -72,10 +74,12 @@ const ProductDetails = () => {
                 </Alert>
             </Container>
         );
-    }
+    } */
 
-    // Объединяем все изображения продукта
-    const allImages = [product.image, ...(product.images || [])].filter(Boolean);
+    
+    const allImages = [product.image, ...(product.images || [])]
+        .filter(Boolean)
+        .map(img => getImageUrl(img));
 
     const handleAddToCart = () => {
         if (product) {
@@ -99,40 +103,40 @@ const ProductDetails = () => {
                 <Row>
                     <Col md={8}>
                         <Card>
-                            {/* Основное изображение */}
+                            {/* Main img */}
                             <Card.Img
-                                src={getImageUrl(product.image)}
-                                alt={product.name}
-                                style={{ cursor: 'pointer' }}
+                    src={getImageUrl(product.image)}
+                    alt={product.name}
+                    style={{ cursor: 'pointer' }}
+                    onClick={() => {
+                        setSelectedImageIndex(0);
+                        setShowGallery(true);
+                    }}
+                />
+                            
+                            {/* Update the thumbnails */}
+                {product.images && product.images.length > 0 && (
+                    <div className="d-flex mt-3 gap-2 p-2 overflow-auto">
+                        {allImages.map((img, index) => (
+                            <img
+                                key={index}
+                                src={img}  // Now using pre-processed URL
+                                alt={`${product.name} ${index + 1}`}
+                                style={{
+                                    width: '80px',
+                                    height: '80px',
+                                    objectFit: 'cover',
+                                    cursor: 'pointer',
+                                    border: selectedImageIndex === index ? '2px solid #007bff' : 'none'
+                                }}
                                 onClick={() => {
-                                    setSelectedImageIndex(0);
+                                    setSelectedImageIndex(index);
                                     setShowGallery(true);
                                 }}
                             />
-                            
-                            {/* Миниатюры дополнительных изображений */}
-                            {product.images && product.images.length > 0 && (
-                                <div className="d-flex mt-3 gap-2 p-2 overflow-auto">
-                                    {allImages.map((img, index) => (
-                                        <img
-                                            key={index}
-                                            src={getImageUrl(img)}
-                                            alt={`${product.name} ${index + 1}`}
-                                            style={{
-                                                width: '80px',
-                                                height: '80px',
-                                                objectFit: 'cover',
-                                                cursor: 'pointer',
-                                                border: selectedImageIndex === index ? '2px solid #007bff' : 'none'
-                                            }}
-                                            onClick={() => {
-                                                setSelectedImageIndex(index);
-                                                setShowGallery(true);
-                                            }}
-                                        />
-                                    ))}
-                                </div>
-                            )}
+                        ))}
+                    </div>
+                )}
                         </Card>
                     </Col>
                     <Col md={4}>
@@ -210,7 +214,7 @@ const ProductDetails = () => {
                 </Row>
             </Container>
 
-            {/* Модальное окно с каруселью */}
+            {/* Modal with the carousel */}
             <Modal 
                 show={showGallery} 
                 onHide={() => setShowGallery(false)}

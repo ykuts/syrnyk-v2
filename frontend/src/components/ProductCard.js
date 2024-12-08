@@ -4,21 +4,13 @@ import { Link } from 'react-router-dom';
 import Image from 'react-bootstrap/Image';
 import Button from 'react-bootstrap/Button';
 import { CartContext } from '../context/CartContext';
+import { getImageUrl } from '../config';
 import './ProductCard.css';
 
 const ProductCard = ({ product }) => {
     const { cartItems, addToCart, removeFromCart } = useContext(CartContext);
     const [imageError, setImageError] = useState(false);
     const quantity = cartItems.find((item) => item.id === product.id)?.quantity || 0;
-
-    
-    const getImageUrl = (path) => {
-        if (!path) return null;
-        if (path.startsWith('http')) return path;
-        
-        const cleanPath = path.replace(/^\/uploads\//, '');
-        return `${process.env.REACT_APP_API_URL}/uploads/${cleanPath}`;
-    };
 
     // URL image default
     const defaultImageUrl = '/assets/default-product.png'; 
@@ -36,7 +28,7 @@ const ProductCard = ({ product }) => {
         setImageError(true);
     };
 
-    // Final image URL 
+    // Final image URL using centralized handler
     const imageUrl = imageError ? defaultImageUrl : getImageUrl(product.image);
 
     return (

@@ -1,5 +1,5 @@
-import { Link, useParams } from "react-router-dom";
 import React, { useState, useEffect, useContext } from 'react';
+import { Link, useParams, useNavigate } from "react-router-dom";
 import { getImageUrl } from '../config';
 import { apiClient } from '../utils/api';
 import Container from "react-bootstrap/Container";
@@ -8,7 +8,6 @@ import Col from "react-bootstrap/Col";
 import Card from 'react-bootstrap/Card';
 import Image from "react-bootstrap/Image";
 import Button from 'react-bootstrap/Button';
-
 import Modal from 'react-bootstrap/Modal';
 import Carousel from 'react-bootstrap/Carousel';
 import { CartContext } from '../context/CartContext';
@@ -18,38 +17,47 @@ import './ProductDetails.css';
 
 const ProductDetails = () => {
     const { id } = useParams();
+    const navigate = useNavigate();
     const [product, setProduct] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [showGallery, setShowGallery] = useState(false);
     const [selectedImageIndex, setSelectedImageIndex] = useState(0);
-
-
     const { cartItems, addToCart, removeFromCart } = useContext(CartContext);
     
-    // Items in the cart
     const quantity = cartItems.find((item) => item?.id === parseInt(id))?.quantity || 0;
 
     useEffect(() => {
         const fetchProduct = async () => {
             try {
-                const response = await apiClient.get(`/api/products/${id}`);
-                if (!response.ok) throw new Error('Product not found');
-                const data = await response.json();
+                const data = await apiClient.get(`/api/products/${id}`);
+                if (!data) {
+                    throw new Error('Продукт не знайдено');
+                }
                 setProduct(data);
                 setError(null);
             } catch (err) {
-                setError('Failed to load product details');
                 console.error('Error fetching product:', err);
+                setError(err.message || 'Failed to load product details');
+                if (err.message.includes('404')) {
+                    setTimeout(() => navigate('/'), 3000);
+                }
             } finally {
                 setLoading(false);
             }
         };
 
-        fetchProduct();
-    }, [id]);
+        if (id) {
+            fetchProduct();
+        }
 
-    // Show loading state
+        return () => {
+            // Cleanup
+            setProduct(null);
+            setError(null);
+        };
+    }, [id, navigate]);
+
     if (loading) {
         return (
             <Container className="d-flex justify-content-center align-items-center" style={{ minHeight: '200px' }}>
@@ -58,22 +66,27 @@ const ProductDetails = () => {
         );
     }
 
-    // Show error state
     if (error || !product) {
         return (
             <Container>
-                <Alert variant="danger">
-                    {error || 'Продукт не знайдено'}
-                </Alert>
+                <div className="text-center my-5">
+                    <Alert variant="danger">
+                        {error || 'Продукт не знайдено'}
+                        <br />
+                        <small>Повернення на головну сторінку...</small>
+                    </Alert>
+                    <Link to="/" className="btn btn-primary mt-3">
+                        На головну
+                    </Link>
+                </div>
             </Container>
         );
     }
 
-    // Process images only after we confirm product exists
-    const allImages = [
-        getImageUrl(product.image),
-        ...(product.images || []).map(img => getImageUrl(img))
-    ].filter(Boolean);
+    // Only process images if product exists and has images
+    const mainImage = getImageUrl(product.image);
+    const additionalImages = product.images?.map(img => getImageUrl(img)) || [];
+    const allImages = [mainImage, ...additionalImages].filter(Boolean);
 
     const handleAddToCart = () => {
         if (product) {
@@ -98,40 +111,38 @@ const ProductDetails = () => {
                 <Row>
                     <Col md={8}>
                         <Card>
-                            {/* Main img */}
                             <Card.Img
-                    src={getImageUrl(product.image)}
-                    alt={product.name}
-                    style={{ cursor: 'pointer' }}
-                    onClick={() => {
-                        setSelectedImageIndex(0);
-                        setShowGallery(true);
-                    }}
-                />
-                            
-                            {/* Update the thumbnails */}
-                {product.images && product.images.length > 0 && (
-                    <div className="d-flex mt-3 gap-2 p-2 overflow-auto">
-                        {allImages.map((img, index) => (
-                            <img
-                                key={index}
-                                src={img}  // Now using pre-processed URL
-                                alt={`${product.name} ${index + 1}`}
-                                style={{
-                                    width: '80px',
-                                    height: '80px',
-                                    objectFit: 'cover',
-                                    cursor: 'pointer',
-                                    border: selectedImageIndex === index ? '2px solid #007bff' : 'none'
-                                }}
+                                src={mainImage}
+                                alt={product.name}
+                                style={{ cursor: 'pointer' }}
                                 onClick={() => {
-                                    setSelectedImageIndex(index);
+                                    setSelectedImageIndex(0);
                                     setShowGallery(true);
                                 }}
                             />
-                        ))}
-                    </div>
-                )}
+                            
+                            {additionalImages.length > 0 && (
+                                <div className="d-flex mt-3 gap-2 p-2 overflow-auto">
+                                    {allImages.map((img, index) => (
+                                        <img
+                                            key={index}
+                                            src={img}
+                                            alt={`${product.name} ${index + 1}`}
+                                            style={{
+                                                width: '80px',
+                                                height: '80px',
+                                                objectFit: 'cover',
+                                                cursor: 'pointer',
+                                                border: selectedImageIndex === index ? '2px solid #007bff' : 'none'
+                                            }}
+                                            onClick={() => {
+                                                setSelectedImageIndex(index);
+                                                setShowGallery(true);
+                                            }}
+                                        />
+                                    ))}
+                                </div>
+                            )}
                         </Card>
                     </Col>
                     <Col md={4}>

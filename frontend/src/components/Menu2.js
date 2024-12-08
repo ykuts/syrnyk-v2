@@ -317,7 +317,7 @@ useEffect(() => {
             <div className='w-30' style={{ width: '30%' }}>
 
                 <Button 
-                    variant="success"
+                    variant="primery"
                     onClick={handleCheckout}
                     disabled={cartItems.length === 0}
                 >

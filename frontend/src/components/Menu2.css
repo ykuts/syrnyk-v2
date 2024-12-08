@@ -7,6 +7,7 @@
   padding: 0 20px;
   height: auto;
   transition: all 0.3s ease;
+  background-color: #fff;
 }
 
 /* Sticky navbar styles */
@@ -19,6 +20,7 @@
   background-color: #fff;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
   transition: all 0.3s ease;
+  padding: 10px 0;
 }
 
 /* Logo transition styles */
@@ -41,6 +43,7 @@
 .navbar .nav-link {
   color: #000 !important;
   transition: opacity 0.2s ease;
+  padding: 8px 15px;
 }
 
 .navbar .nav-link:hover {
@@ -52,9 +55,8 @@
   height: 76px;
 }
 
-/* Animation for navbar hiding */
 .hidden {
-  transform: translateY(-100%);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 /* Mobile styles */
@@ -80,6 +82,10 @@
 
   .logo-header {
     max-height: 80px;
+  }
+
+  .sticky-navbar {
+    padding: 5px 0;
   }
 }
 
@@ -110,4 +116,56 @@
 /* Container adjustments */
 .container-fluid {
   padding: 10px 20px;
+}
+
+/* Modal button styles */
+.modal .btn-primary,
+.modal .btn-success {
+  background-color: #95c2d7 !important;
+  border-color: #95c2d7 !important;
+  color: #fff !important;
+}
+
+.modal .btn-primary:hover,
+.modal .btn-success:hover {
+  background-color: #7ba9bf !important;
+  border-color: #7ba9bf !important;
+}
+
+/* Secondary button in modal */
+.modal .btn-secondary {
+  background-color: #95c2d7 !important;
+  border-color: #95c2d7 !important;
+  color: #fff !important;
+}
+
+.modal .btn-secondary:hover {
+  background-color: #7ba9bf !important;
+  border-color: #7ba9bf !important;
+}
+
+/* Keep danger button (trash icon) red */
+.modal .btn-danger {
+  background-color: #dc3545 !important;
+  border-color: #dc3545 !important;
+}
+
+.modal .btn-danger:hover {
+  background-color: #bb2d3b !important;
+  border-color: #bb2d3b !important;
+}
+
+/* Modal button states */
+.modal .btn:disabled {
+  opacity: 0.65;
+}
+
+/* Ensure navigation items stay visible in sticky mode */
+.sticky-navbar .navbar-collapse {
+  margin-top: 0;
+}
+
+/* Adjust spacing when logo is hidden */
+.sticky-navbar .links {
+  margin-top: 0;
 }

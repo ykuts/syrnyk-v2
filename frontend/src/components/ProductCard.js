@@ -11,13 +11,13 @@ const ProductCard = ({ product }) => {
     const [imageError, setImageError] = useState(false);
     const quantity = cartItems.find((item) => item.id === product.id)?.quantity || 0;
 
-    // Вспомогательная функция для формирования URL изображения
+    
     const getImageUrl = (path) => {
         if (!path) return null;
         if (path.startsWith('http')) return path;
-        // Убираем возможное дублирование /uploads/
+        
         const cleanPath = path.replace(/^\/uploads\//, '');
-        return `http://localhost:3001/uploads/${cleanPath}`;
+        return `${process.env.REACT_APP_API_URL}/uploads/${cleanPath}`;
     };
 
     // URL image default
@@ -48,8 +48,8 @@ const ProductCard = ({ product }) => {
                     style={{ 
                         borderTopLeftRadius: '20px', 
                         borderTopRightRadius: '20px',
-                        height: '250px', // Fix height of image
-                        objectFit: 'cover' // Сохраняем пропорции изображения
+                        height: '250px', 
+                        objectFit: 'cover' 
                     }}
                     onError={handleImageError}
                 />

@@ -22,13 +22,13 @@ const DeliveryPanel = () => {
     if (imagePath.startsWith('http')) return imagePath;
     // Убираем дублирование /uploads/ если оно есть
     const cleanPath = imagePath.replace(/^\/uploads\//, '');
-    return `http://localhost:3001/uploads/${cleanPath}`;
+    return `${process.env.REACT_APP_API_URL}/uploads/${cleanPath}`;
   };
 
   // Загрузка станций
   const fetchStations = async () => {
     try {
-      const response = await fetch('http://localhost:3001/api/railway-stations');
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/railway-stations`);
       const data = await response.json();
       setStations(data.data);
       setError(null);
@@ -64,7 +64,7 @@ const DeliveryPanel = () => {
       const formData = new FormData();
       formData.append('photo', file);
 
-      const response = await fetch('http://localhost:3001/api/upload/stations', {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/upload/stations`, {
         method: 'POST',
         body: formData,
       });
@@ -92,8 +92,8 @@ const DeliveryPanel = () => {
 
     try {
       const url = selectedStation
-        ? `http://localhost:3001/api/railway-stations/${selectedStation.id}`
-        : 'http://localhost:3001/api/railway-stations';
+        ? `${process.env.REACT_APP_API_URL}/api/railway-stations/${selectedStation.id}`
+        : `${process.env.REACT_APP_API_URL}/api/railway-stations`;
 
       const method = selectedStation ? 'PUT' : 'POST';
 
@@ -128,13 +128,13 @@ const DeliveryPanel = () => {
         // Сначала удаляем фото, если оно есть
         if (station.photo) {
           const filename = station.photo.split('/').pop();
-          await fetch(`http://localhost:3001/api/upload/stations/${filename}`, {
+          await fetch(`${process.env.REACT_APP_API_URL}/api/upload/stations/${filename}`, {
             method: 'DELETE',
           });
         }
 
         // Затем удаляем станцию
-        const response = await fetch(`http://localhost:3001/api/railway-stations/${id}`, {
+        const response = await fetch(`${process.env.REACT_APP_API_URL}/api/railway-stations/${id}`, {
           method: 'DELETE',
         });
 

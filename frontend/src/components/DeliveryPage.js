@@ -13,7 +13,7 @@ const DeliveryPage = () => {
   useEffect(() => {
     const fetchStations = async () => {
       try {
-        const response = await fetch('http://localhost:3001/api/railway-stations');
+        const response = await fetch(`${process.env.REACT_APP_API_URL}/api/railway-stations`);
         if (!response.ok) {
           throw new Error('Failed to fetch stations');
         }
@@ -127,11 +127,11 @@ const MeetingCard = ({ city, station, location, imageSrc }) => {
       if (path.startsWith('http')) return path;
       // Убираем возможное дублирование /uploads/
       const cleanPath = path.replace(/^\/uploads\//, '');
-      return `http://localhost:3001/uploads/${cleanPath}`;
+      return `${process.env.REACT_APP_API_URL}/uploads/${cleanPath}`;
   };
 
   // URL изображения по умолчанию
-  const defaultImageUrl = 'http://localhost:3001/uploads/default-station.jpg';
+  const defaultImageUrl = `${process.env.REACT_APP_API_URL}/uploads/default-station.jpg`;
 
   // Определяем итоговый URL изображения
   const finalImageUrl = imageError ? defaultImageUrl : getImageUrl(imageSrc);

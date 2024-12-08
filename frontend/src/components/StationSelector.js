@@ -38,7 +38,7 @@ const StationSelector = ({ stations, selectedStation, onChange }) => {
               {selectedStationData?.photo && (
                 <Col md={4}>
                   <img
-                    src={`http://localhost:3001${selectedStationData.photo}`}
+                    src={`${process.env.REACT_APP_API_URL}${selectedStationData.photo}`}
                     alt="Місце зустрічі"
                     className="img-fluid rounded w-100 mb-3 mb-md-0"
                   />

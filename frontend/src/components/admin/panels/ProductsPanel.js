@@ -13,17 +13,17 @@ const ProductsPanel = () => {
   const [showModal, setShowModal] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
 
-  // Загрузка данных при монтировании
+
   useEffect(() => {
     fetchProducts();
     fetchCategories();
   }, []);
 
-  // Получение списка продуктов
+
   const fetchProducts = async () => {
     setLoading(true);
     try {
-      const response = await fetch('http://localhost:3001/api/products');
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/products`);
       if (!response.ok) {
         throw new Error('Failed to fetch products');
       }
@@ -37,10 +37,10 @@ const ProductsPanel = () => {
     }
   };
 
-  // Получение списка категорий
+ 
   const fetchCategories = async () => {
     try {
-      const response = await fetch('http://localhost:3001/api/categories');
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/categories`);
       if (!response.ok) {
         throw new Error('Failed to fetch categories');
       }
@@ -59,7 +59,7 @@ const ProductsPanel = () => {
     }
 
     try {
-      const response = await fetch(`http://localhost:3001/api/products/${id}`, {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/products/${id}`, {
         method: 'DELETE',
       });
 
@@ -85,8 +85,8 @@ const ProductsPanel = () => {
     setLoading(true);
     try {
       const url = selectedProduct
-        ? `http://localhost:3001/api/products/${selectedProduct.id}`
-        : 'http://localhost:3001/api/products/add';
+        ? `${process.env.REACT_APP_API_URL}/api/products/${selectedProduct.id}`
+        : `${process.env.REACT_APP_API_URL}/api/products/add`;
 
       const method = selectedProduct ? 'PUT' : 'POST';
 
@@ -102,7 +102,7 @@ const ProductsPanel = () => {
         throw new Error('Failed to save product');
       }
 
-      await fetchProducts(); // Обновляем список после сохранения
+      await fetchProducts(); 
       setShowModal(false);
       setSelectedProduct(null);
     } catch (err) {

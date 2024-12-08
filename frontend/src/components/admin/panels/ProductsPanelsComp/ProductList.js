@@ -14,7 +14,7 @@ const ProductList = ({ products, onDelete, onEdit, onAddNew }) => {
     if (path.startsWith('http')) return path;
     // Убираем возможное дублирование /uploads/
     const cleanPath = path.replace(/^\/uploads\//, '');
-    return `http://localhost:3001/uploads/${cleanPath}`;
+    return `${process.env.REACT_APP_API_URL}/uploads/${cleanPath}`;
   };
 
   // URL изображения по умолчанию

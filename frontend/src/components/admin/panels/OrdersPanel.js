@@ -30,8 +30,8 @@ const OrdersPanel = () => {
   const fetchInitialData = async () => {
     try {
       const [ordersResponse, productsResponse] = await Promise.all([
-        fetch('http://localhost:3001/api/orders/all'),
-        fetch('http://localhost:3001/api/products')
+        fetch(`${process.env.REACT_APP_API_URL}/api/orders/all`),
+        fetch(`${process.env.REACT_APP_API_URL}/api/products`)
       ]);
 
       if (!ordersResponse.ok || !productsResponse.ok) {
@@ -104,7 +104,7 @@ const OrdersPanel = () => {
 
   const handleStatusChange = async (orderId, newStatus) => {
     try {
-      const response = await fetch(`http://localhost:3001/api/orders/${orderId}/status`, {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/orders/${orderId}/status`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -126,7 +126,7 @@ const OrdersPanel = () => {
 
   const handlePaymentStatusChange = async (orderId, newStatus) => {
     try {
-      const response = await fetch(`http://localhost:3001/api/orders/${orderId}/payment-status`, {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/orders/${orderId}/payment-status`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -150,7 +150,7 @@ const OrdersPanel = () => {
     setAdminComments(prev => ({ ...prev, [orderId]: comment }));
     
     try {
-      const response = await fetch(`http://localhost:3001/api/orders/${orderId}/notes`, {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/orders/${orderId}/notes`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',

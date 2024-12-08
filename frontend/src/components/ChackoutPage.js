@@ -73,7 +73,7 @@ const CheckoutPage = () => {
   useEffect(() => {
     const fetchDeliveryData = async () => {
       try {
-        const response = await fetch('http://localhost:3001/api/railway-stations');
+        const response = await fetch(`${process.env.REACT_APP_API_URL}/api/railway-stations`);
         const result = await response.json();
         setRailwayStations(result.data);
       } catch (error) {
@@ -230,7 +230,7 @@ const CheckoutPage = () => {
   
       console.log('Sending order data:', orderData);
   
-      const response = await fetch('http://localhost:3001/api/orders', {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/orders`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

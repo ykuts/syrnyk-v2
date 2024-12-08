@@ -20,7 +20,7 @@ const CustomersPanel = () => {
     setLoading(true);
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get('http://localhost:3001/api/admin/users', {
+      const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/admin/users`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -61,7 +61,7 @@ const CustomersPanel = () => {
     try {
       const token = localStorage.getItem('token');
       await axios.patch(
-        `http://localhost:3001/api/users/admin/users/${statusAction.customer.id}/status`,
+        `${process.env.REACT_APP_API_URL}/api/users/admin/users/${statusAction.customer.id}/status`,
         { isActive: statusAction.newStatus },
         {
           headers: {

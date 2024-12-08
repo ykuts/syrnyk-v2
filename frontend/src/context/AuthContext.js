@@ -10,7 +10,7 @@ export const AuthProvider = ({ children }) => {
 
   const fetchUserProfile = async (token) => {
     try {
-      const response = await axios.get('http://localhost:3001/api/users/profile', {
+      const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/users/profile`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -42,7 +42,7 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     try {
-      const response = await axios.post('http://localhost:3001/api/users/login', {
+      const response = await axios.post(`${process.env.REACT_APP_API_URL}/api/users/login`, {
         email,
         password
       });
@@ -72,7 +72,7 @@ export const AuthProvider = ({ children }) => {
 
   const register = async (userData) => {
     try {
-      const response = await axios.post('http://localhost:3001/api/users/register', userData);
+      const response = await axios.post(`${process.env.REACT_APP_API_URL}/api/users/register`, userData);
       const { token, user } = response.data;
       
       localStorage.setItem('token', token);
@@ -90,7 +90,7 @@ export const AuthProvider = ({ children }) => {
     try {
       const token = localStorage.getItem('token');
       const response = await axios.put(
-        'http://localhost:3001/api/users/profile',
+        `${process.env.REACT_APP_API_URL}/api/users/profile`,
         profileData,
         {
           headers: {

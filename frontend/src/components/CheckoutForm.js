@@ -109,7 +109,7 @@ const CheckoutForm = ({ formData, handleChange, deliveryType, railwayStations, s
                     <Card.Body>
                       {railwayStations.find(s => s.id === parseInt(formData.stationId))?.photo && (
                         <img
-                          src={`http://localhost:3001${railwayStations.find(s => s.id === parseInt(formData.stationId)).photo}`}
+                          src={`${process.env.REACT_APP_API_URL}${railwayStations.find(s => s.id === parseInt(formData.stationId)).photo}`}
                           alt="Місце зустрічі"
                           className="img-fluid rounded mb-3 w-100"
                         />
@@ -159,7 +159,7 @@ const CheckoutForm = ({ formData, handleChange, deliveryType, railwayStations, s
                       <Card.Body>
                         {railwayStations.find(s => s.id === parseInt(formData.stationId))?.photo && (
                           <img
-                            src={`http://localhost:3001${railwayStations.find(s => s.id === parseInt(formData.stationId)).photo}`}
+                            src={`${process.env.REACT_APP_API_URL}${railwayStations.find(s => s.id === parseInt(formData.stationId)).photo}`}
                             alt="Місце зустрічі"
                             className="img-fluid rounded mb-3 w-100"
                           />

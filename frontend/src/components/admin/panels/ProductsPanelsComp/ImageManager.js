@@ -12,7 +12,7 @@ const ImageManager = ({ images, mainImage, onImagesChange, onMainImageChange }) 
     if (!path) return null;
     if (path.startsWith('http')) return path;
     const cleanPath = path.replace(/^\/uploads\//, '');
-    return `http://localhost:3001/uploads/${cleanPath}`;
+    return `${process.env.REACT_APP_API_URL}/uploads/${cleanPath}`;
   };
 
   const defaultImageUrl = '/placeholder.png';
@@ -40,7 +40,7 @@ const ImageManager = ({ images, mainImage, onImagesChange, onMainImageChange }) 
     });
 
     try {
-      const response = await fetch('http://localhost:3001/api/upload/products', {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/upload/products`, {
         method: 'POST',
         body: formData,
       });
@@ -69,7 +69,7 @@ const ImageManager = ({ images, mainImage, onImagesChange, onMainImageChange }) 
     try {
       // Получаем только имя файла из полного пути
       const filename = imageUrl.split('/').pop();
-      await fetch(`http://localhost:3001/api/upload/products/${filename}`, {
+      await fetch(`${process.env.REACT_APP_API_URL}/api/upload/products/${filename}`, {
         method: 'DELETE',
       });
 

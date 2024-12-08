@@ -32,7 +32,7 @@ const ProductDetails = () => {
     useEffect(() => {
         const fetchProduct = async () => {
             try {
-                const response = await fetch(`http://localhost:3001/api/products/${id}`);
+                const response = await fetch(`${process.env.REACT_APP_API_URL}/api/products/${id}`);
                 if (!response.ok) throw new Error('Product not found');
                 const data = await response.json();
                 setProduct(data);
@@ -53,7 +53,7 @@ const ProductDetails = () => {
         if (!path) return null;
         if (path.startsWith('http')) return path;
         const cleanPath = path.replace(/^\/uploads\//, '');
-        return `http://localhost:3001/uploads/${cleanPath}`;
+        return `${process.env.REACT_APP_API_URL}/uploads/${cleanPath}`;
     };
 
     if (loading) {

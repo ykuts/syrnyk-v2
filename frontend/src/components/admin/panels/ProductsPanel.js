@@ -2,10 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { Container, Alert, Spinner } from 'react-bootstrap';
 import ProductList from './ProductsPanelsComp/ProductList';
 import ProductForm from './ProductsPanelsComp/ProductForm';
-import { useTranslation } from 'react-i18next';
+//import { useTranslation } from 'react-i18next';
 
 const ProductsPanel = () => {
-  const { t } = useTranslation();
+  //const { t } = useTranslation();
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(false);

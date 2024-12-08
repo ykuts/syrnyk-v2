@@ -16,23 +16,30 @@ const Products = () => {
         const fetchProducts = async () => {
             try {
                 const data = await apiClient.get('/api/products');
-                
+
                 // Validate data format
                 if (!Array.isArray(data)) {
                     throw new Error('Received invalid data format from server');
                 }
-                
+
                 // Process data before setting state
-                const processedProducts = data.map(product => ({
-                    ...product,
-                    image: product.image || null,
-                    fullImageUrl: getImageUrl(product.image)
-                }));
-                
+                const processedProducts = data.map(product => {
+                    // Ensure image URLs are properly constructed
+                    const imageUrl = getImageUrl(product.image);
+                    const imageUrls = product.images?.map(img => getImageUrl(img)) || [];
+
+                    return {
+                        ...product,
+                        image: imageUrl,          // Replace with processed URL
+                        images: imageUrls,        // Process additional images
+                        fullImageUrl: imageUrl    // Maintain compatibility if needed
+                    };
+                });
+
                 setProducts(processedProducts);
                 setError(null);
             } catch (err) {
-                console.error('Error details:', err);
+                console.error('Error fetching products:', err);
                 setError(err.message || 'Failed to load products. Please try again later.');
             } finally {
                 setLoading(false);
@@ -42,7 +49,7 @@ const Products = () => {
         fetchProducts();
     }, []);
 
-    // Show loading spinner while fetching data
+    // Loading state
     if (loading) {
         return (
             <Container className="d-flex justify-content-center align-items-center" style={{ minHeight: '200px' }}>
@@ -53,7 +60,7 @@ const Products = () => {
         );
     }
 
-    // Display error message if something went wrong
+    // Error state
     if (error) {
         return (
             <Container>

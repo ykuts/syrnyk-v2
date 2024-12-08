@@ -48,12 +48,19 @@ app.use('/uploads', (req, res, next) => {
     next();
 });
 
-// CORS to allow requests from localhost:3000
 app.use(cors({
+    origin: 'https://syrnyk-test.up.railway.app:3000',
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true
+}));
+
+// CORS to allow requests from localhost:3000
+/* app.use(cors({
     origin: 'http://localhost:3000',
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization']
-}));
+})); */
 
 // Use routes
 app.use('/api/users', userRoutes);

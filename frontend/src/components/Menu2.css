@@ -1,16 +1,113 @@
-/* Menu2.css */
+/* Base navbar styles */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: black;
+  padding: 0 20px;
+  height: auto;
+  transition: all 0.3s ease;
+}
+
+/* Sticky navbar styles */
 .sticky-navbar {
-    position: fixed;
-    top: 0;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1030;
+  background-color: #fff;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  transition: all 0.3s ease;
+}
+
+/* Logo transition styles */
+.logo-header {
+  max-height: 120px;
+  transition: all 0.3s ease;
+  opacity: 1;
+  visibility: visible;
+}
+
+.sticky-navbar .logo-header {
+  max-height: 0;
+  opacity: 0;
+  visibility: hidden;
+  margin: 0;
+  padding: 0;
+}
+
+/* Menu links styles */
+.navbar .nav-link {
+  color: #000 !important;
+  transition: opacity 0.2s ease;
+}
+
+.navbar .nav-link:hover {
+  opacity: 0.7;
+}
+
+/* Spacer for fixed navbar */
+.navbar-spacer {
+  height: 76px;
+}
+
+/* Animation for navbar hiding */
+.hidden {
+  transform: translateY(-100%);
+}
+
+/* Mobile styles */
+@media (max-width: 768px) {
+  .menu-links {
+    display: none;
+    flex-direction: column;
+    position: absolute;
+    top: 60px;
     left: 0;
-    right: 0;
-    z-index: 1030;
+    width: 100%;
     background-color: #fff;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    transition: all 0.3s ease;
+    padding: 10px;
   }
-  
-  /* Добавляем отступ для контента под фиксированным меню */
-  .navbar-spacer {
-    height: 76px; /* Высота должна соответствовать высоте вашего navbar */
+
+  .menu-links.open {
+    display: flex;
   }
+
+  .navbar-toggler {
+    display: block;
+  }
+
+  .logo-header {
+    max-height: 80px;
+  }
+}
+
+/* Right buttons and icons */
+.right-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.social-icon {
+  font-size: 20px;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.social-icon:hover {
+  opacity: 0.7;
+}
+
+/* Language selector */
+.form-select {
+  border-radius: 4px;
+  border: 1px solid #ddd;
+  padding: 5px 10px;
+  cursor: pointer;
+}
+
+/* Container adjustments */
+.container-fluid {
+  padding: 10px 20px;
+}

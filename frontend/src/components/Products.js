@@ -4,9 +4,8 @@ import Row from "react-bootstrap/esm/Row";
 import Container from "react-bootstrap/esm/Container";
 import ProductCard from "./ProductCard";
 import { Alert, Spinner } from 'react-bootstrap';
-
-// Define API base URL with fallback
-const API_URL = process.env.REACT_APP_API_URL || 'https://syrnyk-v2-production.up.railway.app';
+import { apiClient } from '../utils/api';
+import { getImageUrl } from '../config';
 
 const Products = () => {
     const [products, setProducts] = useState([]);
@@ -16,22 +15,7 @@ const Products = () => {
     useEffect(() => {
         const fetchProducts = async () => {
             try {
-                const apiUrl = `${API_URL}/api/products`;
-                console.log('Fetching products from:', apiUrl); // For debugging
-
-                const response = await fetch(apiUrl);
-                
-                // Check content type
-                const contentType = response.headers.get("content-type");
-                if (!contentType || !contentType.includes("application/json")) {
-                    throw new Error("Received non-JSON response from server");
-                }
-
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-
-                const data = await response.json();
+                const data = await apiClient.get('/api/products');
                 
                 // Validate data format
                 if (!Array.isArray(data)) {
@@ -41,13 +25,8 @@ const Products = () => {
                 // Process data before setting state
                 const processedProducts = data.map(product => ({
                     ...product,
-                    image: product.image || null, // Ensure no undefined values
-                    // Add full URL for images if needed
-                    fullImageUrl: product.image ? 
-                        (product.image.startsWith('http') ? 
-                            product.image : 
-                            `${API_URL}/uploads/${product.image}`
-                        ) : null
+                    image: product.image || null,
+                    fullImageUrl: getImageUrl(product.image)
                 }));
                 
                 setProducts(processedProducts);
@@ -92,14 +71,12 @@ const Products = () => {
         <Container id='products' fluid>
             <Row>
                 {products.length === 0 ? (
-                    // Show message when no products are available
                     <Col className="text-center p-5">
                         <Alert variant="info">
                             No products available at the moment.
                         </Alert>
                     </Col>
                 ) : (
-                    // Render product cards in a responsive grid
                     products.map((product) => (
                         <Col
                             key={product.id}

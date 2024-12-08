@@ -12,7 +12,7 @@ import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
 import Carousel from 'react-bootstrap/Carousel';
 import { CartContext } from '../context/CartContext';
-//import { Alert, Spinner } from 'react-bootstrap';
+import { Alert, Spinner } from 'react-bootstrap';
 import Recomendations from "./Recomendations";
 import './ProductDetails.css';
 
@@ -30,7 +30,6 @@ const ProductDetails = () => {
     // Items in the cart
     const quantity = cartItems.find((item) => item?.id === parseInt(id))?.quantity || 0;
 
-    // Fetch product data
     useEffect(() => {
         const fetchProduct = async () => {
             try {
@@ -50,14 +49,7 @@ const ProductDetails = () => {
         fetchProduct();
     }, [id]);
 
-    /* // Вспомогательная функция для формирования URL изображения
-    const getImageUrl = (path) => {
-        if (!path) return null;
-        if (path.startsWith('http')) return path;
-        const cleanPath = path.replace(/^\/uploads\//, '');
-        return `${process.env.REACT_APP_API_URL}/uploads/${cleanPath}`;
-    };
-
+    // Show loading state
     if (loading) {
         return (
             <Container className="d-flex justify-content-center align-items-center" style={{ minHeight: '200px' }}>
@@ -66,6 +58,7 @@ const ProductDetails = () => {
         );
     }
 
+    // Show error state
     if (error || !product) {
         return (
             <Container>
@@ -74,12 +67,13 @@ const ProductDetails = () => {
                 </Alert>
             </Container>
         );
-    } */
+    }
 
-    
-    const allImages = [product.image, ...(product.images || [])]
-        .filter(Boolean)
-        .map(img => getImageUrl(img));
+    // Process images only after we confirm product exists
+    const allImages = [
+        getImageUrl(product.image),
+        ...(product.images || []).map(img => getImageUrl(img))
+    ].filter(Boolean);
 
     const handleAddToCart = () => {
         if (product) {
@@ -92,6 +86,7 @@ const ProductDetails = () => {
             removeFromCart(product.id);
         }
     };
+
 
 
     return (

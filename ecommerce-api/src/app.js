@@ -49,7 +49,7 @@ app.use('/uploads', (req, res, next) => {
 });
 
 app.use(cors({
-    origin: ['https://syrnyk-test.up.railway.app', 'http://localhost:3000'],
+    origin: ['https://syrnyk-test.up.railway.app', 'http://localhost:3002'],
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true

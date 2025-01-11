@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Container, Alert, Spinner } from 'react-bootstrap';
 import ProductList from './ProductsPanelsComp/ProductList';
 import ProductForm from './ProductsPanelsComp/ProductForm';
+import { apiClient } from '../../../utils/api';
 //import { useTranslation } from 'react-i18next';
 
 const ProductsPanel = () => {
@@ -23,14 +24,10 @@ const ProductsPanel = () => {
   const fetchProducts = async () => {
     setLoading(true);
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/products`);
-      if (!response.ok) {
-        throw new Error('Failed to fetch products');
-      }
-      const data = await response.json();
+      const data = await apiClient.get('/products');
       setProducts(data);
     } catch (err) {
-      setError('Ошибка при загрузке продуктов');
+      setError('Помилка під час завантаження продуктів');
       console.error(err);
     } finally {
       setLoading(false);
@@ -40,73 +37,50 @@ const ProductsPanel = () => {
  
   const fetchCategories = async () => {
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/categories`);
-      if (!response.ok) {
-        throw new Error('Failed to fetch categories');
-      }
-      const data = await response.json();
+      const data = await apiClient.get('/categories');
       setCategories(data);
     } catch (err) {
-      setError('Ошибка при загрузке категорий');
+      setError('Помилка під час завантаження категорій');
       console.error(err);
     }
   };
 
-  // Удаление продукта
+  
   const handleDelete = async (id) => {
-    if (!window.confirm('Вы уверены, что хотите удалить этот продукт?')) {
+    if (!window.confirm('Ви впевнені, що бажаєте видалити цей продукт?')) {
       return;
     }
 
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/products/${id}`, {
-        method: 'DELETE',
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to delete product');
-      }
-
-      await fetchProducts(); // Обновляем список после удаления
+      await apiClient.post(`/products/${id}`, {}, { method: 'DELETE' });
+      await fetchProducts();
     } catch (err) {
-      setError('Ошибка при удалении продукта');
+      setError('Помилка при видаленні продукту');
       console.error(err);
     }
   };
 
-  // Открытие формы для редактирования
+  // Opening the form for editing
   const handleEdit = (product) => {
     setSelectedProduct(product);
     setShowModal(true);
   };
 
-  // Создание или обновление продукта
+  // Creating or updating a product
   const handleSave = async (productData) => {
     setLoading(true);
     try {
-      const url = selectedProduct
-        ? `${process.env.REACT_APP_API_URL}/api/products/${selectedProduct.id}`
-        : `${process.env.REACT_APP_API_URL}/api/products/add`;
-
-      const method = selectedProduct ? 'PUT' : 'POST';
-
-      const response = await fetch(url, {
-        method,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(productData),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to save product');
+      if (selectedProduct) {
+        await apiClient.post(`/products/${selectedProduct.id}`, productData);
+      } else {
+        await apiClient.post('/products/add', productData);
       }
 
-      await fetchProducts(); 
+      await fetchProducts();
       setShowModal(false);
       setSelectedProduct(null);
     } catch (err) {
-      setError('Ошибка при сохранении продукта');
+      setError('Помилка при збереженні продукту');
       console.error(err);
     } finally {
       setLoading(false);

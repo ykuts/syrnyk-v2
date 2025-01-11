@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Table, Badge, Button, Alert, Spinner, Modal, Form } from 'react-bootstrap';
 import { Eye, UserX, UserCheck } from 'lucide-react';
-import axios from 'axios';
+import { apiClient } from '../../../utils/api';
 
 const CustomersPanel = () => {
   const [customers, setCustomers] = useState([]);
@@ -20,26 +20,26 @@ const CustomersPanel = () => {
     setLoading(true);
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/admin/users`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
+      const headers = {
+        'Authorization': `Bearer ${token}`
+      };
+
+      const response = await apiClient.get('/users/admin/users', headers);
       
-      if (Array.isArray(response.data)) {
-        setCustomers(response.data);
-      } else if (response.data && Array.isArray(response.data.users)) {
-        setCustomers(response.data.users);
+      if (Array.isArray(response)) {
+        setCustomers(response);
+      } else if (response && Array.isArray(response.users)) {
+        setCustomers(response.users);
       } else {
-        console.error('Unexpected data format:', response.data);
+        console.error('Unexpected data format:', response);
         setError('Неправильний формат даних від сервера');
         setCustomers([]);
       }
     } catch (err) {
-      if (err.response?.status === 403) {
-        setError('У вас нет прав доступа к этой странице');
+      if (err.message.includes('401')) {
+        setError('У вас немає доступу до цієї сторінки');
       } else {
-        setError('Ошибка при загрузке списка клиентов');
+        setError('Помилка під час завантаження списку клієнтів');
       }
       console.error(err);
     } finally {
@@ -60,19 +60,24 @@ const CustomersPanel = () => {
   const handleStatusChange = async () => {
     try {
       const token = localStorage.getItem('token');
-      await axios.patch(
-        `${process.env.REACT_APP_API_URL}/api/users/admin/users/${statusAction.customer.id}/status`,
+      const headers = {
+        'Authorization': `Bearer ${token}`
+      };
+
+      await apiClient.patch(
+        `/users/admin/users/${statusAction.customer.id}/status`, 
         { isActive: statusAction.newStatus },
-        {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        }
+        headers
       );
+
       setShowStatusModal(false);
       fetchCustomers();
     } catch (err) {
-      setError('Помилка при зміні статусу користувача');
+      if (err.message.includes('401')) {
+        setError('Authorization required. Please log in again.');
+      } else {
+        setError('Помилка при зміні статусу користувача');
+      }
       console.error(err);
     }
   };

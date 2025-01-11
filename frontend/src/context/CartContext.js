@@ -15,7 +15,7 @@ export const CartProvider = ({ children }) => {
   }, [cartItems]);
 
   const addToCart = (product) => {
-    // Конвертируем цену в число при добавлении товара
+    
     const productWithNumberPrice = {
       ...product,
       price: Number(product.price)

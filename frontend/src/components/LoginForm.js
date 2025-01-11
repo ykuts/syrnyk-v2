@@ -23,7 +23,7 @@ function LoginForm({ closeModal }) {
       const result = await login(email, password);
       
       if (result.success) {
-        // После успешного входа, redirect в зависимости от роли
+        // After successful login, redirect based on role
         const role = result.user.role;
         if (role === 'CLIENT') {
           navigate('/client');

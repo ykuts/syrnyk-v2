@@ -30,7 +30,7 @@ const ProductDetails = () => {
     useEffect(() => {
         const fetchProduct = async () => {
             try {
-                const data = await apiClient.get(`/api/products/${id}`);
+                const data = await apiClient.get(`/products/${id}`);
                 if (!data) {
                     throw new Error('Продукт не знайдено');
                 }

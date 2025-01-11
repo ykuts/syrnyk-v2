@@ -15,7 +15,7 @@ const Products = () => {
     useEffect(() => {
         const fetchProducts = async () => {
             try {
-                const data = await apiClient.get('/api/products');
+                const data = await apiClient.get('/products');
 
                 // Validate data format
                 if (!Array.isArray(data)) {

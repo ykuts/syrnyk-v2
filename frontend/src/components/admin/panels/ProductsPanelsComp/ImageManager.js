@@ -1,19 +1,13 @@
 import React, { useState } from 'react';
 import { Card, Button, Row, Col, Form, Alert, Badge } from 'react-bootstrap';
 import { X, Star, StarFill } from 'react-bootstrap-icons';
+import { apiClient } from '../../../../utils/api';
+import { getImageUrl } from '../../../../config';
 
 const ImageManager = ({ images, mainImage, onImagesChange, onMainImageChange }) => {
     const [uploading, setUploading] = useState(false);
     const [error, setError] = useState(null);
     const [imageErrors, setImageErrors] = useState({});
-
-  // Вспомогательная функция для формирования полного URL изображения
-  const getImageUrl = (path) => {
-    if (!path) return null;
-    if (path.startsWith('http')) return path;
-    const cleanPath = path.replace(/^\/uploads\//, '');
-    return `${process.env.REACT_APP_API_URL}/uploads/${cleanPath}`;
-  };
 
   const defaultImageUrl = '/placeholder.png';
 
@@ -30,36 +24,27 @@ const ImageManager = ({ images, mainImage, onImagesChange, onMainImageChange }) 
     const files = Array.from(event.target.files);
     
     if (files.length === 0) return;
-
+  
     setUploading(true);
     setError(null);
-
+  
     const formData = new FormData();
     files.forEach(file => {
       formData.append('images', file);
     });
-
+  
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/upload/products`, {
-        method: 'POST',
-        body: formData,
-      });
-
-      if (!response.ok) throw new Error('Upload failed');
-
-      const data = await response.json();
+      const data = await apiClient.upload('/upload/products', formData);
       
-      // Добавляем новые изображения к существующим
       const newImages = [...(images || []), ...data.urls];
       onImagesChange(newImages);
       
-      // Если это первое изображение, делаем его главным
       if (!mainImage && data.urls.length > 0) {
         onMainImageChange(data.urls[0]);
       }
     } catch (err) {
       setError('Failed to upload images');
-      console.error(err);
+      console.error('Upload error:', err);
     } finally {
       setUploading(false);
     }
@@ -67,17 +52,12 @@ const ImageManager = ({ images, mainImage, onImagesChange, onMainImageChange }) 
 
   const handleDeleteImage = async (imageUrl) => {
     try {
-      // Получаем только имя файла из полного пути
       const filename = imageUrl.split('/').pop();
-      await fetch(`${process.env.REACT_APP_API_URL}/api/upload/products/${filename}`, {
-        method: 'DELETE',
-      });
-
-      // Удаляем изображение из списка
+      await apiClient.post(`/upload/products/${filename}`, {}, { method: 'DELETE' });
+  
       const newImages = (images || []).filter(img => img !== imageUrl);
       onImagesChange(newImages);
-
-      // Если удалили главное изображение, выбираем новое главное
+  
       if (imageUrl === mainImage) {
         onMainImageChange(newImages[0] || '');
       }
@@ -93,7 +73,7 @@ const ImageManager = ({ images, mainImage, onImagesChange, onMainImageChange }) 
 
   return (
     <div className="mb-4">
-      <h5 className="mb-3">Изображения продукта</h5>
+      <h5 className="mb-3">Зображення</h5>
       
       {error && (
         <Alert variant="danger" onClose={() => setError(null)} dismissible>
@@ -103,7 +83,7 @@ const ImageManager = ({ images, mainImage, onImagesChange, onMainImageChange }) 
 
       <div className="mb-3">
         <Form.Group>
-          <Form.Label>Загрузить изображения</Form.Label>
+          <Form.Label>Завантажити зображення</Form.Label>
           <Form.Control
             type="file"
             multiple
@@ -120,7 +100,7 @@ const ImageManager = ({ images, mainImage, onImagesChange, onMainImageChange }) 
             <Card>
               <Card.Img
                 variant="top"
-                src={imageErrors[imageUrl] ? defaultImageUrl : getImageUrl(imageUrl)}
+                src={imageErrors[imageUrl] ? defaultImageUrl : getImageUrl(imageUrl, 'product')}
                 style={{ height: '150px', objectFit: 'cover' }}
                 onError={() => handleImageError(imageUrl)}
               />
@@ -153,7 +133,7 @@ const ImageManager = ({ images, mainImage, onImagesChange, onMainImageChange }) 
                   bg="warning" 
                   className="position-absolute bottom-0 start-0 m-2"
                 >
-                  Главное фото
+                  Головне фото
                 </Badge>
               )}
             </Card>

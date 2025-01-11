@@ -1,23 +1,24 @@
 import React, { useState } from 'react';
 import { Table, Button } from 'react-bootstrap';
-import { useTranslation } from 'react-i18next';
+/* import { useTranslation } from 'react-i18next'; */
 import { Edit, Trash2 } from 'lucide-react';
+import { getImageUrl } from '../../../../config';
 
 const ProductList = ({ products, onDelete, onEdit, onAddNew }) => {
-  const { t } = useTranslation();
-  // Состояние для отслеживания ошибок загрузки изображений
+  /* const { t } = useTranslation(); */
+  // State for tracking image loading errors
   const [imageErrors, setImageErrors] = useState({});
 
-  // Вспомогательная функция для формирования URL изображения
+  /* // Вспомогательная функция для формирования URL изображения
   const getImageUrl = (path) => {
     if (!path) return null;
     if (path.startsWith('http')) return path;
     // Убираем возможное дублирование /uploads/
     const cleanPath = path.replace(/^\/uploads\//, '');
     return `${process.env.REACT_APP_API_URL}/uploads/${cleanPath}`;
-  };
+  }; */
 
-  // URL изображения по умолчанию
+  // Default image URL
   const defaultImageUrl = '/placeholder.jpg';
 
   const handleImageError = (productId) => {
@@ -32,8 +33,8 @@ const ProductList = ({ products, onDelete, onEdit, onAddNew }) => {
   return (
     <div>
       <div className="d-flex justify-content-between align-items-center mb-4">
-        <h2>Управление продуктами</h2>
-        <Button onClick={onAddNew}>Добавить продукт</Button>
+        <h2>Управління продуктами</h2>
+        <Button onClick={onAddNew}>Додати продукт</Button>
       </div>
 
       <Table striped bordered hover responsive>
@@ -56,7 +57,7 @@ const ProductList = ({ products, onDelete, onEdit, onAddNew }) => {
               <td>
                 {product.image && !imageErrors[product.id] ? (
                   <img 
-                    src={getImageUrl(product.image)}
+                    src={getImageUrl(product.image, 'product')}
                     alt={product.name} 
                     style={{ height: '40px', width: '40px', objectFit: 'cover' }} 
                     onError={() => handleImageError(product.id)}

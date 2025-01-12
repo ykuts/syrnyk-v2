@@ -233,7 +233,7 @@ useEffect(() => {
                                     </Nav.Link>
                                 </Col>
                                 <Col md="auto">
-                                    <Nav.Link href="#about" className="text-center">
+                                    <Nav.Link href="/aboutus" className="text-center">
                                         {t('menu.about_us')}
                                     </Nav.Link>
                                 </Col>

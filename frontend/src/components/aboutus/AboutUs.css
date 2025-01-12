@@ -1,0 +1,86 @@
+/* Main carousel container styles */
+.about-carousel {
+    min-height: 600px;
+    background-color: #f8f9fa;
+    position: relative;
+  }
+  
+  /* Slide content styles */
+  .slide-content {
+    min-height: 600px;
+    padding: 2rem;
+  }
+  
+  /* Navigation button base styles */
+  .carousel-nav-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 2;
+    background: white;
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    cursor: pointer;
+    font-size: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.3s, box-shadow 0.3s;
+  }
+  
+  /* Hover state for navigation buttons */
+  .carousel-nav-btn:hover {
+    background-color: #f8f9fa;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+  }
+  
+  /* Previous button positioning */
+  .carousel-nav-btn.prev {
+    left: 20px;
+  }
+  
+  /* Next button positioning */
+  .carousel-nav-btn.next {
+    right: 20px;
+  }
+  
+  /* Content section spacing */
+  .content-section {
+    margin-bottom: 2rem;
+  }
+  
+  /* Card hover effects */
+  .about-card {
+    transition: transform 0.3s, box-shadow 0.3s;
+  }
+  
+  .about-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+  }
+  
+  /* List group item styling */
+  .about-list-item {
+    transition: background-color 0.3s;
+    padding: 1rem;
+  }
+  
+  .about-list-item:hover {
+    background-color: #f8f9fa;
+  }
+  
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+    .carousel-nav-btn {
+      width: 32px;
+      height: 32px;
+      font-size: 20px;
+    }
+  
+    .slide-content {
+      padding: 1rem;
+    }
+  }

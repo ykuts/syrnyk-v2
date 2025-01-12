@@ -1,0 +1,87 @@
+/* CollaborationSlide.css */
+.collaboration-container {
+    margin-bottom: 2rem;
+  }
+  
+  .collaboration-image-container {
+    width: 100%;
+    height: 300px;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    transition: transform 0.3s ease;
+  }
+  
+  .collaboration-image-container:hover {
+    transform: scale(1.02);
+  }
+  
+  .collaboration-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  
+  .card-image-top {
+    height: 200px;
+    overflow: hidden;
+    border-top-left-radius: calc(0.375rem - 1px);
+    border-top-right-radius: calc(0.375rem - 1px);
+  }
+  
+  .offer-image,
+  .importance-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+  }
+  
+  .about-card:hover .offer-image,
+  .about-card:hover .importance-image {
+    transform: scale(1.1);
+  }
+  
+  .about-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    overflow: hidden;
+  }
+  
+  .about-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  }
+  
+  .about-list-item {
+    padding: 1rem;
+    transition: background-color 0.3s ease;
+  }
+  
+  .about-list-item:hover {
+    background-color: #f8f9fa;
+  }
+  
+  .card-header {
+    background-color: #f8f9fa;
+    font-weight: 600;
+    color: #333;
+  }
+  
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+    .collaboration-image-container {
+      height: 200px;
+      margin-bottom: 1rem;
+    }
+  
+    .card-image-top {
+      height: 150px;
+    }
+  }
+  
+  /* Add some depth to the main content section */
+  .content-section {
+    background-color: white;
+    border: none;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+  }

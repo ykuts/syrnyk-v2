@@ -1,0 +1,61 @@
+/* ProductBenefitsSlide.css */
+.benefits-section {
+    padding: 0 1rem;
+  }
+  
+  .benefits-list {
+    margin-right: 2rem;
+  }
+  
+  .benefits-list .about-list-item {
+    padding: 1rem;
+    margin-bottom: 0.5rem;
+    border-radius: 8px;
+    background-color: white;
+    transition: all 0.3s ease;
+    text-align: justify;
+  }
+  
+  .benefits-list .about-list-item:hover {
+    transform: translateX(5px);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  }
+  
+  .benefits-image-container {
+    width: 100%;
+    max-width: 400px;
+    height: auto;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    transition: transform 0.3s ease;
+  }
+  
+  .benefits-image-container:hover {
+    transform: scale(1.02);
+  }
+  
+  .benefits-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+    .benefits-list {
+      margin-right: 0;
+      margin-bottom: 2rem;
+    }
+  
+    .benefits-image-container {
+      max-width: 300px;
+      margin: 0 auto;
+    }
+  }
+  
+  /* Adding some extra spacing for better readability */
+  .slide-content h4 {
+    color: #333;
+    font-weight: 600;
+  }

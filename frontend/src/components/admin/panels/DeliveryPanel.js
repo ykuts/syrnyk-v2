@@ -60,7 +60,7 @@ const DeliveryPanel = () => {
 
       setFormData(prev => ({
         ...prev,
-        photo: response.url 
+        photo: response.url.replace(/^\/+/, '')
       }));
     } catch (err) {
       setError('Помилка при завантаженні фото');
@@ -122,7 +122,12 @@ const DeliveryPanel = () => {
 
   const checkImageUrl = (url) => {
     if (!url) return null;
-    return getImageUrl(url, 'station');
+    try {
+      return getImageUrl(url, 'station');
+    } catch (error) {
+      console.error('Error formatting image URL:', error);
+      return '/placeholder.jpg';
+    }
   };
 
   const handleEdit = (station) => {
@@ -131,7 +136,7 @@ const DeliveryPanel = () => {
       city: station.city,
       name: station.name,
       meetingPoint: station.meetingPoint,
-      photo: station.photo ? getImageUrl(station.photo, 'station') : ''
+      photo: station.photo ? station.photo.replace(/^\/+/, '') : ''
     });
     setShowModal(true);
   };

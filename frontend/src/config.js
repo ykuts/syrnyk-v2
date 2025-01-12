@@ -11,14 +11,14 @@ export const getImageUrl = (imagePath, type = 'product') => {
 
   // Remove all instances of /uploads/, /products/, and /stations/
   const cleanPath = imagePath
-    .replace(/^\/uploads\//, '')
-    .replace(/^products\//, '')
-    .replace(/^\/products\//, '')
-    .replace(/^stations\//, '')
-    .replace(/^\/stations\//, '');
+  .replace(/^\/+/, '')                // Remove leading slashes
+  .replace(/\/+/g, '/')              // Replace multiple slashes with single slash
+  .replace(/^uploads\//, '')         // Remove uploads prefix
+  .replace(/^products\//, '')        // Remove products prefix
+  .replace(/^stations\//, '');       // Remove stations prefix
 
   const uploadsFolder = type === 'station' ? 'stations' : 'products';
-  return `${API_URL}/uploads/${uploadsFolder}/${cleanPath}`;
+  return `${API_URL.replace(/\/+$/, '')}/uploads/${uploadsFolder}/${cleanPath}`;
 };
 
 export const getApiUrl = (endpoint) => {

@@ -5,20 +5,20 @@ import './CollaborationSlide.css';
 
 const CollaborationSlide = () => {
   const offerItems = [
-    "Platform for self-realization",
-    "Support and development",
-    "Networking opportunities"
+    "Платформа для самореалізації: Створюємо можливості для демонстрації вашого кулінарного таланту та обміну досвідом з іншими професіоналами.",
+    "Підтримка та розвиток: Надаємо підтримку в організації заходів, кулінарних майстер-класів та фестивалів.",
+    "Нетворкінг: Допомагаємо встановити зв’язки з місцевими ресторанами та фермами для спільної співпраці та розвитку."
   ];
 
   const importanceItems = [
-    "Promotion of Ukrainian cuisine",
-    "Cultural exchange",
-    "Development opportunities"
+    "Популяризація української кухні: Разом ми зможемо донести до швейцарців всю багатогранність та унікальність української кухні.",
+    "Культурний обмін: Ваші кулінарні таланти допоможуть зблизити наші культури та зробити їхнє співіснування гармонійнішим.",
+    "Можливості для розвитку: Це надасть коло спілкування та допоможе знайти місце роботи або започаткувати свою справу."
   ];
 
   return (
     <div className="slide-content">
-      <h3 className="text-center mb-4">Join Our Community</h3>
+      <h3 className="text-center mb-4">Приєднуйтесь до нас і станьте частиною нашої дружньої та натхненної спільноти. Разом ми зробимо українську кухню відомою та шанованою в Швейцарії!</h3>
 
       <Row className="collaboration-container">
         <Col md={4}>
@@ -35,9 +35,8 @@ const CollaborationSlide = () => {
           <Card className="about-card content-section mb-4">
             <Card.Body>
               <Card.Text>
-                SYRNYK Association sincerely invites chefs, restaurateurs, and cheese makers to collaborate. 
-                We believe that together we can make a significant contribution to the development and 
-                promotion of Ukrainian cuisine in Switzerland.
+              Асоціація SYRNYK щиро запрошує поварів, рестораторів та сироварів до співпраці. 
+              Ми віримо, що спільними зусиллями можемо зробити вагомий внесок у розвиток та популяризацію української кухні в Швейцарії. 
               </Card.Text>
             </Card.Body>
           </Card>
@@ -54,7 +53,7 @@ const CollaborationSlide = () => {
                 className="offer-image"
               />
             </div>
-            <Card.Header>What we offer</Card.Header>
+            <Card.Header>Що ми пропонуємо:</Card.Header>
             <ListGroup variant="flush">
               {offerItems.map((item, index) => (
                 <ListGroup.Item key={index} className="about-list-item">
@@ -74,7 +73,7 @@ const CollaborationSlide = () => {
                 className="importance-image"
               />
             </div>
-            <Card.Header>Why it matters</Card.Header>
+            <Card.Header>Чому це важливо:</Card.Header>
             <ListGroup variant="flush">
               {importanceItems.map((item, index) => (
                 <ListGroup.Item key={index} className="about-list-item">

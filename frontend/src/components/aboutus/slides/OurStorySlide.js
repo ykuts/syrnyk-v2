@@ -24,18 +24,19 @@ const OurStorySlide = () => {
           <Card className="about-card story-card">
             <Card.Body>
               <Card.Text>
-                My name is Iryna Piskova, I'm from Ukraine. I love cooking and family traditions: 
-                gatherings, shared laughter, celebrations! When I came to Switzerland, a country of 
-                cheese expertise, I decided to make cheese! But this is Ukrainian fresh cheese.
+              Мене звати Ірина Піскова, я з України. Я дуже люблю кулінарію та родинні традиції: зустрічі, спільний сміх, святкування!
+Коли я приїхала до Швейцарії, країни-експерта в сирі, я вирішила виготовляти сир! Але це український свіжий сир.
+Ми також великі любителі сиру, і наші рецепти додають ще більше різноманіття до сирного мистецтва. Наші рецепти відзначаються теплом і гостинністю, що додає особливий шарм українській кулінарній традиції. Виготовлення сиру дозволяє мені зберегти частинку нашої культури у своєму серці. І я охоче ділюся цим зі швейцарцями!
+Я також створила акаунт в Instagram, щоб ділитися цікавими, смачними рецептами, зробленими з мого сиру. Це спосіб подорожувати до України та дізнатися, хто ми такі!
               </Card.Text>
               <Card.Text>
-                We are also great cheese lovers, and our recipes add even more variety to the art 
-                of cheese. Our recipes are marked by warmth and hospitality, adding a special charm 
-                to Ukrainian culinary tradition.
+              Ми також великі любителі сиру, і наші рецепти додають ще більше різноманітності в мистецтво
+ сиру. Наші рецепти відзначаються теплом і гостинністю, додаючи особливого шарму
+ до української кулінарної традиції.
               </Card.Text>
               <div className="text-center mt-4">
             <Link to="/" className="btn btn-primary">
-              Order Now
+              Замовити
             </Link>
           </div>
             </Card.Body>

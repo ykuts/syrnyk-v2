@@ -5,36 +5,36 @@ import './ProductBenefitsSlide.css';
 const ProductBenefitsSlide = () => {
   return (
     <div className="slide-content">
-      <h3 className="text-center mb-4">SYRNYK Cheese - A Healthy Choice for the Whole Family</h3>
+      <h3 className="text-center mb-4">Сир SYRNYK – це смачний і здоровий вибір для всієї родини</h3>
       <p className="text-center mb-4">
-        Thanks to its neutral taste and pleasant texture, it can be used in various dishes - from salads to desserts. 
-        It's perfect for breakfast, serves as a hearty snack during the day, or complements your dinner.
+      Завдяки нейтральному смаку та приємній текстурі його можна використовувати у різних стравах – від салатів до десертів. 
+      Він підійде на сніданок вранці, послужить ситним перекусом вдень або доповнить вашу вечерю.
       </p>
 
       <div className="benefits-section">
-        <h4 className="mb-4 text-left">5 reasons to include SYRNYK cheese in your diet:</h4>
+        <h4 className="mb-4 text-left">5 причин, чому варто включити сир SYRNYK у раціон:</h4>
         <Row>
           <Col md={7}>
             <ListGroup variant="flush" className="benefits-list">
               <ListGroup.Item className="about-list-item">
-                <strong>Improves digestion: </strong> 
-                SYRNYK cheese contains probiotics that promote healthy intestinal microflora.
+                <strong>Покращує травлення: </strong> 
+                Сир SYRNYK містить пробіотики, які сприяють здоровій мікрофлорі кишківника. Це допомагає покращити травлення і загальний стан шлунково-кишкового тракту.
               </ListGroup.Item>
               <ListGroup.Item className="about-list-item">
-                <strong>Rich in proteins and calcium: </strong>
-                SYRNYK cheese is an excellent source of proteins and calcium.
+                <strong>Багатий на білки та кальцій: </strong>
+                Сир SYRNYK є чудовим джерелом білків та кальцію. Білки необхідні для будівництва і відновлення тканин, а кальцій - для зміцнення кісток і зубів.
               </ListGroup.Item>
               <ListGroup.Item className="about-list-item">
-                <strong>Eco-friendly product without additives: </strong>
-                Made on a farm in Switzerland according to high quality standards.
+                <strong>Екологічний продукт без добавок: </strong>
+                Виготовлений на фермі у Швейцарії за високими стандартами якості, сир SYRNYK є екологічно чистим продуктом, що гарантує відсутність штучних добавок, консервантів чи барвників. Це робить його більш натуральним і здоровим вибором для всієї родини.
               </ListGroup.Item>
               <ListGroup.Item className="about-list-item">
-                <strong>Versatility in cooking: </strong>
-                Can be used in various dishes from salads to desserts.
+                <strong>Універсальність у кулінарії: </strong>
+                Завдяки нейтральному смаку та приємній текстурі, сир SYRNYK може використовуватися у різних стравах – від салатів до десертів. Це збагачує кулінарні пропозиції і задовольняє потреби клієнтів у смачній та корисній їжі.
               </ListGroup.Item>
               <ListGroup.Item className="about-list-item">
-                <strong>Enrichment with Ukrainian recipes: </strong>
-                Made according to traditional Ukrainian recipes.
+                <strong>Збагачення раціону українськими рецептами: </strong>
+                Сир SYRNYK виготовлений за традиційними українськими рецептами, що додає тепло та гостинність української кулінарної культури у ваш раціон.
               </ListGroup.Item>
             </ListGroup>
           </Col>

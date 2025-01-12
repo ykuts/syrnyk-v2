@@ -53,7 +53,7 @@ const ImageManager = ({ images, mainImage, onImagesChange, onMainImageChange }) 
   const handleDeleteImage = async (imageUrl) => {
     try {
       const filename = imageUrl.split('/').pop();
-      await apiClient.post(`/upload/products/${filename}`, {}, { method: 'DELETE' });
+      await apiClient.delete(`/upload/products/${filename}`);
   
       const newImages = (images || []).filter(img => img !== imageUrl);
       onImagesChange(newImages);

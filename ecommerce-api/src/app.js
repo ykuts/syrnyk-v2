@@ -60,6 +60,7 @@ app.use(cors({
         'Authorization',
         'Access-Control-Allow-Headers',
         'Access-Control-Allow-Methods',
+        'method',
         'X-Requested-With'
     ],
     exposedHeaders: ['Content-Range', 'X-Content-Range'],

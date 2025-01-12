@@ -98,13 +98,13 @@ const ProductForm = ({ show, onHide, onSave, product, categories, loading }) => 
     <Modal show={show} onHide={onHide} size="lg">
       <Modal.Header closeButton>
         <Modal.Title>
-          {product ? 'Edit Product' : 'Add Product'}
+          {product ? 'Редагувати продукт' : 'Додати продукт'}
         </Modal.Title>
       </Modal.Header>
       <Form onSubmit={handleSubmit}>
         <Modal.Body>
           <Form.Group className="mb-3">
-            <Form.Label>Name</Form.Label>
+            <Form.Label>Назва</Form.Label>
             <Form.Control
               type="text"
               name="name"
@@ -115,14 +115,14 @@ const ProductForm = ({ show, onHide, onSave, product, categories, loading }) => 
           </Form.Group>
 
           <Form.Group className="mb-3">
-            <Form.Label>Category</Form.Label>
+            <Form.Label>Категорія</Form.Label>
             <Form.Select
               name="categoryId"
               value={formData.categoryId}
               onChange={handleInputChange}
               required
             >
-              <option value="">Select category</option>
+              <option value="">Оберіть категорію</option>
               {categories.map(category => (
                 <option key={category.id} value={category.id}>
                   {category.name}
@@ -132,7 +132,7 @@ const ProductForm = ({ show, onHide, onSave, product, categories, loading }) => 
           </Form.Group>
 
           <Form.Group className="mb-3">
-            <Form.Label>Short Description</Form.Label>
+            <Form.Label>Короткий опис</Form.Label>
             <Form.Control
               as="textarea"
               name="description"
@@ -143,7 +143,7 @@ const ProductForm = ({ show, onHide, onSave, product, categories, loading }) => 
           </Form.Group>
 
           <Form.Group className="mb-3">
-            <Form.Label>Full Description</Form.Label>
+            <Form.Label>Повний опис</Form.Label>
             <Form.Control
               as="textarea"
               name="descriptionFull"
@@ -154,7 +154,7 @@ const ProductForm = ({ show, onHide, onSave, product, categories, loading }) => 
 
           <div className="row">
             <Form.Group className="col-md-6 mb-3">
-              <Form.Label>Price (CHF)</Form.Label>
+              <Form.Label>Ціна (CHF)</Form.Label>
               <Form.Control
                 type="number"
                 step="0.01"
@@ -166,7 +166,7 @@ const ProductForm = ({ show, onHide, onSave, product, categories, loading }) => 
             </Form.Group>
 
             <Form.Group className="col-md-6 mb-3">
-              <Form.Label>Weight</Form.Label>
+              <Form.Label>Вага</Form.Label>
               <Form.Control
                 type="text"
                 name="weight"
@@ -185,7 +185,7 @@ const ProductForm = ({ show, onHide, onSave, product, categories, loading }) => 
           />
 
           <Form.Group className="mb-3">
-            <Form.Label>Storage Conditions</Form.Label>
+            <Form.Label>Умови зберігання</Form.Label>
             <Form.Control
               type="text"
               name="umovy"
@@ -195,7 +195,7 @@ const ProductForm = ({ show, onHide, onSave, product, categories, loading }) => 
           </Form.Group>
 
           <Form.Group className="mb-3">
-            <Form.Label>Cooking Recipe</Form.Label>
+            <Form.Label>Рецепт</Form.Label>
             <Form.Control
               as="textarea"
               name="recipe"
@@ -205,7 +205,7 @@ const ProductForm = ({ show, onHide, onSave, product, categories, loading }) => 
           </Form.Group>
 
           <Form.Group className="mb-3">
-            <Form.Label>Assortment (each variant on a new line)</Form.Label>
+            <Form.Label>Асортимент (кожен варіант з нового рядка)</Form.Label>
             <Form.Control
               as="textarea"
               name="assortment"
@@ -216,7 +216,7 @@ const ProductForm = ({ show, onHide, onSave, product, categories, loading }) => 
 
           <div className="row">
             <Form.Group className="col-md-6 mb-3">
-              <Form.Label>Stock Quantity</Form.Label>
+              <Form.Label>Кількість на складі</Form.Label>
               <Form.Control
                 type="number"
                 name="stock"
@@ -241,7 +241,7 @@ const ProductForm = ({ show, onHide, onSave, product, categories, loading }) => 
             Cancel
           </Button>
           <Button variant="primary" type="submit" disabled={loading}>
-            {loading ? 'Saving...' : 'Save'}
+            {loading ? 'Зберігається...' : 'Зберегти'}
           </Button>
         </Modal.Footer>
       </Form>

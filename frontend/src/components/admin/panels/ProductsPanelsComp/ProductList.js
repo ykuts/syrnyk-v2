@@ -27,6 +27,19 @@ const ProductList = ({ products, onDelete, onEdit, onAddNew }) => {
         ...prev,
         [productId]: true
       }));
+      console.error('Failed to load image for product:', productId);
+    }
+  };
+
+  const getProductImage = (product) => {
+    if (!product.image || imageErrors[product.id]) {
+      return defaultImageUrl;
+    }
+    try {
+      return getImageUrl(product.image, 'product');
+    } catch (error) {
+      console.error('Error formatting image URL:', error);
+      return defaultImageUrl;
     }
   };
 
@@ -57,10 +70,10 @@ const ProductList = ({ products, onDelete, onEdit, onAddNew }) => {
               <td>
                 {product.image && !imageErrors[product.id] ? (
                   <img 
-                    src={getImageUrl(product.image, 'product')}
-                    alt={product.name} 
-                    style={{ height: '40px', width: '40px', objectFit: 'cover' }} 
-                    onError={() => handleImageError(product.id)}
+                  src={getProductImage(product)}
+                  alt={product.name} 
+                  style={{ height: '40px', width: '40px', objectFit: 'cover' }} 
+                  onError={() => handleImageError(product.id)}
                   />
                 ) : (
                   <img 

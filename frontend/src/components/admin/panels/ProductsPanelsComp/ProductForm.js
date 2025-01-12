@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Modal, Form, Button } from 'react-bootstrap';
-/* import { useTranslation } from 'react-i18next'; */
+//import { useTranslation } from 'react-i18next';
 import ImageManager from './ImageManager';
 
 const ProductForm = ({ show, onHide, onSave, product, categories, loading }) => {
@@ -21,7 +21,7 @@ const ProductForm = ({ show, onHide, onSave, product, categories, loading }) => 
     isActive: true
   });
 
- // Fill the form when opening for editing
+  // Fill the form when opening for editing
   useEffect(() => {
     if (product) {
       setFormData({
@@ -73,9 +73,8 @@ const ProductForm = ({ show, onHide, onSave, product, categories, loading }) => 
             .filter(item => item)
         : [],
       // Ensure images is always an array and image is a string
-        images: Array.isArray(formData.images) ? formData.images : [],
-        image: formData.image || ''
-        /* images: formData.image ? [formData.image] : [] */
+      images: Array.isArray(formData.images) ? formData.images : [],
+      image: formData.image || ''
     };
   
     onSave(submitData);
@@ -95,18 +94,17 @@ const ProductForm = ({ show, onHide, onSave, product, categories, loading }) => 
     }));
   };
 
-
   return (
     <Modal show={show} onHide={onHide} size="lg">
       <Modal.Header closeButton>
         <Modal.Title>
-          {product ? 'Редагувати продукт' : 'Додати продукт'}
+          {product ? 'Edit Product' : 'Add Product'}
         </Modal.Title>
       </Modal.Header>
       <Form onSubmit={handleSubmit}>
         <Modal.Body>
           <Form.Group className="mb-3">
-            <Form.Label>Назва</Form.Label>
+            <Form.Label>Name</Form.Label>
             <Form.Control
               type="text"
               name="name"
@@ -117,14 +115,14 @@ const ProductForm = ({ show, onHide, onSave, product, categories, loading }) => 
           </Form.Group>
 
           <Form.Group className="mb-3">
-            <Form.Label>Категорія</Form.Label>
+            <Form.Label>Category</Form.Label>
             <Form.Select
               name="categoryId"
               value={formData.categoryId}
               onChange={handleInputChange}
               required
             >
-              <option value="">Оберіть категорію</option>
+              <option value="">Select category</option>
               {categories.map(category => (
                 <option key={category.id} value={category.id}>
                   {category.name}
@@ -134,7 +132,7 @@ const ProductForm = ({ show, onHide, onSave, product, categories, loading }) => 
           </Form.Group>
 
           <Form.Group className="mb-3">
-            <Form.Label>Короткий опис</Form.Label>
+            <Form.Label>Short Description</Form.Label>
             <Form.Control
               as="textarea"
               name="description"
@@ -145,7 +143,7 @@ const ProductForm = ({ show, onHide, onSave, product, categories, loading }) => 
           </Form.Group>
 
           <Form.Group className="mb-3">
-            <Form.Label>Повний опис</Form.Label>
+            <Form.Label>Full Description</Form.Label>
             <Form.Control
               as="textarea"
               name="descriptionFull"
@@ -156,7 +154,7 @@ const ProductForm = ({ show, onHide, onSave, product, categories, loading }) => 
 
           <div className="row">
             <Form.Group className="col-md-6 mb-3">
-              <Form.Label>Ціна (CHF)</Form.Label>
+              <Form.Label>Price (CHF)</Form.Label>
               <Form.Control
                 type="number"
                 step="0.01"
@@ -168,7 +166,7 @@ const ProductForm = ({ show, onHide, onSave, product, categories, loading }) => 
             </Form.Group>
 
             <Form.Group className="col-md-6 mb-3">
-              <Form.Label>Вага</Form.Label>
+              <Form.Label>Weight</Form.Label>
               <Form.Control
                 type="text"
                 name="weight"
@@ -187,7 +185,7 @@ const ProductForm = ({ show, onHide, onSave, product, categories, loading }) => 
           />
 
           <Form.Group className="mb-3">
-            <Form.Label>Умови зберігання</Form.Label>
+            <Form.Label>Storage Conditions</Form.Label>
             <Form.Control
               type="text"
               name="umovy"
@@ -197,7 +195,7 @@ const ProductForm = ({ show, onHide, onSave, product, categories, loading }) => 
           </Form.Group>
 
           <Form.Group className="mb-3">
-            <Form.Label>Рецепт приготування</Form.Label>
+            <Form.Label>Cooking Recipe</Form.Label>
             <Form.Control
               as="textarea"
               name="recipe"
@@ -207,7 +205,7 @@ const ProductForm = ({ show, onHide, onSave, product, categories, loading }) => 
           </Form.Group>
 
           <Form.Group className="mb-3">
-            <Form.Label>Асортимент (кожен варіант з нового рядка)</Form.Label>
+            <Form.Label>Assortment (each variant on a new line)</Form.Label>
             <Form.Control
               as="textarea"
               name="assortment"
@@ -218,7 +216,7 @@ const ProductForm = ({ show, onHide, onSave, product, categories, loading }) => 
 
           <div className="row">
             <Form.Group className="col-md-6 mb-3">
-              <Form.Label>Кількість на складі</Form.Label>
+              <Form.Label>Stock Quantity</Form.Label>
               <Form.Control
                 type="number"
                 name="stock"
@@ -230,7 +228,7 @@ const ProductForm = ({ show, onHide, onSave, product, categories, loading }) => 
             <Form.Group className="col-md-6 mb-3 d-flex align-items-center">
               <Form.Check
                 type="checkbox"
-                label="Активний"
+                label="Active"
                 name="isActive"
                 checked={formData.isActive}
                 onChange={handleInputChange}
@@ -240,10 +238,10 @@ const ProductForm = ({ show, onHide, onSave, product, categories, loading }) => 
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={onHide}>
-            Відмінити
+            Cancel
           </Button>
           <Button variant="primary" type="submit" disabled={loading}>
-            {loading ? 'Збереження...' : 'Зберегти'}
+            {loading ? 'Saving...' : 'Save'}
           </Button>
         </Modal.Footer>
       </Form>

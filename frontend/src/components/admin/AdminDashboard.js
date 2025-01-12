@@ -1,5 +1,5 @@
 import { Container, Nav, Row, Col } from 'react-bootstrap';
-import { Boxes, Users, ShoppingCart, BarChart2, Truck } from 'lucide-react';
+import { Boxes, Users, ShoppingCart, Truck } from 'lucide-react';
 import { useNavigate, useLocation, Outlet } from 'react-router-dom';
 
 const AdminDashboard = () => {

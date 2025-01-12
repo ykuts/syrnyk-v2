@@ -1,5 +1,7 @@
 import { Container, Row, Col  } from 'react-bootstrap';
 import { useState, useEffect } from 'react';
+import { apiClient } from '../utils/api';
+import { getImageUrl } from '../config';
 import "./DeliveryPayment.css";
 import "./DeliveryContent.css";
 import './MeetingCard.css';
@@ -13,14 +15,8 @@ const DeliveryPage = () => {
   useEffect(() => {
     const fetchStations = async () => {
       try {
-        const response = await fetch(`${process.env.REACT_APP_API_URL}/api/railway-stations`);
-        if (!response.ok) {
-          throw new Error('Failed to fetch stations');
-        }
-        const data = await response.json();
-        console.log('Received stations data:', data); // Отладочный вывод
+        const data = await apiClient.get('/railway-stations');
         setStations(data.data);
-        setError(null);
       } catch (err) {
         setError('Помилка при завантаженні даних про станції');
         console.error('Error fetching stations:', err);
@@ -122,22 +118,9 @@ const MeetingCard = ({ city, station, location, imageSrc }) => {
 
     console.log('MeetingCard props:', { city, station, location, imageSrc });
 
-    const getImageUrl = (path) => {
-      if (!path) return null;
-      if (path.startsWith('http')) return path;
-      // Убираем возможное дублирование /uploads/
-      const cleanPath = path.replace(/^\/uploads\//, '');
-      return `${process.env.REACT_APP_API_URL}/uploads/${cleanPath}`;
-  };
-
-  // URL изображения по умолчанию
-  const defaultImageUrl = `${process.env.REACT_APP_API_URL}/uploads/default-station.jpg`;
-
-  // Определяем итоговый URL изображения
-  const finalImageUrl = imageError ? defaultImageUrl : getImageUrl(imageSrc);
-  
-  console.log('MeetingCard props:', { city, station, location, imageSrc });
-  console.log('Final image URL:', finalImageUrl);
+    // Get URLs with explicit 'station' type
+  const defaultImageUrl = getImageUrl(null, 'station');
+  const imageUrl = imageError ? defaultImageUrl : getImageUrl(imageSrc, 'station');
     
     return (
       <div className="meeting-card">
@@ -148,16 +131,16 @@ const MeetingCard = ({ city, station, location, imageSrc }) => {
           <div className="location">{`${location}`}</div>
       </div>
       <div className="meeting-image">
-          <img 
-              src={finalImageUrl || defaultImageUrl}
-              alt={`Meeting location at ${station}`} 
-              onError={(e) => {
-                  console.log('Failed to load image:', e.target.src);
-                  if (!imageError) {
-                      setImageError(true);
-                  }
-              }}
-          />
+      <img 
+          src={imageUrl}
+          alt={`Meeting location at ${station}`} 
+          onError={(e) => {
+            console.log('Failed to load image:', e.target.src);
+            if (!imageError) {
+              setImageError(true);
+            }
+          }}
+        />
       </div>
   </div>
       );

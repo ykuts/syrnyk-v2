@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Table, Button, Form, Card, Modal, Alert } from 'react-bootstrap';
 import { PlusCircle, Edit, Trash2 } from 'lucide-react';
+import { apiClient } from '../../../utils/api';
+import { API_URL, getImageUrl } from '../../../config';
 
 const DeliveryPanel = () => {
   const [stations, setStations] = useState([]);
@@ -16,21 +18,11 @@ const DeliveryPanel = () => {
   });
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
 
-  // Вспомогательная функция для формирования полного URL изображения
-  const getImageUrl = (imagePath) => {
-    if (!imagePath) return null;
-    if (imagePath.startsWith('http')) return imagePath;
-    // Убираем дублирование /uploads/ если оно есть
-    const cleanPath = imagePath.replace(/^\/uploads\//, '');
-    return `${process.env.REACT_APP_API_URL}/uploads/${cleanPath}`;
-  };
-
-  // Загрузка станций
+    // Загрузка станций
   const fetchStations = async () => {
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/railway-stations`);
-      const data = await response.json();
-      setStations(data.data);
+      const response = await apiClient.get('/railway-stations');
+      setStations(response.data);
       setError(null);
     } catch (err) {
       setError('Помилка при завантаженні станцій');
@@ -63,19 +55,12 @@ const DeliveryPanel = () => {
     try {
       const formData = new FormData();
       formData.append('photo', file);
-
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/upload/stations`, {
-        method: 'POST',
-        body: formData,
-      });
-
-      if (!response.ok) throw new Error('Failed to upload photo');
-
-      const data = await response.json();
+  
+      const response = await apiClient.upload('/upload/stations', formData);
 
       setFormData(prev => ({
         ...prev,
-        photo: data.url
+        photo: response.url 
       }));
     } catch (err) {
       setError('Помилка при завантаженні фото');
@@ -91,24 +76,14 @@ const DeliveryPanel = () => {
     setError(null);
 
     try {
-      const url = selectedStation
-        ? `${process.env.REACT_APP_API_URL}/api/railway-stations/${selectedStation.id}`
-        : `${process.env.REACT_APP_API_URL}/api/railway-stations`;
-
-      const method = selectedStation ? 'PUT' : 'POST';
-
-      const response = await fetch(url, {
-        method,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      });
-
-      if (!response.ok) {
-        throw new Error('Помилка при збереженні станції');
+      if (selectedStation) {
+        // Use PUT for update
+        await apiClient.put(`/railway-stations/${selectedStation.id}`, formData);
+      } else {
+        // Use POST for creation
+        await apiClient.post('/railway-stations', formData);
       }
-
+      
       await fetchStations();
       setShowModal(false);
       setSelectedStation(null);
@@ -125,28 +100,29 @@ const DeliveryPanel = () => {
       try {
         const station = stations.find(s => s.id === id);
 
-        // Сначала удаляем фото, если оно есть
+        // Delete photo first if exists
         if (station.photo) {
           const filename = station.photo.split('/').pop();
-          await fetch(`${process.env.REACT_APP_API_URL}/api/upload/stations/${filename}`, {
+          await fetch(`${API_URL}/api/upload/stations/${filename}`, {
             method: 'DELETE',
           });
         }
-
-        // Затем удаляем станцию
-        const response = await fetch(`${process.env.REACT_APP_API_URL}/api/railway-stations/${id}`, {
+  
+        // Then delete the station
+        await fetch(`${API_URL}/api/railway-stations/${id}`, {
           method: 'DELETE',
         });
-
-        if (!response.ok) {
-          throw new Error('Помилка при видаленні станції');
-        }
-
+        
         await fetchStations();
       } catch (err) {
-        setError(err.message);
+        setError('Помилка при видаленні станції');
       }
     }
+  };
+
+  const checkImageUrl = (url) => {
+    if (!url) return null;
+    return getImageUrl(url, 'station');
   };
 
   const handleEdit = (station) => {
@@ -155,7 +131,7 @@ const DeliveryPanel = () => {
       city: station.city,
       name: station.name,
       meetingPoint: station.meetingPoint,
-      photo: station.photo || ''
+      photo: station.photo ? getImageUrl(station.photo, 'station') : ''
     });
     setShowModal(true);
   };
@@ -288,7 +264,7 @@ const DeliveryPanel = () => {
                 {formData.photo && (
                   <div className="mb-2">
                     <img
-                      src={getImageUrl(formData.photo)}
+                      src={checkImageUrl(formData.photo)}
                       alt="Preview"
                       style={{ height: '100px', objectFit: 'cover' }}
                     />

@@ -207,7 +207,7 @@ const ProductForm = ({ show, onHide, onSave, product, categories, loading }) => 
           </Form.Group>
 
           <Form.Group className="mb-3">
-            <Form.Label>Асортимент (кожен варіант з нової строки)</Form.Label>
+            <Form.Label>Асортимент (кожен варіант з нового рядка)</Form.Label>
             <Form.Control
               as="textarea"
               name="assortment"

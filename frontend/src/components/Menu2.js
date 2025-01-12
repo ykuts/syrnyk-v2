@@ -149,7 +149,7 @@ useEffect(() => {
                                 <Package size={16} className="me-2" />
                                 Управління замовленнями
                             </Dropdown.Item>
-                            <Dropdown.Item onClick={() => navigate('/admin/users')}>
+                            <Dropdown.Item onClick={() => navigate('/admin/customers')}>
                                 <SquareUserRound size={16} className="me-2" />
                                 Управління клієнтами
                             </Dropdown.Item>

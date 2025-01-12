@@ -125,6 +125,7 @@ export const getProductById = async (req, res) => {
 };
 
 // Update product
+// Update product
 export const updateProduct = async (req, res) => {
   try {
     const { id } = req.params;
@@ -144,38 +145,52 @@ export const updateProduct = async (req, res) => {
       isActive 
     } = req.body;
 
-    console.log('Update received images:', { image, images }); // Для отладки
+    // Check if product exists
+    const existingProduct = await prisma.product.findUnique({
+      where: { id: parseInt(id) }
+    });
+
+    if (!existingProduct) {
+      return res.status(404).json({
+        message: 'Product not found'
+      });
+    }
 
     // Validation of required fields
     if (!name || !description || !price || !categoryId || !weight) {
       return res.status(400).json({
-        message: 'Необходимо указать название, описание, цену, вес и категорию продукта.'
+        message: 'All required fields must be provided: name, description, price, category, and weight'
       });
     }
 
-    // Image processing
+    // Image processing with additional checks
     const { mainImage, imageArray } = processImages(image, images);
 
-    console.log('Update processed images:', { mainImage, imageArray }); // Для отладки
+    console.log('Updating product:', {
+      id,
+      mainImage,
+      imageArray,
+      categoryId
+    });
 
-    // Preparing data for update
+    // Preparing data for update with type conversion
     const updateData = {
       name,
       description,
       descriptionFull: descriptionFull || description,
-      price: parseFloat(price),
+      price: typeof price === 'string' ? parseFloat(price) : price,
       weight,
       image: mainImage,
       images: imageArray,
       umovy: umovy || '',
       recipe: recipe || '',
       assortment: Array.isArray(assortment) ? assortment : [],
-      stock: parseInt(stock) || 0,
-      categoryId: parseInt(categoryId),
+      stock: typeof stock === 'string' ? parseInt(stock) : (stock || 0),
+      categoryId: typeof categoryId === 'string' ? parseInt(categoryId) : categoryId,
       isActive: isActive ?? true
     };
 
-    // Update product
+    // Update product with error handling
     const updatedProduct = await prisma.product.update({
       where: {
         id: parseInt(id)
@@ -186,15 +201,28 @@ export const updateProduct = async (req, res) => {
       }
     });
 
+    if (!updatedProduct) {
+      throw new Error('Failed to update product');
+    }
+
     res.json({
-      message: 'Продукт успешно обновлен',
+      message: 'Product updated successfully',
       product: updatedProduct
     });
 
   } catch (error) {
-    console.error('Ошибка при обновлении продукта:', error);
+    console.error('Error updating product:', error);
+    
+    // Handle specific Prisma errors
+    if (error.code === 'P2025') {
+      return res.status(404).json({
+        message: 'Product not found',
+        error: process.env.NODE_ENV === 'development' ? error.message : undefined
+      });
+    }
+
     res.status(500).json({
-      message: 'Ошибка при обновлении продукта',
+      message: 'Error updating product',
       error: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }

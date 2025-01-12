@@ -70,22 +70,23 @@ const ProductsPanel = () => {
   const handleSave = async (productData) => {
     setLoading(true);
     try {
-      if (selectedProduct) {
-        await apiClient.post(`/products/${selectedProduct.id}`, productData);
-      } else {
-        await apiClient.post('/products/add', productData);
-      }
-
-      await fetchProducts();
-      setShowModal(false);
-      setSelectedProduct(null);
+        if (selectedProduct) {
+            // Use PUT instead of POST for updates
+            await apiClient.put(`/products/${selectedProduct.id}`, productData);
+        } else {
+            await apiClient.post('/products/add', productData);
+        }
+        
+        await fetchProducts();
+        setShowModal(false);
+        setSelectedProduct(null);
     } catch (err) {
-      setError('Помилка при збереженні продукту');
-      console.error(err);
+        setError('Помилка при збереженні продукту');
+        console.error(err);
     } finally {
-      setLoading(false);
+        setLoading(false);
     }
-  };
+};
 
   if (loading && !products.length) {
     return (

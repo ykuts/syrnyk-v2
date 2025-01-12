@@ -48,17 +48,17 @@ const ProductsPanel = () => {
   
   const handleDelete = async (id) => {
     if (!window.confirm('Ви впевнені, що бажаєте видалити цей продукт?')) {
-      return;
+        return;
     }
-
+    
     try {
-      await apiClient.post(`/products/${id}`, {}, { method: 'DELETE' });
-      await fetchProducts();
+        await apiClient.delete(`/products/${id}`);
+        await fetchProducts();
     } catch (err) {
-      setError('Помилка при видаленні продукту');
-      console.error(err);
+        setError('Помилка при видаленні продукту');
+        console.error(err);
     }
-  };
+};
 
   // Opening the form for editing
   const handleEdit = (product) => {

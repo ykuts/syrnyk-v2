@@ -9,6 +9,11 @@ import {
 
 const router = express.Router();
 
+router.use((req, res, next) => {
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  next();
+});
+
 // Add new product
 router.post('/add', createProduct);
 

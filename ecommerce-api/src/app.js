@@ -49,11 +49,27 @@ app.use('/uploads', (req, res, next) => {
 });
 
 app.use(cors({
-    origin: ['https://syrnyk-test.up.railway.app', 'http://localhost:3002'],
+    origin: [
+        'https://syrnyk-test.up.railway.app', 
+        'https://syrnyk-v2-production.up.railway.app', 
+        'http://localhost:3002'
+    ],
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
-    credentials: true
+    allowedHeaders: [
+        'Content-Type', 
+        'Authorization',
+        'Access-Control-Allow-Headers',
+        'Access-Control-Allow-Methods',
+        'X-Requested-With'
+    ],
+    exposedHeaders: ['Content-Range', 'X-Content-Range'],
+    credentials: true,
+    preflightContinue: false,
+    optionsSuccessStatus: 204
 }));
+
+
+app.options('*', cors()); // Enable pre-flight for all routes
 
 // CORS to allow requests from localhost:3000
 /* app.use(cors({

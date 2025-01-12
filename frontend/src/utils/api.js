@@ -78,6 +78,23 @@ export const apiClient = {
     }
   
     return response.json();
-  }
+  },
+
+  delete: async (endpoint, customHeaders = {}) => {
+    const response = await fetch(`${API_URL}/api${endpoint}`, {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json',
+            ...customHeaders
+        }
+    });
+    
+    if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ message: 'Unknown error occurred' }));
+        throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+    }
+    
+    return response.json();
+}
 
 };

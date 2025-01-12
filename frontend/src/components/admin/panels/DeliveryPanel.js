@@ -180,17 +180,17 @@ const DeliveryPanel = () => {
                   {<td>
                     {station.photo && (
                       <img
-                        src={getImageUrl(station.photo)}
-                        alt={station.name}
-                        style={{ height: '50px', width: '50px', objectFit: 'cover' }}
-                        onError={(e) => {
-                          if (!e.target.dataset.tried) {
-                            console.error('Error loading image:', station.photo);
-                            e.target.dataset.tried = 'true';
-                            e.target.src = '/placeholder.jpg';
-                          }
-                        }}
-                      />
+                      src={checkImageUrl(station.photo)}
+                      alt={station.name}
+                      style={{ height: '50px', width: '50px', objectFit: 'cover' }}
+                      onError={(e) => {
+                        if (!e.target.dataset.tried) {
+                          console.error('Error loading image:', station.photo);
+                          e.target.dataset.tried = 'true';
+                          e.target.src = '/placeholder.jpg';
+                        }
+                      }}
+                    />
                     )}
                   </td>}
                   <td>

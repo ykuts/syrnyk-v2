@@ -1,14 +1,24 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Row, Col, Card } from 'react-bootstrap';
 import { MapPin } from 'lucide-react';
 import './StationSelector.css';
+import { getImageUrl } from '../config';
 
-const StationSelector = ({ stations, selectedStation, onChange }) => {
+const StationSelector = ({ stations, selectedStation, onChange, meetingTime }) => {
+  const [imageError, setImageError] = useState({});
+  
   const handleSelect = (stationId) => {
     onChange({ target: { name: 'stationId', value: stationId.toString() } });
   };
 
   const selectedStationData = stations.find(s => s.id === parseInt(selectedStation));
+
+  const minDate = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().slice(0, 16);
+
+  const getStationImage = (photo) => {
+    if (imageError[photo]) return getImageUrl(null, 'station');
+    return getImageUrl(photo, 'station');
+  };
 
   return (
     <>
@@ -38,8 +48,14 @@ const StationSelector = ({ stations, selectedStation, onChange }) => {
               {selectedStationData?.photo && (
                 <Col md={4}>
                   <img
-                    src={`${process.env.REACT_APP_API_URL}${selectedStationData.photo}`}
-                    alt="Місце зустрічі"
+                    src={getStationImage(selectedStationData.photo)}
+                    alt="Meeting Point"
+                    onError={() => {
+                      setImageError(prev => ({
+                        ...prev,
+                        [selectedStationData.photo]: true
+                      }));
+                    }}
                     className="img-fluid rounded w-100 mb-3 mb-md-0"
                   />
                 </Col>
@@ -52,13 +68,14 @@ const StationSelector = ({ stations, selectedStation, onChange }) => {
                 </div>
 
                 <div>
-                  <label className="form-label fw-medium">Оберіть час зустрічі</label>
+                  <label className="form-label fw-medium">Оберіть дату</label>
                   <input
                     type="datetime-local"
                     name="meetingTime"
                     className="form-control"
-                    value={selectedStationData?.meetingTime || ''}
-                    onChange={(e) => onChange(e)}
+                    value={meetingTime || ''}
+                    onChange={onChange}
+                    min={minDate}
                     required
                   />
                 </div>

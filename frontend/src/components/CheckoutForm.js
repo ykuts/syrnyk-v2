@@ -81,114 +81,26 @@ const CheckoutForm = ({ formData, handleChange, deliveryType, railwayStations, s
           </div>
         );
 
-        case 'RAILWAY_STATION':
-      return (
-        <div className="delivery-details mt-4">
-          <Card>
-            <Card.Body>
-              <h5 className="mb-3">Виберіть станцію</h5>
-              <Form.Group className="mb-4">
-                <Form.Select
-                  name="stationId"
-                  value={formData.stationId}
-                  onChange={handleChange}
-                  required
-                >
-                  <option value="">Оберіть станцію</option>
-                  {railwayStations.map(station => (
-                    <option key={station.id} value={station.id}>
-                      {station.city} - {station.name}
-                    </option>
-                  ))}
-                </Form.Select>
-              </Form.Group>
-
-              {formData.stationId && (
-                <div className="mt-4">
-                  <Card className="bg-light">
-                    <Card.Body>
-                      {railwayStations.find(s => s.id === parseInt(formData.stationId))?.photo && (
-                        <img
-                          src={`${process.env.REACT_APP_API_URL}${railwayStations.find(s => s.id === parseInt(formData.stationId)).photo}`}
-                          alt="Місце зустрічі"
-                          className="img-fluid rounded mb-3 w-100"
-                        />
-                      )}
-                      <div className="mb-3">
-                        <strong>Місце зустрічі:</strong>
-                        <p className="mb-0 mt-1">
-                          {railwayStations.find(s => s.id === parseInt(formData.stationId))?.meetingPoint}
-                        </p>
-                      </div>
-
-                      <Form.Group>
-                        <Form.Label className="fw-medium">Оберіть час зустрічі</Form.Label>
-                        <Form.Control
-                          type="datetime-local"
-                          name="meetingTime"
-                          value={formData.meetingTime}
-                          onChange={handleChange}
-                          min={new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().slice(0, 16)}
-                          required
-                        />
-                      </Form.Group>
-                    </Card.Body>
-                  </Card>
-                </div>
-              )}
-            </Card.Body>
-          </Card>
-        </div>
-      );
-
-      /* case 'RAILWAY_STATION':
+      case 'RAILWAY_STATION':
         return (
           <div className="delivery-details mt-4">
             <Card>
               <Card.Body>
-                <h5 className="mb-3">Виберіть станцію</h5>
-                <StationSelector
-                  stations={railwayStations}
-                  selectedStation={formData.stationId}
-                  onChange={handleChange}
-                />
+                <h5 className="mb-3">Оберіть станцію</h5>
+                <Form.Group className="mb-4">
+                <StationSelector 
+  stations={railwayStations}
+  selectedStation={formData.stationId}
+  onChange={handleChange}
+  meetingTime={formData.meetingTime} // Pass meeting time from form data
+/>
+                </Form.Group>
 
-                {formData.stationId && (
-                  <div className="mt-4">
-                    <Card className="bg-light">
-                      <Card.Body>
-                        {railwayStations.find(s => s.id === parseInt(formData.stationId))?.photo && (
-                          <img
-                            src={`${process.env.REACT_APP_API_URL}${railwayStations.find(s => s.id === parseInt(formData.stationId)).photo}`}
-                            alt="Місце зустрічі"
-                            className="img-fluid rounded mb-3 w-100"
-                          />
-                        )}
-                        <div className="mb-3">
-                          <strong>Місце зустрічі:</strong>
-                          <p className="mb-0 mt-1">
-                            {railwayStations.find(s => s.id === parseInt(formData.stationId))?.meetingPoint}
-                          </p>
-                        </div>
-
-                        <Form.Group>
-                          <Form.Label className="fw-medium">Оберіть час зустрічі</Form.Label>
-                          <Form.Control
-                            type="datetime-local"
-                            name="meetingTime"
-                            value={formData.meetingTime}
-                            onChange={handleChange}
-                            required
-                          />
-                        </Form.Group>
-                      </Card.Body>
-                    </Card>
-                  </div>
-                )}
+                
               </Card.Body>
             </Card>
           </div>
-        ); */
+        );
 
       case 'PICKUP':
         return (
@@ -206,7 +118,7 @@ const CheckoutForm = ({ formData, handleChange, deliveryType, railwayStations, s
                 </div>
 
                 <Form.Group>
-                  <Form.Label className="fw-medium">Оберіть час самовивозу</Form.Label>
+                  <Form.Label className="fw-medium">Оберіть час</Form.Label>
                   <Form.Control
                     type="datetime-local"
                     name="pickupTime"
@@ -291,12 +203,12 @@ const CheckoutForm = ({ formData, handleChange, deliveryType, railwayStations, s
         </Card>
       </section>
       {isAuthenticated && (
-                <Form.Text className="text-muted">
-                  Для зміни особистих даних перейдіть до налаштувань профілю
-                </Form.Text>
-              )}
+        <Form.Text className="text-muted">
+          Для зміни особистих даних перейдіть до налаштувань профілю
+        </Form.Text>
+      )}
 
-      <section className="mb-5">
+      <section className="mb-5 mt-4">
         <h4 className="mb-3">Спосіб доставки</h4>
         <DeliveryMethodSelector
           selectedMethod={formData.deliveryType}

@@ -5,13 +5,15 @@ import { Form, Button, Alert, ButtonGroup, Container, Table } from 'react-bootst
 import { Trash, Plus, Minus } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import CheckoutForm from './CheckoutForm';
+import { getApiUrl } from '../config';
+import { apiClient } from '../utils/api';
 
 const STORE_ADDRESS = {
   id: 1,
   name: "Магазин у Nyon",
   address: "Chemin de Pre-Fleuri, 5",
   city: "Nyon",
-  workingHours: "щодня 9.00-20.00"
+  workingHours: "щодня 9:00-20:00"
 };
 
 const CheckoutPage = () => {
@@ -51,7 +53,6 @@ const CheckoutPage = () => {
   const [submitError, setSubmitError] = useState(null);
   const [submitSuccess, setSubmitSuccess] = useState(false);
 
-  // Autofill user data when component mounts or user changes
   useEffect(() => {
     if (user) {
       setFormData(prevState => ({
@@ -60,11 +61,8 @@ const CheckoutPage = () => {
         lastName: user.lastName || prevState.lastName,
         email: user.email || prevState.email,
         phone: user.phone || prevState.phone,
-        // If user has a preferred delivery location, we can set it here
         ...(user.preferredDeliveryLocation && {
           deliveryType: 'ADDRESS',
-          // Assuming preferredDeliveryLocation is stored in a structured format
-          // You might need to parse it if it's stored as a string
         })
       }));
     }
@@ -73,7 +71,7 @@ const CheckoutPage = () => {
   useEffect(() => {
     const fetchDeliveryData = async () => {
       try {
-        const response = await fetch(`${process.env.REACT_APP_API_URL}/api/railway-stations`);
+        const response = await fetch(getApiUrl('/api/railway-stations'));
         const result = await response.json();
         setRailwayStations(result.data);
       } catch (error) {
@@ -83,7 +81,7 @@ const CheckoutPage = () => {
         setLoading(false);
       }
     };
-
+  
     fetchDeliveryData();
   }, []);
 
@@ -132,7 +130,7 @@ const CheckoutPage = () => {
                     variant="outline-danger" 
                     size="sm"
                     onClick={() => removeAllFromCart(item.id)}
-                    title="Видалити товар"
+                    title="Remove item"
                   >
                     <Trash size={16} />
                   </Button>
@@ -153,14 +151,14 @@ const CheckoutPage = () => {
   const handleChange = (e) => {
     const { name, value } = e.target;
     
-    // Специальная обработка для полей с датой
+    // Special handling for date fields
     if (name === 'meetingTime' || name === 'pickupTime') {
-      // Проверяем, что значение не пустое
+      // Check if the value is not empty
       if (value) {
         const selectedDate = new Date(value);
-        const minDate = new Date(Date.now() + 24 * 60 * 60 * 1000); // минимум следующий день
+        const minDate = new Date(Date.now() + 24 * 60 * 60 * 1000); // minimum next day
         
-        // Если выбранная дата раньше минимальной, устанавливаем минимальную
+        // If selected date is earlier than minimum, set to minimum
         if (selectedDate < minDate) {
           setFormData(prevState => ({
             ...prevState,
@@ -183,6 +181,7 @@ const CheckoutPage = () => {
     setSubmitError(null);
   
     try {
+      // Prepare order data
       const orderData = {
         userId: user?.id,
         deliveryType: formData.deliveryType,
@@ -198,6 +197,7 @@ const CheckoutPage = () => {
         }))
       };
   
+      // Add customer data for non-authenticated users
       if (!user) {
         orderData.customer = {
           firstName: formData.firstName,
@@ -207,7 +207,7 @@ const CheckoutPage = () => {
         };
       }
   
-      // В зависимости от типа доставки добавляем соответствующие данные
+      // Add delivery-specific data
       if (formData.deliveryType === 'ADDRESS') {
         orderData.addressDelivery = {
           street: formData.street,
@@ -223,42 +223,34 @@ const CheckoutPage = () => {
         };
       } else if (formData.deliveryType === 'PICKUP') {
         orderData.pickupDelivery = {
-          storeId: 1, // Используем существующий ID магазина из базы данных
+          storeId: 1,
           pickupTime: new Date(formData.pickupTime).toISOString()
         };
       }
   
       console.log('Sending order data:', orderData);
   
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/orders`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(user?.token && { 'Authorization': `Bearer ${user.token}` })
-        },
-        body: JSON.stringify(orderData)
-      });
-  
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to create order');
+      // Use apiClient utility to make the request
+      const headers = {};
+      if (user?.token) {
+        headers.Authorization = `Bearer ${user.token}`;
       }
-  
-      const result = await response.json();
+      
+      const result = await apiClient.post('/orders', orderData, headers);
       console.log('Order created:', result);
   
       setSubmitSuccess(true);
       clearCart();
       
     } catch (error) {
-      setSubmitError(`Помилка при оформленні замовлення: ${error.message}`);
       console.error('Order submission error:', error);
+      setSubmitError(error.message || 'Failed to create order');
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const getDeliveryData = () => {
+  /* const getDeliveryData = () => {
     switch (formData.deliveryType) {
       case 'ADDRESS':
         return {
@@ -281,12 +273,12 @@ const CheckoutPage = () => {
       default:
         return {};
     }
-  };
+  }; */
 
   if (loading) {
     return (
       <Container className="py-5 text-center">
-        <p>Завантаження...</p>
+        <p>Loading...</p>
       </Container>
     );
   }
@@ -300,7 +292,7 @@ const CheckoutPage = () => {
           className="mt-3"
           onClick={() => navigate('/')}
         >
-          Повернутися до покупок
+          Повернутись до покупок
         </Button>
       </Container>
     );
@@ -309,14 +301,14 @@ const CheckoutPage = () => {
   if (submitSuccess) {
     return (
       <Container className="py-5 text-center">
-        <h2 className="text-success mb-4">Замовлення успішно оформлено!</h2>
-        <p>Дякуємо за Ваше замовлення. Ми зв'яжемося з Вами найближчим часом.</p>
+        <h2 className="text-success mb-4">Order successfully placed!</h2>
+        <p>Thank you for your order. We will contact you shortly.</p>
         <Button 
           variant="primary" 
           className="mt-3"
           onClick={() => navigate('/')}
         >
-          Повернутися до покупок
+          Return to Shopping
         </Button>
       </Container>
     );
@@ -352,7 +344,7 @@ const CheckoutPage = () => {
               variant="primary"
               disabled={isSubmitting}
             >
-              {isSubmitting ? 'Оформлення...' : 'Оформити замовлення'}
+              {isSubmitting ? 'Оформлюємо...' : 'Оформити замовлення'}
             </Button>
           </div>
         </div>

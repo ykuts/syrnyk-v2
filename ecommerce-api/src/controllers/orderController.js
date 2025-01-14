@@ -8,6 +8,7 @@ export const createOrder = async (req, res) => {
   try {
     const {
       userId,
+      customer,  // Guest customer information
       deliveryType,
       totalAmount,
       paymentMethod,
@@ -18,13 +19,19 @@ export const createOrder = async (req, res) => {
       addressDelivery,
       stationDelivery,
       pickupDelivery,
-      customer
     } = req.body;
 
     // Checking required fields
     if (!deliveryType || !totalAmount || !items || items.length === 0) {
       return res.status(400).json({ 
-        message: 'Не заполнены обязательные поля заказа' 
+        message: "Не заповнені обов'язкові поля замовлення" 
+      });
+    }
+
+    // For guest orders, validate customer information
+    if (!userId && (!customer || !customer.email || !customer.firstName || !customer.lastName)) {
+      return res.status(400).json({
+        message: 'Для гостьових замовлень потрібна інформація про клієнта'
       });
     }
 
@@ -36,64 +43,96 @@ export const createOrder = async (req, res) => {
 
       if (!store) {
         return res.status(400).json({
-          message: 'Указанный магазин не найден'
+          message: 'Зазначений магазин не знайдено'
         });
       }
     }
 
-    // Create order
+    // Basic order data
+    const orderData = {
+      deliveryType,
+      totalAmount,
+      paymentMethod,
+      notesClient,
+      status: 'PENDING',
+      paymentStatus: 'PENDING',
+      items: {
+        create: items.map(item => ({
+          product: {
+            connect: { id: item.productId }
+          },
+          quantity: item.quantity,
+          price: item.price
+        }))
+      }
+    };
+
+    // Add user connection if authenticated
+    if (userId) {
+      orderData.user = {
+        connect: { id: userId }
+      };
+    }
+
+    // Add delivery information based on type
+    if (deliveryType === 'ADDRESS' && addressDelivery) {
+      orderData.addressDelivery = {
+        create: addressDelivery
+      };
+    } else if (deliveryType === 'RAILWAY_STATION' && stationDelivery) {
+      orderData.stationDelivery = {
+        create: {
+          stationId: stationDelivery.stationId,
+          meetingTime: new Date(stationDelivery.meetingTime)
+        }
+      };
+    } else if (deliveryType === 'PICKUP' && pickupDelivery) {
+      orderData.pickupDelivery = {
+        create: {
+          storeId: pickupDelivery.storeId,
+          pickupTime: new Date(pickupDelivery.pickupTime)
+        }
+      };
+    }
+
+    // Add guest information for guest orders
+    if (!userId && customer) {
+      orderData.guestInfo = {
+        create: {
+          firstName: customer.firstName,
+          lastName: customer.lastName,
+          email: customer.email,
+          phone: customer.phone || null
+        }
+      };
+    }
+
+
+    // Create order with all related data
     const order = await prisma.order.create({
-      data: {
-        ...(userId && {
-          user: {
-            connect: { id: userId }
-          }
-        }),
-        deliveryType,
-        totalAmount,
-        paymentMethod,
-        notesClient,
-        status,
-        paymentStatus,
-        items: {
-          create: items.map(item => ({
-            product: {
-              connect: { id: item.productId }
-            },
-            quantity: item.quantity,
-            price: item.price
-          }))
-        },
-        ...(deliveryType === 'ADDRESS' && addressDelivery && {
-          addressDelivery: {
-            create: addressDelivery
-          }
-        }),
-        ...(deliveryType === 'RAILWAY_STATION' && stationDelivery && {
-          stationDelivery: {
-            create: {
-              stationId: stationDelivery.stationId,
-              meetingTime: stationDelivery.meetingTime
-            }
-          }
-        }),
-        ...(deliveryType === 'PICKUP' && pickupDelivery && {
-          pickupDelivery: {
-            create: {
-              storeId: pickupDelivery.storeId,
-              pickupTime: pickupDelivery.pickupTime
-            }
-          }
-        })
-      },
+      data: orderData,
       include: {
-        items: true,
+        items: {
+          include: {
+            product: true
+          }
+        },
+        guestInfo: true,
+        user: true,
         addressDelivery: true,
-        stationDelivery: true,
-        pickupDelivery: true,
-        user: true
+        stationDelivery: {
+          include: {
+            station: true
+          }
+        },
+        pickupDelivery: {
+          include: {
+            store: true
+          }
+        }
       }
     });
+
 
     res.status(201).json({
       message: 'Замовлення успішно створено',

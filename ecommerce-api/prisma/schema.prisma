@@ -33,8 +33,10 @@ model User {
 // Modified Order model with new delivery options
 model Order {
   id              Int         @id @default(autoincrement())
-  userId          Int
-  user            User        @relation(fields: [userId], references: [id])
+  userId          Int?
+  user            User?        @relation(fields: [userId], references: [id])
+   // Guest information
+  guestInfo       GuestInfo?  // New relation to guest information
   deliveryType    DeliveryType @default(RAILWAY_STATION)
   // Conditional relations based on delivery type
   addressDelivery AddressDelivery?
@@ -54,6 +56,21 @@ model Order {
 
   @@index([userId])
   @@index([status])
+}
+
+// New model for guest information
+model GuestInfo {
+  id          Int      @id @default(autoincrement())
+  orderId     Int      @unique
+  order       Order    @relation(fields: [orderId], references: [id])
+  firstName   String
+  lastName    String
+  email       String
+  phone       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([email])
 }
 
 // New enum for delivery types

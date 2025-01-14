@@ -1,7 +1,8 @@
 // components/OrderHistory.js
 import React, { useState, useEffect } from 'react';
 import { Container, Table, Badge, Button, Modal, Row, Col, Card } from 'react-bootstrap';
-import axios from 'axios';
+import { apiClient } from '../utils/api';
+import { getImageUrl } from '../config'
 import { format } from 'date-fns';
 
 const OrderHistory = () => {
@@ -18,10 +19,13 @@ const OrderHistory = () => {
   const fetchOrders = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/users/orders`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      setOrders(response.data.orders);
+      const customHeaders = {
+        Authorization: `Bearer ${token}`
+      };
+      
+      // Using apiClient.get with the endpoint and custom headers
+      const response = await apiClient.get('/users/orders', customHeaders);
+      setOrders(response.orders);
     } catch (err) {
       setError('Failed to fetch orders');
     } finally {

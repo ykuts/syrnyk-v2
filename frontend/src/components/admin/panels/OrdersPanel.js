@@ -7,11 +7,11 @@ import {
   Alert,
   Button,
   Form,
-  ListGroup,
   Row,
   Col
 } from 'react-bootstrap';
 import { apiClient } from '../../../utils/api';
+import OrderItemsEditor from './OrdersPanelComp/OrderItemsEditor';
 
 const OrdersPanel = () => {
   const [orders, setOrders] = useState([]);
@@ -463,19 +463,15 @@ const OrdersPanel = () => {
         {expandedOrder === order.id && (
           <div className="mt-4">
             <h6>Order Items:</h6>
-            <ListGroup>
-              {order.items?.map((item) => (
-                <ListGroup.Item key={item.id} className="d-flex justify-content-between align-items-center">
-                  <div>
-                    <span>{item.product?.name}</span>
-                    <small className="text-muted d-block">
-                      Quantity: {item.quantity}
-                    </small>
-                  </div>
-                  <span>${Number(item.price).toFixed(2)}</span>
-                </ListGroup.Item>
-              ))}
-            </ListGroup>
+            <OrderItemsEditor
+      order={order}
+      onOrderUpdate={(updatedOrder) => {
+        setOrders(orders.map(o => 
+          o.id === updatedOrder.id ? updatedOrder : o
+        ));
+      }}
+      getAuthHeaders={getAuthHeaders}
+    />
           </div>
         )}
       </Card.Body>

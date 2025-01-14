@@ -268,7 +268,6 @@ export const updateOrderNotes = async (req, res) => {
   }
 };
 
-// Updating the quantity of goods in the order
 export const updateOrderItem = async (req, res) => {
   const { orderId, itemId } = req.params;
   const { quantity } = req.body;
@@ -282,15 +281,24 @@ export const updateOrderItem = async (req, res) => {
   });
 
   try {
-    // Checking the existence of a record before updating
-    const existingItem = await prisma.orderItem.findUnique({
+    // Check if order exists
+    const order = await prisma.order.findUnique({
+      where: { id: Number(orderId) }
+    });
+
+    if (!order) {
+      return res.status(404).json({ error: 'Order not found' });
+    }
+
+    // Check if item exists and belongs to the order
+    const existingItem = await prisma.orderItem.findFirst({
       where: {
-        id: Number(itemId)
+        id: Number(itemId),
+        orderId: Number(orderId)
       }
     });
 
     if (!existingItem) {
-      console.log('Item not found:', itemId);
       return res.status(404).json({ error: 'Order item not found' });
     }
 
@@ -324,9 +332,24 @@ export const updateOrderItem = async (req, res) => {
           totalAmount: totalAmount.toString()
         },
         include: {
-          items: true,
+          items: {
+            include: {
+              product: true
+            }
+          },
           user: true,
-          address: true
+          guestInfo: true,
+          addressDelivery: true,
+          stationDelivery: {
+            include: {
+              station: true
+            }
+          },
+          pickupDelivery: {
+            include: {
+              store: true
+            }
+          }
         }
       });
 
@@ -341,13 +364,20 @@ export const updateOrderItem = async (req, res) => {
   }
 };
 
-// Add items to order
 export const addOrderItem = async (req, res) => {
   const { orderId } = req.params;
   const { productId, quantity } = req.body;
 
   try {
-    
+    // Check if order exists
+    const order = await prisma.order.findUnique({
+      where: { id: Number(orderId) }
+    });
+
+    if (!order) {
+      return res.status(404).json({ error: 'Order not found' });
+    }
+
     const result = await prisma.$transaction(async (prisma) => {
       // Get product info
       const product = await prisma.product.findUnique({
@@ -360,29 +390,46 @@ export const addOrderItem = async (req, res) => {
         throw new Error('Product not found');
       }
 
-      // Create a new product in the order
-      const newOrderItem = await prisma.orderItem.create({
-        data: {
+      // Check if product already exists in order
+      const existingItem = await prisma.orderItem.findFirst({
+        where: {
           orderId: Number(orderId),
-          productId: Number(productId),
-          quantity: Number(quantity),
-          price: product.price 
+          productId: Number(productId)
         }
       });
 
-      // We receive all the goods in the order to recalculate the total amount
+      if (existingItem) {
+        // Update quantity instead of creating new item
+        await prisma.orderItem.update({
+          where: { id: existingItem.id },
+          data: {
+            quantity: existingItem.quantity + Number(quantity)
+          }
+        });
+      } else {
+        // Create new order item
+        await prisma.orderItem.create({
+          data: {
+            orderId: Number(orderId),
+            productId: Number(productId),
+            quantity: Number(quantity),
+            price: product.price
+          }
+        });
+      }
+
+      // Get all order items and recalculate total
       const orderItems = await prisma.orderItem.findMany({
         where: {
           orderId: Number(orderId)
         }
       });
 
-      // Recalculate the total order amount
       const totalAmount = orderItems.reduce((sum, item) => {
         return sum + (Number(item.price) * item.quantity);
       }, 0);
 
-      // Updating the total order amount
+      // Update order with new total
       const updatedOrder = await prisma.order.update({
         where: {
           id: Number(orderId)
@@ -391,9 +438,24 @@ export const addOrderItem = async (req, res) => {
           totalAmount: totalAmount.toString()
         },
         include: {
-          items: true,
+          items: {
+            include: {
+              product: true
+            }
+          },
           user: true,
-          address: true
+          guestInfo: true,
+          addressDelivery: true,
+          stationDelivery: {
+            include: {
+              station: true
+            }
+          },
+          pickupDelivery: {
+            include: {
+              store: true
+            }
+          }
         }
       });
 
@@ -407,34 +469,51 @@ export const addOrderItem = async (req, res) => {
   }
 };
 
-// Removing a product from an order
 export const removeOrderItem = async (req, res) => {
   const { orderId, itemId } = req.params;
 
   try {
-    
+    // Check if order exists
+    const order = await prisma.order.findUnique({
+      where: { id: Number(orderId) }
+    });
+
+    if (!order) {
+      return res.status(404).json({ error: 'Order not found' });
+    }
+
+    // Check if item exists and belongs to the order
+    const existingItem = await prisma.orderItem.findFirst({
+      where: {
+        id: Number(itemId),
+        orderId: Number(orderId)
+      }
+    });
+
+    if (!existingItem) {
+      return res.status(404).json({ error: 'Order item not found' });
+    }
+
     const result = await prisma.$transaction(async (prisma) => {
-      // Delete item form order
+      // Delete item
       await prisma.orderItem.delete({
         where: {
-          id: Number(itemId),
-          orderId: Number(orderId)
+          id: Number(itemId)
         }
       });
 
-      // We receive the remaining items of the order
+      // Get remaining items and recalculate total
       const orderItems = await prisma.orderItem.findMany({
         where: {
           orderId: Number(orderId)
         }
       });
 
-      // Recalculate the total order amount
       const totalAmount = orderItems.reduce((sum, item) => {
         return sum + (Number(item.price) * item.quantity);
       }, 0);
 
-      // Updating the total order amount
+      // Update order with new total
       const updatedOrder = await prisma.order.update({
         where: {
           id: Number(orderId)
@@ -443,9 +522,24 @@ export const removeOrderItem = async (req, res) => {
           totalAmount: totalAmount.toString()
         },
         include: {
-          items: true,
+          items: {
+            include: {
+              product: true
+            }
+          },
           user: true,
-          address: true
+          guestInfo: true,
+          addressDelivery: true,
+          stationDelivery: {
+            include: {
+              station: true
+            }
+          },
+          pickupDelivery: {
+            include: {
+              store: true
+            }
+          }
         }
       });
 

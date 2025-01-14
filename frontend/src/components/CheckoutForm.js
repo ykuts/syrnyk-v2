@@ -18,7 +18,7 @@ const CheckoutForm = ({
   // Render customer information section
   const renderCustomerInfo = () => (
     <section className="mb-5">
-      <h4 className="mb-3">Customer Information</h4>
+      <h4 className="mb-3">Інформація про користувача</h4>
       <Card>
         <Card.Body>
           <Row>
@@ -27,7 +27,7 @@ const CheckoutForm = ({
                 <Form.Control
                   type="text"
                   name="firstName"
-                  placeholder="First Name"
+                  placeholder="Ім'я"
                   value={formData.firstName}
                   onChange={handleChange}
                   required
@@ -41,7 +41,7 @@ const CheckoutForm = ({
                 <Form.Control
                   type="text"
                   name="lastName"
-                  placeholder="Last Name"
+                  placeholder="Прізвище"
                   value={formData.lastName}
                   onChange={handleChange}
                   required
@@ -69,7 +69,7 @@ const CheckoutForm = ({
             <Form.Control
               type="tel"
               name="phone"
-              placeholder="Phone"
+              placeholder="Телефон"
               value={formData.phone}
               onChange={handleChange}
               required
@@ -84,7 +84,7 @@ const CheckoutForm = ({
                 type="checkbox"
                 id="create-account"
                 name="createAccount"
-                label="Create an account for faster checkout next time"
+                label="Створіть обліковий запис для швидкого оформлення наступного разу"
                 checked={createAccount}
                 onChange={(e) => onCreateAccountChange(e.target.checked)}
               />
@@ -93,18 +93,18 @@ const CheckoutForm = ({
 
           {isGuest && createAccount && (
             <Form.Group className="mb-3">
-              <Form.Label>Create Password</Form.Label>
+              <Form.Label>Пароль</Form.Label>
               <Form.Control
                 type="password"
                 name="password"
-                placeholder="Password (min. 8 characters)"
+                placeholder="Пароль (мін. 8 символів)"
                 value={formData.password || ''}
                 onChange={handleChange}
                 required={createAccount}
                 minLength={8}
               />
               <Form.Text className="text-muted">
-                Password must be at least 8 characters long
+              Пароль має бути не менше 8 символів
               </Form.Text>
             </Form.Group>
           )}
@@ -112,7 +112,7 @@ const CheckoutForm = ({
       </Card>
       {isAuthenticated && (
         <Form.Text className="text-muted">
-          To update your personal information, please visit your profile settings
+          Щоб оновити особисту інформацію, перейдіть до налаштувань свого профілю
         </Form.Text>
       )}
     </section>
@@ -125,12 +125,12 @@ const CheckoutForm = ({
         return (
           <Card>
             <Card.Body>
-              <h5 className="mb-3">Delivery Address</h5>
+              <h5 className="mb-3">Адреса доставки</h5>
               <Form.Group className="mb-3">
                 <Form.Control
                   type="text"
                   name="street"
-                  placeholder="Street"
+                  placeholder="Вулиця"
                   value={formData.street}
                   onChange={handleChange}
                   required
@@ -143,7 +143,7 @@ const CheckoutForm = ({
                     <Form.Control
                       type="text"
                       name="house"
-                      placeholder="House Number"
+                      placeholder="Номер будинку"
                       value={formData.house}
                       onChange={handleChange}
                       required
@@ -155,7 +155,7 @@ const CheckoutForm = ({
                     <Form.Control
                       type="text"
                       name="apartment"
-                      placeholder="Apartment (optional)"
+                      placeholder="Квартира (за бажанням)"
                       value={formData.apartment}
                       onChange={handleChange}
                     />
@@ -169,7 +169,7 @@ const CheckoutForm = ({
                     <Form.Control
                       type="text"
                       name="city"
-                      placeholder="City"
+                      placeholder="Місто"
                       value={formData.city}
                       onChange={handleChange}
                       required
@@ -181,7 +181,7 @@ const CheckoutForm = ({
                     <Form.Control
                       type="text"
                       name="postalCode"
-                      placeholder="Postal Code"
+                      placeholder="Індекс"
                       value={formData.postalCode}
                       onChange={handleChange}
                       required
@@ -197,7 +197,7 @@ const CheckoutForm = ({
         return (
           <Card>
             <Card.Body>
-              <h5 className="mb-3">Railway Station Delivery</h5>
+              <h5 className="mb-3">Доставка на залізничну станцію</h5>
               <StationSelector
                 stations={railwayStations}
                 selectedStation={formData.stationId}
@@ -212,15 +212,15 @@ const CheckoutForm = ({
         return (
           <Card>
             <Card.Body>
-              <h5 className="mb-3">Store Pickup</h5>
+              <h5 className="mb-3">Забрати в магазині</h5>
               <div className="bg-light p-3 rounded mb-4">
                 <h6 className="mb-2">{stores[0].name}</h6>
                 <p className="mb-2">{stores[0].address}, {stores[0].city}</p>
-                <p className="mb-0"><strong>Working Hours:</strong> {stores[0].workingHours}</p>
+                <p className="mb-0"><strong>Часи роботи:</strong> {stores[0].workingHours}</p>
               </div>
 
               <Form.Group>
-                <Form.Label className="fw-medium">Select Pickup Time</Form.Label>
+                <Form.Label className="fw-medium">Оберіть час</Form.Label>
                 <Form.Control
                   type="datetime-local"
                   name="pickupTime"
@@ -245,7 +245,7 @@ const CheckoutForm = ({
 
       {/* Delivery Method */}
       <section className="mb-5">
-        <h4 className="mb-3">Delivery Method</h4>
+        <h4 className="mb-3">Спосіб доставки</h4>
         <DeliveryMethodSelector
           selectedMethod={deliveryType}
           onChange={handleChange}
@@ -257,7 +257,7 @@ const CheckoutForm = ({
 
       {/* Payment Method */}
       <section className="mb-5">
-        <h4 className="mb-3">Payment Method</h4>
+        <h4 className="mb-3">Спосіб оплати</h4>
         <PaymentMethodSelector
           selectedMethod={formData.paymentMethod}
           onChange={handleChange}
@@ -266,7 +266,7 @@ const CheckoutForm = ({
 
       {/* Order Notes */}
       <section className="mb-5">
-        <h4 className="mb-3">Order Notes</h4>
+        <h4 className="mb-3">Коментар</h4>
         <Card>
           <Card.Body>
             <Form.Control
@@ -275,7 +275,7 @@ const CheckoutForm = ({
               name="notesClient"
               value={formData.notesClient}
               onChange={handleChange}
-              placeholder="Additional information about your order"
+              placeholder="Додаткова інформація про ваше замовлення"
             />
           </Card.Body>
         </Card>

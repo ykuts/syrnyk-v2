@@ -11,16 +11,16 @@ const CartTable = ({
 }) => {
   return (
     <div className="mb-5">
-      <h2 className="h4 mb-4">Your Products</h2>
+      <h2 className="h4 mb-4">Ваші продукти</h2>
       <div className="table-responsive">
         <Table striped bordered hover>
           <thead>
             <tr>
-              <th>Product Name</th>
-              <th className="text-center">Quantity</th>
-              <th className="text-end">Price</th>
-              <th className="text-end">Total</th>
-              <th className="text-center">Actions</th>
+              <th>Продукт</th>
+              <th className="text-center">Кількість</th>
+              <th className="text-end">Ціна</th>
+              <th className="text-end">Усього</th>
+              <th className="text-center">Дія</th>
             </tr>
           </thead>
           <tbody>
@@ -54,7 +54,7 @@ const CartTable = ({
                     variant="outline-danger" 
                     size="sm"
                     onClick={() => onRemoveAll?.(item.id)}
-                    title="Remove item"
+                    title="Видалити продукт"
                   >
                     <Trash size={16} />
                   </Button>

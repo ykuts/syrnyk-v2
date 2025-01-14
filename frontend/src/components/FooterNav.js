@@ -15,8 +15,8 @@ const FooterNav = () => {
                     <Col xs={5} md={3} className="text-start text-md-left align-items-start">
                         <ul style={{ listStyleType: 'none', padding: 0 }}>
                             <li style={{ marginBottom: '40px' }}><a href="/" className='menu-footer-link'>Меню</a></li>
-                            <li style={{ marginBottom: '40px' }}><a href="/" className='menu-footer-link'>Доставка</a></li>
-                            <li style={{ marginBottom: '40px' }}><a href="/" className='menu-footer-link'>Про нас</a></li>
+                            <li style={{ marginBottom: '40px' }}><a href="/delivery" className='menu-footer-link'>Доставка</a></li>
+                            <li style={{ marginBottom: '40px' }}><a href="/aboutus" className='menu-footer-link'>Про нас</a></li>
                         </ul>
                     </Col>
                     {/* Третья колонка, пока пустая */}

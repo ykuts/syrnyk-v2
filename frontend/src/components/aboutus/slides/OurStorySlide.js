@@ -7,7 +7,7 @@ import './OurStorySlide.css';
 const OurStorySlide = () => {
   return (
     <div className="slide-content">
-      <h3 className="text-center mb-4">Our Story</h3>
+      <h3 className="text-center mb-4">Наша історія</h3>
       
       <Row className="story-container">
         <Col md={5} className="image-col">

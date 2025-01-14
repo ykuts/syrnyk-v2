@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { Container, Row, Col, Form, Button, Alert, Tab, Nav } from 'react-bootstrap';
 import { useAuth } from '../context/AuthContext';
+import OrderHistory from './OrderHistory';
 
 const UserProfile = () => {
   const { user, updateProfile } = useAuth();
@@ -60,6 +61,9 @@ const UserProfile = () => {
               </Nav.Item>
               <Nav.Item>
                 <Nav.Link eventKey="password">Зміна паролю</Nav.Link>
+              </Nav.Item>
+              <Nav.Item>
+                <Nav.Link eventKey="orders">Історія замовлень</Nav.Link>
               </Nav.Item>
             </Nav>
           </Col>
@@ -154,6 +158,9 @@ const UserProfile = () => {
               {/* Добавить компонент изменения пароля */}
               <Tab.Pane eventKey="password">
                 <ChangePassword />
+              </Tab.Pane>
+              <Tab.Pane eventKey="orders">
+                <OrderHistory />
               </Tab.Pane>
             </Tab.Content>
           </Col>

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Card, Button, Alert } from 'react-bootstrap';
 import { LogIn, UserPlus, ShoppingBag } from 'lucide-react';
 
+// Component for choosing authentication method and displaying registration benefits
 const AuthChoice = ({ onChoice, onLogin, onRegister }) => {
   const [showBenefits, setShowBenefits] = useState(false);
 
@@ -13,20 +14,21 @@ const AuthChoice = ({ onChoice, onLogin, onRegister }) => {
     onChoice('guest');
   };
 
+  // Render benefits screen when user attempts to checkout as guest
   if (showBenefits) {
     return (
       <Card>
         <Card.Body>
-          <Card.Title>Create an account for better shopping experience</Card.Title>
+          <Card.Title>Створіть обліковий запис для кращого досвіду покупок</Card.Title>
           
           <Alert variant="info" className="mt-3">
-            <h6 className="mb-2">Benefits of registration:</h6>
+            <h6 className="mb-2">Переваги реєстрації:</h6>
             <ul className="mb-0">
-              <li>Track all your orders in one place</li>
-              <li>Save your delivery addresses</li>
-              <li>Faster checkout process</li>
-              <li>Special offers for registered customers</li>
-              <li>Order history and reordering</li>
+              <li>Відстежуйте всі свої замовлення в одному місці</li>
+              <li>Зберігайте свої адреси доставки</li>
+              <li>Швидший процес оформлення замовлення</li>
+              <li>Спеціальні пропозиції для зареєстрованих клієнтів</li>
+              <li>Історія замовлень та повторне замовлення</li>
             </ul>
           </Alert>
 
@@ -37,7 +39,7 @@ const AuthChoice = ({ onChoice, onLogin, onRegister }) => {
               className="d-flex align-items-center justify-content-center gap-2"
             >
               <UserPlus size={20} />
-              Register Now
+              Зареєструватися
             </Button>
 
             <Button
@@ -46,7 +48,7 @@ const AuthChoice = ({ onChoice, onLogin, onRegister }) => {
               className="d-flex align-items-center justify-content-center gap-2"
             >
               <ShoppingBag size={20} />
-              Continue as Guest
+              Продовжити як гість
             </Button>
           </div>
         </Card.Body>
@@ -54,10 +56,11 @@ const AuthChoice = ({ onChoice, onLogin, onRegister }) => {
     );
   }
 
+  // Initial authentication choice screen
   return (
     <Card>
       <Card.Body>
-        <Card.Title>Choose how to proceed with your order</Card.Title>
+        <Card.Title>Оберіть спосіб оформлення замовлення</Card.Title>
         
         <div className="d-grid gap-2 mt-4">
           <Button
@@ -66,7 +69,7 @@ const AuthChoice = ({ onChoice, onLogin, onRegister }) => {
             className="d-flex align-items-center justify-content-center gap-2"
           >
             <LogIn size={20} />
-            Sign In
+            Увійти
           </Button>
 
           <Button
@@ -75,7 +78,7 @@ const AuthChoice = ({ onChoice, onLogin, onRegister }) => {
             className="d-flex align-items-center justify-content-center gap-2"
           >
             <UserPlus size={20} />
-            Register
+            Зареєструватися
           </Button>
 
           <Button
@@ -84,7 +87,7 @@ const AuthChoice = ({ onChoice, onLogin, onRegister }) => {
             className="d-flex align-items-center justify-content-center gap-2"
           >
             <ShoppingBag size={20} />
-            Checkout as Guest
+            Оформити як гість
           </Button>
         </div>
       </Card.Body>

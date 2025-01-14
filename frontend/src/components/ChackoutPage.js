@@ -219,16 +219,16 @@ const CheckoutPage = () => {
 
   // Render loading state
   if (loading) {
-    return <Container className="py-5 text-center"><p>Loading...</p></Container>;
+    return <Container className="py-5 text-center"><p>Завантаження...</p></Container>;
   }
 
   // Render empty cart state
   if (cartItems.length === 0 && !submitSuccess) {
     return (
       <Container className="py-5 text-center">
-        <h2>Your cart is empty</h2>
+        <h2>Ваш кошик порожній</h2>
         <Button variant="primary" className="mt-3" onClick={() => navigate('/')}>
-          Return to Shopping
+          Повернутись до покупок
         </Button>
       </Container>
     );
@@ -238,10 +238,10 @@ const CheckoutPage = () => {
   if (submitSuccess) {
     return (
       <Container className="py-5 text-center">
-        <h2 className="text-success mb-4">Order successfully placed!</h2>
-        <p>Thank you for your order. We will contact you shortly.</p>
+        <h2 className="text-success mb-4">Замовлення успішно оформлено!</h2>
+        <p>Дякуємо за Ваше замовлення. Ми зв'яжемось з вами найближчим часом.</p>
         <Button variant="primary" className="mt-3" onClick={() => navigate('/')}>
-          Continue Shopping
+          Продовжити покупки
         </Button>
       </Container>
     );
@@ -250,7 +250,7 @@ const CheckoutPage = () => {
   // Render main checkout form
   return (
     <Container className="py-5">
-      <h1 className="text-center mb-5">Checkout</h1>
+      <h1 className="text-center mb-5">Оформлення замовлення</h1>
 
       {/* Show auth choice for non-authenticated users at initial step */}
       {checkoutStep === 'initial' && !user && (
@@ -300,7 +300,7 @@ const CheckoutPage = () => {
                 variant="primary"
                 disabled={isSubmitting}
               >
-                {isSubmitting ? 'Processing...' : 'Place Order'}
+                {isSubmitting ? 'Оформлення...' : 'Оформити замовлення'}
               </Button>
             </div>
           </div>

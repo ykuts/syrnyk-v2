@@ -8,7 +8,7 @@ import {
   Alert
 } from 'react-bootstrap';
 import { Plus, Minus, Trash, PlusCircle } from 'lucide-react';
-import { apiClient } from '../../../utils/api';
+import { apiClient } from '../../../../utils/api';
 
 const OrderItemsEditor = ({ 
   order, 

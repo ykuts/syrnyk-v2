@@ -1,6 +1,6 @@
 import express from 'express';
 import { createOrder, getOrders, updateOrderStatus, getAllOrders, 
-    updatePaymentStatus,  updateOrderItem, removeOrderItem, addOrderItem, updateOrderNotes} from '../controllers/orderController.js';
+    updatePaymentStatus,  updateOrderItem, removeOrderItem, addOrderItem, updateOrderNotes, getOrderById} from '../controllers/orderController.js';
 
 const router = express.Router();
 

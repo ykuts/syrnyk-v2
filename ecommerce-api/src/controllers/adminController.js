@@ -6,6 +6,9 @@ const prisma = new PrismaClient();
 export const getAllOrders = async (req, res) => {
   try {
     const orders = await prisma.order.findMany({
+      orderBy: {
+        createdAt: 'desc'
+      },
       include: {
         user: {
           select: {
@@ -16,6 +19,7 @@ export const getAllOrders = async (req, res) => {
             phone: true,
           },
         },
+        guestInfo: true,
         items: {
           include: {
             product: {

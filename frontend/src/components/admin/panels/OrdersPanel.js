@@ -21,6 +21,7 @@ const OrdersPanel = () => {
   const [filterStatus, setFilterStatus] = useState('ALL');
   const [filterPaymentStatus, setFilterPaymentStatus] = useState('ALL');
   const [sortBy, setSortBy] = useState('date_desc');
+  const [adminNotes, setAdminNotes] = useState({});
 
   // Auth headers for all requests
   const getAuthHeaders = () => ({
@@ -36,12 +37,79 @@ const OrdersPanel = () => {
     try {
       const data = await apiClient.get('/admin/orders', getAuthHeaders());
       setOrders(data.orders || []);
+
+      // Initialize admin notes from orders
+      const notesObj = {};
+      data.orders.forEach(order => {
+        notesObj[order.id] = order.notesAdmin || '';
+      });
+      setAdminNotes(notesObj);
     } catch (err) {
       setError(err.message);
       console.error('Error fetching orders:', err);
     } finally {
       setLoading(false);
     }
+  };
+
+
+   // Handle admin notes change
+   const handleAdminNotesChange = (orderId, value) => {
+    setAdminNotes(prev => ({
+      ...prev,
+      [orderId]: value
+    }));
+  };
+
+  // Save admin notes
+  const saveAdminNotes = async (orderId) => {
+    try {
+      await apiClient.patch(
+        `/orders/${orderId}/notes`,
+        { notesAdmin: adminNotes[orderId] },
+        getAuthHeaders()
+      );
+      
+      setOrders(orders.map(order => 
+        order.id === orderId 
+          ? { ...order, notesAdmin: adminNotes[orderId] } 
+          : order
+      ));
+      
+      setError(null);
+    } catch (err) {
+      setError('Failed to save admin notes');
+      console.error('Error saving admin notes:', err);
+    }
+  };
+
+  // Get customer information (handles both registered and guest users)
+  const getCustomerInfo = (order) => {
+    console.log('Order data:', order);
+    if (order.user) {
+      return {
+        name: `${order.user.firstName} ${order.user.lastName}`,
+        email: order.user.email,
+        phone: order.user.phone,
+        isGuest: false
+      };
+    }
+    
+    if (order.guestInfo) {
+      return {
+        name: `${order.guestInfo.firstName} ${order.guestInfo.lastName}`,
+        email: order.guestInfo.email,
+        phone: order.guestInfo.phone,
+        isGuest: true
+      };
+    }
+
+    return {
+      name: 'Unknown Customer',
+      email: 'N/A',
+      phone: 'N/A',
+      isGuest: true
+    };
   };
 
   const handleStatusChange = async (orderId, newStatus) => {
@@ -98,7 +166,7 @@ const OrdersPanel = () => {
     return variants[status] || 'secondary';
   };
 
-  // Helper function for delivery details
+   // Helper function for delivery details
   const getDeliveryDetails = (order) => {
     switch (order.deliveryType) {
       case 'ADDRESS':
@@ -140,7 +208,7 @@ const OrdersPanel = () => {
       }
     });
 
-  if (loading && !orders.length) {
+  /*if (loading && !orders.length) {
     return (
       <Container className="d-flex justify-content-center align-items-center" style={{ minHeight: '200px' }}>
         <Spinner animation="border" role="status">
@@ -296,6 +364,207 @@ const OrdersPanel = () => {
       ))}
     </Container>
   );
+}; */
+
+ // Render single order
+ const renderOrder = (order) => {
+  const customerInfo = getCustomerInfo(order);
+
+  return (
+    <Card key={order.id} className="mb-4">
+      <Card.Body>
+        <Row>
+          <Col md={8}>
+            <div className="d-flex justify-content-between align-items-center mb-3">
+              <h5>
+                Order #{order.id}
+                {customerInfo.isGuest && (
+                  <Badge bg="info" className="ms-2">Guest Order</Badge>
+                )}
+              </h5>
+              <Badge bg={getStatusVariant(order.status)}>
+                {order.status}
+              </Badge>
+            </div>
+            
+            <p><strong>Date:</strong> {formatDate(order.createdAt)}</p>
+            <p><strong>Customer:</strong> {customerInfo.name}</p>
+            <p><strong>Email:</strong> {customerInfo.email}</p>
+            <p><strong>Phone:</strong> {customerInfo.phone}</p>
+            <p><strong>Total Amount:</strong> ${Number(order.totalAmount).toFixed(2)}</p>
+            <p><strong>Delivery:</strong> {getDeliveryDetails(order)}</p>
+            
+            {order.notesClient && (
+              <div className="mb-3">
+                <strong>Customer Notes:</strong>
+                <Alert variant="info" className="mt-2">
+                  {order.notesClient}
+                </Alert>
+              </div>
+            )}
+
+            <Form.Group className="mb-3">
+              <Form.Label><strong>Admin Notes:</strong></Form.Label>
+              <Form.Control
+                as="textarea"
+                rows={3}
+                value={adminNotes[order.id] || ''}
+                onChange={(e) => handleAdminNotesChange(order.id, e.target.value)}
+                placeholder="Add administrative notes here..."
+              />
+              <div className="mt-2">
+                <Button
+                  variant="outline-secondary"
+                  size="sm"
+                  onClick={() => saveAdminNotes(order.id)}
+                >
+                  Save Notes
+                </Button>
+              </div>
+            </Form.Group>
+          </Col>
+
+          <Col md={4}>
+            <Form.Group className="mb-3">
+              <Form.Label>Order Status</Form.Label>
+              <Form.Select 
+                value={order.status}
+                onChange={(e) => handleStatusChange(order.id, e.target.value)}
+              >
+                <option value="PENDING">Pending</option>
+                <option value="CONFIRMED">Confirmed</option>
+                <option value="DELIVERED">Delivered</option>
+                <option value="CANCELLED">Cancelled</option>
+              </Form.Select>
+            </Form.Group>
+
+            <Form.Group className="mb-3">
+              <Form.Label>Payment Status</Form.Label>
+              <Form.Select 
+                value={order.paymentStatus}
+                onChange={(e) => handlePaymentStatusChange(order.id, e.target.value)}
+              >
+                <option value="PENDING">Pending</option>
+                <option value="PAID">Paid</option>
+                <option value="REFUNDED">Refunded</option>
+              </Form.Select>
+            </Form.Group>
+
+            <Button
+              variant="outline-primary"
+              onClick={() => setExpandedOrder(expandedOrder === order.id ? null : order.id)}
+              className="w-100"
+            >
+              {expandedOrder === order.id ? 'Hide Details' : 'Show Details'}
+            </Button>
+          </Col>
+        </Row>
+
+        {expandedOrder === order.id && (
+          <div className="mt-4">
+            <h6>Order Items:</h6>
+            <ListGroup>
+              {order.items?.map((item) => (
+                <ListGroup.Item key={item.id} className="d-flex justify-content-between align-items-center">
+                  <div>
+                    <span>{item.product?.name}</span>
+                    <small className="text-muted d-block">
+                      Quantity: {item.quantity}
+                    </small>
+                  </div>
+                  <span>${Number(item.price).toFixed(2)}</span>
+                </ListGroup.Item>
+              ))}
+            </ListGroup>
+          </div>
+        )}
+      </Card.Body>
+    </Card>
+  );
+};
+
+if (loading && !orders.length) {
+  return (
+    <Container className="d-flex justify-content-center align-items-center" style={{ minHeight: '200px' }}>
+      <Spinner animation="border" role="status">
+        <span className="visually-hidden">Loading...</span>
+      </Spinner>
+    </Container>
+  );
+}
+
+return (
+  <Container fluid className="py-4">
+    {error && (
+      <Alert variant="danger" onClose={() => setError(null)} dismissible>
+        {error}
+      </Alert>
+    )}
+    
+    <h1 className="mb-4">Orders</h1>
+    
+    {/* Filters section */}
+    <Row className="mb-4">
+      <Col md={3}>
+        <Form.Group>
+          <Form.Label>Order Status</Form.Label>
+          <Form.Select 
+            value={filterStatus}
+            onChange={(e) => setFilterStatus(e.target.value)}
+          >
+            <option value="ALL">All Statuses</option>
+            <option value="PENDING">Pending</option>
+            <option value="CONFIRMED">Confirmed</option>
+            <option value="DELIVERED">Delivered</option>
+            <option value="CANCELLED">Cancelled</option>
+          </Form.Select>
+        </Form.Group>
+      </Col>
+      
+      <Col md={3}>
+        <Form.Group>
+          <Form.Label>Payment Status</Form.Label>
+          <Form.Select
+            value={filterPaymentStatus}
+            onChange={(e) => setFilterPaymentStatus(e.target.value)}
+          >
+            <option value="ALL">All Statuses</option>
+            <option value="PENDING">Pending</option>
+            <option value="PAID">Paid</option>
+            <option value="REFUNDED">Refunded</option>
+          </Form.Select>
+        </Form.Group>
+      </Col>
+      
+      <Col md={3}>
+        <Form.Group>
+          <Form.Label>Sort By</Form.Label>
+          <Form.Select
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value)}
+          >
+            <option value="date_desc">Newest First</option>
+            <option value="date_asc">Oldest First</option>
+            <option value="amount_desc">Highest Amount</option>
+            <option value="amount_asc">Lowest Amount</option>
+          </Form.Select>
+        </Form.Group>
+      </Col>
+    </Row>
+
+    <div className="mb-3">
+      <p className="text-muted">
+        {filteredOrders.length === orders.length 
+          ? `Total Orders: ${orders.length}`
+          : `Showing ${filteredOrders.length} of ${orders.length} orders`
+        }
+      </p>
+    </div>
+
+    {/* Orders list */}
+    {filteredOrders.map(renderOrder)}
+  </Container>
+);
 };
 
 export default OrdersPanel;

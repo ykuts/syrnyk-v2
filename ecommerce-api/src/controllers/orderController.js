@@ -553,3 +553,45 @@ export const removeOrderItem = async (req, res) => {
   }
 };
 
+// Get single order by ID
+export const getOrderById = async (req, res) => {
+  const { orderId } = req.params;
+
+  try {
+    const order = await prisma.order.findUnique({
+      where: {
+        id: Number(orderId)
+      },
+      include: {
+        items: {
+          include: {
+            product: true
+          }
+        },
+        user: true,
+        guestInfo: true,
+        addressDelivery: true,
+        stationDelivery: {
+          include: {
+            station: true
+          }
+        },
+        pickupDelivery: {
+          include: {
+            store: true
+          }
+        }
+      }
+    });
+
+    if (!order) {
+      return res.status(404).json({ error: 'Order not found' });
+    }
+
+    res.json(order);
+  } catch (error) {
+    console.error('Error fetching order:', error);
+    res.status(500).json({ error: error.message });
+  }
+};
+

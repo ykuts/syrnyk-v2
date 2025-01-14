@@ -8,6 +8,7 @@ const router = express.Router();
 router.post('/', createOrder);
 router.get('/', getOrders);
 router.get('/all', getAllOrders);
+router.get('/:orderId', getOrderById);
 
 // Order status and payment routes
 router.patch('/:orderId/status', updateOrderStatus);

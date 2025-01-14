@@ -8,7 +8,7 @@ import {
   Alert
 } from 'react-bootstrap';
 import { Plus, Minus, Trash, PlusCircle } from 'lucide-react';
-import { apiClient } from '../../../../utils/api';
+import { apiClient } from '../../../utils/api';
 
 const OrderItemsEditor = ({ 
   order, 
@@ -24,7 +24,25 @@ const OrderItemsEditor = ({
   });
   const [availableProducts, setAvailableProducts] = useState([]);
 
-  // Fetch available products when opening add modal
+  // New function to get updated order
+  const getUpdatedOrder = async (orderId) => {
+    try {
+      const response = await apiClient.get(
+        `/admin/orders`,
+        getAuthHeaders()
+      );
+      // Find the specific order from the list
+      const updatedOrder = response.orders.find(o => o.id === orderId);
+      if (!updatedOrder) {
+        throw new Error('Updated order not found');
+      }
+      return updatedOrder;
+    } catch (err) {
+      console.error('Error fetching updated order:', err);
+      throw err;
+    }
+  };
+
   const handleShowAddModal = async () => {
     try {
       const response = await apiClient.get('/products');
@@ -35,7 +53,6 @@ const OrderItemsEditor = ({
     }
   };
 
-  // Update item quantity
   const handleQuantityChange = async (itemId, newQuantity) => {
     if (newQuantity < 1) return;
     
@@ -49,20 +66,16 @@ const OrderItemsEditor = ({
         getAuthHeaders()
       );
       
-      // Recalculate order total and update parent component
-      const updatedOrder = await apiClient.get(
-        `/orders/${order.id}`,
-        getAuthHeaders()
-      );
+      const updatedOrder = await getUpdatedOrder(order.id);
       onOrderUpdate(updatedOrder);
     } catch (err) {
+      console.error('Error updating quantity:', err);
       setError('Failed to update quantity');
     } finally {
       setLoading(false);
     }
   };
 
-  // Remove item from order
   const handleRemoveItem = async (itemId) => {
     if (!window.confirm('Are you sure you want to remove this item?')) {
       return;
@@ -77,20 +90,16 @@ const OrderItemsEditor = ({
         getAuthHeaders()
       );
       
-      // Recalculate order total and update parent component
-      const updatedOrder = await apiClient.get(
-        `/orders/${order.id}`,
-        getAuthHeaders()
-      );
+      const updatedOrder = await getUpdatedOrder(order.id);
       onOrderUpdate(updatedOrder);
     } catch (err) {
+      console.error('Error removing item:', err);
       setError('Failed to remove item');
     } finally {
       setLoading(false);
     }
   };
 
-  // Add new item to order
   const handleAddItem = async () => {
     if (!newItem.productId || newItem.quantity < 1) {
       setError('Please select a product and specify quantity');
@@ -107,17 +116,13 @@ const OrderItemsEditor = ({
         getAuthHeaders()
       );
       
-      // Recalculate order total and update parent component
-      const updatedOrder = await apiClient.get(
-        `/orders/${order.id}`,
-        getAuthHeaders()
-      );
+      const updatedOrder = await getUpdatedOrder(order.id);
       onOrderUpdate(updatedOrder);
       
-      // Close modal and reset form
       setShowAddModal(false);
       setNewItem({ productId: '', quantity: 1 });
     } catch (err) {
+      console.error('Error adding item:', err);
       setError('Failed to add item');
     } finally {
       setLoading(false);

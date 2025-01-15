@@ -19,6 +19,7 @@ import { CartContext } from '../context/CartContext';
 import { Trash, User, Package, Box, LogOut, Settings, Truck, SquareUserRound } from "lucide-react";
 import './CartNavItem.css';
 import './Menu2.css';
+import LoginModal from './LoginModal';
 
 const Menu2 = () => {
     const [isSticky, setIsSticky] = useState(false);
@@ -335,14 +336,18 @@ useEffect(() => {
 </Modal>
 
             {/* Modal for Login form */}
-            <Modal show={showLogin} onHide={() => setShowLogin(false)} centered>
+            <LoginModal 
+                show={showLogin} 
+                onHide={() => setShowLogin(false)}
+            />
+            {/* <Modal show={showLogin} onHide={() => setShowLogin(false)} centered>
                 <Modal.Header closeButton>
                     <Modal.Title>Увійти</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     <LoginForm closeModal={() => setShowLogin(false)} />
                 </Modal.Body>
-            </Modal>
+            </Modal> */}
         </>
     );
 };

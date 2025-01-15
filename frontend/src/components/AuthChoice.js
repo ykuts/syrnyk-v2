@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { Card, Button, Alert } from 'react-bootstrap';
 import { LogIn, UserPlus, ShoppingBag } from 'lucide-react';
+import LoginModal from './LoginModal';
 
 // Component for choosing authentication method and displaying registration benefits
 const AuthChoice = ({ onChoice, onLogin, onRegister }) => {
   const [showBenefits, setShowBenefits] = useState(false);
+  const [showLoginModal, setShowLoginModal] = useState(false);
 
   const handleGuestCheckout = () => {
     if (!showBenefits) {
@@ -14,9 +16,14 @@ const AuthChoice = ({ onChoice, onLogin, onRegister }) => {
     onChoice('guest');
   };
 
+  const handleLoginClick = () => {
+    setShowLoginModal(true);
+  };
+
   // Render benefits screen when user attempts to checkout as guest
   if (showBenefits) {
     return (
+      <>
       <Card>
         <Card.Body>
           <Card.Title>Створіть обліковий запис для кращого досвіду покупок</Card.Title>
@@ -53,11 +60,17 @@ const AuthChoice = ({ onChoice, onLogin, onRegister }) => {
           </div>
         </Card.Body>
       </Card>
+      <LoginModal 
+      show={showLoginModal} 
+      onHide={() => setShowLoginModal(false)} 
+    />
+  </>
     );
   }
 
   // Initial authentication choice screen
   return (
+    <>
     <Card>
       <Card.Body>
         <Card.Title>Оберіть спосіб оформлення замовлення</Card.Title>
@@ -65,7 +78,7 @@ const AuthChoice = ({ onChoice, onLogin, onRegister }) => {
         <div className="d-grid gap-2 mt-4">
           <Button
             variant="primary"
-            onClick={onLogin}
+            onClick={handleLoginClick}
             className="d-flex align-items-center justify-content-center gap-2"
           >
             <LogIn size={20} />
@@ -92,6 +105,11 @@ const AuthChoice = ({ onChoice, onLogin, onRegister }) => {
         </div>
       </Card.Body>
     </Card>
+    <LoginModal 
+    show={showLoginModal} 
+    onHide={() => setShowLoginModal(false)} 
+  />
+  </>
   );
 };
 

@@ -125,7 +125,6 @@ export const getProductById = async (req, res) => {
 };
 
 // Update product
-// Update product
 export const updateProduct = async (req, res) => {
   try {
     const { id } = req.params;

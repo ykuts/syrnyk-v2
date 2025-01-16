@@ -2,6 +2,11 @@ import 'dotenv/config';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { PrismaClient } from '@prisma/client';
+import { 
+  sendWelcomeEmail, 
+  sendPasswordResetEmail 
+} from '../services/emailService.js';
+import crypto from 'crypto';
 
 const prisma = new PrismaClient();
 
@@ -69,7 +74,6 @@ export const registerUser = async (req, res) => {
         email: true,
         phone: true,
         createdAt: true,
-        password: false,
         role: true,
       },
     });
@@ -81,7 +85,9 @@ export const registerUser = async (req, res) => {
       { expiresIn: '24h' }
     );
 
-    // Return created user with token
+    // Send welcome email
+    await sendWelcomeEmail(user);
+
     res.status(201).json({ 
       message: 'User registered successfully',
       user,
@@ -92,6 +98,108 @@ export const registerUser = async (req, res) => {
     console.error('Registration error:', error);
     res.status(500).json({ 
       message: 'Error creating user account',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+};
+
+// Request password reset
+export const requestPasswordReset = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({ message: 'Email is required' });
+    }
+
+    // Find user by email
+    const user = await prisma.user.findUnique({ where: { email } });
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Generate reset token
+    const resetToken = crypto.randomBytes(32).toString('hex');
+    const tokenExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+
+    // Save reset token
+    await prisma.token.create({
+      data: {
+        userId: user.id,
+        token: resetToken,
+        type: 'RESET_PASSWORD',
+        expiresAt: tokenExpiry
+      }
+    });
+
+    // Send reset email
+    await sendPasswordResetEmail(user, resetToken);
+
+    res.json({
+      message: 'Password reset instructions sent to email'
+    });
+  } catch (error) {
+    console.error('Password reset request error:', error);
+    res.status(500).json({ 
+      message: 'Error processing password reset request',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+};
+
+// Reset password with token
+export const resetPassword = async (req, res) => {
+  try {
+    const { token, newPassword } = req.body;
+
+    if (!token || !newPassword) {
+      return res.status(400).json({ 
+        message: 'Token and new password are required' 
+      });
+    }
+
+    // Validate new password
+    if (!validatePassword(newPassword)) {
+      return res.status(400).json({ 
+        message: 'Password must be at least 8 characters long' 
+      });
+    }
+
+    // Find valid token
+    const resetToken = await prisma.token.findFirst({
+      where: {
+        token,
+        type: 'RESET_PASSWORD',
+        expiresAt: { gt: new Date() }
+      },
+      include: { user: true }
+    });
+
+    if (!resetToken) {
+      return res.status(400).json({ 
+        message: 'Invalid or expired reset token' 
+      });
+    }
+
+    // Hash new password
+    const hashedPassword = await bcrypt.hash(newPassword, 12);
+
+    // Update password and delete token
+    await prisma.$transaction([
+      prisma.user.update({
+        where: { id: resetToken.userId },
+        data: { password: hashedPassword }
+      }),
+      prisma.token.delete({
+        where: { id: resetToken.id }
+      })
+    ]);
+
+    res.json({ message: 'Password successfully reset' });
+  } catch (error) {
+    console.error('Password reset error:', error);
+    res.status(500).json({ 
+      message: 'Error resetting password',
       error: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }

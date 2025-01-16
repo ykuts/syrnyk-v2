@@ -22,6 +22,8 @@ import PrivateRoute from './components/PrivateRoute';
 import OrderHistory from './components/OrderHistory';
 import UserProfile from './components/UserProfile';
 import AboutUs from './components/aboutus/AboutUs';
+import ForgotPassword from './components/ForgotPassword';
+import ResetPassword from './components/ResetPassword';
 
 
 
@@ -94,6 +96,8 @@ function App() {
               <Route path="/delivery" element={<DeliveryPage />} />
               <Route path="/register" element={<Register />} />
               <Route path="/checkout" element={<CheckoutPage />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
+              <Route path="/reset-password" element={<ResetPassword />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
             <Footer />

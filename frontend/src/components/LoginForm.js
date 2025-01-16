@@ -49,8 +49,8 @@ function LoginForm({ closeModal }) {
 
   const handleForgotPassword = (e) => {
     e.preventDefault();
-    // Добавьте здесь логику для восстановления пароля
-    console.log('Forgot password clicked');
+    closeModal();
+    navigate('/forgot-password');
   };
 
   return (

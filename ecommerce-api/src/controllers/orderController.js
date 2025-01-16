@@ -1,5 +1,8 @@
 import { PrismaClient } from '@prisma/client';
-import sendOrderConfirmation from '../utils/emailService.js';
+import { 
+  sendOrderConfirmation, 
+  sendOrderStatusUpdate 
+} from '../services/emailService.js';
 
 const prisma = new PrismaClient();
 
@@ -133,6 +136,12 @@ export const createOrder = async (req, res) => {
       }
     });
 
+    // Send order confirmation email
+    if (order.userId) {
+      await sendOrderConfirmation(order, order.user);
+    } else if (order.guestInfo) {
+      await sendOrderConfirmation(order, order.guestInfo);
+    }
 
     res.status(201).json({
       message: 'Замовлення успішно створено',
@@ -172,10 +181,40 @@ export const updateOrderStatus = async (req, res) => {
 
     const order = await prisma.order.update({
       where: { id: Number(orderId) },
-      data: { status }
+      data: { status },
+      include: {
+        user: true,
+        guestInfo: true,
+        items: {
+          include: {
+            product: true
+          }
+        },
+        addressDelivery: true,
+        stationDelivery: {
+          include: {
+            station: true
+          }
+        },
+        pickupDelivery: {
+          include: {
+            store: true
+          }
+        }
+      }
     });
 
-    res.json(order);
+    // Send status update email
+    if (order.userId) {
+      await sendOrderStatusUpdate(order, order.user);
+    } else if (order.guestInfo) {
+      await sendOrderStatusUpdate(order, order.guestInfo);
+    }
+
+    res.json({
+      message: 'Order status updated successfully',
+      order
+    });
   } catch (error) {
     res.status(400).json({ error: error.message });
   }

@@ -8,7 +8,9 @@ import {
   Button,
   Form,
   Row,
-  Col
+  Col,
+  Modal,
+  ListGroup,
 } from 'react-bootstrap';
 import { apiClient } from '../../../utils/api';
 import OrderItemsEditor from './OrdersPanelComp/OrderItemsEditor';
@@ -22,6 +24,10 @@ const OrdersPanel = () => {
   const [filterPaymentStatus, setFilterPaymentStatus] = useState('ALL');
   const [sortBy, setSortBy] = useState('date_desc');
   const [adminNotes, setAdminNotes] = useState({});
+  const [showNotificationModal, setShowNotificationModal] = useState(false);
+const [currentOrderId, setCurrentOrderId] = useState(null);
+const [notificationMessage, setNotificationMessage] = useState('');
+const [sendingNotification, setSendingNotification] = useState(false);
 
   // Auth headers for all requests
   const getAuthHeaders = () => ({
@@ -31,6 +37,7 @@ const OrdersPanel = () => {
   useEffect(() => {
     fetchOrders();
   }, []);
+  
 
   const fetchOrders = async () => {
     setLoading(true);
@@ -49,6 +56,36 @@ const OrdersPanel = () => {
       console.error('Error fetching orders:', err);
     } finally {
       setLoading(false);
+    }
+  };
+
+
+  const handleSendNotification = async () => {
+    setSendingNotification(true);
+    try {
+      await apiClient.post(
+        `/orders/${currentOrderId}/notify-changes`,
+        { 
+          message: notificationMessage 
+        },
+        getAuthHeaders()
+      );
+      
+      // Обновляем заказ в состоянии
+      const updatedOrders = orders.map(order => {
+        if (order.id === currentOrderId) {
+          return { ...order, lastNotificationSent: new Date() };
+        }
+        return order;
+      });
+      setOrders(updatedOrders);
+      
+      setShowNotificationModal(false);
+      setNotificationMessage('');
+    } catch (error) {
+      setError('Failed to send notification');
+    } finally {
+      setSendingNotification(false);
     }
   };
 
@@ -393,7 +430,48 @@ const OrdersPanel = () => {
             <p><strong>Phone:</strong> {customerInfo.phone}</p>
             <p><strong>Total Amount:</strong> ${Number(order.totalAmount).toFixed(2)}</p>
             <p><strong>Delivery:</strong> {getDeliveryDetails(order)}</p>
-            
+            <div className="mb-3">
+  {order.lastNotificationSent ? (
+    <Alert variant="info" className="mt-2">
+      <div className="d-flex justify-content-between align-items-center">
+        <span>
+          <strong>Останнє повідомлення надіслано:</strong> {formatDate(order.lastNotificationSent)}
+        </span>
+        <Button
+          variant="outline-primary"
+          size="sm"
+          onClick={() => {
+            setCurrentOrderId(order.id);
+            setShowNotificationModal(true);
+          }}
+        >
+          Надіслати нове
+        </Button>
+      </div>
+    </Alert>
+  ) : (
+    <Alert variant="warning" className="mt-2">
+      <div className="d-flex justify-content-between align-items-center">
+        <span>Клієнту ще не надіслано повідомлення про зміни</span>
+        <Button
+          variant="outline-primary"
+          size="sm"
+          onClick={() => {
+            setCurrentOrderId(order.id);
+            setShowNotificationModal(true);
+          }}
+        >
+          Надіслати повідомлення
+        </Button>
+      </div>
+    </Alert>
+  )}
+</div>
+            {order.lastNotificationSent && (
+  <p className="text-muted">
+    <strong>Останнє повідомлення:</strong> {formatDate(order.lastNotificationSent)}
+  </p>
+)}
             {order.notesClient && (
               <div className="mb-3">
                 <strong>Customer Notes:</strong>
@@ -461,17 +539,52 @@ const OrdersPanel = () => {
         </Row>
 
         {expandedOrder === order.id && (
+  <div className="mt-4">
+    <Row>
+      <Col>
+        <h6>Позиції у замовленні:</h6>
+        <OrderItemsEditor
+          order={order}
+          onOrderUpdate={(updatedOrder) => {
+            setOrders(orders.map(o => 
+              o.id === updatedOrder.id ? updatedOrder : o
+            ));
+          }}
+          getAuthHeaders={getAuthHeaders}
+          onOrderChange={() => {
+            setCurrentOrderId(order.id);
+            setShowNotificationModal(true);
+          }}
+        />
+
+        {order.changes && order.changes.length > 0 && (
           <div className="mt-4">
-            <h6>Order Items:</h6>
-            <OrderItemsEditor
-      order={order}
-      onOrderUpdate={(updatedOrder) => {
-        setOrders(orders.map(o => 
-          o.id === updatedOrder.id ? updatedOrder : o
-        ));
-      }}
-      getAuthHeaders={getAuthHeaders}
-    />
+            <h6>Історія змін:</h6>
+            <ListGroup variant="flush">
+              {order.changes.map((change, index) => (
+                <ListGroup.Item key={index} className="small text-muted">
+                  {change}
+                </ListGroup.Item>
+              ))}
+            </ListGroup>
+          </div>
+        )}
+
+
+<div className="mt-3">
+          <Button
+            variant="outline-primary"
+            size="sm"
+            onClick={() => {
+              setCurrentOrderId(order.id);
+              setShowNotificationModal(true);
+            }}
+          >
+            Надіслати повідомлення клієнту
+          </Button>
+        </div>
+      </Col>
+    </Row>
           </div>
         )}
       </Card.Body>
@@ -559,6 +672,53 @@ return (
 
     {/* Orders list */}
     {filteredOrders.map(renderOrder)}
+
+{/* Notification Modal */}
+<Modal 
+      show={showNotificationModal} 
+      onHide={() => {
+        setShowNotificationModal(false);
+        setNotificationMessage('');
+      }}
+    >
+      <Modal.Header closeButton>
+        <Modal.Title>Відправити повідомлення клієнту</Modal.Title>
+      </Modal.Header>
+      <Modal.Body>
+        <Form.Group>
+          <Form.Label>Текст повідомлення</Form.Label>
+          <Form.Control
+            as="textarea"
+            rows={3}
+            value={notificationMessage}
+            onChange={(e) => setNotificationMessage(e.target.value)}
+            placeholder="Опишіть зміни в замовленні або інформацію для клієнта..."
+          />
+          <Form.Text className="text-muted">
+            Клієнт отримає цей текст разом з оновленими деталями замовлення
+          </Form.Text>
+        </Form.Group>
+      </Modal.Body>
+      <Modal.Footer>
+        <Button 
+          variant="secondary" 
+          onClick={() => {
+            setShowNotificationModal(false);
+            setNotificationMessage('');
+          }}
+        >
+          Скасувати
+        </Button>
+        <Button 
+          variant="primary" 
+          onClick={handleSendNotification}
+          disabled={sendingNotification || !notificationMessage.trim()}
+        >
+          {sendingNotification ? 'Відправка...' : 'Відправити'}
+        </Button>
+      </Modal.Footer>
+    </Modal>
+
   </Container>
 );
 };

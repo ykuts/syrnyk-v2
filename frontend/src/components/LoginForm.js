@@ -5,7 +5,7 @@ import { Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import './LoginForm.css';
 
-function LoginForm({ closeModal }) {
+function LoginForm({ closeModal, onLoginSuccess, returnUrl }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -23,16 +23,27 @@ function LoginForm({ closeModal }) {
       const result = await login(email, password);
       
       if (result.success) {
-        // After successful login, redirect based on role
-        const role = result.user.role;
-        if (role === 'CLIENT') {
-          navigate('/client');
-        } else if (role === 'ADMIN') {
-          navigate('/admin');
-        }
+        // Close modal first
         closeModal();
+
+        // Handle successful login with different scenarios
+        if (onLoginSuccess) {
+          // If we have a success callback (e.g., for checkout flow)
+          onLoginSuccess();
+        } else if (returnUrl) {
+          // If we have a specific return URL
+          navigate(returnUrl);
+        } else {
+          // Default redirect based on role
+          const role = result.user.role;
+          if (role === 'CLIENT') {
+            navigate('/client');
+          } else if (role === 'ADMIN') {
+            navigate('/admin');
+          }
+        }
       } else {
-        setError(result.error || 'Invalid credentials, please try again or register.');
+        setError(result.error || 'Невірні облікові дані, спробуйте ще раз або зареєструйтеся.');
       }
     } catch (error) {
       setError('An error occurred during login. Please try again.');
@@ -95,12 +106,6 @@ function LoginForm({ closeModal }) {
       </Form.Group>
 
       <div className="d-flex justify-content-between align-items-center mb-4">
-        <Form.Check
-          type="checkbox"
-          label="Запам'ятати мене"
-          className="custom-checkbox"
-          disabled={loading}
-        />
         <a 
           href="/" 
           className="text-decoration-none"

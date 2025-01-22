@@ -1,3 +1,4 @@
+// components/admin/OrdersPanelComp/OrderItemsEditor.js
 import React, { useState } from 'react';
 import { 
   ListGroup, 
@@ -13,7 +14,8 @@ import { apiClient } from '../../../../utils/api';
 const OrderItemsEditor = ({ 
   order, 
   onOrderUpdate,
-  getAuthHeaders 
+  getAuthHeaders,
+  onOrderChange  // New prop
 }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -24,14 +26,12 @@ const OrderItemsEditor = ({
   });
   const [availableProducts, setAvailableProducts] = useState([]);
 
-  // New function to get updated order
   const getUpdatedOrder = async (orderId) => {
     try {
       const response = await apiClient.get(
         `/admin/orders`,
         getAuthHeaders()
       );
-      // Find the specific order from the list
       const updatedOrder = response.orders.find(o => o.id === orderId);
       if (!updatedOrder) {
         throw new Error('Updated order not found');
@@ -68,6 +68,7 @@ const OrderItemsEditor = ({
       
       const updatedOrder = await getUpdatedOrder(order.id);
       onOrderUpdate(updatedOrder);
+      onOrderChange(); // Notify parent about changes
     } catch (err) {
       console.error('Error updating quantity:', err);
       setError('Failed to update quantity');
@@ -92,6 +93,7 @@ const OrderItemsEditor = ({
       
       const updatedOrder = await getUpdatedOrder(order.id);
       onOrderUpdate(updatedOrder);
+      onOrderChange(); // Notify parent about changes
     } catch (err) {
       console.error('Error removing item:', err);
       setError('Failed to remove item');
@@ -118,7 +120,7 @@ const OrderItemsEditor = ({
       
       const updatedOrder = await getUpdatedOrder(order.id);
       onOrderUpdate(updatedOrder);
-      
+      onOrderChange(); // Notify parent about changes
       setShowAddModal(false);
       setNewItem({ productId: '', quantity: 1 });
     } catch (err) {
@@ -138,7 +140,7 @@ const OrderItemsEditor = ({
       )}
 
       <div className="d-flex justify-content-between align-items-center mb-3">
-        <h6 className="mb-0">Order Items:</h6>
+        <h6 className="mb-0">Товари у замовленні:</h6>
         <Button
           variant="outline-success"
           size="sm"
@@ -146,7 +148,7 @@ const OrderItemsEditor = ({
           disabled={loading}
         >
           <PlusCircle size={18} className="me-1" />
-          Add Item
+          Додати товар
         </Button>
       </div>
 
@@ -160,7 +162,7 @@ const OrderItemsEditor = ({
               <div className="me-3">
                 <strong>{item.product?.name}</strong>
                 <div className="text-muted small">
-                  Price: ${Number(item.price).toFixed(2)}
+                  Ціна: ${Number(item.price).toFixed(2)}
                 </div>
               </div>
               
@@ -206,20 +208,19 @@ const OrderItemsEditor = ({
         ))}
       </ListGroup>
 
-      {/* Add Item Modal */}
       <Modal show={showAddModal} onHide={() => setShowAddModal(false)}>
         <Modal.Header closeButton>
-          <Modal.Title>Add Item to Order</Modal.Title>
+          <Modal.Title>Додати товар до замовлення</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <Form.Group className="mb-3">
-            <Form.Label>Product</Form.Label>
+            <Form.Label>Товар</Form.Label>
             <Form.Select
               value={newItem.productId}
               onChange={(e) => setNewItem({ ...newItem, productId: e.target.value })}
               required
             >
-              <option value="">Select a product...</option>
+              <option value="">Оберіть товар...</option>
               {availableProducts.map(product => (
                 <option key={product.id} value={product.id}>
                   {product.name} - ${Number(product.price).toFixed(2)}
@@ -229,7 +230,7 @@ const OrderItemsEditor = ({
           </Form.Group>
 
           <Form.Group>
-            <Form.Label>Quantity</Form.Label>
+            <Form.Label>Кількість</Form.Label>
             <Form.Control
               type="number"
               value={newItem.quantity}
@@ -241,14 +242,14 @@ const OrderItemsEditor = ({
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={() => setShowAddModal(false)}>
-            Cancel
+            Скасувати
           </Button>
           <Button 
             variant="primary" 
             onClick={handleAddItem}
             disabled={loading || !newItem.productId || newItem.quantity < 1}
           >
-            Add Item
+            Додати
           </Button>
         </Modal.Footer>
       </Modal>

@@ -2,17 +2,49 @@
 <html>
 <head>
   <style>
-    /* Add your styles here */
+    .order-details {
+      margin: 20px 0;
+      padding: 15px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+    }
+    .item {
+      margin: 10px 0;
+      padding: 10px;
+      background: #f9f9f9;
+    }
   </style>
 </head>
 <body>
-  <h1>Order Status Update</h1>
-  <p>Hello {{firstName}},</p>
-  <p>Your order #{{orderId}} status has been updated to: <strong>{{status}}</strong></p>
-  
-  <h2>Delivery Information</h2>
-  <p><strong>Type:</strong> {{deliveryDetails.type}}</p>
-  <p><strong>Details:</strong> {{deliveryDetails.details}}</p>
-  <!-- Add tracking information if available -->
+  <h2>Оновлення вашого замовлення #{{orderId}}</h2>
+  <p>Доброго дня, {{firstName}}!</p>
+
+  {{#if customMessage}}
+    <div class="message">
+      <p><strong>Повідомлення про зміни:</strong></p>
+      <p>{{customMessage}}</p>
+    </div>
+  {{/if}}
+
+  <div class="order-details">
+    <h3>Деталі замовлення:</h3>
+    <p><strong>Статус замовлення:</strong> {{status}}</p>
+    <p><strong>Загальна сума:</strong> {{totalAmount}} CHF</p>
+
+    <h4>Товари:</h4>
+    {{#each items}}
+      <div class="item">
+        <p><strong>{{product.name}}</strong></p>
+        <p>Кількість: {{quantity}}</p>
+        <p>Ціна: {{price}} CHF</p>
+      </div>
+    {{/each}}
+
+    <h4>Інформація про доставку:</h4>
+    <p><strong>Спосіб доставки:</strong> {{deliveryDetails.type}}</p>
+    <p>{{deliveryDetails.details}}</p>
+  </div>
+
+  <p>Якщо у вас виникли питання, будь ласка, зв'яжіться з нами.</p>
 </body>
 </html>

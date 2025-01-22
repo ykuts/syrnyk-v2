@@ -51,6 +51,8 @@ model Order {
   trackingNumber  String?
   notesAdmin      String?
   notesClient     String?
+  changes              String[]   @default([])
+  lastNotificationSent DateTime?
   createdAt       DateTime    @default(now())
   updatedAt       DateTime    @updatedAt
 

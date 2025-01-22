@@ -15,10 +15,44 @@ const CheckoutForm = ({
   createAccount,
   onCreateAccountChange 
 }) => {
+  // Password validation helper
+  const isPasswordValid = (password) => {
+    return password && password.length >= 8 && /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/.test(password);
+  };
+
+  // Render password field
+  const renderPasswordField = () => {
+    if (!isGuest || !createAccount) return null;
+
+    const isInvalid = formData.password && !isPasswordValid(formData.password);
+
+    return (
+      <Form.Group className="mb-3">
+        <Form.Label>Пароль</Form.Label>
+        <Form.Control
+          type="password"
+          name="password"
+          placeholder="Пароль (мінімум 8 символів)"
+          value={formData.password || ''}
+          onChange={handleChange}
+          required={createAccount}
+          minLength={8}
+          isInvalid={isInvalid}
+        />
+        <Form.Control.Feedback type="invalid">
+          Пароль повинен містити мінімум 8 символів та включати літери і цифри
+        </Form.Control.Feedback>
+        <Form.Text className="text-muted">
+          Пароль повинен містити мінімум 8 символів та включати літери і цифри
+        </Form.Text>
+      </Form.Group>
+    );
+  };
+
   // Render customer information section
   const renderCustomerInfo = () => (
     <section className="mb-5">
-      <h4 className="mb-3">Інформація про користувача</h4>
+      <h4 className="mb-3">Інформація про покупця</h4>
       <Card>
         <Card.Body>
           <Row>
@@ -84,35 +118,24 @@ const CheckoutForm = ({
                 type="checkbox"
                 id="create-account"
                 name="createAccount"
-                label="Створіть обліковий запис для швидкого оформлення наступного разу"
+                label="Створити обліковий запис для швидшого оформлення замовлення в майбутньому"
                 checked={createAccount}
-                onChange={(e) => onCreateAccountChange(e.target.checked)}
+                onChange={(e) => {
+                  onCreateAccountChange(e.target.checked);
+                  if (!e.target.checked) {
+                    handleChange({ target: { name: 'password', value: '' } });
+                  }
+                }}
               />
             </Form.Group>
           )}
 
-          {isGuest && createAccount && (
-            <Form.Group className="mb-3">
-              <Form.Label>Пароль</Form.Label>
-              <Form.Control
-                type="password"
-                name="password"
-                placeholder="Пароль (мін. 8 символів)"
-                value={formData.password || ''}
-                onChange={handleChange}
-                required={createAccount}
-                minLength={8}
-              />
-              <Form.Text className="text-muted">
-              Пароль має бути не менше 8 символів
-              </Form.Text>
-            </Form.Group>
-          )}
+          {renderPasswordField()}
         </Card.Body>
       </Card>
       {isAuthenticated && (
         <Form.Text className="text-muted">
-          Щоб оновити особисту інформацію, перейдіть до налаштувань свого профілю
+          Щоб оновити особисту інформацію, перейдіть до налаштувань профілю
         </Form.Text>
       )}
     </section>
@@ -155,7 +178,7 @@ const CheckoutForm = ({
                     <Form.Control
                       type="text"
                       name="apartment"
-                      placeholder="Квартира (за бажанням)"
+                      placeholder="Квартира (необов'язково)"
                       value={formData.apartment}
                       onChange={handleChange}
                     />
@@ -212,15 +235,15 @@ const CheckoutForm = ({
         return (
           <Card>
             <Card.Body>
-              <h5 className="mb-3">Забрати в магазині</h5>
+              <h5 className="mb-3">Самовивіз з магазину</h5>
               <div className="bg-light p-3 rounded mb-4">
                 <h6 className="mb-2">{stores[0].name}</h6>
                 <p className="mb-2">{stores[0].address}, {stores[0].city}</p>
-                <p className="mb-0"><strong>Часи роботи:</strong> {stores[0].workingHours}</p>
+                <p className="mb-0"><strong>Години роботи:</strong> {stores[0].workingHours}</p>
               </div>
 
               <Form.Group>
-                <Form.Label className="fw-medium">Оберіть час</Form.Label>
+                <Form.Label className="fw-medium">Виберіть час отримання</Form.Label>
                 <Form.Control
                   type="datetime-local"
                   name="pickupTime"
@@ -266,7 +289,7 @@ const CheckoutForm = ({
 
       {/* Order Notes */}
       <section className="mb-5">
-        <h4 className="mb-3">Коментар</h4>
+        <h4 className="mb-3">Коментар до замовлення</h4>
         <Card>
           <Card.Body>
             <Form.Control

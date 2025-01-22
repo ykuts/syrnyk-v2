@@ -1,6 +1,6 @@
 import express from 'express';
 import { createOrder, getOrders, updateOrderStatus, getAllOrders, 
-    updatePaymentStatus,  updateOrderItem, removeOrderItem, addOrderItem, updateOrderNotes, getOrderById} from '../controllers/orderController.js';
+    updatePaymentStatus,  updateOrderItem, removeOrderItem, addOrderItem, updateOrderNotes, getOrderById, notifyOrderChanges} from '../controllers/orderController.js';
 
 const router = express.Router();
 
@@ -9,6 +9,7 @@ router.post('/', createOrder);
 router.get('/', getOrders);
 router.get('/all', getAllOrders);
 router.get('/:orderId', getOrderById);
+router.post('/:orderId/notify-changes', notifyOrderChanges);
 
 // Order status and payment routes
 router.patch('/:orderId/status', updateOrderStatus);

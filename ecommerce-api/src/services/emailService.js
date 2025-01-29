@@ -119,6 +119,23 @@ export const sendOrderStatusUpdate = async (order, user) => {
   );
 };
 
+export const sendModifiedOrderConfirmation = async (order, recipient) => {
+  return sendTemplatedEmail(
+    recipient.email,
+    `Order #${order.id} Modified and Confirmed`,
+    'order-modified-confirmation',
+    {
+      orderId: order.id,
+      firstName: recipient.firstName,
+      totalAmount: order.totalAmount,
+      items: order.items,
+      deliveryDetails: getDeliveryDetails(order),
+      changes: order.changes || [], // Array of changes made to the order
+      paymentMethod: getPaymentMethod(order)
+    }
+  );
+};
+
 export const sendOrderConfirmationToClient = async (order, recipient) => {
   return sendTemplatedEmail(
     recipient.email,
@@ -205,6 +222,7 @@ export default {
   sendPasswordResetEmail,
   sendOrderConfirmation,
   sendOrderStatusUpdate,
+  sendModifiedOrderConfirmation,
   sendOrderConfirmationToClient,
   sendNewOrderNotificationToAdmin,
 };

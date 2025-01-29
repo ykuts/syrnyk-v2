@@ -3,7 +3,6 @@ import Container from 'react-bootstrap/Container';
 import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
 import Image from 'react-bootstrap/esm/Image';
-import Form from 'react-bootstrap/Form';
 import Row from 'react-bootstrap/esm/Row';
 import Col from 'react-bootstrap/esm/Col';
 import Modal from 'react-bootstrap/Modal';
@@ -12,7 +11,6 @@ import Button from 'react-bootstrap/Button';
 import ListGroup from 'react-bootstrap/ListGroup';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom'; 
-import LoginForm from './LoginForm';
 import '../custom.scss';
 import { useAuth } from '../context/AuthContext';
 import { CartContext } from '../context/CartContext';
@@ -20,11 +18,11 @@ import { Trash, User, Package, Box, LogOut, Settings, Truck, SquareUserRound } f
 import './CartNavItem.css';
 import './Menu2.css';
 import LoginModal from './LoginModal';
+import CustomLanguageDropdown from './CustomLanguageDropdown';
 
 const Menu2 = () => {
     const [isSticky, setIsSticky] = useState(false);
     const { t, i18n } = useTranslation();
-    const [selectedValue, setSelectedValue] = useState('');
     const { user, logout } = useAuth();
 
     const [showLogin, setShowLogin] = useState(false); // to display Modal
@@ -35,7 +33,7 @@ const Menu2 = () => {
 
     const handleCloseCart = () => setShowCart(false);
 
-    const navigate = useNavigate(); // Хук для навигации
+    const navigate = useNavigate(); 
 
     const handleCheckout = () => {
         // Закрываем модальное окно корзины
@@ -88,12 +86,6 @@ useEffect(() => {
         i18n.changeLanguage('ua');
     }, [i18n]);
 
-    const handleChange = (event) => {
-        const newLanguage = event.target.value;
-        setSelectedValue(newLanguage);
-        i18n.changeLanguage(newLanguage);
-    };
-
 
     const ProfileButton = () => {
         const navigate = useNavigate();
@@ -103,7 +95,7 @@ useEffect(() => {
             return (
                 <button className="custom-button round-button" onClick={() => setShowLogin(true)}>
                     <Image src="/assets/account.png" roundedCircle
-                        style={{ width: '30px', height: '30px' }} />
+                        style={{ width: '24px', height: '24px' }} />
                     <span className="profile-text">{t('buttons.profile')}</span>
                 </button>
             );
@@ -111,61 +103,58 @@ useEffect(() => {
     
         return (
             <Dropdown className="position-relative">
-                <Dropdown.Toggle as="div" className="custom-button round-button d-flex align-items-center">
-                    <div 
-                        className="rounded-circle d-flex align-items-center justify-content-center text-white"
-                        style={{
-                            width: '30px',
-                            height: '30px',
-                            fontWeight: '700',
-                            fontSize: '16px'
-                        }}
-                    >
-                        {user.firstName[0]}
-                    </div>
-                    <span className="profile-text ms-2">{user.firstName}</span>
-                </Dropdown.Toggle>
+                <Dropdown.Toggle 
+                as="div" 
+                className="custom-button round-button d-flex align-items-center"
+            >
+                <Image 
+                    src="/assets/account-logged.png" 
+                    roundedCircle
+                    style={{ width: '24px', height: '24px' }} 
+                />
+                <span className="profile-text ms-2">{user.firstName}</span>
+            </Dropdown.Toggle>
     
                 <Dropdown.Menu 
                     className="position-absolute" 
                     style={{
                         zIndex: 1000,
                         marginTop: '0.5rem'
-                    }}
+                    }} 
                 >
                     {user.role === 'CLIENT' ? (
                         <>
                             <Dropdown.Item onClick={() => navigate('/client')}>
-                                <User size={16} className="me-2" />
+                                {/* <User size={16} className="me-2" /> */}
                                 Профіль
                             </Dropdown.Item>
                             <Dropdown.Item onClick={() => navigate('/orders')}>
-                                <Package size={16} className="me-2" />
+                                {/* <Package size={16} className="me-2" /> */}
                                 Історія замовлень
                             </Dropdown.Item>
                         </>
                     ) : (
                         <>
                             <Dropdown.Item onClick={() => navigate('/admin/orders')}>
-                                <Package size={16} className="me-2" />
+                                {/* <Package size={16} className="me-2" /> */}
                                 Управління замовленнями
                             </Dropdown.Item>
                             <Dropdown.Item onClick={() => navigate('/admin/customers')}>
-                                <SquareUserRound size={16} className="me-2" />
+                                {/* <SquareUserRound size={16} className="me-2" /> */}
                                 Управління клієнтами
                             </Dropdown.Item>
                             <Dropdown.Item onClick={() => navigate('/admin/products')}>
-                                <Box size={16} className="me-2" />
+                                {/* <Box size={16} className="me-2" /> */}
                                 Управління продуктами
                             </Dropdown.Item>
                             <Dropdown.Item onClick={() => navigate('/admin/delivery')}>
-                                <Truck size={16} className="me-2" />
+                                {/* <Truck size={16} className="me-2" /> */}
                                 Управління доставкою
                             </Dropdown.Item>
-                            <Dropdown.Item onClick={() => navigate('/admin/settings')}>
+                            {/* <Dropdown.Item onClick={() => navigate('/admin/settings')}>
                                 <Settings size={16} className="me-2" />
                                 Налаштування
-                            </Dropdown.Item>
+                            </Dropdown.Item> */}
                         </>
                     )}
                     <Dropdown.Divider />
@@ -195,12 +184,7 @@ useEffect(() => {
                         
                             <ProfileButton />
                         
-                            {/* <button className="custom-button round-button" onClick={() => setShowLogin(true)}>
-                                <Image src="/assets/account.png" roundedCircle
-                                    style={{ width: '30px', height: '30px' }} />
-                                <span className="profile-text">{t('buttons.profile')}</span>
-                            </button> */}
-                        </div>
+                    </div>
                         <Nav.Link eventKey={2} onClick={() => setShowCart(true)}>
                         <div className="cart-icon-container custom-button round-button">
                             <img
@@ -213,10 +197,7 @@ useEffect(() => {
                             )}
                             <span className="cart-text">{t('buttons.cart')}</span>
                             </div>
-                            {/* <button className="custom-button round-button">
-                                <Image src="/assets/cart.png" roundedCircle style={{ width: '30px', height: '30px' }} />
-                                <span className="profile-text">{t('buttons.cart')} ({cartItems.length})</span>
-                            </button> */}
+                            
                         </Nav.Link>
                     </Nav>
 
@@ -256,11 +237,7 @@ useEffect(() => {
                         </Nav>
 
                         <Nav className='select-lg me-auto order-lg-2 d-flex justify-content-center align-items-center'>
-                            <Form.Select value={selectedValue} onChange={handleChange} style={{ width: 'auto' }} className="text-center">
-                                <option value="ua">UA</option>
-                                <option value="en">EN</option>
-                                <option value="fr">FR</option>
-                            </Form.Select>
+                            <CustomLanguageDropdown />
                         </Nav>
                     </Navbar.Collapse>
                     {/* <Row className="d-lg-none">
@@ -340,14 +317,7 @@ useEffect(() => {
                 show={showLogin} 
                 onHide={() => setShowLogin(false)}
             />
-            {/* <Modal show={showLogin} onHide={() => setShowLogin(false)} centered>
-                <Modal.Header closeButton>
-                    <Modal.Title>Увійти</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                    <LoginForm closeModal={() => setShowLogin(false)} />
-                </Modal.Body>
-            </Modal> */}
+            
         </>
     );
 };

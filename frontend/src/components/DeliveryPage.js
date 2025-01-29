@@ -32,7 +32,7 @@ const DeliveryPage = () => {
     <Container>
       <div className="delivery-payment">
         <h1 className="page-title">ДОСТАВКА ТА ОПЛАТА</h1>
-        <Container>
+        <Container style={{padding: "0"}}>
       <div className="content-sections-container">
         <Row xs={1} md={2} className="g-5">
           <Col>

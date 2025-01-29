@@ -18,7 +18,7 @@
   right: 0;
   z-index: 1030;
   background-color: #fff;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  /* box-shadow: 0 2px 4px rgba(0,0,0,0.1); */
   transition: all 0.3s ease;
   padding: 10px 0;
 }
@@ -55,9 +55,9 @@
   height: 76px;
 }
 
-.hidden {
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
+/* .hidden {
+   box-shadow: 0 2px 4px rgba(0,0,0,0.1); 
+} */
 
 /* Mobile styles */
 @media (max-width: 768px) {
@@ -168,4 +168,48 @@
 /* Adjust spacing when logo is hidden */
 .sticky-navbar .links {
   margin-top: 0;
+}
+
+/* Profile styles */
+.profile-text {
+  margin-left: 8px;
+  font-size: 16px;
+}
+
+@media (max-width: 768px) {
+  .profile-text {
+      display: none;
+  }
+}
+
+/* Dropdown styles */
+.dropdown-toggle::after {
+  display: none !important; /* Hide default dropdown arrow */
+}
+
+.dropdown-menu {
+  margin-top: 0.5rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.dropdown-item {
+  padding: 0.5rem 1rem;
+  display: flex;
+  align-items: center;
+}
+
+.dropdown-item:hover {
+  background-color: #f8f9fa;
+}
+
+/* Hide default dropdown arrow */
+.dropdown-toggle::after {
+  display: none !important;
+}
+
+/* Keep orange background and hover effect */
+.dropdown-toggle.custom-button:hover {
+  background-color: #e78936;
+  cursor: pointer;
 }

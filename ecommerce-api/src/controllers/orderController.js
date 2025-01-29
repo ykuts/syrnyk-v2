@@ -1,8 +1,8 @@
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 import { 
-  sendOrderConfirmation, 
   sendOrderStatusUpdate,
+  sendModifiedOrderConfirmation,
   sendOrderConfirmationToClient,
   sendNewOrderNotificationToAdmin, 
   sendWelcomeEmail,
@@ -211,12 +211,45 @@ export const updateOrderStatus = async (req, res) => {
     const { orderId } = req.params;
     const { status } = req.body;
     
-    // Check that the status is one of the valid OrderStatus values
+    // Validate status
     if (!['PENDING', 'CONFIRMED', 'DELIVERED', 'CANCELLED'].includes(status)) {
       return res.status(400).json({ error: 'Invalid order status' });
     }
 
-    const order = await prisma.order.update({
+    // Get complete current order to check for changes
+    const currentOrder = await prisma.order.findUnique({
+      where: { id: Number(orderId) },
+      include: {
+        user: true,
+        guestInfo: true,
+        items: {
+          include: {
+            product: true
+          }
+        },
+        addressDelivery: true,
+        stationDelivery: {
+          include: {
+            station: true
+          }
+        },
+        pickupDelivery: {
+          include: {
+            store: true
+          }
+        }
+      }
+    });
+
+    if (!currentOrder) {
+      return res.status(404).json({ error: 'Order not found' });
+    }
+
+    // Check if order has been modified (has changes array with items)
+    const hasChanges = currentOrder.changes && currentOrder.changes.length > 0;
+
+    // Update order status
+    const updatedOrder = await prisma.order.update({
       where: { id: Number(orderId) },
       data: { status },
       include: {
@@ -241,35 +274,32 @@ export const updateOrderStatus = async (req, res) => {
       }
     });
 
-    // Send status update email
-    if (order.userId) {
-      await sendOrderStatusUpdate(order, order.user, {
-        customMessage: message,
-        orderId: order.id,
-        firstName: recipient.firstName,
-        status: order.status,
-        totalAmount: order.totalAmount,
-        items: order.items,
-        deliveryDetails: getDeliveryDetails(order)
-      });
-    } else if (order.guestInfo) {
-      await sendOrderStatusUpdate(order, order.guestInfo, {
-        customMessage: message,
-        orderId: order.id,
-        firstName: recipient.firstName,
-        status: order.status,
-        totalAmount: order.totalAmount,
-        items: order.items,
-        deliveryDetails: getDeliveryDetails(order)
-      });
+    // Get recipient (user or guest)
+    const recipient = updatedOrder.user || updatedOrder.guestInfo;
+
+    try {
+      // Send appropriate email based on status and changes
+      if (status === 'CONFIRMED' && hasChanges) {
+        // If confirming modified order
+        await sendModifiedOrderConfirmation(updatedOrder, recipient);
+      } else {
+        // For all other status changes
+        await sendOrderStatusUpdate(updatedOrder, recipient);
+      }
+    } catch (emailError) {
+      console.error('Error sending status update email:', emailError);
     }
 
     res.json({
       message: 'Order status updated successfully',
-      order
+      order: updatedOrder
     });
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    console.error('Error updating order status:', error);
+    res.status(500).json({ 
+      error: 'Error updating order status',
+      details: process.env.NODE_ENV === 'development' ? error.message : undefined 
+    });
   }
 };
 

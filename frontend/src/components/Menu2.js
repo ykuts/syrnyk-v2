@@ -133,7 +133,7 @@ const Menu2 = () => {
                         <CartDropdown />
                     </Nav>
 
-                    <Navbar.Collapse id="responsive-navbar-nav" className='align-items-baseline'>
+                    <Navbar.Collapse id="responsive-navbar-nav" className='align-items-baseline nav-collapse'>
                         <Nav className='links mx-auto order-lg-3 flex-column'>
                             <Row className="justify-content-md-center">
                                 <Col md="auto">

@@ -70,7 +70,7 @@ $form-select-focus-box-shadow: none;
     object-position: left; /* Crop the image from the right by shifting it left */
 }
 
-.custom-button {
+/* .custom-button {
     display: flex;
     align-items: center;
     background-color: #ff961c;
@@ -80,22 +80,22 @@ $form-select-focus-box-shadow: none;
     border-radius: 50px;
     padding: 5px 20px; 
     font-size: small;
-}
+} */
 
-.round-button {
-    padding: 5px 10px; /* Space inside the button */
-}
+/* .round-button {
+    padding: 5px 10px; 
+} */
 
-.profile-text {
-    margin-left: 4px; /* Space between icon and text */
+/* .profile-text {
+    margin-left: 4px; 
     font-size: 16px;
-}
+} */
 
-.custom-button:hover {
+/* .custom-button:hover {
     color: #000000;
-    background-color: #e78936; /* Color on hover */
+    background-color: #e78936; 
     border-color: #e78936;
-}
+}  */
 
 .custom-caption-bg {
     background-color: rgba(149, 194, 215, 0.596);
@@ -117,7 +117,7 @@ $form-select-focus-box-shadow: none;
     background-color: #94c4d8;
 }
 
-.cart-button {
+/* .cart-button {
     background: #FFFFFF;
     color: #000000;
     border-radius: 20px;
@@ -125,8 +125,8 @@ $form-select-focus-box-shadow: none;
     display: flex;
     align-items: center;
     border-style: none;
-    transition: background 0.3s ease; /* Add smooth transition */
-}
+    transition: background 0.3s ease; 
+} */
 
 .cart-button:hover {
     color: #000000;

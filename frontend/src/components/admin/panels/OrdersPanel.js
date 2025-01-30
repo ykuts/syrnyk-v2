@@ -8,7 +8,9 @@ import {
   Button,
   Form,
   Row,
-  Col
+  Col,
+  Modal,
+  ListGroup,
 } from 'react-bootstrap';
 import { apiClient } from '../../../utils/api';
 import OrderItemsEditor from './OrdersPanelComp/OrderItemsEditor';
@@ -22,6 +24,10 @@ const OrdersPanel = () => {
   const [filterPaymentStatus, setFilterPaymentStatus] = useState('ALL');
   const [sortBy, setSortBy] = useState('date_desc');
   const [adminNotes, setAdminNotes] = useState({});
+  const [showNotificationModal, setShowNotificationModal] = useState(false);
+const [currentOrderId, setCurrentOrderId] = useState(null);
+const [notificationMessage, setNotificationMessage] = useState('');
+const [sendingNotification, setSendingNotification] = useState(false);
 
   // Auth headers for all requests
   const getAuthHeaders = () => ({
@@ -31,6 +37,7 @@ const OrdersPanel = () => {
   useEffect(() => {
     fetchOrders();
   }, []);
+  
 
   const fetchOrders = async () => {
     setLoading(true);
@@ -49,6 +56,36 @@ const OrdersPanel = () => {
       console.error('Error fetching orders:', err);
     } finally {
       setLoading(false);
+    }
+  };
+
+
+  const handleSendNotification = async () => {
+    setSendingNotification(true);
+    try {
+      await apiClient.post(
+        `/orders/${currentOrderId}/notify-changes`,
+        { 
+          message: notificationMessage 
+        },
+        getAuthHeaders()
+      );
+      
+      // Обновляем заказ в состоянии
+      const updatedOrders = orders.map(order => {
+        if (order.id === currentOrderId) {
+          return { ...order, lastNotificationSent: new Date() };
+        }
+        return order;
+      });
+      setOrders(updatedOrders);
+      
+      setShowNotificationModal(false);
+      setNotificationMessage('');
+    } catch (error) {
+      setError('Failed to send notification');
+    } finally {
+      setSendingNotification(false);
     }
   };
 
@@ -114,11 +151,14 @@ const OrdersPanel = () => {
 
   const handleStatusChange = async (orderId, newStatus) => {
     try {
+
       await apiClient.patch(
         `/orders/${orderId}/status`, 
-        { status: newStatus },
+        { status: newStatus
+         },
         getAuthHeaders()
       );
+
       setOrders(orders.map(order => 
         order.id === orderId ? { ...order, status: newStatus } : order
       ));
@@ -208,164 +248,6 @@ const OrdersPanel = () => {
       }
     });
 
-  /*if (loading && !orders.length) {
-    return (
-      <Container className="d-flex justify-content-center align-items-center" style={{ minHeight: '200px' }}>
-        <Spinner animation="border" role="status">
-          <span className="visually-hidden">Завантаження...</span>
-        </Spinner>
-      </Container>
-    );
-  }
-
-  return (
-    <Container fluid className="py-4">
-      {error && (
-        <Alert variant="danger" onClose={() => setError(null)} dismissible>
-          {error}
-        </Alert>
-      )}
-      
-      <h1 className="mb-4">Замовлення</h1>
-      
-      <Row className="mb-4">
-        <Col md={3}>
-          <Form.Group>
-            <Form.Label>Статус замовлення</Form.Label>
-            <Form.Select 
-              value={filterStatus}
-              onChange={(e) => setFilterStatus(e.target.value)}
-            >
-              <option value="ALL">Усі статуси</option>
-              <option value="PENDING">Нові</option>
-              <option value="CONFIRMED">Підтверджені</option>
-              <option value="DELIVERED">Доставлені</option>
-              <option value="CANCELLED">Відмінені</option>
-            </Form.Select>
-          </Form.Group>
-        </Col>
-        
-        <Col md={3}>
-          <Form.Group>
-            <Form.Label>Статус оплати</Form.Label>
-            <Form.Select
-              value={filterPaymentStatus}
-              onChange={(e) => setFilterPaymentStatus(e.target.value)}
-            >
-              <option value="ALL">Усі статуси</option>
-              <option value="PENDING">Нові</option>
-              <option value="PAID">Оплачені</option>
-              <option value="REFUNDED">Повернуто</option>
-            </Form.Select>
-          </Form.Group>
-        </Col>
-        
-        <Col md={3}>
-          <Form.Group>
-            <Form.Label>Відсортувати</Form.Label>
-            <Form.Select
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value)}
-            >
-              <option value="date_desc">Спочатку нові</option>
-              <option value="date_asc">Спочатку старі</option>
-              <option value="amount_desc">Найбільше</option>
-              <option value="amount_asc">Найменше</option>
-            </Form.Select>
-          </Form.Group>
-        </Col>
-      </Row>
-
-      <div className="mb-3">
-        <p className="text-muted">
-          {filteredOrders.length === orders.length 
-            ? `Усього замовлень: ${orders.length}`
-            : `Showing ${filteredOrders.length} of ${orders.length} orders`
-          }
-        </p>
-      </div>
-
-      {filteredOrders.map((order) => (
-        <Card key={order.id} className="mb-4">
-          <Card.Body>
-            <Row>
-              <Col md={8}>
-                <div className="d-flex justify-content-between align-items-center mb-3">
-                  <h5>Замовлення №{order.id}</h5>
-                  <Badge bg={getStatusVariant(order.status)}>
-                    {order.status}
-                  </Badge>
-                </div>
-                
-                <p><strong>Дата:</strong> {formatDate(order.createdAt)}</p>
-                <p><strong>Клієнт:</strong> {order.user?.firstName} {order.user?.lastName}</p>
-                <p><strong>Email:</strong> {order.user?.email}</p>
-                <p><strong>Телефон:</strong> {order.user?.phone}</p>
-                <p><strong>Загальна вартість:</strong> ${Number(order.totalAmount).toFixed(2)}</p>
-                <p><strong>Доставка:</strong> {getDeliveryDetails(order)}</p>
-              </Col>
-
-              <Col md={4}>
-                <Form.Group className="mb-3">
-                  <Form.Label>Статус замовлення</Form.Label>
-                  <Form.Select 
-                    value={order.status}
-                    onChange={(e) => handleStatusChange(order.id, e.target.value)}
-                  >
-                    <option value="PENDING">Нове</option>
-                    <option value="CONFIRMED">Підтверджено</option>
-                    <option value="DELIVERED">Доставлено</option>
-                    <option value="CANCELLED">Відмінено</option>
-                  </Form.Select>
-                </Form.Group>
-
-                <Form.Group className="mb-3">
-                  <Form.Label>Статус оплати</Form.Label>
-                  <Form.Select 
-                    value={order.paymentStatus}
-                    onChange={(e) => handlePaymentStatusChange(order.id, e.target.value)}
-                  >
-                    <option value="PENDING">Нове</option>
-                    <option value="PAID">Оплачено</option>
-                    <option value="REFUNDED">Повернення</option>
-                  </Form.Select>
-                </Form.Group>
-
-                <Button
-                  variant="outline-primary"
-                  onClick={() => setExpandedOrder(expandedOrder === order.id ? null : order.id)}
-                  className="w-100"
-                >
-                  {expandedOrder === order.id ? 'Приховати деталі' : 'Детальніше'}
-                </Button>
-              </Col>
-            </Row>
-
-            {expandedOrder === order.id && (
-              <div className="mt-4">
-                <h6>Позиції у замовленні:</h6>
-                <ListGroup>
-                  {order.items?.map((item) => (
-                    <ListGroup.Item key={item.id} className="d-flex justify-content-between align-items-center">
-                      <div>
-                        <span>{item.product?.name}</span>
-                        <small className="text-muted d-block">
-                          Кількість: {item.quantity}
-                        </small>
-                      </div>
-                      <span>${Number(item.price).toFixed(2)}</span>
-                    </ListGroup.Item>
-                  ))}
-                </ListGroup>
-              </div>
-            )}
-          </Card.Body>
-        </Card>
-      ))}
-    </Container>
-  );
-}; */
-
  // Render single order
  const renderOrder = (order) => {
   const customerInfo = getCustomerInfo(order);
@@ -393,15 +275,7 @@ const OrdersPanel = () => {
             <p><strong>Phone:</strong> {customerInfo.phone}</p>
             <p><strong>Total Amount:</strong> ${Number(order.totalAmount).toFixed(2)}</p>
             <p><strong>Delivery:</strong> {getDeliveryDetails(order)}</p>
-            
-            {order.notesClient && (
-              <div className="mb-3">
-                <strong>Customer Notes:</strong>
-                <Alert variant="info" className="mt-2">
-                  {order.notesClient}
-                </Alert>
-              </div>
-            )}
+  
 
             <Form.Group className="mb-3">
               <Form.Label><strong>Admin Notes:</strong></Form.Label>
@@ -461,17 +335,39 @@ const OrdersPanel = () => {
         </Row>
 
         {expandedOrder === order.id && (
+  <div className="mt-4">
+    <Row>
+      <Col>
+        <h6>Позиції у замовленні:</h6>
+        <OrderItemsEditor
+          order={order}
+          onOrderUpdate={(updatedOrder) => {
+            setOrders(orders.map(o => 
+              o.id === updatedOrder.id ? updatedOrder : o
+            ));
+          }}
+          getAuthHeaders={getAuthHeaders}
+          onOrderChange={() => {
+            setCurrentOrderId(order.id);
+          }}
+        />
+
+        {order.changes && order.changes.length > 0 && (
           <div className="mt-4">
-            <h6>Order Items:</h6>
-            <OrderItemsEditor
-      order={order}
-      onOrderUpdate={(updatedOrder) => {
-        setOrders(orders.map(o => 
-          o.id === updatedOrder.id ? updatedOrder : o
-        ));
-      }}
-      getAuthHeaders={getAuthHeaders}
-    />
+            <h6>Історія змін:</h6>
+            <ListGroup variant="flush">
+              {order.changes.map((change, index) => (
+                <ListGroup.Item key={index} className="small text-muted">
+                  {change}
+                </ListGroup.Item>
+              ))}
+            </ListGroup>
+          </div>
+        )}
+
+        
+      </Col>
+    </Row>
           </div>
         )}
       </Card.Body>
@@ -559,6 +455,53 @@ return (
 
     {/* Orders list */}
     {filteredOrders.map(renderOrder)}
+
+{/* Notification Modal */}
+<Modal 
+      show={showNotificationModal} 
+      onHide={() => {
+        setShowNotificationModal(false);
+        setNotificationMessage('');
+      }}
+    >
+      <Modal.Header closeButton>
+        <Modal.Title>Відправити повідомлення клієнту</Modal.Title>
+      </Modal.Header>
+      <Modal.Body>
+        <Form.Group>
+          <Form.Label>Текст повідомлення</Form.Label>
+          <Form.Control
+            as="textarea"
+            rows={3}
+            value={notificationMessage}
+            onChange={(e) => setNotificationMessage(e.target.value)}
+            placeholder="Опишіть зміни в замовленні або інформацію для клієнта..."
+          />
+          <Form.Text className="text-muted">
+            Клієнт отримає цей текст разом з оновленими деталями замовлення
+          </Form.Text>
+        </Form.Group>
+      </Modal.Body>
+      <Modal.Footer>
+        <Button 
+          variant="secondary" 
+          onClick={() => {
+            setShowNotificationModal(false);
+            setNotificationMessage('');
+          }}
+        >
+          Скасувати
+        </Button>
+        <Button 
+          variant="primary" 
+          onClick={handleSendNotification}
+          disabled={sendingNotification || !notificationMessage.trim()}
+        >
+          {sendingNotification ? 'Відправка...' : 'Відправити'}
+        </Button>
+      </Modal.Footer>
+    </Modal>
+
   </Container>
 );
 };

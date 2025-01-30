@@ -1,5 +1,12 @@
 import { PrismaClient } from '@prisma/client';
-import sendOrderConfirmation from '../utils/emailService.js';
+import bcrypt from 'bcryptjs';
+import { 
+  sendOrderStatusUpdate,
+  sendModifiedOrderConfirmation,
+  sendOrderConfirmationToClient,
+  sendNewOrderNotificationToAdmin, 
+  sendWelcomeEmail,
+} from '../services/emailService.js';
 
 const prisma = new PrismaClient();
 
@@ -8,13 +15,13 @@ export const createOrder = async (req, res) => {
   try {
     const {
       userId,
-      customer,  // Guest customer information
+      customer,
+      shouldRegister,
+      password,
       deliveryType,
       totalAmount,
       paymentMethod,
       notesClient,
-      status,
-      paymentStatus,
       items,
       addressDelivery,
       stationDelivery,
@@ -24,31 +31,62 @@ export const createOrder = async (req, res) => {
     // Checking required fields
     if (!deliveryType || !totalAmount || !items || items.length === 0) {
       return res.status(400).json({ 
-        message: "Не заповнені обов'язкові поля замовлення" 
+        message: "Required order fields are missing" 
       });
     }
 
-    // For guest orders, validate customer information
-    if (!userId && (!customer || !customer.email || !customer.firstName || !customer.lastName)) {
-      return res.status(400).json({
-        message: 'Для гостьових замовлень потрібна інформація про клієнта'
-      });
-    }
+    let orderUserId = userId;
+    let registeredUser = null;
 
-    // If the delivery type is PICKUP, we check the existence of the store
-    if (deliveryType === 'PICKUP') {
-      const store = await prisma.store.findUnique({
-        where: { id: pickupDelivery.storeId }
-      });
+    // Handle guest registration if requested
+    if (!userId && shouldRegister && password && customer) {
+      console.log('Processing registration for guest checkout');
+      try {
+        // Check if email already exists
+        const existingUser = await prisma.user.findUnique({
+          where: { email: customer.email }
+        });
 
-      if (!store) {
+        if (existingUser) {
+          console.log('User with email already exists:', customer.email);
+          return res.status(400).json({
+            message: 'Email already registered. Please login or use a different email.'
+          });
+        }
+
+        // Create new user
+        const hashedPassword = await bcrypt.hash(password, 12);
+        console.log('Creating new user with email:', customer.email);
+        registeredUser = await prisma.user.create({
+          data: {
+            firstName: customer.firstName,
+            lastName: customer.lastName,
+            email: customer.email,
+            phone: customer.phone,
+            password: hashedPassword,
+          }
+        });
+
+        console.log('New user created:', registeredUser.id);
+        orderUserId = registeredUser.id;
+
+        // Send welcome email to new user
+        try {
+          await sendWelcomeEmail(registeredUser);
+          console.log('Welcome email sent successfully');
+        } catch (emailError) {
+          console.error('Welcome email sending failed:', emailError);
+        }
+      } catch (regError) {
+        console.error('Registration error:', regError);
         return res.status(400).json({
-          message: 'Зазначений магазин не знайдено'
+          message: 'Failed to create user account',
+          error: process.env.NODE_ENV === 'development' ? regError.message : undefined
         });
       }
     }
 
-    // Basic order data
+    // Basic order data preparation
     const orderData = {
       deliveryType,
       totalAmount,
@@ -58,27 +96,33 @@ export const createOrder = async (req, res) => {
       paymentStatus: 'PENDING',
       items: {
         create: items.map(item => ({
-          product: {
-            connect: { id: item.productId }
-          },
+          product: { connect: { id: item.productId } },
           quantity: item.quantity,
           price: item.price
         }))
       }
     };
 
-    // Add user connection if authenticated
-    if (userId) {
+    // Add user connection if we have a user ID
+    if (orderUserId) {
       orderData.user = {
-        connect: { id: userId }
+        connect: { id: orderUserId }
+      };
+    } else if (customer) {
+      // Add guest information if no user ID
+      orderData.guestInfo = {
+        create: {
+          firstName: customer.firstName,
+          lastName: customer.lastName,
+          email: customer.email,
+          phone: customer.phone || null
+        }
       };
     }
 
     // Add delivery information based on type
     if (deliveryType === 'ADDRESS' && addressDelivery) {
-      orderData.addressDelivery = {
-        create: addressDelivery
-      };
+      orderData.addressDelivery = { create: addressDelivery };
     } else if (deliveryType === 'RAILWAY_STATION' && stationDelivery) {
       orderData.stationDelivery = {
         create: {
@@ -95,54 +139,56 @@ export const createOrder = async (req, res) => {
       };
     }
 
-    // Add guest information for guest orders
-    if (!userId && customer) {
-      orderData.guestInfo = {
-        create: {
-          firstName: customer.firstName,
-          lastName: customer.lastName,
-          email: customer.email,
-          phone: customer.phone || null
-        }
-      };
-    }
-
-
     // Create order with all related data
     const order = await prisma.order.create({
       data: orderData,
       include: {
         items: {
-          include: {
-            product: true
-          }
+          include: { product: true }
         },
         guestInfo: true,
         user: true,
         addressDelivery: true,
         stationDelivery: {
-          include: {
-            station: true
-          }
+          include: { station: true }
         },
         pickupDelivery: {
-          include: {
-            store: true
-          }
+          include: { store: true }
         }
       }
     });
 
+    // Send notifications
+    try {
+      const recipient = order.user || order.guestInfo;
+      
+      // Send order confirmation to customer
+      await sendOrderConfirmationToClient(order, recipient);
+      
+      // Send notification to admin
+      await sendNewOrderNotificationToAdmin(order, recipient);
+    } catch (emailError) {
+      console.error('Error sending order notifications:', emailError);
+    }
 
-    res.status(201).json({
-      message: 'Замовлення успішно створено',
+    const responseData = {
+      message: 'Order created successfully',
       order,
-    });
+      user: registeredUser ? {
+        id: registeredUser.id,
+        email: registeredUser.email,
+        firstName: registeredUser.firstName,
+        lastName: registeredUser.lastName
+      } : null
+    };
+    
+    console.log('Sending response with data:', JSON.stringify(responseData, null, 2));
+    res.status(201).json(responseData);
   } catch (error) {
-    console.error('Помилка при створенні замовлення:', error);
+    console.error('Error creating order:', error);
     res.status(500).json({
-      message: 'Помилка при створенні замовлення',
-      error: process.env.NODE_ENV === 'development' ? error.message : undefined,
+      message: 'Error creating order',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
 };
@@ -165,19 +211,95 @@ export const updateOrderStatus = async (req, res) => {
     const { orderId } = req.params;
     const { status } = req.body;
     
-    // Check that the status is one of the valid OrderStatus values
+    // Validate status
     if (!['PENDING', 'CONFIRMED', 'DELIVERED', 'CANCELLED'].includes(status)) {
       return res.status(400).json({ error: 'Invalid order status' });
     }
 
-    const order = await prisma.order.update({
+    // Get complete current order to check for changes
+    const currentOrder = await prisma.order.findUnique({
       where: { id: Number(orderId) },
-      data: { status }
+      include: {
+        user: true,
+        guestInfo: true,
+        items: {
+          include: {
+            product: true
+          }
+        },
+        addressDelivery: true,
+        stationDelivery: {
+          include: {
+            station: true
+          }
+        },
+        pickupDelivery: {
+          include: {
+            store: true
+          }
+        }
+      }
     });
 
-    res.json(order);
+    if (!currentOrder) {
+      return res.status(404).json({ error: 'Order not found' });
+    }
+
+    // Check if order has been modified (has changes array with items)
+    const hasChanges = currentOrder.changes && currentOrder.changes.length > 0;
+
+    // Update order status
+    const updatedOrder = await prisma.order.update({
+      where: { id: Number(orderId) },
+      data: { status },
+      include: {
+        user: true,
+        guestInfo: true,
+        items: {
+          include: {
+            product: true
+          }
+        },
+        addressDelivery: true,
+        stationDelivery: {
+          include: {
+            station: true
+          }
+        },
+        pickupDelivery: {
+          include: {
+            store: true
+          }
+        }
+      }
+    });
+
+    // Get recipient (user or guest)
+    const recipient = updatedOrder.user || updatedOrder.guestInfo;
+
+    try {
+      // Send appropriate email based on status and changes
+      if (status === 'CONFIRMED' && hasChanges) {
+        // If confirming modified order
+        await sendModifiedOrderConfirmation(updatedOrder, recipient);
+      } else {
+        // For all other status changes
+        await sendOrderStatusUpdate(updatedOrder, recipient);
+      }
+    } catch (emailError) {
+      console.error('Error sending status update email:', emailError);
+    }
+
+    res.json({
+      message: 'Order status updated successfully',
+      order: updatedOrder
+    });
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    console.error('Error updating order status:', error);
+    res.status(500).json({ 
+      error: 'Error updating order status',
+      details: process.env.NODE_ENV === 'development' ? error.message : undefined 
+    });
   }
 };
 
@@ -201,23 +323,6 @@ export const updatePaymentStatus = async (req, res) => {
     res.status(400).json({ error: error.message });
   }
 };
-
-// Update the status of an order
-/* export const updateOrderStatus = async (req, res) => {
-  const { id } = req.params;
-  const { orderStatus, adminComments } = req.body;
-
-  try {
-    const updatedOrder = await prisma.order.update({
-      where: { id: parseInt(id) },
-      data: { orderStatus, adminComments },
-    });
-
-    res.json(updatedOrder);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-}; */
 
 // Get all orders
 export const getAllOrders = async (req, res) => {
@@ -268,7 +373,259 @@ export const updateOrderNotes = async (req, res) => {
   }
 };
 
+// Update order items
 export const updateOrderItem = async (req, res) => {
+  const { orderId, itemId } = req.params;
+  const { quantity } = req.body;
+
+  try {
+    const result = await prisma.$transaction(async (prisma) => {
+      // Update order item
+      const updatedItem = await prisma.orderItem.update({
+        where: { id: Number(itemId) },
+        data: { quantity: Number(quantity) }
+      });
+
+      // Recalculate total amount
+      const orderItems = await prisma.orderItem.findMany({
+        where: { orderId: Number(orderId) }
+      });
+
+      const totalAmount = orderItems.reduce((sum, item) => {
+        return sum + (Number(item.price) * item.quantity);
+      }, 0);
+
+      // Update order with new total and add change log
+      const updatedOrder = await prisma.order.update({
+        where: { id: Number(orderId) },
+        data: {
+          totalAmount: totalAmount.toString(),
+          changes: {
+            push: `${new Date().toISOString()} - Item ${itemId} quantity updated to ${quantity}`
+          }
+        },
+        include: {
+          items: {
+            include: {
+              product: true
+            }
+          },
+          user: true,
+          guestInfo: true,
+          addressDelivery: true,
+          stationDelivery: {
+            include: {
+              station: true
+            }
+          },
+          pickupDelivery: {
+            include: {
+              store: true
+            }
+          }
+        }
+      });
+
+      return updatedOrder;
+    });
+
+    res.json(result);
+  } catch (error) {
+    console.error('Error updating order item:', error);
+    res.status(400).json({ error: error.message });
+  }
+};
+
+// Add new item to order
+export const addOrderItem = async (req, res) => {
+  const { orderId } = req.params;
+  const { productId, quantity } = req.body;
+
+  try {
+    const result = await prisma.$transaction(async (prisma) => {
+      // Get product info
+      const product = await prisma.product.findUnique({
+        where: { id: Number(productId) }
+      });
+
+      if (!product) {
+        throw new Error('Product not found');
+      }
+
+      // Create new order item
+      await prisma.orderItem.create({
+        data: {
+          orderId: Number(orderId),
+          productId: Number(productId),
+          quantity: Number(quantity),
+          price: product.price
+        }
+      });
+
+      // Update order total and add change log
+      const updatedOrder = await prisma.order.update({
+        where: { id: Number(orderId) },
+        data: {
+          changes: {
+            push: `${new Date().toISOString()} - Added product ${product.name} (x${quantity})`
+          }
+        },
+        include: {
+          items: {
+            include: {
+              product: true
+            }
+          },
+          user: true,
+          guestInfo: true,
+          addressDelivery: true,
+          stationDelivery: {
+            include: {
+              station: true
+            }
+          },
+          pickupDelivery: {
+            include: {
+              store: true
+            }
+          }
+        }
+      });
+
+      return updatedOrder;
+    });
+
+    res.json(result);
+  } catch (error) {
+    console.error('Error adding order item:', error);
+    res.status(400).json({ error: error.message });
+  }
+};
+
+// Remove item from order
+export const removeOrderItem = async (req, res) => {
+  const { orderId, itemId } = req.params;
+
+  try {
+    const result = await prisma.$transaction(async (prisma) => {
+      // Get item details before deletion
+      const item = await prisma.orderItem.findUnique({
+        where: { id: Number(itemId) },
+        include: { product: true }
+      });
+
+      // Delete item
+      await prisma.orderItem.delete({
+        where: { id: Number(itemId) }
+      });
+
+      // Update order total and add change log
+      const updatedOrder = await prisma.order.update({
+        where: { id: Number(orderId) },
+        data: {
+          changes: {
+            push: `${new Date().toISOString()} - Removed product ${item.product.name}`
+          }
+        },
+        include: {
+          items: {
+            include: {
+              product: true
+            }
+          },
+          user: true,
+          guestInfo: true,
+          addressDelivery: true,
+          stationDelivery: {
+            include: {
+              station: true
+            }
+          },
+          pickupDelivery: {
+            include: {
+              store: true
+            }
+          }
+        }
+      });
+
+      return updatedOrder;
+    });
+
+    res.json(result);
+  } catch (error) {
+    console.error('Error removing order item:', error);
+    res.status(400).json({ error: error.message });
+  }
+};
+
+// Notify customer about changes
+export const notifyOrderChanges = async (req, res) => {
+  try {
+    const { orderId } = req.params;
+    const { message } = req.body;
+    
+    // Get order with all related data
+    const order = await prisma.order.findUnique({
+      where: { id: Number(orderId) },
+      include: {
+        user: true,
+        guestInfo: true,
+        items: {
+          include: {
+            product: true
+          }
+        },
+        addressDelivery: true,
+        stationDelivery: {
+          include: {
+            station: true
+          }
+        },
+        pickupDelivery: {
+          include: {
+            store: true
+          }
+        }
+      }
+    });
+
+    if (!order) {
+      return res.status(404).json({ error: 'Order not found' });
+    }
+
+    const recipient = order.user || order.guestInfo;
+    
+    // Send notification email
+    await sendOrderStatusUpdate(order, recipient, {
+      customMessage: message
+    });
+
+    // Update notification timestamp
+    const updatedOrder = await prisma.order.update({
+      where: { id: Number(orderId) },
+      data: {
+        lastNotificationSent: new Date(),
+        changes: {
+          push: `${new Date().toISOString()} - Notification sent to customer`
+        }
+      }
+    });
+
+    res.json({
+      message: 'Notification sent successfully',
+      order: updatedOrder
+    });
+  } catch (error) {
+    console.error('Error sending notification:', error);
+    res.status(500).json({ 
+      message: 'Error sending notification',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+};
+
+/* export const updateOrderItem = async (req, res) => {
   const { orderId, itemId } = req.params;
   const { quantity } = req.body;
 
@@ -551,7 +908,7 @@ export const removeOrderItem = async (req, res) => {
     console.error('Error removing order item:', error);
     res.status(400).json({ error: error.message });
   }
-};
+}; */
 
 // Get single order by ID
 export const getOrderById = async (req, res) => {

@@ -121,7 +121,7 @@ const ProductDetails = () => {
                                 }}
                             />
                             
-                            {additionalImages.length > 0 && (
+                            {/* {additionalImages.length > 0 && (
                                 <div className="d-flex mt-3 gap-2 p-2 overflow-auto">
                                     {allImages.map((img, index) => (
                                         <img
@@ -142,7 +142,7 @@ const ProductDetails = () => {
                                         />
                                     ))}
                                 </div>
-                            )}
+                            )} */}
                         </Card>
                     </Col>
                     <Col md={4}>

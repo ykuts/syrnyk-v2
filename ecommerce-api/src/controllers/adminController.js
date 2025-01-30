@@ -77,12 +77,37 @@ export const updateOrderStatus = async (req, res) => {
       include: {
         user: {
           select: {
+            id: true,
             email: true,
             firstName: true,
           },
         },
+        guestInfo: true,
+        items: {
+          include: {
+            product: true
+          }
+        },
+        addressDelivery: true,
+        stationDelivery: {
+          include: {
+            station: true
+          }
+        },
+        pickupDelivery: {
+          include: {
+            store: true
+          }
+        }
       },
     });
+
+    // Send email notification
+    if (updatedOrder.user) {
+      await sendOrderStatusUpdate(updatedOrder, updatedOrder.user);
+    } else if (updatedOrder.guestInfo) {
+      await sendOrderStatusUpdate(updatedOrder, updatedOrder.guestInfo);
+    }
 
     res.json({
       message: 'Order status updated successfully',

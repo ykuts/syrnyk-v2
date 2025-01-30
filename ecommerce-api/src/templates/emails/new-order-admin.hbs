@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <style>
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      font-family: Arial, sans-serif;
+      color: #333;
+    }
+    .header {
+      background-color: #f8f9fa;
+      padding: 20px;
+      text-align: center;
+      border-bottom: 3px solid #0056b3;
+    }
+    .customer-info {
+      background: #e9ecef;
+      padding: 15px;
+      margin: 15px 0;
+      border-radius: 4px;
+    }
+    .order-details {
+      margin: 20px 0;
+      padding: 15px;
+      border: 1px solid #dee2e6;
+      border-radius: 5px;
+    }
+    .item {
+      margin: 10px 0;
+      padding: 10px;
+      background: #f8f9fa;
+      border-radius: 4px;
+    }
+    .notes {
+      background: #fff3cd;
+      padding: 10px;
+      margin: 10px 0;
+      border-left: 4px solid #ffc107;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h2>Нове замовлення #{{orderId}}</h2>
+    </div>
+    
+    <div class="customer-info">
+      <h3>Інформація про клієнта:</h3>
+      <p><strong>Ім'я:</strong> {{customer.firstName}} {{customer.lastName}}</p>
+      <p><strong>Email:</strong> {{customer.email}}</p>
+      <p><strong>Телефон:</strong> {{customer.phone}}</p>
+      <p><strong>Тип клієнта:</strong> {{#if customer.isGuest}}Гість{{else}}Зареєстрований користувач{{/if}}</p>
+    </div>
+
+    <div class="order-details">
+      <h3>Деталі замовлення:</h3>
+      <p><strong>Загальна сума:</strong> {{totalAmount}} CHF</p>
+      
+      <h4>Товари:</h4>
+      {{#each items}}
+        <div class="item">
+          <p><strong>{{product.name}}</strong></p>
+          <p>Кількість: {{quantity}}</p>
+          <p>Ціна: {{price}} CHF</p>
+        </div>
+      {{/each}}
+
+      <h4>Інформація про доставку:</h4>
+      <p><strong>Спосіб доставки:</strong> {{deliveryDetails.type}}</p>
+      <p>{{deliveryDetails.details}}</p>
+
+      <h4>Спосіб оплати:</h4>
+      <p>{{paymentMethod}}</p>
+
+      {{#if notesClient}}
+        <div class="notes">
+          <h4>Примітки клієнта:</h4>
+          <p>{{notesClient}}</p>
+        </div>
+      {{/if}}
+    </div>
+  </div>
+</body>
+</html>

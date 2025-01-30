@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <style>
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      font-family: Arial, sans-serif;
+      color: #333;
+    }
+    .header {
+      background-color: #f8f9fa;
+      padding: 20px;
+      text-align: center;
+      border-bottom: 3px solid #0056b3;
+    }
+    .order-details {
+      margin: 20px 0;
+      padding: 15px;
+      border: 1px solid #dee2e6;
+      border-radius: 5px;
+    }
+    .item {
+      margin: 10px 0;
+      padding: 10px;
+      background: #f8f9fa;
+      border-radius: 4px;
+    }
+    .total {
+      font-size: 18px;
+      font-weight: bold;
+      margin: 15px 0;
+      color: #0056b3;
+    }
+    .delivery-info {
+      background: #e9ecef;
+      padding: 15px;
+      border-radius: 4px;
+      margin: 15px 0;
+    }
+    .footer {
+      margin-top: 30px;
+      padding: 20px;
+      text-align: center;
+      font-size: 14px;
+      color: #666;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h2>Дякуємо за ваше замовлення!</h2>
+      <p>Шановний(а) {{firstName}},</p>
+      <p>Ваше замовлення #{{orderId}} успішно оформлено.</p>
+    </div>
+
+    <div class="order-details">
+      <h3>Деталі замовлення:</h3>
+      <div class="total">
+        Загальна сума: {{totalAmount}} CHF
+      </div>
+      
+      <h4>Товари:</h4>
+      {{#each items}}
+        <div class="item">
+          <p><strong>{{product.name}}</strong></p>
+          <p>Кількість: {{quantity}}</p>
+          <p>Ціна: {{price}} CHF</p>
+        </div>
+      {{/each}}
+
+      <div class="delivery-info">
+        <h4>Інформація про доставку:</h4>
+        <p><strong>Спосіб доставки:</strong> {{deliveryDetails.type}}</p>
+        <p>{{deliveryDetails.details}}</p>
+
+        <h4>Спосіб оплати:</h4>
+        <p>{{paymentMethod}}</p>
+      </div>
+    </div>
+
+    <div class="footer">
+      <p>Ми повідомимо вас про статус вашого замовлення.</p>
+      <p>Якщо у вас виникли питання, будь ласка, зв'яжіться з нами.</p>
+      <p>З найкращими побажаннями,<br>Ваша команда Syrnyk</p>
+    </div>
+  </div>
+</body>
+</html>

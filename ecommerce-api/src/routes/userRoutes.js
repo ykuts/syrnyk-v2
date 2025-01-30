@@ -7,7 +7,9 @@ import {
   changePassword,
   getUserOrders,
   getAllUsers,         
-  updateUserStatus     
+  updateUserStatus,
+  requestPasswordReset,
+  resetPassword              
 } from '../controllers/userController.js';
 import { protect, isAdmin } from '../middleware/authMiddleware.js';
 
@@ -16,6 +18,8 @@ const router = express.Router();
 // Public routes
 router.post('/register', registerUser);
 router.post('/login', loginUser);
+router.post('/request-password-reset', requestPasswordReset);  
+router.post('/reset-password', resetPassword);     
 
 // Protected routes
 router.get('/profile', protect, getUserProfile);

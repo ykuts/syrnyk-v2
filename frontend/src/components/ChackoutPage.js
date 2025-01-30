@@ -137,7 +137,7 @@ const CheckoutPage = () => {
     e.preventDefault();
     setIsSubmitting(true);
     setSubmitError(null);
-
+  
     try {
       const orderData = {
         deliveryType: formData.deliveryType,
@@ -150,7 +150,7 @@ const CheckoutPage = () => {
           price: item.price
         }))
       };
-
+  
       // For guest orders, add customer info
       if (!user) {
         orderData.customer = {
@@ -159,16 +159,21 @@ const CheckoutPage = () => {
           email: formData.email,
           phone: formData.phone
         };
-
+  
         // If guest wants to create account
         if (createAccount && formData.password) {
-          orderData.createAccount = true;
+          console.log('Registration requested:', {
+            email: formData.email,
+            hasPassword: !!formData.password,
+            createAccount
+          });
+          orderData.shouldRegister = true;
           orderData.password = formData.password;
         }
       } else {
         orderData.userId = user.id;
       }
-
+  
       // Add delivery information based on type
       switch (formData.deliveryType) {
         case 'ADDRESS':
@@ -180,35 +185,53 @@ const CheckoutPage = () => {
             postalCode: formData.postalCode
           };
           break;
-
+  
         case 'RAILWAY_STATION':
           orderData.stationDelivery = {
             stationId: parseInt(formData.stationId),
             meetingTime: new Date(formData.meetingTime).toISOString()
           };
           break;
-
+  
         case 'PICKUP':
           orderData.pickupDelivery = {
             storeId: parseInt(formData.storeId),
             pickupTime: new Date(formData.pickupTime).toISOString()
           };
           break;
-
-          default:
-            throw new Error(`Invalid delivery type: ${formData.deliveryType}`);
+  
+        default:
+          throw new Error(`Invalid delivery type: ${formData.deliveryType}`);
       }
-
-      const headers = user?.token ? { Authorization: `Bearer ${user.token}` } : {};
-      const result = await apiClient.post('/orders', orderData, headers);
-
-      // If a new account was created with the order
-      if (result.token) {
-        await login(result.token);
+  
+      console.log('Sending order data:', orderData);
+  
+      try {
+        // Make the API call
+        const response = await apiClient.post('/orders', orderData);
+        console.log('Order response:', response);
+  
+        // Handle successful registration and auto-login
+        if (createAccount && response.user) {
+          console.log('New user created:', response.user);
+          try {
+            const loginResponse = await login(formData.email, formData.password);
+            if (loginResponse.success) {
+              console.log('Auto-login successful');
+            } else {
+              console.error('Auto-login failed:', loginResponse.error);
+            }
+          } catch (loginError) {
+            console.error('Auto-login error:', loginError);
+          }
+        }
+  
+        setSubmitSuccess(true);
+        clearCart();
+      } catch (apiError) {
+        console.error('API error:', apiError);
+        throw apiError;
       }
-
-      setSubmitSuccess(true);
-      clearCart();
     } catch (error) {
       console.error('Order submission error:', error);
       setSubmitError(error.message || 'Failed to create order');

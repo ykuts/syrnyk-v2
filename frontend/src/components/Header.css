@@ -1,0 +1,48 @@
+/* Header.css */
+/* Mobile logo styles */
+.mobile-logo-container {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1;
+    width: 100%;
+    text-align: center;
+    padding: 10px 0;
+  }
+  
+  .mobile-logo {
+    height: 80px; /* Made it bigger */
+    width: auto;
+    margin: 0 auto;
+  }
+  
+  /* Desktop logo styles */
+  .desktop-logo-container {
+    width: 100%;
+    text-align: center;
+    padding: 20px 0;
+  }
+  
+  .desktop-logo {
+    height: 180px; /* Made it bigger */
+    width: auto;
+    margin: 0 auto;
+  }
+  
+  /* Media queries */
+  @media (max-width: 992px) {
+    .desktop-logo {
+      height: 150px;
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .mobile-logo-container {
+      position: relative; /* Changed to relative */
+      margin-top: 20px; /* Add space for fixed navbar */
+    }
+    
+    .mobile-logo {
+      height: 140px;
+    }
+  }

@@ -42,6 +42,7 @@ const CheckoutPage = () => {
     email: '',
     phone: '',
     password: '',
+    confirmPassword: '', 
     deliveryType: 'PICKUP',
     street: '',
     house: '',
@@ -139,6 +140,18 @@ const CheckoutPage = () => {
     setSubmitError(null);
   
     try {
+      if (isGuest && createAccount) {
+        if (!formData.password || !formData.confirmPassword) {
+          throw new Error('Будь ласка, введіть пароль та його підтвердження');
+        }
+        if (formData.password !== formData.confirmPassword) {
+          throw new Error('Паролі не співпадають');
+        }
+        if (!formData.password.match(/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/)) {
+          throw new Error('Пароль повинен містити мінімум 8 символів та включати літери і цифри');
+        }
+      }
+
       const orderData = {
         deliveryType: formData.deliveryType,
         totalAmount: totalPrice,
@@ -203,8 +216,12 @@ const CheckoutPage = () => {
         default:
           throw new Error(`Invalid delivery type: ${formData.deliveryType}`);
       }
+
+      
   
       console.log('Sending order data:', orderData);
+
+      
   
       try {
         // Make the API call
@@ -277,7 +294,7 @@ const CheckoutPage = () => {
 
       {/* Show auth choice for non-authenticated users at initial step */}
       {checkoutStep === 'initial' && !user && (
-        <div className="max-w-2xl mx-auto mb-4">
+        <div className="container-sm mb-4" style={{ maxWidth: '672px' }}>
           <AuthChoice 
             onChoice={handleAuthChoice}
             onLogin={handleLogin}
@@ -289,7 +306,7 @@ const CheckoutPage = () => {
       {/* Show checkout form when appropriate */}
       {checkoutStep === 'form' && (
         <Form onSubmit={handleSubmit}>
-          <div className="max-w-3xl mx-auto">
+          <div className="container mx-auto" style={{ maxWidth: '768px' }}>
           <CartTable 
               items={cartItems}
               totalPrice={totalPrice}

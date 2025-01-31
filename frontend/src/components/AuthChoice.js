@@ -27,7 +27,7 @@ const AuthChoice = ({ onChoice, onRegister }) => {
           <Card.Body>
             <Card.Title>Створіть обліковий запис для кращого досвіду покупок</Card.Title>
             
-            <Alert variant="info" className="mt-3">
+            <Alert variant="info" className="mt-3 text-start">
               <h6 className="mb-2">Переваги реєстрації:</h6>
               <ul className="mb-0">
                 <li>Відстежуйте всі свої замовлення в одному місці</li>

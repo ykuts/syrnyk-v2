@@ -32,7 +32,7 @@
   .input-group-text {
     background-color: transparent;
     border: 1.5px solid #dee2e6;
-    border-left: none;
+    
   }
   
   .custom-checkbox .form-check-input:checked {

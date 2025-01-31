@@ -51,7 +51,7 @@ export const registerUser = async (req, res) => {
     
     if (userExists) {
       return res.status(400).json({ 
-        message: 'User with this email already exists' 
+        message: 'Користувач з такою поштою вже зареєстрований' 
       });
     }
 

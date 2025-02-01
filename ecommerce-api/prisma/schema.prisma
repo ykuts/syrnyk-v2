@@ -20,7 +20,10 @@ model User {
   password     String     
   isActive     Boolean    @default(true)
   tokens       Token[]    
-  preferredDeliveryLocation String?  
+  preferredDeliveryType    String?
+  deliveryAddress         Json?
+  preferredStation        Json?
+  preferredStore          Json?  
   orders       Order[]    
   cart         Cart?      
   reviews      Review[]

@@ -10,10 +10,10 @@ import { apiClient } from '../utils/api';
 
 const STORE_ADDRESS = {
   id: 1,
-  name: "Магазин у Nyon",
+  name: "Store in Nyon",
   address: "Chemin de Pre-Fleuri, 5",
   city: "Nyon",
-  workingHours: "щодня 9:00-20:00"
+  workingHours: "Daily 9:00-20:00"
 };
 
 const CheckoutPage = () => {
@@ -25,11 +25,10 @@ const CheckoutPage = () => {
           addOneToCart,    
           removeFromCart, 
           removeAllFromCart 
-        
         } = useContext(CartContext);
 
   // Checkout flow states
-  const [checkoutStep, setCheckoutStep] = useState('initial'); // 'initial', 'form', 'complete'
+  const [checkoutStep, setCheckoutStep] = useState('initial');
   const [isGuest, setIsGuest] = useState(false);
   const [createAccount, setCreateAccount] = useState(false);
 
@@ -43,6 +42,7 @@ const CheckoutPage = () => {
     phone: '',
     password: '',
     confirmPassword: '', 
+    preferredDeliveryType: 'PICKUP',
     deliveryType: 'PICKUP',
     street: '',
     house: '',
@@ -62,20 +62,58 @@ const CheckoutPage = () => {
   const [submitError, setSubmitError] = useState(null);
   const [submitSuccess, setSubmitSuccess] = useState(false);
 
+  // Load initial data when user is available
   useEffect(() => {
-    if (user) {
-      setFormData(prev => ({
-        ...prev,
-        firstName: user.firstName || prev.firstName,
-        lastName: user.lastName || prev.lastName,
-        email: user.email || prev.email,
-        phone: user.phone || prev.phone
-      }));
-      setCheckoutStep('form');
-      setIsGuest(false);
-    }
+    const loadInitialData = async () => {
+      if (user) {
+        console.log('Loading data for user:', user);
+
+        // Set user data
+        setFormData(prev => ({
+          ...prev,
+          firstName: user.firstName || prev.firstName,
+          lastName: user.lastName || prev.lastName,
+          email: user.email || prev.email,
+          phone: user.phone || prev.phone
+        }));
+
+        // Load delivery preferences
+        const token = localStorage.getItem('token');
+        if (token) {
+          try {
+            const response = await apiClient.get('/users/delivery-preferences', {
+              'Authorization': `Bearer ${token}`
+            });
+            console.log('Loaded preferences:', response);
+
+            if (response.preferences) {
+              const preferences = response.preferences;
+              setFormData(prev => ({
+                ...prev,
+                preferredDeliveryType: preferences.type || 'PICKUP',
+                deliveryType: preferences.type || 'PICKUP',
+                street: preferences.address?.street || '',
+                house: preferences.address?.house || '',
+                apartment: preferences.address?.apartment || '',
+                city: preferences.address?.city || '',
+                postalCode: preferences.address?.postalCode || '',
+                stationId: preferences.stationId ? preferences.stationId.toString() : '',
+                storeId: preferences.storeId?.toString() || '1'
+              }));
+            }
+          } catch (error) {
+            console.error('Error loading preferences:', error);
+          }
+        }
+        setCheckoutStep('form');
+        setIsGuest(false);
+      }
+    };
+
+    loadInitialData();
   }, [user]);
 
+  // Load railway stations
   useEffect(() => {
     const fetchStations = async () => {
       try {
@@ -91,6 +129,11 @@ const CheckoutPage = () => {
 
     fetchStations();
   }, []);
+
+  // Debug log for formData changes
+  useEffect(() => {
+    console.log('Current formData:', formData);
+  }, [formData]);
 
   const handleAuthChoice = (choice) => {
     if (choice === 'guest') {
@@ -128,10 +171,18 @@ const CheckoutPage = () => {
       }
     }
 
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
+    if (name === 'preferredDeliveryType') {
+      setFormData(prev => ({
+        ...prev,
+        preferredDeliveryType: value,
+        deliveryType: value
+      }));
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        [name]: value
+      }));
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -153,7 +204,7 @@ const CheckoutPage = () => {
       }
 
       const orderData = {
-        deliveryType: formData.deliveryType,
+        deliveryType: formData.preferredDeliveryType,
         totalAmount: totalPrice,
         paymentMethod: formData.paymentMethod,
         notesClient: formData.notesClient,
@@ -188,7 +239,7 @@ const CheckoutPage = () => {
       }
   
       // Add delivery information based on type
-      switch (formData.deliveryType) {
+      switch (formData.preferredDeliveryType) {
         case 'ADDRESS':
           orderData.addressDelivery = {
             street: formData.street,
@@ -214,7 +265,7 @@ const CheckoutPage = () => {
           break;
   
         default:
-          throw new Error(`Invalid delivery type: ${formData.deliveryType}`);
+          throw new Error(`Invalid delivery type: ${formData.preferredDeliveryType}`);
       }
 
       
@@ -318,7 +369,7 @@ const CheckoutPage = () => {
             <CheckoutForm 
               formData={formData}
               handleChange={handleChange}
-              deliveryType={formData.deliveryType}
+              deliveryType={formData.preferredDeliveryType}
               railwayStations={railwayStations}
               stores={[STORE_ADDRESS]}
               isAuthenticated={!!user}

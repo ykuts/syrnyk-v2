@@ -9,7 +9,9 @@ import {
   getAllUsers,         
   updateUserStatus,
   requestPasswordReset,
-  resetPassword              
+  resetPassword,
+  getUserDeliveryPreferences,
+  updateDeliveryPreferences              
 } from '../controllers/userController.js';
 import { protect, isAdmin } from '../middleware/authMiddleware.js';
 
@@ -26,6 +28,8 @@ router.get('/profile', protect, getUserProfile);
 router.put('/profile', protect, updateUserProfile);
 router.put('/password', protect, changePassword);
 router.get('/orders', protect, getUserOrders);
+router.get('/delivery-preferences', protect, getUserDeliveryPreferences);
+router.post('/delivery-preferences', protect, updateDeliveryPreferences);
 
 // Admin routes
 router.get('/admin/users', protect, isAdmin, getAllUsers);

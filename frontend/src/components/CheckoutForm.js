@@ -15,6 +15,7 @@ const CheckoutForm = ({
   createAccount,
   onCreateAccountChange 
 }) => {
+  console.log('CheckoutForm received formData:', formData);
   // Password validation helper
   const isPasswordValid = (password) => {
     return password && password.length >= 8 && /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/.test(password);

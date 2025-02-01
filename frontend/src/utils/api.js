@@ -4,6 +4,7 @@ export const apiClient = {
   get: async (endpoint, customHeaders = {}) => {
     const response = await fetch(`${API_URL}/api${endpoint}`, {
       headers: {
+        'Content-Type': 'application/json',
         ...customHeaders
       }
     });

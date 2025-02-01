@@ -259,9 +259,9 @@ const [sendingNotification, setSendingNotification] = useState(false);
           <Col md={8}>
             <div className="d-flex justify-content-between align-items-center mb-3">
               <h5>
-                Order #{order.id}
+                Замовлення #{order.id}
                 {customerInfo.isGuest && (
-                  <Badge bg="info" className="ms-2">Guest Order</Badge>
+                  <Badge bg="info" className="ms-2">Гостьове замовлення</Badge>
                 )}
               </h5>
               <Badge bg={getStatusVariant(order.status)}>
@@ -269,30 +269,30 @@ const [sendingNotification, setSendingNotification] = useState(false);
               </Badge>
             </div>
             
-            <p><strong>Date:</strong> {formatDate(order.createdAt)}</p>
-            <p><strong>Customer:</strong> {customerInfo.name}</p>
+            <p><strong>Дата:</strong> {formatDate(order.createdAt)}</p>
+            <p><strong>Користувач:</strong> {customerInfo.name}</p>
             <p><strong>Email:</strong> {customerInfo.email}</p>
-            <p><strong>Phone:</strong> {customerInfo.phone}</p>
-            <p><strong>Total Amount:</strong> ${Number(order.totalAmount).toFixed(2)}</p>
-            <p><strong>Delivery:</strong> {getDeliveryDetails(order)}</p>
+            <p><strong>Телефон:</strong> {customerInfo.phone}</p>
+            <p><strong>Усього:</strong> ${Number(order.totalAmount).toFixed(2)}</p>
+            <p><strong>Доставка:</strong> {getDeliveryDetails(order)}</p>
   
 
             <Form.Group className="mb-3">
-              <Form.Label><strong>Admin Notes:</strong></Form.Label>
+              <Form.Label><strong>Коментар адміністратора:</strong></Form.Label>
               <Form.Control
                 as="textarea"
                 rows={3}
                 value={adminNotes[order.id] || ''}
                 onChange={(e) => handleAdminNotesChange(order.id, e.target.value)}
-                placeholder="Add administrative notes here..."
+                placeholder="Додати коментар адміністратора..."
               />
               <div className="mt-2">
                 <Button
-                  variant="outline-secondary"
+                  variant="outline-primary"
                   size="sm"
                   onClick={() => saveAdminNotes(order.id)}
                 >
-                  Save Notes
+                  Зберегти коментар
                 </Button>
               </div>
             </Form.Group>
@@ -300,27 +300,27 @@ const [sendingNotification, setSendingNotification] = useState(false);
 
           <Col md={4}>
             <Form.Group className="mb-3">
-              <Form.Label>Order Status</Form.Label>
+              <Form.Label>Статус замовлення</Form.Label>
               <Form.Select 
                 value={order.status}
                 onChange={(e) => handleStatusChange(order.id, e.target.value)}
               >
-                <option value="PENDING">Pending</option>
-                <option value="CONFIRMED">Confirmed</option>
-                <option value="DELIVERED">Delivered</option>
-                <option value="CANCELLED">Cancelled</option>
+                <option value="PENDING">Нове</option>
+                <option value="CONFIRMED">Підтверджено</option>
+                <option value="DELIVERED">Доставлено</option>
+                <option value="CANCELLED">Відмінено</option>
               </Form.Select>
             </Form.Group>
 
             <Form.Group className="mb-3">
-              <Form.Label>Payment Status</Form.Label>
+              <Form.Label>Статус оплати</Form.Label>
               <Form.Select 
                 value={order.paymentStatus}
                 onChange={(e) => handlePaymentStatusChange(order.id, e.target.value)}
               >
-                <option value="PENDING">Pending</option>
-                <option value="PAID">Paid</option>
-                <option value="REFUNDED">Refunded</option>
+                <option value="PENDING">Нове</option>
+                <option value="PAID">Сплачено</option>
+                <option value="REFUNDED">Повернення</option>
               </Form.Select>
             </Form.Group>
 
@@ -329,7 +329,7 @@ const [sendingNotification, setSendingNotification] = useState(false);
               onClick={() => setExpandedOrder(expandedOrder === order.id ? null : order.id)}
               className="w-100"
             >
-              {expandedOrder === order.id ? 'Hide Details' : 'Show Details'}
+              {expandedOrder === order.id ? 'Приховати деталі' : 'Показати деталі'}
             </Button>
           </Col>
         </Row>
@@ -379,7 +379,7 @@ if (loading && !orders.length) {
   return (
     <Container className="d-flex justify-content-center align-items-center" style={{ minHeight: '200px' }}>
       <Spinner animation="border" role="status">
-        <span className="visually-hidden">Loading...</span>
+        <span className="visually-hidden">Завантаження...</span>
       </Spinner>
     </Container>
   );
@@ -393,52 +393,52 @@ return (
       </Alert>
     )}
     
-    <h1 className="mb-4">Orders</h1>
+    <h1 className="mb-4">Замовлення</h1>
     
     {/* Filters section */}
     <Row className="mb-4">
       <Col md={3}>
         <Form.Group>
-          <Form.Label>Order Status</Form.Label>
+          <Form.Label>Статус замовлення</Form.Label>
           <Form.Select 
             value={filterStatus}
             onChange={(e) => setFilterStatus(e.target.value)}
           >
-            <option value="ALL">All Statuses</option>
-            <option value="PENDING">Pending</option>
-            <option value="CONFIRMED">Confirmed</option>
-            <option value="DELIVERED">Delivered</option>
-            <option value="CANCELLED">Cancelled</option>
+            <option value="ALL">Усі статуси</option>
+            <option value="PENDING">Нове</option>
+            <option value="CONFIRMED">Підтверджено</option>
+            <option value="DELIVERED">Доставлено</option>
+            <option value="CANCELLED">Відмінено</option>
           </Form.Select>
         </Form.Group>
       </Col>
       
       <Col md={3}>
         <Form.Group>
-          <Form.Label>Payment Status</Form.Label>
+          <Form.Label>Статус оплати</Form.Label>
           <Form.Select
             value={filterPaymentStatus}
             onChange={(e) => setFilterPaymentStatus(e.target.value)}
           >
-            <option value="ALL">All Statuses</option>
-            <option value="PENDING">Pending</option>
-            <option value="PAID">Paid</option>
-            <option value="REFUNDED">Refunded</option>
+            <option value="ALL">Усі статуси</option>
+            <option value="PENDING">Нові</option>
+            <option value="PAID">Оплачені</option>
+            <option value="REFUNDED">Повернення</option>
           </Form.Select>
         </Form.Group>
       </Col>
       
       <Col md={3}>
         <Form.Group>
-          <Form.Label>Sort By</Form.Label>
+          <Form.Label>Відсотровано за</Form.Label>
           <Form.Select
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value)}
           >
-            <option value="date_desc">Newest First</option>
-            <option value="date_asc">Oldest First</option>
-            <option value="amount_desc">Highest Amount</option>
-            <option value="amount_asc">Lowest Amount</option>
+            <option value="date_desc">Нові спочатку</option>
+            <option value="date_asc">Старі спочатку</option>
+            <option value="amount_desc">Найбільша вартість</option>
+            <option value="amount_asc">Найменша вартість</option>
           </Form.Select>
         </Form.Group>
       </Col>
@@ -447,8 +447,8 @@ return (
     <div className="mb-3">
       <p className="text-muted">
         {filteredOrders.length === orders.length 
-          ? `Total Orders: ${orders.length}`
-          : `Showing ${filteredOrders.length} of ${orders.length} orders`
+          ? `Загальна кількість замовлень: ${orders.length}`
+          : `Показано ${filteredOrders.length} з ${orders.length} замовлень`
         }
       </p>
     </div>

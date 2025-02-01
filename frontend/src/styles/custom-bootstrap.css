@@ -10,3 +10,29 @@
     background-color: #9dc4d6 !important;
     border-color: #9dc4d6 !important;
   }
+
+.btn-success {
+    background-color: #ff961c !important;
+    border-color: #ff961c !important;
+    color: #fff !important;
+  }
+  
+  .btn-success:hover,
+  .btn-success:focus,
+  .btn-success:active {
+    background-color: #feb058 !important;
+    border-color: #feb058 !important;
+  }
+
+  .btn-outline-danger {
+    color: #95c2d7 !important;
+    border-color: #95c2d7 !important;
+  }
+
+  .btn-outline-danger:hover,
+  .btn-outline-danger:focus,
+  .btn-outline-danger:active {
+    color: #000000 !important;
+    border-color: #7ba9bf !important;
+    background-color: #7ba9bf !important;
+  }

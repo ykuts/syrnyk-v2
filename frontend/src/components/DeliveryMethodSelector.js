@@ -25,7 +25,12 @@ const DeliveryMethodSelector = ({ selectedMethod, onChange }) => {
   ];
 
   const handleSelect = (methodId) => {
-    onChange({ target: { name: 'deliveryType', value: methodId } });
+    onChange({ 
+      target: { 
+        name: 'preferredDeliveryType', 
+        value: methodId 
+      } 
+    });
   };
 
   return (

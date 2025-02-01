@@ -294,25 +294,44 @@ export const getUserProfile = async (req, res) => {
 export const updateUserProfile = async (req, res) => {
   try {
     const { userId } = req.user;
-    const { firstName, lastName, phone, preferredDeliveryLocation } = req.body;
+    const { 
+      firstName, 
+      lastName, 
+      phone, 
+      deliveryPreferences 
+    } = req.body;
+
+    const updateData = {
+      firstName,
+      lastName,
+      phone,
+      // Add delivery preferences if provided
+      ...(deliveryPreferences && {
+        preferredDeliveryType: deliveryPreferences.type,
+        deliveryAddress: deliveryPreferences.type === 'ADDRESS' ? 
+          deliveryPreferences.address : null,
+        preferredStation: deliveryPreferences.type === 'RAILWAY_STATION' ? 
+          { id: parseInt(deliveryPreferences.stationId) } : null,
+        preferredStore: deliveryPreferences.type === 'PICKUP' ? 
+          { id: parseInt(deliveryPreferences.storeId) } : null
+      })
+    };
 
     const updatedUser = await prisma.user.update({
       where: { id: userId },
-      data: {
-        firstName,
-        lastName,
-        phone,
-        preferredDeliveryLocation,
-      },
+      data: updateData,
       select: {
         id: true,
         firstName: true,
         lastName: true,
         email: true,
         phone: true,
-        preferredDeliveryLocation: true,
         role: true,
         createdAt: true,
+        preferredDeliveryType: true,
+        deliveryAddress: true,
+        preferredStation: true,
+        preferredStore: true
       },
     });
 
@@ -322,7 +341,7 @@ export const updateUserProfile = async (req, res) => {
     });
   } catch (error) {
     console.error('Profile update error:', error);
-    res.status(500).json({ 
+    res.status(500).json({
       message: 'Error updating profile',
       error: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
@@ -441,7 +460,7 @@ export const getAllUsers = async (req, res) => {
         phone: true,
         role: true,
         isActive: true,
-        preferredDeliveryLocation: true,
+        preferredDeliveryType: true,
         createdAt: true,
       },
       orderBy: {
@@ -492,6 +511,98 @@ export const updateUserStatus = async (req, res) => {
     console.error('Update user status error:', error);
     res.status(500).json({ 
       message: 'Error updating user status',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+};
+
+export const getUserDeliveryPreferences = async (req, res) => {
+  try {
+    const { userId } = req.user;
+
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        preferredDeliveryType: true,
+        deliveryAddress: true,
+        preferredStation: true,
+        preferredStore: true
+      }
+    });
+
+    if (!user) {
+      return res.status(404).json({
+        message: 'User not found'
+      });
+    }
+
+    res.json({
+      message: 'Delivery preferences retrieved successfully',
+      preferences: {
+        type: user.preferredDeliveryType,
+        address: user.deliveryAddress,
+        stationId: user.preferredStation?.id,
+        storeId: user.preferredStore?.id
+      }
+    });
+  } catch (error) {
+    console.error('Error retrieving delivery preferences:', error);
+    res.status(500).json({
+      message: 'Error retrieving delivery preferences',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+};
+
+// Update user's delivery preferences
+export const updateDeliveryPreferences = async (req, res) => {
+  try {
+    const { userId } = req.user;
+    const { type, address, stationId, storeId } = req.body;
+
+    // Validate input based on delivery type
+    if (!type || !['PICKUP', 'ADDRESS', 'RAILWAY_STATION'].includes(type)) {
+      return res.status(400).json({
+        message: 'Invalid delivery type'
+      });
+    }
+
+    // Prepare update data based on delivery type
+    const updateData = {
+      preferredDeliveryType: type,
+      deliveryAddress: type === 'ADDRESS' ? address : null,
+      preferredStation: type === 'RAILWAY_STATION' && stationId ? 
+        { id: parseInt(stationId) } : null,
+      preferredStore: type === 'PICKUP' && storeId ? 
+        { id: parseInt(storeId) } : null
+    };
+
+    // Update user
+    const updatedUser = await prisma.user.update({
+      where: { id: userId },
+      data: updateData,
+      select: {
+        id: true,
+        preferredDeliveryType: true,
+        deliveryAddress: true,
+        preferredStation: true,
+        preferredStore: true
+      }
+    });
+
+    res.json({
+      message: 'Delivery preferences updated successfully',
+      preferences: {
+        type: updatedUser.preferredDeliveryType,
+        address: updatedUser.deliveryAddress,
+        stationId: updatedUser.preferredStation?.id,
+        storeId: updatedUser.preferredStore?.id
+      }
+    });
+  } catch (error) {
+    console.error('Error updating delivery preferences:', error);
+    res.status(500).json({
+      message: 'Error updating delivery preferences',
       error: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }

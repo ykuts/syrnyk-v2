@@ -1,0 +1,25 @@
+.custom-nav .nav-link {
+    color: #95c2d7;
+    background-color: transparent;
+    border: 1px solid #95c2d7;
+    margin-bottom: 0.5rem;
+    transition: all 0.3s ease;
+    border-radius: 4px;
+    padding: 0.75rem 1.25rem;
+  }
+  
+  .custom-nav .nav-link:hover {
+    background-color: #95c2d7;
+    color: white;
+  }
+  
+  .custom-nav .nav-link.active {
+    background-color: #95c2d7;
+    color: white;
+    border-color: #95c2d7;
+  }
+  
+  /* Add some spacing to navigation container */
+ /*  .custom-nav {
+    padding: 1rem 0;
+  } */

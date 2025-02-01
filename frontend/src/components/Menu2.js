@@ -104,7 +104,7 @@ const Menu2 = () => {
                         </>
                     )}
                     <Dropdown.Divider />
-                    <Dropdown.Item onClick={handleLogout} className="text-danger">
+                    <Dropdown.Item onClick={handleLogout} className="text-primary">
                         <LogOut size={16} className="me-2" />
                         Вихід
                     </Dropdown.Item>

@@ -14,14 +14,14 @@ const AdminDashboard = () => {
   
   return (
     <Container fluid className="p-0">
-      <Row className="m-0">
-        <Col md={2} className="p-0 min-vh-100 bg-light border-end">
+      <Row className="m-2 mt-5">
+        <Col md={2} className="p-0 bg-light border-end">
           <div className="p-3 bg-primary text-white">
             <h4 className="mb-0">Адмін панель</h4>
           </div>
           <Nav
-            variant="pills"
-            className="flex-column mt-3"
+            
+            className="flex-column mt-3 custom-nav"
             activeKey={activeKey}
             onSelect={handleSelect}
           >

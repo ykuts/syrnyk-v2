@@ -31,6 +31,7 @@ const CartTable = ({
                   <ButtonGroup size="sm">
                     <Button 
                       variant="outline-secondary"
+                      style={{ border: 'none' }}
                       onClick={() => onRemove?.(item.id)}
                       disabled={item.quantity <= 1}
                     >

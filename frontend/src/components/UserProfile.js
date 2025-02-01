@@ -1,8 +1,23 @@
-// components/UserProfile.js
-import React, { useState } from 'react';
-import { Container, Row, Col, Form, Button, Alert, Tab, Nav } from 'react-bootstrap';
+import React, { useState, useEffect } from 'react';
+import { Container, Row, Col, Form, Button, Alert, Tab, Nav, Card } from 'react-bootstrap';
 import { useAuth } from '../context/AuthContext';
 import OrderHistory from './OrderHistory';
+import DeliveryMethodSelector from './DeliveryMethodSelector';
+import StationSelector from './StationSelector';
+import { apiClient } from '../utils/api';
+import ChangePassword from './ChangePassword';
+import './UserProfile.css';
+
+// Store address constant
+const STORE_ADDRESS = {
+  id: 1,
+  name: "Магазин у Ньоні",
+  address: "Chemin de Pre-Fleuri, 5",
+  city: "Nyon",
+  workingHours: "Щоденно 9:00-20:00"
+};
+
+
 
 const UserProfile = () => {
   const { user, updateProfile } = useAuth();
@@ -10,57 +25,313 @@ const UserProfile = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [railwayStations, setRailwayStations] = useState([]);
   
   const [formData, setFormData] = useState({
     firstName: user?.firstName || '',
     lastName: user?.lastName || '',
     phone: user?.phone || '',
     email: user?.email || '',
-    preferredDeliveryLocation: user?.preferredDeliveryLocation || ''
+    preferredDeliveryType: user?.preferredDeliveryType || 'PICKUP',
+    street: user?.deliveryAddress?.street || '',
+    house: user?.deliveryAddress?.house || '',
+    apartment: user?.deliveryAddress?.apartment || '',
+    city: user?.deliveryAddress?.city || '',
+    postalCode: user?.deliveryAddress?.postalCode || '',
+    stationId: user?.preferredStation?.id?.toString() || '',
+    storeId: '1'
   });
 
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
-  };
+  // Load initial data
+  useEffect(() => {
+    const loadInitialData = async () => {
+      if (!user?.id) return;
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      setError('');
-      setSuccess('');
-      setLoading(true);
-      
-      const result = await updateProfile(formData);
-      
-      if (result.success) {
-        setSuccess('Профіль успішно оновлено');
-      } else {
-        setError(result.error || 'Помилка оновлення профілю');
+      try {
+        setLoading(true);
+        const token = localStorage.getItem('token');
+        
+        // Load delivery preferences
+        const prefsResponse = await apiClient.get('/users/delivery-preferences', {
+          'Authorization': `Bearer ${token}`
+        });
+        
+        if (prefsResponse.preferences) {
+          setFormData(prev => ({
+            ...prev,
+            preferredDeliveryType: prefsResponse.preferences.type || 'PICKUP',
+            street: prefsResponse.preferences.address?.street || '',
+            house: prefsResponse.preferences.address?.house || '',
+            apartment: prefsResponse.preferences.address?.apartment || '',
+            city: prefsResponse.preferences.address?.city || '',
+            postalCode: prefsResponse.preferences.postalCode || '',
+            stationId: prefsResponse.preferences.stationId?.toString() || '',
+          }));
+        }
+
+        // Load stations
+        const stationsResponse = await apiClient.get('/railway-stations', {
+          'Authorization': `Bearer ${token}`
+        });
+        setRailwayStations(stationsResponse.data || []);
+
+      } catch (error) {
+        console.error('Error loading initial data:', error);
+        setError('Failed to load user preferences');
+      } finally {
+        setLoading(false);
       }
-    } catch (err) {
-      setError('Помилка оновлення профілю');
-    } finally {
-      setLoading(false);
+    };
+
+    loadInitialData();
+  }, [user]);
+
+  // Handle form field changes
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    console.log('handleChange:', { name, value }); // Debug
+
+    if (name === 'preferredDeliveryType') {
+      setFormData(prev => ({
+        ...prev,
+        preferredDeliveryType: value,
+        // Reset other delivery fields based on type
+        ...(value === 'ADDRESS' && {
+          stationId: '',
+          storeId: '',
+        }),
+        ...(value === 'RAILWAY_STATION' && {
+          street: '',
+          house: '',
+          apartment: '',
+          city: '',
+          postalCode: '',
+          storeId: '',
+        }),
+        ...(value === 'PICKUP' && {
+          street: '',
+          house: '',
+          apartment: '',
+          city: '',
+          postalCode: '',
+          stationId: '',
+        })
+      }));
+    } else {
+      setFormData(prev => {
+        const newState = {
+          ...prev,
+          [name]: value
+        };
+        console.log('New form state:', newState); 
+        return newState;
+      });
     }
   };
 
+  // Handle form submission
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (loading) return;
+
+    try {
+      setLoading(true);
+      setError('');
+      setSuccess('');
+
+      console.log('Submitting form data:', formData);
+
+      const token = localStorage.getItem('token');
+      if (!token) {
+        setError('Authentication required');
+        return;
+      }
+
+      // Prepare delivery preferences based on type
+      const deliveryPreferences = {
+        type: formData.preferredDeliveryType,
+        address: formData.preferredDeliveryType === 'ADDRESS' ? {
+          street: formData.street,
+          house: formData.house,
+          apartment: formData.apartment,
+          city: formData.city,
+          postalCode: formData.postalCode,
+        } : null,
+        stationId: formData.preferredDeliveryType === 'RAILWAY_STATION' ? 
+          parseInt(formData.stationId) : null,
+        storeId: formData.preferredDeliveryType === 'PICKUP' ? 
+          parseInt(formData.storeId) : null,
+      };
+
+      console.log('Prepared delivery preferences:', deliveryPreferences);
+
+      // Send request to update profile
+  const result = await updateProfile({
+    firstName: formData.firstName,
+    lastName: formData.lastName,
+    phone: formData.phone,
+    deliveryPreferences
+  });
+
+  console.log('Update result:', result);
+
+  if (result.success) {
+    try {
+    const token = localStorage.getItem('token');
+        const prefsResponse = await apiClient.get('/users/delivery-preferences', {
+          'Authorization': `Bearer ${token}`
+        });
+
+        if (prefsResponse.preferences) {
+          setFormData(prev => ({
+            ...prev,
+            preferredDeliveryType: prefsResponse.preferences.type || 'PICKUP',
+            stationId: prefsResponse.preferences.stationId?.toString() || '',
+            street: prefsResponse.preferences.address?.street || '',
+            house: prefsResponse.preferences.address?.house || '',
+            apartment: prefsResponse.preferences.address?.apartment || '',
+            city: prefsResponse.preferences.address?.city || '',
+            postalCode: prefsResponse.preferences.address?.postalCode || '',
+            
+          }));
+        }
+      } catch (error) {
+        console.error('Error reloading preferences:', error);
+      }
+
+    setSuccess('Profile successfully updated');
+    setTimeout(() => setSuccess(''), 3000);
+  } else {
+    setError(result.error || 'Error updating profile');
+  }
+
+} catch (err) {
+  console.error('Update error:', err);
+  setError(err.message || 'Error updating profile');
+} finally {
+  setLoading(false);
+}
+};
+
+  // Render delivery preferences section based on type
+  const renderDeliveryPreferences = () => {
+    switch (formData.preferredDeliveryType) {
+      case 'ADDRESS':
+        return (
+          <Card className="mt-3">
+            <Card.Body>
+              <Form.Group className="mb-3">
+                <Form.Label>Вулиця</Form.Label>
+                <Form.Control
+                  type="text"
+                  name="street"
+                  value={formData.street}
+                  onChange={handleChange}
+                  required
+                />
+              </Form.Group>
+              <Row>
+                <Col md={6}>
+                  <Form.Group className="mb-3">
+                    <Form.Label>Будинок</Form.Label>
+                    <Form.Control
+                      type="text"
+                      name="house"
+                      value={formData.house}
+                      onChange={handleChange}
+                      required
+                    />
+                  </Form.Group>
+                </Col>
+                <Col md={6}>
+                  <Form.Group className="mb-3">
+                    <Form.Label>Квартира (не обов'язково)</Form.Label>
+                    <Form.Control
+                      type="text"
+                      name="apartment"
+                      value={formData.apartment}
+                      onChange={handleChange}
+                    />
+                  </Form.Group>
+                </Col>
+              </Row>
+              <Row>
+                <Col md={8}>
+                  <Form.Group className="mb-3">
+                    <Form.Label>Місто</Form.Label>
+                    <Form.Control
+                      type="text"
+                      name="city"
+                      value={formData.city}
+                      onChange={handleChange}
+                      required
+                    />
+                  </Form.Group>
+                </Col>
+                <Col md={4}>
+                  <Form.Group className="mb-3">
+                    <Form.Label>Індекс</Form.Label>
+                    <Form.Control
+                      type="text"
+                      name="postalCode"
+                      value={formData.postalCode}
+                      onChange={handleChange}
+                      required
+                    />
+                  </Form.Group>
+                </Col>
+              </Row>
+            </Card.Body>
+          </Card>
+        );
+
+      case 'RAILWAY_STATION':
+        return (
+          <Card className="mt-3">
+            <Card.Body>
+              <StationSelector
+                stations={railwayStations}
+                selectedStation={formData.stationId}
+                onChange={handleChange}
+                showMeetingTime={false}
+              />
+            </Card.Body>
+          </Card>
+        );
+
+      case 'PICKUP':
+        return (
+          <Card className="mt-3">
+            <Card.Body>
+              <div className="bg-light p-3 rounded">
+                <h6 className="mb-2">{STORE_ADDRESS.name}</h6>
+                <p className="mb-2">{STORE_ADDRESS.address}, {STORE_ADDRESS.city}</p>
+                <p className="mb-0"><strong>Часи роботи:</strong> {STORE_ADDRESS.workingHours}</p>
+              </div>
+            </Card.Body>
+          </Card>
+        );
+
+      default:
+        return null;
+    }
+  };
+
+  // Main render
   return (
     <Container className="py-5">
       <Tab.Container activeKey={activeTab} onSelect={(k) => setActiveTab(k)}>
         <Row>
           <Col md={3}>
-            <Nav variant="pills" className="flex-column">
+            <Nav className="flex-column custom-nav">
               <Nav.Item>
                 <Nav.Link eventKey="profile">Профіль</Nav.Link>
               </Nav.Item>
               <Nav.Item>
-                <Nav.Link eventKey="delivery">Адреса доставки</Nav.Link>
+                <Nav.Link eventKey="delivery">Доставка за замовчанням</Nav.Link>
               </Nav.Item>
               <Nav.Item>
-                <Nav.Link eventKey="password">Зміна паролю</Nav.Link>
+                <Nav.Link eventKey="password">Змінити пароль</Nav.Link>
               </Nav.Item>
               <Nav.Item>
                 <Nav.Link eventKey="orders">Історія замовлень</Nav.Link>
@@ -69,11 +340,13 @@ const UserProfile = () => {
           </Col>
           
           <Col md={9}>
+            {loading && <Alert variant="info">Завантаження...</Alert>}
+            {error && <Alert variant="danger" onClose={() => setError('')} dismissible>{error}</Alert>}
+            {success && <Alert variant="success" onClose={() => setSuccess('')} dismissible>{success}</Alert>}
+            
             <Tab.Content>
+              {/* Profile Tab */}
               <Tab.Pane eventKey="profile">
-                {error && <Alert variant="danger">{error}</Alert>}
-                {success && <Alert variant="success">{success}</Alert>}
-                
                 <Form onSubmit={handleSubmit}>
                   <Row>
                     <Col md={6}>
@@ -84,6 +357,7 @@ const UserProfile = () => {
                           name="firstName"
                           value={formData.firstName}
                           onChange={handleChange}
+                          required
                           disabled={loading}
                         />
                       </Form.Group>
@@ -97,6 +371,7 @@ const UserProfile = () => {
                           name="lastName"
                           value={formData.lastName}
                           onChange={handleChange}
+                          required
                           disabled={loading}
                         />
                       </Form.Group>
@@ -113,14 +388,19 @@ const UserProfile = () => {
                   </Form.Group>
 
                   <Form.Group className="mb-3">
-                    <Form.Label>Телефон</Form.Label>
+                    <Form.Label>Телефон (WhatsApp)</Form.Label>
                     <Form.Control
                       type="tel"
                       name="phone"
                       value={formData.phone}
                       onChange={handleChange}
                       disabled={loading}
+                      placeholder="+XXX XXXXXXXX"
+                      required
                     />
+                    <Form.Text className="text-muted">
+                      Будь ласка, вкажіть телефон з WhatsApp для спілкування з вами
+                    </Form.Text>
                   </Form.Group>
 
                   <Button 
@@ -128,37 +408,38 @@ const UserProfile = () => {
                     variant="primary"
                     disabled={loading}
                   >
-                    {loading ? 'Збереження...' : 'Зберегти зміни'}
+                    {loading ? 'Зберігаємо...' : 'Зберегти'}
                   </Button>
                 </Form>
               </Tab.Pane>
 
+              {/* Delivery Preferences Tab */}
               <Tab.Pane eventKey="delivery">
-                <Form.Group className="mb-3">
-                  <Form.Label>Адреса доставки за замовчуванням</Form.Label>
-                  <Form.Control
-                    as="textarea"
-                    rows={3}
-                    name="preferredDeliveryLocation"
-                    value={formData.preferredDeliveryLocation}
-                    onChange={handleChange}
-                    disabled={loading}
-                  />
-                </Form.Group>
+                <h4 className="mb-4">Доставка за замовчанням</h4>
+                
+                <DeliveryMethodSelector
+                  selectedMethod={formData.preferredDeliveryType}
+                  onChange={handleChange}
+                />
+
+                {renderDeliveryPreferences()}
                 
                 <Button 
                   onClick={handleSubmit}
                   variant="primary"
+                  className="mt-3"
                   disabled={loading}
                 >
-                  {loading ? 'Збереження...' : 'Зберегти адресу'}
+                  {loading ? 'Зберігаємо...' : 'Зберегти'}
                 </Button>
               </Tab.Pane>
 
-              {/* Добавить компонент изменения пароля */}
+              {/* Password Tab */}
               <Tab.Pane eventKey="password">
                 <ChangePassword />
               </Tab.Pane>
+
+              {/* Orders Tab */}
               <Tab.Pane eventKey="orders">
                 <OrderHistory />
               </Tab.Pane>
@@ -167,78 +448,6 @@ const UserProfile = () => {
         </Row>
       </Tab.Container>
     </Container>
-  );
-};
-
-// Компонент изменения пароля
-const ChangePassword = () => {
-  const [formData, setFormData] = useState({
-    currentPassword: '',
-    newPassword: '',
-    confirmPassword: ''
-  });
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
-
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    // Добавить логику изменения пароля
-  };
-
-  return (
-    <Form onSubmit={handleSubmit}>
-      {error && <Alert variant="danger">{error}</Alert>}
-      {success && <Alert variant="success">{success}</Alert>}
-
-      <Form.Group className="mb-3">
-        <Form.Label>Поточний пароль</Form.Label>
-        <Form.Control
-          type="password"
-          name="currentPassword"
-          value={formData.currentPassword}
-          onChange={handleChange}
-          disabled={loading}
-        />
-      </Form.Group>
-
-      <Form.Group className="mb-3">
-        <Form.Label>Новий пароль</Form.Label>
-        <Form.Control
-          type="password"
-          name="newPassword"
-          value={formData.newPassword}
-          onChange={handleChange}
-          disabled={loading}
-        />
-      </Form.Group>
-
-      <Form.Group className="mb-3">
-        <Form.Label>Підтвердження нового пароля</Form.Label>
-        <Form.Control
-          type="password"
-          name="confirmPassword"
-          value={formData.confirmPassword}
-          onChange={handleChange}
-          disabled={loading}
-        />
-      </Form.Group>
-
-      <Button 
-        type="submit" 
-        variant="primary"
-        disabled={loading}
-      >
-        {loading ? 'Зміна паролю...' : 'Змінити пароль'}
-      </Button>
-    </Form>
   );
 };
 

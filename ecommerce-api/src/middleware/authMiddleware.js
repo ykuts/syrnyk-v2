@@ -3,40 +3,64 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-export const protect = (req, res, next) => {
+export const protect = async (req, res, next) => {
   try {
+    console.log('Checking authentication...');
     const token = req.headers.authorization?.split(' ')[1];
 
     if (!token) {
+      console.log('No token provided');
       return res.status(401).json({ message: 'Authentication required' });
     }
 
+    console.log('Verifying token...');
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+ // Add user check
+ const user = await prisma.user.findUnique({
+  where: { id: decoded.userId },
+  select: { id: true, role: true }
+});
+
+if (!user) {
+  console.log('User not found for token');
+  return res.status(401).json({ message: 'User not found' });
+}
+
     req.user = decoded; 
+    console.log('Authentication successful');
     next();
   } catch (error) {
-    res.status(401).json({ message: 'Invalid token' });
+    console.error('Auth middleware error:', error);
+    return res.status(401).json({ 
+      message: 'Authentication failed',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+     });
   }
 };
 
 export const isAdmin = async (req, res, next) => {
   try {
+    console.log('Checking admin privileges...');
     const user = await prisma.user.findUnique({
       where: { id: req.user.userId },
       select: { role: true }
     });
 
     if (!user || user.role !== 'ADMIN') {
+      console.log('User is not admin:', { userId: req.user.userId, role: user?.role });
       return res.status(403).json({ 
         message: 'Access denied. Admin rights required.' 
       });
     }
 
+    console.log('Admin check passed');
     next();
   } catch (error) {
     console.error('Admin check error:', error);
     res.status(500).json({ 
-      message: 'Error checking admin rights' 
+      message: 'Error checking admin rights' ,
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
 };

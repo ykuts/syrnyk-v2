@@ -125,6 +125,10 @@ export const updateOrderStatus = async (req, res) => {
 // Get all users for admin
 export const getAllUsers = async (req, res) => {
   try {
+    console.log('Starting getAllUsers query...');
+
+    await prisma.$connect();
+
     const users = await prisma.user.findMany({
       select: {
         id: true,
@@ -148,9 +152,12 @@ export const getAllUsers = async (req, res) => {
       },
     });
 
-    res.json({
+    console.log(`Successfully retrieved ${users.length} users`);
+
+    return res.json({
       message: 'Users retrieved successfully',
       users,
+      total: users.length
     });
   } catch (error) {
     console.error('Admin users retrieval error:', error);
@@ -158,5 +165,26 @@ export const getAllUsers = async (req, res) => {
       message: 'Error retrieving users',
       error: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
-  }
+
+// Check for specific Prisma errors
+if (error.code) {
+  console.error('Prisma error code:', error.code);
+}
+
+return res.status(500).json({ 
+  message: 'Error retrieving users',
+  error: process.env.NODE_ENV === 'development' 
+    ? {
+        message: error.message,
+        code: error.code,
+        meta: error.meta
+      }
+    : 'Internal server error'
+});
+} finally {
+// Disconnect prisma client
+await prisma.$disconnect();
+}
+
+  
 };

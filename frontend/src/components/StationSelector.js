@@ -1,14 +1,26 @@
+// StationSelector.js
 import React, { useState } from 'react';
 import { Row, Col, Card } from 'react-bootstrap';
 import { MapPin } from 'lucide-react';
 import './StationSelector.css';
 import { getImageUrl } from '../config';
 
-const StationSelector = ({ stations, selectedStation, onChange, meetingTime }) => {
+const StationSelector = ({ 
+  stations, 
+  selectedStation, 
+  onChange, 
+  meetingTime,
+  showMeetingTime = true
+}) => {
   const [imageError, setImageError] = useState({});
   
+  console.log('StationSelector render:', { selectedStation, stations });
+  
   const handleSelect = (stationId) => {
-    onChange({ target: { name: 'stationId', value: stationId.toString() } });
+    onChange({ 
+      target: { 
+        name: 'stationId', 
+        value: stationId.toString() } });
   };
 
   const selectedStationData = stations.find(s => s.id === parseInt(selectedStation));
@@ -19,6 +31,8 @@ const StationSelector = ({ stations, selectedStation, onChange, meetingTime }) =
     if (imageError[photo]) return getImageUrl(null, 'station');
     return getImageUrl(photo, 'station');
   };
+
+  console.log('StationSelector props:', { selectedStation, stations });
 
   return (
     <>
@@ -61,24 +75,26 @@ const StationSelector = ({ stations, selectedStation, onChange, meetingTime }) =
                 </Col>
               )}
               <Col md={selectedStationData?.photo ? 8 : 12}>
-                <h5 className="mb-2">{selectedStationData.city} - {selectedStationData.name}</h5>
+                <h5 className="mb-2">{selectedStationData?.city} - {selectedStationData?.name}</h5>
                 <div className="mb-3">
                   <h6 className="mb-2">Місце зустрічі:</h6>
                   <p className="mb-3">{selectedStationData?.meetingPoint}</p>
                 </div>
 
-                <div>
-                  <label className="form-label fw-medium">Оберіть дату</label>
-                  <input
-                    type="datetime-local"
-                    name="meetingTime"
-                    className="form-control"
-                    value={meetingTime || ''}
-                    onChange={onChange}
-                    min={minDate}
-                    required
-                  />
-                </div>
+                {showMeetingTime && (
+                  <div>
+                    <label className="form-label fw-medium">Оберіть дату та час</label>
+                    <input
+                      type="datetime-local"
+                      name="meetingTime"
+                      className="form-control"
+                      value={meetingTime || ''}
+                      onChange={onChange}
+                      min={minDate}
+                      required
+                    />
+                  </div>
+                )}
               </Col>
             </Row>
           </Card.Body>

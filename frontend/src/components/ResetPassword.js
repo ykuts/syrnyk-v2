@@ -84,7 +84,7 @@ const ResetPassword = () => {
         
         <Form onSubmit={handleSubmit}>
           <Form.Group className="mb-3">
-            <Form.Label>Новий парольd</Form.Label>
+            <Form.Label>Новий пароль</Form.Label>
             <Form.Control
               type="password"
               name="newPassword"

@@ -22,36 +22,29 @@
   </style>
 </head>
 <body>
-  <h2>Your Order #{{orderId}} Has Been Modified and Confirmed</h2>
-  <p>Dear {{firstName}},</p>
-  <p>Your order has been modified and confirmed. Below are the updated details of your order:</p>
-
-  <div class="changes">
-    <h4>Changes Made to Your Order:</h4>
-    {{#each changes}}
-      <p>{{this}}</p>
-    {{/each}}
-  </div>
+  <h2>Ваше замовлення #{{orderId}} було змінено та підтверджено</h2>
+  <p>Шановний(а) {{firstName}},</p>
+  <p>Ваше замовлення було змінено та підтверджено. Нижче наведені оновлені деталі вашого замовлення:</p>
 
   <div class="order-details">
-    <h3>Updated Order Details:</h3>
-    <p><strong>Total Amount:</strong> {{totalAmount}} CHF</p>
+    <h3>Оновлені деталі замовлення:</h3>
+    <p><strong>Загальна сума:</strong> {{totalAmount}} CHF</p>
     
-    <h4>Items:</h4>
+    <h4>Товари:</h4>
     {{#each items}}
       <div class="item">
         <p><strong>{{product.name}}</strong></p>
-        <p>Quantity: {{quantity}}</p>
-        <p>Price: {{price}} CHF</p>
+        <p>Кількість: {{quantity}}</p>
+        <p>Ціна: {{price}} CHF</p>
       </div>
     {{/each}}
 
-    <h4>Delivery Information:</h4>
-    <p><strong>Delivery Method:</strong> {{deliveryDetails.type}}</p>
+    <h4>Інформація про доставку:</h4>
+    <p><strong>Спосіб доставки:</strong> {{deliveryDetails.type}}</p>
     <p>{{deliveryDetails.details}}</p>
   </div>
 
-  <p>If you have any questions about these changes, please contact us.</p>
-  <p>Thank you for your understanding!</p>
+  <p>Якщо у вас виникли питання щодо цих змін, будь ласка, зв'яжіться з нами.</p>
+  <p>Дякуємо за розуміння!</p>
 </body>
 </html>

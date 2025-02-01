@@ -68,7 +68,7 @@ const sendTemplatedEmail = async (to, subject, templateName, data) => {
 export const sendWelcomeEmail = async (user) => {
   return sendTemplatedEmail(
     user.email,
-    'Welcome to Syrnyk!',
+    'Ласкаво посимо до Syrnyk!',
     'welcome',
     {
       firstName: user.firstName,
@@ -113,7 +113,9 @@ export const sendOrderStatusUpdate = async (order, user) => {
     {
       firstName: user.firstName,
       orderId: order.id,
-      status: order.status,
+      status: getOrderStatus(order),
+      items: order.items,
+      totalAmount: order.totalAmount,
       deliveryDetails: getDeliveryDetails(order),
     }
   );
@@ -212,6 +214,19 @@ const getPaymentMethod = (order) => {
       return 'Картка';
     case 'TWINT':
       return 'TWINT';
+    default:
+      return 'Unknown';
+  }
+}
+
+const getOrderStatus = (order) => {
+  switch (order.status) {
+    case 'CONFIRMED':
+      return 'Підтверджено';
+    case 'DELIVERED':
+      return 'Доставлено';
+    case 'CANCELLED':
+      return 'Відмінено';
     default:
       return 'Unknown';
   }

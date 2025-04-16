@@ -12,7 +12,7 @@ const ProductCard = ({ product }) => {
     const [imageError, setImageError] = useState(false);
     const quantity = cartItems.find((item) => item.id === product.id)?.quantity || 0;
 
-    // URL image default
+    // Default image URL
     const defaultImageUrl = '/assets/default-product.png'; 
 
     const handleAddToCart = () => {

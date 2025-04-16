@@ -1,13 +1,16 @@
-/* Стили для кнопки "До кошика" */
+/* Styles for the "До кошика" button */
 .cart-button-round {
     display: flex;
     align-items: center;
+    justify-content: center;
     padding: 8px 16px;
-    border-radius: 25px !important;  /* Скругление 50% */
+    border-radius: 25px !important;
     background-color: white !important;
     border: none !important;
     transition: all 0.3s ease;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    width: 135px; /* Fixed width to prevent size change */
+    height: 38px; /* Fixed height to maintain consistent size */
 }
 
 .cart-button-round:hover {
@@ -21,14 +24,17 @@
     margin-left: 4px;
 }
 
-/* Стили для контролов количества */
+/* Styles for quantity controls */
 .quantity-controls {
     display: flex;
     align-items: center;
+    justify-content: center;
     background-color: white;
     padding: 4px;
     border-radius: 20px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    width: 135px; /* Match the width of cart-button-round */
+    height: 38px; /* Match the height of cart-button-round */
 }
 
 .quantity-button {
@@ -58,7 +64,7 @@
     text-align: center;
 }
 
-/* Анимация при нажатии */
+/* Animation when clicked */
 .quantity-button:active {
     transform: scale(0.95);
 }
@@ -67,7 +73,7 @@
     transform: translateY(0);
 }
 
-/* Дополнительные стили для карточки */
+/* Additional styles for the card */
 .card {
     transition: transform 0.3s ease;
 }
@@ -75,4 +81,3 @@
 .card:hover {
     transform: translateY(-5px);
 }
-

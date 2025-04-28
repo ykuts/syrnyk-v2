@@ -7,6 +7,7 @@ import {
   sendPasswordResetEmail 
 } from '../services/emailService.js';
 import crypto from 'crypto';
+import dataProcessingTermsTemplates from '../templates/dataProcessingTermsTemplates.js'; // Centralized storage for templates
 
 const prisma = new PrismaClient();
 
@@ -23,7 +24,14 @@ const validatePassword = (password) => {
 // Register a new user
 export const registerUser = async (req, res) => {
   try {
-    const { firstName, lastName, email, password, phone } = req.body;
+    const { firstName, 
+      lastName, 
+      email, 
+      password, 
+      phone,
+      dataConsentAccepted, 
+      marketingConsent 
+    } = req.body;
 
     // Validate input
     if (!firstName || !lastName || !email || !password) {
@@ -44,6 +52,13 @@ export const registerUser = async (req, res) => {
       });
     }
 
+    // Check if data consent was accepted
+    if (!dataConsentAccepted) {
+      return res.status(400).json({
+        message: 'You must accept the data processing terms to register'
+      });
+    }
+
     // Check if user already exists
     const userExists = await prisma.user.findUnique({ 
       where: { email } 
@@ -58,6 +73,9 @@ export const registerUser = async (req, res) => {
     // Hash the password
     const hashedPassword = await bcrypt.hash(password, 12);
 
+     // Current version of the data processing agreement
+     const currentConsentVersion = 'v1.0'; // Should be managed by configuration
+
     // Create user
     const user = await prisma.user.create({
       data: {
@@ -66,6 +84,10 @@ export const registerUser = async (req, res) => {
         email,
         phone,
         password: hashedPassword,
+        dataConsentAccepted: true,
+        dataConsentDate: new Date(),
+        dataConsentVersion: currentConsentVersion,
+        marketingConsent: marketingConsent || false
       },
       select: {
         id: true,
@@ -75,6 +97,9 @@ export const registerUser = async (req, res) => {
         phone: true,
         createdAt: true,
         role: true,
+        dataConsentAccepted: true,
+        dataConsentDate: true,
+        marketingConsent: true
       },
     });
 
@@ -98,6 +123,68 @@ export const registerUser = async (req, res) => {
     console.error('Registration error:', error);
     res.status(500).json({ 
       message: 'Error creating user account',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+};
+
+// Add a new endpoint to get current data processing terms
+export const getDataProcessingTerms = async (req, res) => {
+  try {
+    // Build the response with templates from our centralized storage
+    const dataProcessingTerms = {
+      version: 'v1.0',
+      lastUpdated: '2025-03-01',
+      content: dataProcessingTermsTemplates,
+      supportedLanguages: Object.keys(dataProcessingTermsTemplates)
+    };
+
+    res.json(dataProcessingTerms);
+  } catch (error) {
+    console.error('Error fetching data processing terms:', error);
+    res.status(500).json({ 
+      message: 'Error retrieving data processing terms',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+};
+
+// Add a new endpoint for updating user consent
+export const updateUserConsent = async (req, res) => {
+  try {
+    const { userId } = req.user;
+    const { dataConsentAccepted, marketingConsent } = req.body;
+
+    // Current version of the data processing agreement
+    const currentConsentVersion = 'v1.0'; // Should be managed by configuration
+
+    const updatedUser = await prisma.user.update({
+      where: { id: userId },
+      data: {
+        dataConsentAccepted,
+        dataConsentDate: new Date(),
+        dataConsentVersion: currentConsentVersion,
+        marketingConsent: marketingConsent || false
+      },
+      select: {
+        id: true,
+        firstName: true,
+        lastName: true,
+        email: true,
+        dataConsentAccepted: true,
+        dataConsentDate: true,
+        marketingConsent: true
+      }
+    });
+
+    res.json({
+      message: 'Consent settings updated successfully',
+      user: updatedUser
+    });
+  } catch (error) {
+    console.error('Error updating consent:', error);
+    res.status(500).json({
+      message: 'Error updating consent settings',
       error: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }

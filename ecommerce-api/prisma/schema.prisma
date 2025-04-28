@@ -9,26 +9,31 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// Existing User model remains the same
+// User model 
 model User {
-  id           Int        @id @default(autoincrement())
-  firstName    String     
-  lastName     String     
-  email        String     @unique
-  phone        String?    
-  role         UserRole   @default(CLIENT)
-  password     String     
-  isActive     Boolean    @default(true)
-  tokens       Token[]    
-  preferredDeliveryType    String?
-  deliveryAddress         Json?
-  preferredStation        Json?
-  preferredStore          Json?  
-  orders       Order[]    
-  cart         Cart?      
-  reviews      Review[]
-  createdAt    DateTime   @default(now())
-  updatedAt    DateTime   @updatedAt
+  id            Int        @id @default(autoincrement())
+  firstName     String     
+  lastName      String     
+  email         String     @unique
+  phone         String?    
+  role          UserRole   @default(CLIENT)
+  password      String     
+  isActive      Boolean    @default(true)
+  tokens        Token[]    
+  preferredDeliveryType String?
+  deliveryAddress       Json?
+  preferredStation      Json?
+  preferredStore        Json?  
+  orders        Order[]    
+  cart          Cart?      
+  reviews       Review[]
+  // Data processing consent fields
+  dataConsentAccepted Boolean  @default(false)
+  dataConsentDate     DateTime?
+  dataConsentVersion  String?
+  marketingConsent    Boolean  @default(false)
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
 
   @@index([email])
 }

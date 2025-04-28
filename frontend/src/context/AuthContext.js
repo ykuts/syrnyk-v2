@@ -84,15 +84,30 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
   };
 
-  // Handle user registration
+  // Handle user registration with data consent
   const register = async (userData) => {
     try {
+      // Проверяем согласие на обработку данных
+      if (!userData.dataConsentAccepted) {
+        return {
+          success: false,
+          error: 'Для реєстрації необхідно прийняти умови обробки даних'
+        };
+      }
+
+      // Добавляем версию и дату согласия, если их еще нет
+      const registrationData = {
+        ...userData,
+        dataConsentVersion: userData.dataConsentVersion || 'v1.0',
+        dataConsentDate: userData.dataConsentDate || new Date().toISOString()
+      };
+
       const response = await fetch(getApiUrl('/api/users/register'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(userData),
+        body: JSON.stringify(registrationData),
       });
 
       const data = await response.json();
@@ -150,13 +165,92 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  // Handle consent updates
+  const updateConsent = async (consentData) => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        return {
+          success: false,
+          error: 'Authentication required'
+        };
+      }
+
+      // Добавляем версию и дату обновления согласия
+      const updatedConsentData = {
+        ...consentData,
+        dataConsentVersion: consentData.dataConsentVersion || 'v1.0',
+        dataConsentDate: new Date().toISOString()
+      };
+
+      const response = await fetch(getApiUrl('/api/users/consent'), {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(updatedConsentData),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        // Обновляем только поля, связанные с согласием
+        setUser(prev => ({
+          ...prev,
+          dataConsentAccepted: data.user.dataConsentAccepted,
+          dataConsentDate: data.user.dataConsentDate,
+          dataConsentVersion: data.user.dataConsentVersion,
+          marketingConsent: data.user.marketingConsent
+        }));
+        return { success: true };
+      } else {
+        return {
+          success: false,
+          error: data.message || 'Consent update failed'
+        };
+      }
+    } catch (error) {
+      console.error('Consent update error:', error);
+      return {
+        success: false,
+        error: 'An error occurred while updating consent settings'
+      };
+    }
+  };
+
+  // Get data processing terms
+  const getDataProcessingTerms = async () => {
+    try {
+      const response = await fetch(getApiUrl('/api/users/data-processing-terms'));
+      
+      if (response.ok) {
+        const data = await response.json();
+        return { success: true, data };
+      } else {
+        return {
+          success: false,
+          error: 'Failed to fetch data processing terms'
+        };
+      }
+    } catch (error) {
+      console.error('Error fetching data processing terms:', error);
+      return {
+        success: false,
+        error: 'An error occurred while fetching data processing terms'
+      };
+    }
+  };
+
   const value = {
     user,
     loading,
     login,
     logout,
     register,
-    updateProfile
+    updateProfile,
+    updateConsent,
+    getDataProcessingTerms
   };
 
   return (

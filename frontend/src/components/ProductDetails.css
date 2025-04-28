@@ -8,6 +8,8 @@
     border: none !important;
     transition: all 0.3s ease;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    width: 135px; 
+    height: 38px;
 }
 
 .cart-button-round-det:hover {
@@ -25,10 +27,13 @@
 .quantity-controls-det {
     display: flex;
     align-items: center;
+    justify-content: center;
     background-color: #ff961c;
     padding: 4px;
     border-radius: 20px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    width: 135px; 
+    height: 38px;
 }
 
 .quantity-button-det {

@@ -1,8 +1,19 @@
-import React, { useState } from 'react';
-import { Form, Button, Container, Alert, Card, InputGroup, Row, Col } from 'react-bootstrap';
+import React, { useState, useEffect } from 'react';
+import { Form, Button, Container, Alert, Card, InputGroup, Row, Col, Modal, Spinner } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Phone, Mail, Lock, User, AlertCircle } from 'lucide-react';
+import { Phone, Mail, Lock, User, AlertCircle, FileText, Check } from 'lucide-react';
+import ReactMarkdown from 'react-markdown';
+
+// Импортируем шаблоны из отдельного файла
+import { 
+  dataProcessingTermsTemplates, 
+  consentCheckboxText, 
+  marketingConsentText, 
+  requiredConsentError,
+  languageNames,
+  uiTexts
+} from '../templates/dataProcessingTemplates';
 
 const Register = () => {
   // Form state
@@ -12,7 +23,9 @@ const Register = () => {
     email: '',
     phone: '',
     password: '',
-    confirmPassword: ''
+    confirmPassword: '',
+    dataConsentAccepted: false,
+    marketingConsent: false
   });
 
   // Validation state
@@ -22,7 +35,8 @@ const Register = () => {
     email: { isValid: true, message: '' },
     phone: { isValid: true, message: '' },
     password: { isValid: true, message: '' },
-    confirmPassword: { isValid: true, message: '' }
+    confirmPassword: { isValid: true, message: '' },
+    dataConsentAccepted: { isValid: true, message: '' }
   });
 
   const [error, setError] = useState('');
@@ -37,6 +51,15 @@ const Register = () => {
     hasNumber: false
   });
 
+  // Terms and language state
+  const [showTerms, setShowTerms] = useState(false);
+  const [termsLanguage, setTermsLanguage] = useState('uk'); // Default to Ukrainian
+  
+  // Get UI texts based on selected language
+  const getUIText = (key) => {
+    return uiTexts[termsLanguage]?.[key] || uiTexts.uk[key];
+  };
+
   // Validation patterns
   const patterns = {
     phone: /^\+[1-9]\d{6,14}$/,
@@ -46,14 +69,14 @@ const Register = () => {
 
   // Handle input changes
   const handleChange = (e) => {
-    const { name, value } = e.target;
+    const { name, value, type, checked } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: value
+      [name]: type === 'checkbox' ? checked : value
     }));
 
     // Real-time validation
-    validateField(name, value);
+    validateField(name, type === 'checkbox' ? checked : value);
   };
 
   // Validate individual field
@@ -108,6 +131,15 @@ const Register = () => {
         }
         break;
 
+      
+
+      case 'dataConsentAccepted':
+        if (!value) {
+          isValid = false;
+          message = requiredConsentError[termsLanguage] || requiredConsentError.uk;
+        }
+        break;
+
       default:
         break;
     }
@@ -124,8 +156,11 @@ const Register = () => {
   const validateForm = () => {
     let isValid = true;
     Object.keys(formData).forEach(field => {
-      if (!validateField(field, formData[field])) {
-        isValid = false;
+      // Skip confirmPassword as it's not sent to the API
+      if (field !== 'confirmPassword' && field !== 'marketingConsent') {
+        if (!validateField(field, formData[field])) {
+          isValid = false;
+        }
       }
     });
     return isValid;
@@ -142,6 +177,8 @@ const Register = () => {
     try {
       setError('');
       setLoading(true);
+      // Remove confirmPassword before sending
+      const { confirmPassword, ...registrationData } = formData;
       const result = await register(formData);
 
       if (result.success) {
@@ -155,6 +192,11 @@ const Register = () => {
       setLoading(false);
     }
   };
+
+  const handleViewTerms = () => {
+    setShowTerms(true);
+  };
+
 
   // Password strength indicator component
   const PasswordStrengthIndicator = () => (
@@ -315,6 +357,61 @@ const Register = () => {
               </InputGroup>
             </Form.Group>
 
+            {/* Consent section */}
+            <Card className="mb-4 bg-light border">
+              <Card.Body className="py-3">
+                <h6 className="d-flex align-items-center mb-3">
+                  <FileText size={18} className="me-2" />
+                  {getUIText('privacyTitle')}
+                </h6>
+                
+                <Form.Group className="mb-3">
+                  <Form.Check
+                    type="checkbox"
+                    id="dataConsentAccepted"
+                    name="dataConsentAccepted"
+                    checked={formData.dataConsentAccepted}
+                    onChange={handleChange}
+                    isInvalid={!validation.dataConsentAccepted.isValid}
+                    label={
+                      <>
+                        {consentCheckboxText[termsLanguage] || consentCheckboxText.uk}{' '}
+                        <Button 
+                          variant="link" 
+                          className="p-0 align-baseline text-decoration-underline" 
+                          onClick={handleViewTerms}
+                        >
+                          {getUIText('termsLinkText')}
+                        </Button>*
+                      </>
+                    }
+                  />
+                  {!validation.dataConsentAccepted.isValid && (
+                    <div className="text-danger small mt-1">
+                      {validation.dataConsentAccepted.message}
+                    </div>
+                  )}
+                </Form.Group>
+                
+                <Form.Group className="mb-2">
+                  <Form.Check
+                    type="checkbox"
+                    id="marketingConsent"
+                    name="marketingConsent"
+                    checked={formData.marketingConsent}
+                    onChange={handleChange}
+                    label={marketingConsentText[termsLanguage] || marketingConsentText.uk}
+                  />
+                </Form.Group>
+                
+                <div className="text-muted small">
+                  <p className="mb-0">
+                    {getUIText('privacyNote')}
+                  </p>
+                </div>
+              </Card.Body>
+            </Card>
+
             <Button
               variant="primary"
               type="submit"
@@ -326,6 +423,62 @@ const Register = () => {
           </Form>
         </Card.Body>
       </Card>
+
+      {/* Data Processing Terms Modal */}
+      <Modal 
+        show={showTerms} 
+        onHide={() => setShowTerms(false)} 
+        size="lg"
+        scrollable
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>{getUIText('modalTitle')}</Modal.Title>
+          <div className="ms-auto">
+            <Form.Select
+              size="sm"
+              value={termsLanguage}
+              onChange={e => setTermsLanguage(e.target.value)}
+              style={{ width: 'auto' }}
+            >
+              {Object.keys(dataProcessingTermsTemplates).map(lang => (
+                <option key={lang} value={lang}>
+                  {languageNames[lang] || lang}
+                </option>
+              ))}
+            </Form.Select>
+          </div>
+        </Modal.Header>
+        <Modal.Body>
+          <ReactMarkdown>
+            {dataProcessingTermsTemplates[termsLanguage] || dataProcessingTermsTemplates.uk}
+          </ReactMarkdown>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button 
+            variant="secondary" 
+            onClick={() => setShowTerms(false)}
+          >
+            {getUIText('closeButton')}
+          </Button>
+          <Button 
+            variant="primary" 
+            onClick={() => {
+              setFormData({
+                ...formData,
+                dataConsentAccepted: true
+              });
+              setShowTerms(false);
+            }}
+            disabled={formData.dataConsentAccepted}
+          >
+            {formData.dataConsentAccepted ? (
+              <span className="d-flex align-items-center">
+                <Check size={16} className="me-1" /> {getUIText('alreadyAccepted')}
+              </span>
+            ) : getUIText('acceptButton')}
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </Container>
   );
 };

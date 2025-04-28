@@ -163,7 +163,7 @@ const Menu2 = () => {
                             </Nav.Link>
                         </Nav>
 
-                        <Nav className='select-lg me-auto order-lg-2 d-flex justify-content-center align-items-center'>
+                        <Nav className='custom-language-dropdown select-lg order-lg-2 d-flex justify-content-center align-items-center'>
                             <CustomLanguageDropdown />
                         </Nav>
                     </Navbar.Collapse>

@@ -5,7 +5,7 @@ import Image from 'react-bootstrap/Image';
 import Button from 'react-bootstrap/Button';
 import { CartContext } from '../context/CartContext';
 import { getImageUrl } from '../config';
-import './ProductCard.css';
+import './ProductCards.css';
 
 const ProductCard = ({ product }) => {
     const { cartItems, addToCart, removeFromCart } = useContext(CartContext);
@@ -32,7 +32,7 @@ const ProductCard = ({ product }) => {
     const imageUrl = imageError ? defaultImageUrl : getImageUrl(product.image);
 
     return (
-        <Card style={{ backgroundColor: '#95c2d7', borderRadius: '20px' }} className="h-100 d-flex flex-column">
+        <Card style={{ backgroundColor: '#95c2d7', borderRadius: '20px' }} className="h-100 d-flex flex-column product-card">
             <Link to={`/products/${product.id}`}>
                 <Card.Img
                     variant="top"

@@ -118,6 +118,10 @@
   cursor: pointer;
 }
 
+.custom-language-dropdown{
+  margin-right: 90px;
+}
+
 /* Modal styles */
 .modal .btn-primary,
 .modal .btn-success,
@@ -225,6 +229,10 @@
     justify-content: flex-end;
     position: static !important;
   }
+
+  .custom-language-dropdown{
+    margin-right: 0px;
+  }
 }
 
 /* Medium screens */
@@ -235,6 +243,10 @@
 
   .sticky-navbar .links {
     margin-top: 0;
+  }
+
+  .custom-language-dropdown{
+    margin-right: 0px;
   }
 }
 

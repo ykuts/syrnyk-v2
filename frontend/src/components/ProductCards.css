@@ -1,0 +1,182 @@
+/* CSS for uniform product cards - applies to both recommendations and main products */
+
+/* Base card styling */
+.product-card,
+.product-card-rec {
+    width: 100%;
+    height: 100%;
+    border-radius: 20px;
+    overflow: hidden;
+    background-color: white;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    border: 1px solid #dee2e6; /* Light gray border color */
+    display: flex;
+    flex-direction: column;
+}
+
+/* Special styling for product cards on the main product page */
+.product-card {
+    background-color: #f8f9fa; /* Very light gray background */
+    border: 1px solid rgba(0, 0, 0, 0.17); /* Light gray border */
+}
+
+/* Card hover effect */
+.product-card:hover,
+.product-card-rec:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Card image with fixed dimensions */
+.product-card .card-img-top,
+.product-card-rec .card-img-top {
+    width: 100%;
+    height: 250px; /* Fixed height for all images */
+    object-fit: cover; /* Makes images cover the area without stretching */
+    object-position: center; /* Centers the image within the container */
+    border-top-left-radius: 20px;
+    border-top-right-radius: 20px;
+}
+
+/* Card title */
+.product-card .card-title,
+.product-card-rec .card-title {
+    font-weight: 600;
+    font-size: 1.1rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    height: 2.8rem; /* Fixed height for consistent card alignment */
+    margin-bottom: 0.75rem;
+}
+
+/* Card description for main product page */
+.product-card .card-description {
+    color: #666;
+    font-size: 0.9rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    height: 2.8rem; /* Fixed height for consistent card alignment */
+    margin-bottom: 0.75rem;
+}
+
+/* Price text */
+.product-card .text-price,
+.product-card-rec .text-price {
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+
+/* Card body with flex layout for proper alignment */
+.product-card .card-body,
+.product-card-rec .card-body {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    padding: 1rem 1.25rem;
+}
+
+/* Push price and button to bottom */
+.product-card .card-body > div:last-child,
+.product-card-rec .card-body > div:last-child {
+    margin-top: auto;
+}
+
+/* Add to cart button - matches the design in the images */
+.cart-button-round {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 16px;
+    border-radius: 25px !important;
+    background-color: white !important;
+    border: none !important;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    width: 135px; /* Fixed width to prevent size change */
+    height: 38px; /* Fixed height to maintain consistent size */
+}
+
+.cart-button-round:hover {
+    background-color: #f8f9fa !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.cart-button-round span {
+    font-size: 0.85rem;
+    margin-left: 4px;
+}
+
+/* Styles for quantity controls */
+.quantity-controls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: white;
+    padding: 4px;
+    border-radius: 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    width: 135px; /* Match the width of cart-button-round */
+    height: 38px; /* Match the height of cart-button-round */
+}
+
+.quantity-button {
+    width: 30px;
+    height: 30px;
+    border-radius: 50% !important;
+    padding: 0 !important;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    font-weight: bold;
+    background-color: white !important;
+    border: none !important;
+    transition: all 0.3s ease;
+}
+
+.quantity-button:hover {
+    background-color: #f8f9fa !important;
+    transform: scale(1.1);
+}
+
+.quantity-display {
+    margin: 0 12px;
+    font-weight: 500;
+    min-width: 20px;
+    text-align: center;
+}
+
+/* Animation when clicked */
+.quantity-button:active {
+    transform: scale(0.95);
+}
+
+.cart-button-round:active {
+    transform: translateY(0);
+}
+
+/* Make all cards in a row equal height */
+.row > [class*="col-"] {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Ensure consistent spacing */
+.d-flex.justify-content-between.align-items-center {
+    margin-top: 0.5rem;
+}
+
+/* Special styling for cards on blue background pages */
+.bg-light .product-card,
+.bg-light .product-card-rec {
+    background-color: white;
+    border: 1px solid #dee2e6;
+}

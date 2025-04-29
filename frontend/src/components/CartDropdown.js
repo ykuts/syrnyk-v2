@@ -7,7 +7,7 @@ import { CartContext } from '../context/CartContext';
 import './CartDropdown.css';
 
 const CartDropdown = () => {
-  const { t } = useTranslation();
+  const { t } = useTranslation(['common']);
   const navigate = useNavigate();
   const [show, setShow] = useState(false);
   const { 
@@ -63,7 +63,7 @@ const CartDropdown = () => {
           <div className="cart-icon-container custom-button round-button">
             <img
               src="/assets/cart.png"
-              alt="Cart"
+              alt={t('buttons.cart')}
               className="cart-icon"
             />
             {cartItems.length > 0 && (
@@ -108,6 +108,7 @@ const CartDropdown = () => {
                         variant="light" 
                         size="sm"
                         onClick={() => addOneToCart(item.id)}
+                        aria-label={`Add ${item.name}`}
                       >
                         +
                       </Button>
@@ -115,6 +116,7 @@ const CartDropdown = () => {
                         variant="outline-danger" 
                         size="sm"
                         onClick={() => removeAllFromCart(item.id)}
+                        aria-label={`Remove ${item.name}`}
                       >
                         <Trash size={14} />
                       </Button>

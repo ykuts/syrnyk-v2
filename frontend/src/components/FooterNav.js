@@ -1,4 +1,5 @@
 /* import { Link } from 'react-router-dom'; */
+import { useTranslation } from 'react-i18next';
 import Image from 'react-bootstrap/esm/Image';
 import Container from 'react-bootstrap/esm/Container';
 import Col from 'react-bootstrap/esm/Col';
@@ -6,6 +7,8 @@ import Row from 'react-bootstrap/esm/Row';
 
 
 const FooterNav = () => {
+
+    const { t } = useTranslation(['common', 'menu']);
     return (
         <footer style={{ paddingTop: '30px' }}>
             <Container fluid>
@@ -14,9 +17,9 @@ const FooterNav = () => {
                     </Col>
                     <Col xs={5} md={3} className="text-start text-md-left align-items-start">
                         <ul style={{ listStyleType: 'none', padding: 0 }}>
-                            <li style={{ marginBottom: '40px' }}><a href="/" className='menu-footer-link'>Меню</a></li>
-                            <li style={{ marginBottom: '40px' }}><a href="/delivery" className='menu-footer-link'>Доставка</a></li>
-                            <li style={{ marginBottom: '40px' }}><a href="/aboutus" className='menu-footer-link'>Про нас</a></li>
+                            <li style={{ marginBottom: '40px' }}><a href="/" className='menu-footer-link'>{t('menu.menu_top', {ns: 'menu'})}</a></li>
+                            <li style={{ marginBottom: '40px' }}><a href="/delivery" className='menu-footer-link'>{t('menu.delivery', {ns: 'menu'})}</a></li>
+                            <li style={{ marginBottom: '40px' }}><a href="/aboutus" className='menu-footer-link'>{t('menu.about_us', {ns: 'menu'})}</a></li>
                         </ul>
                     </Col>
                     {/* Третья колонка, пока пустая */}

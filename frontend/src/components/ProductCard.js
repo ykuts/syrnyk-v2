@@ -3,11 +3,13 @@ import Card from 'react-bootstrap/Card';
 import { Link } from 'react-router-dom';
 import Image from 'react-bootstrap/Image';
 import Button from 'react-bootstrap/Button';
+import { useTranslation } from 'react-i18next';
 import { CartContext } from '../context/CartContext';
 import { getImageUrl } from '../config';
 import './ProductCards.css';
 
 const ProductCard = ({ product }) => {
+    const { t } = useTranslation(['common', 'product']);
     const { cartItems, addToCart, removeFromCart } = useContext(CartContext);
     const [imageError, setImageError] = useState(false);
     const quantity = cartItems.find((item) => item.id === product.id)?.quantity || 0;
@@ -44,6 +46,7 @@ const ProductCard = ({ product }) => {
                         objectFit: 'cover' 
                     }}
                     onError={handleImageError}
+                    alt={product.name}
                 />
             </Link>
             <Card.Body className="d-flex flex-column">
@@ -66,13 +69,14 @@ const ProductCard = ({ product }) => {
                                 variant="light" 
                                 className="cart-button-round" 
                                 onClick={handleAddToCart}
+                                aria-label={`${t('product.add_to_cart')} ${product.name}`}
                             >
                                 <Image 
                                     src="/assets/cart.png" 
                                     roundedCircle 
                                     style={{ width: '25px', height: '25px', marginRight: '3px' }} 
                                 />
-                                <span>До кошика</span>
+                                <span>{t('product.add_to_cart', { ns: 'product' })}</span>
                             </Button>
                         ) : (
                             <div className="quantity-controls">
@@ -80,6 +84,7 @@ const ProductCard = ({ product }) => {
                                     variant="light" 
                                     className="quantity-button"
                                     onClick={handleRemoveFromCart}
+                                    aria-label={`${t('general.quantity')} -1`}
                                 >
                                     -
                                 </Button>
@@ -88,6 +93,7 @@ const ProductCard = ({ product }) => {
                                     variant="light" 
                                     className="quantity-button"
                                     onClick={handleAddToCart}
+                                    aria-label={`${t('general.quantity')} +1`}
                                 >
                                     +
                                 </Button>

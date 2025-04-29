@@ -4,8 +4,11 @@ import { Form, Button, InputGroup, Alert } from 'react-bootstrap';
 import { Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import './LoginForm.css';
+import { useTranslation } from 'react-i18next';
+
 
 function LoginForm({ closeModal, onLoginSuccess, returnUrl }) {
+  const { t } = useTranslation('auth');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -69,13 +72,13 @@ function LoginForm({ closeModal, onLoginSuccess, returnUrl }) {
       {error && <Alert variant="danger" className="mb-4">{error}</Alert>}
       
       <Form.Group className="mb-4">
-        <Form.Label>Email</Form.Label>
+        <Form.Label>{t('login.email')}</Form.Label>
         <Form.Control
           type="email"
           name="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          placeholder="Введіть email"
+          placeholder={t('login.email')}
           required
           className="form-control-lg"
           disabled={loading}
@@ -83,14 +86,14 @@ function LoginForm({ closeModal, onLoginSuccess, returnUrl }) {
       </Form.Group>
 
       <Form.Group className="mb-4">
-        <Form.Label>Пароль</Form.Label>
+        <Form.Label>{t('login.password')}</Form.Label>
         <InputGroup>
           <Form.Control
             type={showPassword ? "text" : "password"}
             name="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            placeholder="Введіть пароль"
+            placeholder={t('login.password')}
             required
             className="form-control-lg"
             disabled={loading}
@@ -111,7 +114,7 @@ function LoginForm({ closeModal, onLoginSuccess, returnUrl }) {
           className="text-decoration-none"
           onClick={handleForgotPassword}
         >
-          Забули пароль?
+          {t('login.forgot_password')}
         </a>
       </div>
 
@@ -121,17 +124,17 @@ function LoginForm({ closeModal, onLoginSuccess, returnUrl }) {
         className="w-100 py-2 mb-3 btn-lg"
         disabled={loading}
       >
-        {loading ? 'Вхід...' : 'Увійти'}
+        {loading ? t('login.loading') : t('login.submit')}
       </Button>
       
       <div className="text-center">
-        <span className="text-muted">Немає акаунту? </span>
+        <span className="text-muted">{t('login.no_account')} </span>
         <a 
           href="/" 
           className="text-decoration-none"
           onClick={handleRegisterClick}
         >
-          Зареєструватися
+          {t('login.register')}
         </a>
       </div>
     </Form>

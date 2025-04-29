@@ -3,6 +3,7 @@ import Card from 'react-bootstrap/Card';
 import { Link } from 'react-router-dom';
 import Image from 'react-bootstrap/esm/Image';
 import Button from 'react-bootstrap/Button';
+import { useTranslation } from 'react-i18next';
 import { CartContext } from '../context/CartContext'; 
 import './ProductCards.css'; // Assuming you have a CSS file for styling
 
@@ -12,6 +13,7 @@ import './ProductCards.css'; // Assuming you have a CSS file for styling
  */
 const ProductCardRec = ({ product }) => {
     // Get cart context functions and state
+    const { t } = useTranslation(['common', 'product']);
     const { 
       cartItems, 
       addToCart, 
@@ -53,13 +55,14 @@ const ProductCardRec = ({ product }) => {
                             type="button"
                             className="cart-button-round"
                             onClick={() => addToCart(product)}
+                            aria-label={`${t('product.add_to_cart')} ${product.name}`}
                         >
                             <Image
                                 src="/assets/cart.png"
                                 roundedCircle
                                 style={{ width: '25px', height: '25px', marginRight: '3px' }}
                             />
-                            <span>До кошика</span>
+                            <span>{t('product.add_to_cart', { ns: 'product' })}</span>
                         </button>
                     ) : (
                         // Show quantity controls when product is in cart
@@ -68,6 +71,7 @@ const ProductCardRec = ({ product }) => {
                                 variant="light" 
                                 className="quantity-button"
                                 onClick={() => removeFromCart(product.id)}
+                                aria-label={`${t('general.quantity')} -1`}
                             >
                                 -
                             </Button>
@@ -76,6 +80,7 @@ const ProductCardRec = ({ product }) => {
                                 variant="light" 
                                 className="quantity-button"
                                 onClick={() => addOneToCart(product.id)}
+                                aria-label={`${t('general.quantity')} +1`}
                             >
                                 +
                             </Button>

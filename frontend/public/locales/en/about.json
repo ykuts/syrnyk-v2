@@ -1,0 +1,82 @@
+{
+  "about": {
+    "title": "About us",
+    "subtitle": "Ukrainian traditions in the heart of Switzerland",
+    "description": "We created the SYRNYK association with a deep love and passion for Ukrainian cuisine. Our goal is to give you a piece of Ukraine, its unique flavors and aroma, which can unite people even thousands of kilometers away from home.",
+    "mission": {
+      "title": "Our mission and goals",
+      "text": "We created the SYRNYK association with a deep love and passion for Ukrainian cuisine. Our goal is to give you a piece of Ukraine, its unique flavors and aroma, which can unite people even thousands of kilometers away from home.",
+      "goals_title": "Goals:"
+    },
+    "goals": [
+      {
+        "title": "Development of Ukrainian cuisine",
+        "description": "We strive to popularize traditional Ukrainian dishes, demonstrating their richness and uniqueness. Our cottage cheese holds a special place among these dishes"
+      },
+      {
+        "title": "Cultural exchange",
+        "description": "We organize events that promote a deeper understanding and integration of Ukrainian culture into Swiss society"
+      },
+      {
+        "title": "Support for Ukrainian chefs",
+        "description": "We create a platform for self-realization, where talented chefs can develop their skills and implement creative culinary ideas"
+      },
+      {
+        "title": "Communication and cooperation",
+        "description": "We build partnerships with local organizations, restaurants, and farmers to jointly promote Ukrainian products and culinary heritage"
+      }
+    ],
+    "benefits": {
+      "title": "SYRNYK cheese is a delicious and healthy choice for the whole family",
+      "description": "Thanks to its neutral taste and pleasant texture, it can be used in various dishes - from salads to desserts. It is suitable for breakfast in the morning, serves as a hearty snack during the day, or complements your dinner.",
+      "reasons_title": "5 reasons to include SYRNYK cheese in your diet:",
+      "reasons": [
+        {
+          "title": "Improves digestion",
+          "description": "SYRNYK cheese contains probiotics that promote healthy intestinal microflora. This helps improve digestion and the overall condition of the gastrointestinal tract."
+        },
+        {
+          "title": "Rich in protein and calcium",
+          "description": "SYRNYK cheese is an excellent source of protein and calcium. Proteins are essential for building and repairing tissues, and calcium is for strengthening bones and teeth."
+        },
+        {
+          "title": "Ecological product without additives",
+          "description": "Made on a farm in Switzerland according to high-quality standards, SYRNYK cheese is an environmentally friendly product that guarantees the absence of artificial additives, preservatives, or colorants. This makes it a more natural and healthy choice for the whole family."
+        },
+        {
+          "title": "Versatility in cooking",
+          "description": "Thanks to its neutral taste and pleasant texture, SYRNYK cheese can be used in various dishes - from salads to desserts. This enriches culinary offerings and satisfies customers' needs for tasty and healthy food."
+        },
+        {
+          "title": "Enrichment of the diet with Ukrainian recipes",
+          "description": "SYRNYK cheese is made according to traditional Ukrainian recipes, which adds warmth and hospitality of Ukrainian culinary culture to your diet."
+        }
+      ]
+    },
+    "collaboration": {
+      "title": "Join us and become part of our friendly and inspired community. Together, we will make Ukrainian cuisine known and respected in Switzerland!",
+      "intro": "The SYRNYK association sincerely invites chefs, restaurateurs, and cheesemakers to collaborate. We believe that by working together, we can make a significant contribution to the development and popularization of Ukrainian cuisine in Switzerland.",
+      "offer": {
+        "title": "What we offer:",
+        "items": [
+          "Platform for self-realization: We create opportunities to showcase your culinary talent and exchange experiences with other professionals.",
+          "Support and development: We provide support in organizing events, culinary master classes, and festivals.",
+          "Networking: We help establish connections with local restaurants and farms for joint cooperation and development."
+        ]
+      },
+      "importance": {
+        "title": "Why it matters:",
+        "items": [
+          "Popularization of Ukrainian cuisine: Together, we can convey to the Swiss all the diversity and uniqueness of Ukrainian cuisine.",
+          "Cultural exchange: Your culinary talents will help bring our cultures closer and make their coexistence more harmonious.",
+          "Development opportunities: This will provide a network and help find a job or start your own business."
+        ]
+      }
+    },
+    "story": {
+      "title": "Our story",
+      "text": "My name is Iryna Piskova, I am from Ukraine. I love cooking and family traditions: gatherings, shared laughter, celebrations! When I came to Switzerland, a country of cheese expertise, I decided to make cheese! But this is Ukrainian fresh cheese. We are also big cheese lovers, and our recipes add even more variety to the art of cheese. Our recipes are characterized by warmth and hospitality, adding a special charm to Ukrainian culinary tradition. Making cheese allows me to keep a piece of our culture in my heart. And I happily share this with the Swiss! I also created an Instagram account to share interesting, delicious recipes made with my cheese. It's a way to travel to Ukraine and learn who we are!",
+      "text2": "We are also big cheese lovers, and our recipes add even more variety to the art of cheese. Our recipes are characterized by warmth and hospitality, adding a special charm to Ukrainian culinary tradition."
+    }
+  }
+}

@@ -1,8 +1,10 @@
 import React from 'react';
 import Modal from 'react-bootstrap/Modal';
 import LoginForm from './LoginForm';
+import { useTranslation } from 'react-i18next';
 
 const LoginModal = ({ show, onHide, onLoginSuccess, returnUrl }) => {
+  const { t } = useTranslation('auth');
   const handleLoginSuccess = () => {
     onHide();
     if (onLoginSuccess) {
@@ -13,7 +15,7 @@ const LoginModal = ({ show, onHide, onLoginSuccess, returnUrl }) => {
   return (
     <Modal show={show} onHide={onHide} centered>
       <Modal.Header closeButton>
-        <Modal.Title>Увійти</Modal.Title>
+        <Modal.Title>{t('login.title')}</Modal.Title>
       </Modal.Header>
       <Modal.Body>
         <LoginForm 

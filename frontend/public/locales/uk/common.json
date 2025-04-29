@@ -1,0 +1,52 @@
+{
+  "buttons": {
+    "cart": "Кошик",
+    "profile": "Профіль",
+    "login": "Увійти",
+    "logout": "Вихід",
+    "register": "Зареєструватися",
+    "addToCart": "До кошика",
+    "order": "Замовити",
+    "continue": "Продовжити",
+    "back": "Назад",
+    "save": "Зберегти",
+    "cancel": "Скасувати",
+    "edit": "Редагувати",
+    "delete": "Видалити",
+    "submit": "Відправити"
+  },
+  "cart": {
+    "empty": "Ваш кошик порожній",
+    "total": "Загальна сума",
+    "checkout": "Оформити замовлення",
+    "continueShopping": "Продовжити покупки",
+    "items": "товарів"
+  },
+  "general": {
+    "currency": "CHF",
+    "loading": "Завантаження...",
+    "error": "Помилка",
+    "success": "Успішно",
+    "welcome": "Ласкаво просимо",
+    "showMore": "Показати більше",
+    "showLess": "Показати менше",
+    "from": "від",
+    "to": "до",
+    "weight": "Вага",
+    "price": "Ціна",
+    "quantity": "Кількість",
+    "description": "Опис",
+    "ingredients": "Склад",
+    "storageConditions": "Умови зберігання",
+    "recipeTitle": "Рецепт",
+    "assortment": "Асортимент"
+  },
+  "errors": {
+    "general": "Сталася помилка. Будь ласка, спробуйте ще раз.",
+    "notFound": "Сторінку не знайдено",
+    "unauthorized": "Необхідна авторизація",
+    "forbidden": "Доступ заборонено",
+    "serverError": "Помилка сервера"
+  },
+  "backToHome": "Повернутися на головну"
+}

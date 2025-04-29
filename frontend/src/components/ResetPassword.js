@@ -2,8 +2,10 @@ import React, { useState } from 'react';
 import { Container, Form, Button, Alert } from 'react-bootstrap';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { getApiUrl } from '../config';
+import { useTranslation } from 'react-i18next';
 
 const ResetPassword = () => {
+  const { t } = useTranslation('auth');
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const token = searchParams.get('token');
@@ -69,7 +71,7 @@ const ResetPassword = () => {
     return (
       <Container className="py-5">
         <Alert variant="danger">
-        Недійсний або відсутній токен скидання. Будь ласка, запитайте скидання пароля знову.
+          {t('password_reset.invalid_token')}
         </Alert>
       </Container>
     );
@@ -78,19 +80,19 @@ const ResetPassword = () => {
   return (
     <Container className="py-5">
       <div className="mx-auto" style={{ maxWidth: '500px' }}>
-        <h2 className="text-center mb-4">Встановити новий пароль</h2>
+        <h2 className="text-center mb-4">{t('password_reset.reset.title')}</h2>
         
-        {error && <Alert variant="danger">{error}</Alert>}
+        {error && <Alert variant="danger">{t('password_reset.invalid_token')}</Alert>}
         
         <Form onSubmit={handleSubmit}>
           <Form.Group className="mb-3">
-            <Form.Label>Новий пароль</Form.Label>
+            <Form.Label>{t('password_reset.reset.new_password')}</Form.Label>
             <Form.Control
               type="password"
               name="newPassword"
               value={formData.newPassword}
               onChange={handleChange}
-              placeholder="Введіть новий пароль"
+              placeholder={t('password_reset.reset.new_password')}
               required
               minLength={8}
               disabled={loading}
@@ -98,13 +100,13 @@ const ResetPassword = () => {
           </Form.Group>
 
           <Form.Group className="mb-4">
-          <Form.Label>Підтвердження нового пароля</Form.Label>
+          <Form.Label>{t('password_reset.reset.confirm_password')}</Form.Label>
           <Form.Control
             type="password"
             name="confirmPassword"
             value={formData.confirmPassword}
             onChange={handleChange}
-            placeholder="Підтвердіть новий пароль"
+            placeholder={t('password_reset.reset.confirm_password')}
             required
             minLength={8}
             disabled={loading}
@@ -117,7 +119,7 @@ const ResetPassword = () => {
           className="w-100"
           disabled={loading}
         >
-          {loading ? 'Скидання...' : 'Скинути пароль'}
+          {loading ? t('password_reset.reset.loading') : t('password_reset.reset.submit')}
         </Button>
         </Form>
       </div>

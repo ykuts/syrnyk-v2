@@ -2,8 +2,11 @@
 import React, { useState } from 'react';
 import { Form, Button, Alert } from 'react-bootstrap';
 import { apiClient } from '../utils/api';
+import { useTranslation } from 'react-i18next';
+
 
 const ChangePassword = () => {
+  const { t } = useTranslation(['common', 'changePassword']);
   const [formData, setFormData] = useState({
     currentPassword: '',
     newPassword: '',

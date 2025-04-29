@@ -1,0 +1,19 @@
+{
+  "menu": {
+    "menu_top": "Menu",
+    "delivery": "Livraison",
+    "about_us": "À propos",
+    "admin": "Panneau d'admin",
+    "orders": "Commandes",
+    "profile": "Profil",
+    "logout": "Déconnexion"
+  },
+  "footer": {
+    "copyright": "© SYRNYK",
+    "created_by": "Créé par",
+    "contacts": "Contacts",
+    "address": "Adresse",
+    "phone": "Téléphone",
+    "email": "Email"
+  }
+}

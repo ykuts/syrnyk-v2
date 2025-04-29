@@ -1,0 +1,52 @@
+{
+  "buttons": {
+    "cart": "Cart",
+    "profile": "Profile",
+    "login": "Log in",
+    "logout": "Log out",
+    "register": "Register",
+    "addToCart": "Add to cart",
+    "order": "Order",
+    "continue": "Continue",
+    "back": "Back",
+    "save": "Save",
+    "cancel": "Cancel",
+    "edit": "Edit",
+    "delete": "Delete",
+    "submit": "Submit"
+  },
+  "cart": {
+    "empty": "Your cart is empty",
+    "total": "Total",
+    "checkout": "Checkout",
+    "continueShopping": "Continue shopping",
+    "items": "items"
+  },
+  "general": {
+    "currency": "CHF",
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "welcome": "Welcome",
+    "showMore": "Show more",
+    "showLess": "Show less",
+    "from": "from",
+    "to": "to",
+    "weight": "Weight",
+    "price": "Price",
+    "quantity": "Quantity",
+    "description": "Description",
+    "ingredients": "Ingredients",
+    "storageConditions": "Storage conditions",
+    "recipeTitle": "Recipe",
+    "assortment": "Assortment"
+  },
+  "errors": {
+    "general": "An error occurred. Please try again.",
+    "notFound": "Page not found",
+    "unauthorized": "Authentication required",
+    "forbidden": "Access denied",
+    "serverError": "Server error"
+  },
+  "backToHome": "Back to home"
+}

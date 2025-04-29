@@ -3,8 +3,10 @@ import React from 'react';
 import { Card, Row, Col } from 'react-bootstrap';
 import { Utensils, Globe, Users, Handshake } from 'lucide-react';
 import './MissionGoalsSlide.css';
+import { useTranslation } from 'react-i18next';
 
 const MissionGoalsSlide = () => {
+  const { t } = useTranslation(['about', 'common']);
   const goals = [
     {
       title: "Розвиток української кухні",
@@ -30,16 +32,16 @@ const MissionGoalsSlide = () => {
 
   return (
     <div className="slide-content">
-      <h3 className="text-center mb-4">Наша місія і цілі</h3>
+      <h3 className="text-center mb-4">{t('about.mission.title')}</h3>
       <Card className="about-card content-section-goal">
         <Card.Body>
           <Card.Text>
-          Ми створили асоціацію SYRNYK з глибокою любов'ю та пристрастю до української кухні. Наша мета – подарувати вам частинку України, її неповторні смаки та аромат, які можуть об'єднати людей навіть на відстані тисячі кілометрів від рідного дому.
+          {t('about.mission.text')}
           </Card.Text>
         </Card.Body>
       </Card>
 
-      <h4 className="mb-3">Цілі:</h4>
+      <h4 className="mb-3">{t('about.mission.goals_title')}</h4>
       <Row className="g-4">
         {goals.map((goal, index) => (
           <Col md={6} key={index}>
@@ -48,8 +50,8 @@ const MissionGoalsSlide = () => {
                 <div className="icon-container mb-3">
                   {goal.icon}
                 </div>
-                <Card.Title>{goal.title}</Card.Title>
-                <Card.Text>{goal.description}</Card.Text>
+                <Card.Title>{t(`about.goals.${index}.title`)}</Card.Title>
+                <Card.Text>{t(`about.goals.${index}.description`)}</Card.Text>
               </Card.Body>
             </Card>
           </Col>

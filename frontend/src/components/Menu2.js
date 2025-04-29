@@ -19,7 +19,7 @@ import CartDropdown from './CartDropdown';
 
 const Menu2 = () => {
     const [isSticky, setIsSticky] = useState(false);
-    const { t, i18n } = useTranslation();
+    const { t } = useTranslation(['common', 'menu']);
     const { user, logout } = useAuth();
     const [showLogin, setShowLogin] = useState(false);
     const navigate = useNavigate(); 
@@ -36,9 +36,9 @@ const Menu2 = () => {
     }, []);
 
     // Set default language
-    useEffect(() => {
-        i18n.changeLanguage('ua');
-    }, [i18n]);
+    /* useEffect(() => {
+        i18n.changeLanguage('uk');
+    }, [i18n]); */
 
     const handleLogout = () => {
         logout();
@@ -48,8 +48,7 @@ const Menu2 = () => {
     // Profile Button Component
     const ProfileButton = () => {
         const navigate = useNavigate();
-        const { t } = useTranslation();
-    
+            
         if (!user) {
             return (
                 <button className="custom-button round-button" onClick={() => setShowLogin(true)}>
@@ -58,7 +57,7 @@ const Menu2 = () => {
                         roundedCircle
                         style={{ width: '24px', height: '24px' }} 
                     />
-                    <span className="profile-text">{t('buttons.profile')}</span>
+                    <span className="profile-text">{t('buttons.profile', { ns: 'common' })}</span>
                 </button>
             );
         }
@@ -81,32 +80,32 @@ const Menu2 = () => {
                     {user.role === 'CLIENT' ? (
                         <>
                             <Dropdown.Item onClick={() => navigate('/client')}>
-                                Профіль
+                                {t('menu.profile', { ns: 'menu' })}
                             </Dropdown.Item>
                             <Dropdown.Item onClick={() => navigate('/orders')}>
-                                Історія замовлень
+                                {t('menu.orders', { ns: 'menu' })}
                             </Dropdown.Item>
                         </>
                     ) : (
                         <>
                             <Dropdown.Item onClick={() => navigate('/admin/orders')}>
-                                Управління замовленнями
+                                {t('menu.admin', { ns: 'menu' })}
                             </Dropdown.Item>
                             <Dropdown.Item onClick={() => navigate('/admin/customers')}>
-                                Управління клієнтами
+                                {t('menu.customers', { ns: 'menu' })}
                             </Dropdown.Item>
                             <Dropdown.Item onClick={() => navigate('/admin/products')}>
-                                Управління продуктами
+                                {t('menu.products', { ns: 'menu' })}
                             </Dropdown.Item>
                             <Dropdown.Item onClick={() => navigate('/admin/delivery')}>
-                                Управління доставкою
+                                {t('menu.delivery', { ns: 'menu' })}
                             </Dropdown.Item>
                         </>
                     )}
                     <Dropdown.Divider />
                     <Dropdown.Item onClick={handleLogout} className="text-primary">
                         <LogOut size={16} className="me-2" />
-                        Вихід
+                        {t('menu.logout', { ns: 'menu' })}
                     </Dropdown.Item>
                 </Dropdown.Menu>
             </Dropdown>
@@ -138,17 +137,17 @@ const Menu2 = () => {
                             <Row className="justify-content-md-center">
                                 <Col md="auto">
                                     <Nav.Link href="/" className="text-center">
-                                        {t('menu.menu_top')}
+                                        {t('menu.menu_top', { ns: 'menu' })}
                                     </Nav.Link>
                                 </Col>
                                 <Col md="auto">
                                     <Nav.Link href="/delivery" className="text-center">
-                                        {t('menu.delivery')}
+                                        {t('menu.delivery', { ns: 'menu' })}
                                     </Nav.Link>
                                 </Col>
                                 <Col md="auto">
                                     <Nav.Link href="/aboutus" className="text-center">
-                                        {t('menu.about_us')}
+                                        {t('menu.about_us', { ns: 'menu' })}
                                     </Nav.Link>
                                 </Col>
                             </Row>

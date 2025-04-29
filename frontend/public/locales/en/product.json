@@ -1,0 +1,15 @@
+
+{
+  "product": {
+    "details": "Product details",
+    "composition": "Composition",
+    "storage": "Storage period and conditions",
+    "recipe": "RECIPE",
+    "assortment": "Assortment",
+    "add_to_cart": "Add to cart",
+    "in_stock": "In stock",
+    "out_of_stock": "Out of stock",
+    "recommendations": "You may also like",
+    "go_back": "Go back"
+  }
+}

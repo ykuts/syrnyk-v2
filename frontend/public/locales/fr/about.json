@@ -1,0 +1,82 @@
+{
+  "about": {
+    "title": "À propos de nous",
+    "subtitle": "Traditions ukrainiennes au cœur de la Suisse",
+    "description": "Nous avons créé l'association SYRNYK avec un amour profond et une passion pour la cuisine ukrainienne. Notre objectif est de vous offrir un morceau d'Ukraine, ses saveurs et arômes uniques, qui peuvent unir les gens même à des milliers de kilomètres de chez eux.",
+    "mission": {
+      "title": "Notre mission et nos objectifs",
+      "text": "Nous avons créé l'association SYRNYK avec un amour profond et une passion pour la cuisine ukrainienne. Notre objectif est de vous offrir un morceau d'Ukraine, ses saveurs et arômes uniques, qui peuvent unir les gens même à des milliers de kilomètres de chez eux.",
+      "goals_title": "Objectifs:"
+    },
+    "goals": [
+      {
+        "title": "Développement de la cuisine ukrainienne",
+        "description": "Nous nous efforçons de populariser les plats traditionnels ukrainiens, en démontrant leur richesse et leur unicité. Notre fromage cottage occupe une place spéciale parmi ces plats"
+      },
+      {
+        "title": "Échange culturel",
+        "description": "Nous organisons des événements qui favorisent une compréhension plus profonde et l'intégration de la culture ukrainienne dans la société suisse"
+      },
+      {
+        "title": "Soutien aux chefs ukrainiens",
+        "description": "Nous créons une plateforme d'auto-réalisation, où des chefs talentueux peuvent développer leurs compétences et mettre en œuvre des idées culinaires créatives"
+      },
+      {
+        "title": "Communication et coopération",
+        "description": "Nous établissons des partenariats avec des organisations locales, des restaurants et des agriculteurs pour promouvoir conjointement les produits ukrainiens et le patrimoine culinaire"
+      }
+    ],
+    "benefits": {
+      "title": "Le fromage SYRNYK est un choix délicieux et sain pour toute la famille",
+      "description": "Grâce à son goût neutre et à sa texture agréable, il peut être utilisé dans divers plats - des salades aux desserts. Il convient pour le petit-déjeuner le matin, sert de collation copieuse pendant la journée ou complète votre dîner.",
+      "reasons_title": "5 raisons d'inclure le fromage SYRNYK dans votre alimentation:",
+      "reasons": [
+        {
+          "title": "Améliore la digestion",
+          "description": "Le fromage SYRNYK contient des probiotiques qui favorisent une flore intestinale saine. Cela aide à améliorer la digestion et l'état général du tractus gastro-intestinal."
+        },
+        {
+          "title": "Riche en protéines et en calcium",
+          "description": "Le fromage SYRNYK est une excellente source de protéines et de calcium. Les protéines sont essentielles pour la construction et la réparation des tissus, et le calcium pour renforcer les os et les dents."
+        },
+        {
+          "title": "Produit écologique sans additifs",
+          "description": "Fabriqué dans une ferme en Suisse selon des normes de haute qualité, le fromage SYRNYK est un produit respectueux de l'environnement qui garantit l'absence d'additifs artificiels, de conservateurs ou de colorants. Cela en fait un choix plus naturel et plus sain pour toute la famille."
+        },
+        {
+          "title": "Polyvalence en cuisine",
+          "description": "Grâce à son goût neutre et à sa texture agréable, le fromage SYRNYK peut être utilisé dans divers plats - des salades aux desserts. Cela enrichit les offres culinaires et satisfait les besoins des clients en aliments savoureux et sains."
+        },
+        {
+          "title": "Enrichissement de l'alimentation avec des recettes ukrainiennes",
+          "description": "Le fromage SYRNYK est fabriqué selon des recettes ukrainiennes traditionnelles, ce qui ajoute la chaleur et l'hospitalité de la culture culinaire ukrainienne à votre alimentation."
+        }
+      ]
+    },
+    "collaboration": {
+      "title": "Rejoignez-nous et devenez membre de notre communauté amicale et inspirée. Ensemble, nous ferons connaître et respecter la cuisine ukrainienne en Suisse!",
+      "intro": "L'association SYRNYK invite sincèrement les chefs, restaurateurs et fromagers à collaborer. Nous croyons qu'en travaillant ensemble, nous pouvons apporter une contribution significative au développement et à la popularisation de la cuisine ukrainienne en Suisse.",
+      "offer": {
+        "title": "Ce que nous offrons:",
+        "items": [
+          "Plateforme d'auto-réalisation: Nous créons des opportunités pour mettre en valeur votre talent culinaire et échanger des expériences avec d'autres professionnels.",
+          "Soutien et développement: Nous fournissons un soutien dans l'organisation d'événements, de cours de cuisine et de festivals.",
+          "Réseautage: Nous aidons à établir des liens avec les restaurants locaux et les fermes pour une coopération et un développement conjoints."
+        ]
+      },
+      "importance": {
+        "title": "Pourquoi c'est important:",
+        "items": [
+          "Popularisation de la cuisine ukrainienne: Ensemble, nous pouvons transmettre aux Suisses toute la diversité et l'unicité de la cuisine ukrainienne.",
+          "Échange culturel: Vos talents culinaires aideront à rapprocher nos cultures et à rendre leur coexistence plus harmonieuse.",
+          "Opportunités de développement: Cela fournira un réseau et aidera à trouver un emploi ou à démarrer votre propre entreprise."
+        ]
+      }
+    },
+    "story": {
+      "title": "Notre histoire",
+      "text": "Je m'appelle Iryna Piskova, je viens d'Ukraine. J'adore cuisiner et les traditions familiales: les rassemblements, les rires partagés, les célébrations! Quand je suis arrivée en Suisse, un pays d'expertise en fromage, j'ai décidé de faire du fromage! Mais c'est du fromage frais ukrainien. Nous sommes aussi de grands amateurs de fromage, et nos recettes ajoutent encore plus de variété à l'art du fromage. Nos recettes se caractérisent par la chaleur et l'hospitalité, ajoutant un charme particulier à la tradition culinaire ukrainienne. Faire du fromage me permet de garder un morceau de notre culture dans mon cœur. Et je partage volontiers cela avec les Suisses! J'ai également créé un compte Instagram pour partager des recettes intéressantes et délicieuses réalisées avec mon fromage. C'est un moyen de voyager en Ukraine et de découvrir qui nous sommes!",
+      "text2": "Nous sommes aussi de grands amateurs de fromage, et nos recettes ajoutent encore plus de variété à l'art du fromage. Nos recettes se caractérisent par la chaleur et l'hospitalité, ajoutant un charme particulier à la tradition culinaire ukrainienne."
+    }
+  }
+}

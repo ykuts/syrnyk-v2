@@ -1,0 +1,19 @@
+{
+  "menu": {
+    "menu_top": "Меню",
+    "delivery": "Доставка",
+    "about_us": "Про нас",
+    "admin": "Адмінпанель",
+    "orders": "Замовлення",
+    "profile": "Профіль",
+    "logout": "Вихід"
+  },
+  "footer": {
+    "copyright": "© SYRNYK",
+    "created_by": "Розроблено",
+    "contacts": "Контакти",
+    "address": "Адреса",
+    "phone": "Телефон",
+    "email": "Email"
+  }
+}

@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { Container, Form, Button, Alert } from 'react-bootstrap';
 import { getApiUrl } from '../config';
+import { useTranslation } from 'react-i18next';
 
 const ForgotPassword = () => {
+  const { t } = useTranslation('auth');;
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -41,7 +43,7 @@ const ForgotPassword = () => {
       <Container className="py-5">
         <div className="mx-auto" style={{ maxWidth: '500px' }}>
           <Alert variant="success">
-            Якщо обліковий запис з адресою {email} існує, ви отримаєте інструкції щодо скидання пароля.
+          {t('password_reset.request.success')}
           </Alert>
         </div>
       </Container>
@@ -51,23 +53,23 @@ const ForgotPassword = () => {
   return (
     <Container className="py-5">
       <div className="mx-auto" style={{ maxWidth: '500px' }}>
-        <h2 className="text-center mb-4">Скидання пароля</h2>
+        <h2 className="text-center mb-4">{t('password_reset.request.title')}</h2>
         
         {error && <Alert variant="danger">{error}</Alert>}
         
         <Form onSubmit={handleSubmit}>
           <Form.Group className="mb-3">
-            <Form.Label>Електронна пошта</Form.Label>
+            <Form.Label>{t('password_reset.request.email')}</Form.Label>
             <Form.Control
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="Введіть вашу електронну пошту"
+              placeholder={t('password_reset.request.email')}
               required
               disabled={loading}
             />
             <Form.Text className="text-muted">
-              Введіть електронну пошту, пов'язану з вашим обліковим записом.
+              {t('password_reset.request.email_hint')}
             </Form.Text>
           </Form.Group>
 
@@ -77,7 +79,7 @@ const ForgotPassword = () => {
             className="w-100"
             disabled={loading}
           >
-            {loading ? 'Надсилання...' : 'Надіслати інструкції'}
+            {loading ? t('password_reset.request.loading') : t('password_reset.request.submit')}
           </Button>
         </Form>
       </div>

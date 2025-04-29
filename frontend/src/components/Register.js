@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Phone, Mail, Lock, User, AlertCircle, FileText, Check } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
+import { useTranslation } from 'react-i18next';
 
 // Импортируем шаблоны из отдельного файла
 import { 
@@ -16,6 +17,7 @@ import {
 } from '../templates/dataProcessingTemplates';
 
 const Register = () => {
+  const { t } = useTranslation('auth');
   // Form state
   const [formData, setFormData] = useState({
     firstName: '',
@@ -203,17 +205,17 @@ const Register = () => {
     <div className="mt-2">
       <div className="d-flex gap-2 align-items-center small">
         <AlertCircle size={14} />
-        <span>Пароль повинен містити:</span>
+        <span>{t('register.password_requirements.title')}</span>
       </div>
       <ul className="list-unstyled small ps-4 mt-1 mb-0">
         <li className={passwordStrength.hasLength ? 'text-success' : 'text-muted'}>
-          • Мінімум 8 символів
+          • {t('register.password_requirements.length')}
         </li>
         <li className={passwordStrength.hasLetter ? 'text-success' : 'text-muted'}>
-          • Хоча б одну літеру
+          • {t('register.password_requirements.letter')}
         </li>
         <li className={passwordStrength.hasNumber ? 'text-success' : 'text-muted'}>
-          • Хоча б одну цифру
+          • {t('register.password_requirements.number')}
         </li>
       </ul>
     </div>
@@ -223,7 +225,7 @@ const Register = () => {
     <Container className="py-5">
       <Card className="mx-auto shadow-sm" style={{ maxWidth: '550px' }}>
         <Card.Body className="p-4">
-          <h2 className="text-center mb-4">Реєстрація</h2>
+          <h2 className="text-center mb-4">{t('register.title')}</h2>
           
           {error && <Alert variant="danger">{error}</Alert>}
           
@@ -240,7 +242,7 @@ const Register = () => {
                       name="firstName"
                       value={formData.firstName}
                       onChange={handleChange}
-                      placeholder="Ім'я"
+                      placeholder={t('register.first_name')}
                       isInvalid={!validation.firstName.isValid}
                       required
                     />
@@ -262,7 +264,7 @@ const Register = () => {
                       name="lastName"
                       value={formData.lastName}
                       onChange={handleChange}
-                      placeholder="Прізвище"
+                      placeholder={t('register.last_name')}
                       isInvalid={!validation.lastName.isValid}
                       required
                     />
@@ -284,7 +286,7 @@ const Register = () => {
                   name="email"
                   value={formData.email}
                   onChange={handleChange}
-                  placeholder="Електронна пошта"
+                  placeholder={t('register.email')}
                   isInvalid={!validation.email.isValid}
                   required
                 />
@@ -312,7 +314,7 @@ const Register = () => {
                 </Form.Control.Feedback>
               </InputGroup>
               <Form.Text className="text-muted">
-                Будь ласка, вкажіть номер телефону, який прив'язаний до WhatsApp
+                {t('register.phone_hint')}
               </Form.Text>
             </Form.Group>
 
@@ -418,7 +420,7 @@ const Register = () => {
               className="w-100 py-2"
               disabled={loading}
             >
-              {loading ? 'Реєстрація...' : 'Зареєструватися'}
+              {loading ? t('register.loading') : t('register.submit')}
             </Button>
           </Form>
         </Card.Body>

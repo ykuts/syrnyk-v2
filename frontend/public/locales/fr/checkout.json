@@ -1,0 +1,78 @@
+{
+  "checkout": {
+    "title": "Finaliser la commande",
+    "customer_info": "Informations client",
+    "delivery_method": "Méthode de livraison",
+    "payment_method": "Méthode de paiement",
+    "order_notes": "Notes de commande",
+    "order_items": "Vos produits",
+    "order_success": "Commande passée avec succès!",
+    "order_success_message": "Merci pour votre commande. Nous vous contacterons prochainement.",
+    "continue_shopping": "Continuer les achats",
+    "submit_order": "Passer la commande",
+    "processing": "Traitement en cours..."
+  },
+  "customer": {
+    "first_name": "Prénom",
+    "last_name": "Nom",
+    "email": "Email",
+    "phone": "Téléphone",
+    "phone_note": "Veuillez fournir un numéro de téléphone lié à WhatsApp",
+    "create_account": "Créer un compte pour une commande plus rapide à l'avenir",
+    "password": "Mot de passe",
+    "confirm_password": "Confirmer le mot de passe",
+    "password_note": "Le mot de passe doit contenir au moins 8 caractères et inclure des lettres et des chiffres"
+  },
+  "delivery": {
+    "pickup": {
+      "title": "Retrait",
+      "description": "Depuis notre magasin à Nyon",
+      "choose_time": "Choisissez l'heure de retrait",
+      "working_hours": "Heures d'ouverture"
+    },
+    "address": {
+      "title": "Livraison à domicile",
+      "description": "Nous livrons à votre adresse",
+      "street": "Rue",
+      "house": "Numéro",
+      "apartment": "Appartement (optionnel)",
+      "city": "Ville",
+      "postal_code": "Code postal"
+    },
+    "railway": {
+      "title": "Livraison à la gare",
+      "description": "Nous vous rencontrerons à la gare",
+      "choose_station": "Choisissez la gare",
+      "choose_date": "Choisissez la date et l'heure",
+      "meeting_point": "Point de rencontre"
+    }
+  },
+  "payment": {
+    "twint": {
+      "title": "TWINT",
+      "description": "Paiement rapide via l'application"
+    },
+    "card": {
+      "title": "Carte",
+      "description": "Carte de débit ou de crédit"
+    },
+    "cash": {
+      "title": "Espèces",
+      "description": "Paiement à la livraison"
+    }
+  },
+  "auth_choice": {
+    "title": "Choisissez la méthode de commande",
+    "login": "Se connecter",
+    "register": "S'inscrire",
+    "guest": "Commander en tant qu'invité",
+    "benefits_title": "Créez un compte pour une meilleure expérience d'achat",
+    "benefits": [
+      "Suivez toutes vos commandes en un seul endroit",
+      "Enregistrez vos adresses de livraison",
+      "Processus de commande plus rapide",
+      "Offres spéciales pour les clients enregistrés",
+      "Historique des commandes et récommande"
+    ]
+  }
+}

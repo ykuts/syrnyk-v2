@@ -2,8 +2,10 @@
 import React from 'react';
 import { Card, Row, Col, ListGroup } from 'react-bootstrap';
 import './CollaborationSlide.css';
+import { useTranslation } from 'react-i18next';
 
 const CollaborationSlide = () => {
+  const { t } = useTranslation(['about', 'common']);
   const offerItems = [
     "Платформа для самореалізації: Створюємо можливості для демонстрації вашого кулінарного таланту та обміну досвідом з іншими професіоналами.",
     "Підтримка та розвиток: Надаємо підтримку в організації заходів, кулінарних майстер-класів та фестивалів.",
@@ -18,7 +20,7 @@ const CollaborationSlide = () => {
 
   return (
     <div className="slide-content">
-      <h3 className="text-center mb-4">Приєднуйтесь до нас і станьте частиною нашої дружньої та натхненної спільноти. Разом ми зробимо українську кухню відомою та шанованою в Швейцарії!</h3>
+      <h3 className="text-center mb-4">{t('about.collaboration.title')}</h3>
 
       <Row className="collaboration-container">
         <Col md={4}>
@@ -35,8 +37,7 @@ const CollaborationSlide = () => {
           <Card className="about-card content-section mb-4">
             <Card.Body>
               <Card.Text>
-              Асоціація SYRNYK щиро запрошує поварів, рестораторів та сироварів до співпраці. 
-              Ми віримо, що спільними зусиллями можемо зробити вагомий внесок у розвиток та популяризацію української кухні в Швейцарії. 
+              {t('about.collaboration.intro')}
               </Card.Text>
             </Card.Body>
           </Card>
@@ -53,11 +54,11 @@ const CollaborationSlide = () => {
                 className="offer-image"
               />
             </div>
-            <Card.Header>Що ми пропонуємо:</Card.Header>
+            <Card.Header>{t('about.collaboration.offer.title')}</Card.Header>
             <ListGroup variant="flush">
               {offerItems.map((item, index) => (
                 <ListGroup.Item key={index} className="about-list-item">
-                  {item}
+                  {t(`about.collaboration.offer.items.${index}`)}
                 </ListGroup.Item>
               ))}
             </ListGroup>
@@ -73,11 +74,11 @@ const CollaborationSlide = () => {
                 className="importance-image"
               />
             </div>
-            <Card.Header>Чому це важливо:</Card.Header>
+            <Card.Header>{t('about.collaboration.importance.title')}</Card.Header>
             <ListGroup variant="flush">
               {importanceItems.map((item, index) => (
                 <ListGroup.Item key={index} className="about-list-item">
-                  {item}
+                  {t(`about.collaboration.importance.items.${index}`)}
                 </ListGroup.Item>
               ))}
             </ListGroup>

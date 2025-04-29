@@ -1,40 +1,41 @@
 import React from 'react';
 import { ListGroup, Row, Col } from 'react-bootstrap';
 import './ProductBenefitsSlide.css';
+import { useTranslation } from 'react-i18next';
 
 const ProductBenefitsSlide = () => {
+  const { t } = useTranslation(['about', 'common']);
   return (
     <div className="slide-content">
-      <h3 className="text-center mb-4">Сир SYRNYK – це смачний і здоровий вибір для всієї родини</h3>
+      <h3 className="text-center mb-4">{t('about.benefits.title')}</h3>
       <p className="text-center mb-4">
-      Завдяки нейтральному смаку та приємній текстурі його можна використовувати у різних стравах – від салатів до десертів. 
-      Він підійде на сніданок вранці, послужить ситним перекусом вдень або доповнить вашу вечерю.
+      {t('about.benefits.description')}
       </p>
 
       <div className="benefits-section">
-        <h4 className="mb-4 text-left">5 причин, чому варто включити сир SYRNYK у раціон:</h4>
+        <h4 className="mb-4 text-left">{t('about.benefits.reasons_title')}</h4>
         <Row>
           <Col md={7}>
             <ListGroup variant="flush" className="benefits-list">
               <ListGroup.Item className="about-list-item">
-                <strong>Покращує травлення: </strong> 
-                Сир SYRNYK містить пробіотики, які сприяють здоровій мікрофлорі кишківника. Це допомагає покращити травлення і загальний стан шлунково-кишкового тракту.
+                <strong>{t('about.benefits.reasons.0.title')} </strong> 
+                {t('about.benefits.reasons.0.description')}
               </ListGroup.Item>
               <ListGroup.Item className="about-list-item">
-                <strong>Багатий на білки та кальцій: </strong>
-                Сир SYRNYK є чудовим джерелом білків та кальцію. Білки необхідні для будівництва і відновлення тканин, а кальцій - для зміцнення кісток і зубів.
+              <strong>{t('about.benefits.reasons.1.title')} </strong> 
+              {t('about.benefits.reasons.1.description')}
               </ListGroup.Item>
               <ListGroup.Item className="about-list-item">
-                <strong>Екологічний продукт без добавок: </strong>
-                Виготовлений на фермі у Швейцарії за високими стандартами якості, сир SYRNYK є екологічно чистим продуктом, що гарантує відсутність штучних добавок, консервантів чи барвників. Це робить його більш натуральним і здоровим вибором для всієї родини.
+              <strong>{t('about.benefits.reasons.2.title')} </strong> 
+              {t('about.benefits.reasons.2.description')}
               </ListGroup.Item>
               <ListGroup.Item className="about-list-item">
-                <strong>Універсальність у кулінарії: </strong>
-                Завдяки нейтральному смаку та приємній текстурі, сир SYRNYK може використовуватися у різних стравах – від салатів до десертів. Це збагачує кулінарні пропозиції і задовольняє потреби клієнтів у смачній та корисній їжі.
+              <strong>{t('about.benefits.reasons.3.title')} </strong> 
+              {t('about.benefits.reasons.3.description')}
               </ListGroup.Item>
               <ListGroup.Item className="about-list-item">
-                <strong>Збагачення раціону українськими рецептами: </strong>
-                Сир SYRNYK виготовлений за традиційними українськими рецептами, що додає тепло та гостинність української кулінарної культури у ваш раціон.
+              <strong>{t('about.benefits.reasons.4.title')} </strong> 
+              {t('about.benefits.reasons.4.description')}
               </ListGroup.Item>
             </ListGroup>
           </Col>

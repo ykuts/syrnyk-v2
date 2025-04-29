@@ -24,6 +24,9 @@ import UserProfile from './components/UserProfile';
 import AboutUs from './components/aboutus/AboutUs';
 import ForgotPassword from './components/ForgotPassword';
 import ResetPassword from './components/ResetPassword';
+// Import i18n configuration
+import './i18n';
+import { Suspense } from 'react';
 
 
 
@@ -33,20 +36,21 @@ function App() {
       <CartProvider>
         <Router>
           <ScrollToTop />
-          <div className="app">
+          <Suspense fallback={<div className="loading-container">Loading...</div>}>
+            <div className="app">
 
-            <div>
-              <Menu2 />
-            </div>
-
-
-            <Routes>
-
-              <Route path="/" element={<Home />} />
-              <Route path="/products/:id" element={<ProductDetails />} />
+              <div>
+                <Menu2 />
+              </div>
 
 
-              {/* <Route 
+              <Routes>
+
+                <Route path="/" element={<Home />} />
+                <Route path="/products/:id" element={<ProductDetails />} />
+
+
+                {/* <Route 
                 path="/profile" 
                 element={
                   <PrivateRoute>
@@ -55,53 +59,54 @@ function App() {
                 } 
               /> */}
 
-              <Route 
-                path="/client" 
-                element={
-                  <PrivateRoute>
-                    <UserProfile />
-                  </PrivateRoute>
-                } 
-              />
+                <Route
+                  path="/client"
+                  element={
+                    <PrivateRoute>
+                      <UserProfile />
+                    </PrivateRoute>
+                  }
+                />
 
-<Route
-  path="/orders"
-  element={
-    <PrivateRoute>
-      <OrderHistory />
-    </PrivateRoute>
-  }
-/>
-              
-              {/* Admin Routes */}
-              <Route 
-                path="/admin" 
-                element={
-                  <PrivateRoute adminOnly>
-                    <AdminDashboard />
-                  </PrivateRoute>
-                }
-              >
-              
-                <Route index element={<Navigate to="/admin/orders" replace />} />
-                <Route path="orders" element={<OrdersPanel />} />
-                <Route path="customers" element={<CustomersPanel />} />
-                <Route path="products" element={<ProductsPanel />} />
-                <Route path="reports" element={<ReportsPanel />} />
-                <Route path="delivery" element={<DeliveryPanel />} />
-              </Route>
+                <Route
+                  path="/orders"
+                  element={
+                    <PrivateRoute>
+                      <OrderHistory />
+                    </PrivateRoute>
+                  }
+                />
 
-              {/* Public Routes */}
-              <Route path="/aboutus" element={<AboutUs />} />
-              <Route path="/delivery" element={<DeliveryPage />} />
-              <Route path="/register" element={<Register />} />
-              <Route path="/checkout" element={<CheckoutPage />} />
-              <Route path="/forgot-password" element={<ForgotPassword />} />
-              <Route path="/reset-password" element={<ResetPassword />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-            <Footer />
-          </div>
+                {/* Admin Routes */}
+                <Route
+                  path="/admin"
+                  element={
+                    <PrivateRoute adminOnly>
+                      <AdminDashboard />
+                    </PrivateRoute>
+                  }
+                >
+
+                  <Route index element={<Navigate to="/admin/orders" replace />} />
+                  <Route path="orders" element={<OrdersPanel />} />
+                  <Route path="customers" element={<CustomersPanel />} />
+                  <Route path="products" element={<ProductsPanel />} />
+                  <Route path="reports" element={<ReportsPanel />} />
+                  <Route path="delivery" element={<DeliveryPanel />} />
+                </Route>
+
+                {/* Public Routes */}
+                <Route path="/aboutus" element={<AboutUs />} />
+                <Route path="/delivery" element={<DeliveryPage />} />
+                <Route path="/register" element={<Register />} />
+                <Route path="/checkout" element={<CheckoutPage />} />
+                <Route path="/forgot-password" element={<ForgotPassword />} />
+                <Route path="/reset-password" element={<ResetPassword />} />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+              <Footer />
+            </div>
+          </Suspense>
         </Router>
       </CartProvider>
     </AuthProvider>

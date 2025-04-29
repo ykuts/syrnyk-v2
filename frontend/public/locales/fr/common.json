@@ -1,0 +1,52 @@
+{
+  "buttons": {
+    "cart": "Panier",
+    "profile": "Profil",
+    "login": "Connexion",
+    "logout": "Déconnexion",
+    "register": "S'inscrire",
+    "addToCart": "Ajouter au panier",
+    "order": "Commander",
+    "continue": "Continuer",
+    "back": "Retour",
+    "save": "Sauvegarder",
+    "cancel": "Annuler",
+    "edit": "Modifier",
+    "delete": "Supprimer",
+    "submit": "Soumettre"
+  },
+  "cart": {
+    "empty": "Votre panier est vide",
+    "total": "Total",
+    "checkout": "Passer la commande",
+    "continueShopping": "Continuer les achats",
+    "items": "articles"
+  },
+  "general": {
+    "currency": "CHF",
+    "loading": "Chargement...",
+    "error": "Erreur",
+    "success": "Succès",
+    "welcome": "Bienvenue",
+    "showMore": "Afficher plus",
+    "showLess": "Afficher moins",
+    "from": "de",
+    "to": "à",
+    "weight": "Poids",
+    "price": "Prix",
+    "quantity": "Quantité",
+    "description": "Description",
+    "ingredients": "Ingrédients",
+    "storageConditions": "Conditions de stockage",
+    "recipeTitle": "Recette",
+    "assortment": "Assortiment"
+  },
+  "errors": {
+    "general": "Une erreur s'est produite. Veuillez réessayer.",
+    "notFound": "Page non trouvée",
+    "unauthorized": "Authentification requise",
+    "forbidden": "Accès refusé",
+    "serverError": "Erreur du serveur"
+  },
+  "backToHome": "Retour à l'accueil"
+}

@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { Link, useParams, useNavigate } from "react-router-dom";
+import { useTranslation } from 'react-i18next';
 import { getImageUrl } from '../config';
 import { apiClient } from '../utils/api';
 import Container from "react-bootstrap/Container";
@@ -16,6 +17,7 @@ import Recomendations from "./Recomendations";
 import './ProductDetails.css';
 
 const ProductDetails = () => {
+    const { t } = useTranslation(['common', 'product']);
     const { id } = useParams();
     const navigate = useNavigate();
     const [product, setProduct] = useState(null);
@@ -32,7 +34,7 @@ const ProductDetails = () => {
             try {
                 const data = await apiClient.get(`/products/${id}`);
                 if (!data) {
-                    throw new Error('Продукт не знайдено');
+                    throw new Error(t('errors.notFound'));
                 }
                 setProduct(data);
                 setError(null);
@@ -61,7 +63,7 @@ const ProductDetails = () => {
     if (loading) {
         return (
             <Container className="d-flex justify-content-center align-items-center" style={{ minHeight: '200px' }}>
-                <Spinner animation="border" />
+                <Spinner animation="border" aria-label={t('general.loading')} />
             </Container>
         );
     }
@@ -71,12 +73,12 @@ const ProductDetails = () => {
             <Container>
                 <div className="text-center my-5">
                     <Alert variant="danger">
-                        {error || 'Продукт не знайдено'}
+                        {error || t('errors.notFound')}
                         <br />
-                        <small>Повернення на головну сторінку...</small>
+                        <small>{t('errors.general')}</small>
                     </Alert>
                     <Link to="/" className="btn btn-primary mt-3">
-                        На головну
+                        {t('backToHome')}
                     </Link>
                 </div>
             </Container>
@@ -106,7 +108,7 @@ const ProductDetails = () => {
         <div>
             <Container className="my-4">
                 <div className='mb-3' style={{ textAlign: 'start' }}>
-                    <Link to="/" className="custom-link">На головну</Link> &gt; {product.name}
+                    <Link to="/" className="custom-link">{t('backToHome')}</Link> &gt; {product.name}
                 </div>
                 <Row>
                     <Col md={8}>
@@ -157,13 +159,14 @@ const ProductDetails = () => {
                                         variant="light" 
                                         className="cart-button-round-det" 
                                         onClick={handleAddToCart}
+                                        aria-label={t('product.add_to_cart')}
                                     >
                                         <Image 
                                             src="/assets/cart.png" 
                                             roundedCircle 
                                             style={{ width: '25px', height: '25px', marginRight: '3px' }} 
                                         />
-                                        <span>До кошика</span>
+                                        <span>{t('product.add_to_cart', { ns: 'product' })}</span>
                                     </Button>
                                 ) : (
                                     <div className="quantity-controls-det">
@@ -171,6 +174,7 @@ const ProductDetails = () => {
                                             variant="light" 
                                             className="quantity-button-det"
                                             onClick={handleRemoveFromCart}
+                                            aria-label={`${t('general.quantity')} -1`}
                                         >
                                             -
                                         </Button>
@@ -191,12 +195,12 @@ const ProductDetails = () => {
 
                         <Card className="mb-4" style={{ backgroundColor: '#94c4d8', textAlign: 'start', borderRadius: '15px' }}>
                             <Card.Body>
-                                <Card.Title>Склад</Card.Title>
+                                <Card.Title>{t('product.composition', { ns: 'product' })}</Card.Title>
                                 <Card.Text>
                                     <p>{product.descriptionFull}</p>
                                     {product.assortment && product.assortment.length > 0 && (
                                         <div>
-                                            <h5>Асортимент</h5>
+                                            <h5>{t('product.assortment', { ns: 'product' })}</h5>
                                             <ul>
                                                 {product.assortment.map((item, index) => (
                                                     <li key={index}>{item}</li>
@@ -204,7 +208,7 @@ const ProductDetails = () => {
                                             </ul>
                                         </div>
                                     )}
-                                    <h5>Період та умови зберігання:</h5>
+                                    <h5>{t('product.storage', { ns: 'product' })}:</h5>
                                     <p>{product.umovy}</p>
                                 </Card.Text>
                             </Card.Body>
@@ -212,7 +216,7 @@ const ProductDetails = () => {
 
                         <Card className="mb-4" style={{ backgroundColor: '#e9e6e3', textAlign: 'start', borderRadius: '15px' }}>
                             <Card.Body>
-                                <Card.Title>РЕЦЕПТ</Card.Title>
+                                <Card.Title>{t('product.recipe', { ns: 'product' })}</Card.Title>
                                 <Card.Text>{product.recipe}</Card.Text>
                             </Card.Body>
                         </Card>
@@ -256,7 +260,7 @@ const ProductDetails = () => {
 
             <Container>
                 <h4 className="text-start pt-3">
-                    Вам також сподобається
+                    {t('product.recommendations', { ns: 'product' })}
                 </h4>
             </Container>
             <Recomendations />

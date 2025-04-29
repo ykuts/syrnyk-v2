@@ -1,0 +1,78 @@
+{
+  "checkout": {
+    "title": "Checkout",
+    "customer_info": "Customer information",
+    "delivery_method": "Delivery method",
+    "payment_method": "Payment method",
+    "order_notes": "Order notes",
+    "order_items": "Your products",
+    "order_success": "Order successfully placed!",
+    "order_success_message": "Thank you for your order. We will contact you shortly.",
+    "continue_shopping": "Continue shopping",
+    "submit_order": "Place order",
+    "processing": "Processing..."
+  },
+  "customer": {
+    "first_name": "First name",
+    "last_name": "Last name",
+    "email": "Email",
+    "phone": "Phone",
+    "phone_note": "Please provide a phone number linked to WhatsApp",
+    "create_account": "Create an account for faster checkout in the future",
+    "password": "Password",
+    "confirm_password": "Confirm password",
+    "password_note": "Password must contain at least 8 characters and include letters and numbers"
+  },
+  "delivery": {
+    "pickup": {
+      "title": "Pickup",
+      "description": "From our store in Nyon",
+      "choose_time": "Choose pickup time",
+      "working_hours": "Working hours"
+    },
+    "address": {
+      "title": "Address delivery",
+      "description": "We'll deliver to your address",
+      "street": "Street",
+      "house": "House number",
+      "apartment": "Apartment (optional)",
+      "city": "City",
+      "postal_code": "Postal code"
+    },
+    "railway": {
+      "title": "Railway station delivery",
+      "description": "We'll meet you at the station",
+      "choose_station": "Choose station",
+      "choose_date": "Choose date and time",
+      "meeting_point": "Meeting point"
+    }
+  },
+  "payment": {
+    "twint": {
+      "title": "TWINT",
+      "description": "Fast payment via app"
+    },
+    "card": {
+      "title": "Card",
+      "description": "Debit or credit card"
+    },
+    "cash": {
+      "title": "Cash",
+      "description": "Payment upon delivery"
+    }
+  },
+  "auth_choice": {
+    "title": "Choose checkout method",
+    "login": "Log in",
+    "register": "Register",
+    "guest": "Checkout as guest",
+    "benefits_title": "Create an account for a better shopping experience",
+    "benefits": [
+      "Track all your orders in one place",
+      "Save your delivery addresses",
+      "Faster checkout process",
+      "Special offers for registered customers",
+      "Order history and reordering"
+    ]
+  }
+}

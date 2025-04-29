@@ -9,10 +9,18 @@ const CustomLanguageDropdown = () => {
   
   // Options for the dropdown
   const options = [
-    { value: 'ua', label: 'UA' },
-    { value: 'en', label: 'EN' },
-    { value: 'fr', label: 'FR' }
+    { value: 'uk', label: 'UA', fullName: 'Українська' },
+    { value: 'en', label: 'EN', fullName: 'English' },
+    { value: 'fr', label: 'FR', fullName: 'Français' }
   ];
+
+  // Set initial language based on browser or previously saved preference
+  useEffect(() => {
+    const savedLanguage = localStorage.getItem('i18nextLng') || 'uk';
+    if (savedLanguage && i18n.language !== savedLanguage) {
+      i18n.changeLanguage(savedLanguage);
+    }
+  }, [i18n]);
 
   // Handle click outside to close dropdown
   useEffect(() => {
@@ -26,9 +34,39 @@ const CustomLanguageDropdown = () => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  // Handle keyboard navigation for accessibility
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      if (!isOpen) return;
+      
+      if (event.key === 'Escape') {
+        setIsOpen(false);
+      } else if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+        event.preventDefault();
+        
+        const currentIndex = options.findIndex(option => option.value === i18n.language);
+        let newIndex;
+        
+        if (event.key === 'ArrowDown') {
+          newIndex = (currentIndex + 1) % options.length;
+        } else {
+          newIndex = (currentIndex - 1 + options.length) % options.length;
+        }
+        
+        i18n.changeLanguage(options[newIndex].value);
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener('keydown', handleKeyDown);
+    }
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, i18n, options]);
+
   // Handle option selection
   const handleSelect = (optionValue) => {
     i18n.changeLanguage(optionValue);
+    localStorage.setItem('i18nextLng', optionValue);
     setIsOpen(false);
   };
 
@@ -40,6 +78,8 @@ const CustomLanguageDropdown = () => {
       ref={dropdownRef}
       style={{ position: 'relative', display: 'inline-block' }}
       className="language-dropdown"
+      aria-label="Language selection"
+      role="region"
     >
       {/* Mobile view - horizontal list */}
       <div className="mobile-language-selector">
@@ -48,6 +88,10 @@ const CustomLanguageDropdown = () => {
             key={option.value}
             onClick={() => handleSelect(option.value)}
             className={`language-option ${option.value === selectedOption.value ? 'active' : ''}`}
+            role="button"
+            aria-pressed={option.value === selectedOption.value}
+            tabIndex={0}
+            aria-label={`Switch to ${option.fullName}`}
           >
             {option.label}
           </div>
@@ -64,6 +108,18 @@ const CustomLanguageDropdown = () => {
             textAlign: 'center',
             padding: '6px 12px',
           }}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              setIsOpen(!isOpen);
+            }
+          }}
+          role="button"
+          tabIndex={0}
+          aria-haspopup="listbox"
+          aria-expanded={isOpen}
+          aria-label={`Selected language: ${selectedOption.fullName}`}
+          className={`selected-language ${isOpen ? 'open' : ''}`}
         >
           {selectedOption.label}
         </div>
@@ -80,10 +136,14 @@ const CustomLanguageDropdown = () => {
               boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
               zIndex: 1000
             }}
+            className="dropdown-menu show"
+            role="listbox"
+            aria-activedescendant={`lang-option-${selectedOption.value}`}
           >
             {options.map(option => (
               <div
                 key={option.value}
+                id={`lang-option-${option.value}`}
                 onClick={() => handleSelect(option.value)}
                 style={{
                   padding: '8px 16px',
@@ -92,10 +152,20 @@ const CustomLanguageDropdown = () => {
                   whiteSpace: 'nowrap',
                   transition: 'background-color 0.2s',
                 }}
-                onMouseEnter={(e) => e.target.style.backgroundColor = '#f8f9fa'}
-                onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    handleSelect(option.value);
+                  }
+                }}
+                className={`dropdown-item ${option.value === selectedOption.value ? 'active' : ''}`}
+                role="option"
+                aria-selected={option.value === selectedOption.value}
+                tabIndex={0}
+                /* onMouseEnter={(e) => e.target.style.backgroundColor = '#f8f9fa'}
+                onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'} */
               >
-                {option.label}
+                {option.label} - {option.fullName}
               </div>
             ))}
           </div>

@@ -1,4 +1,5 @@
-import React, { useContext, useState } from 'react';
+// src/components/ProductCard.js
+import React, { useContext, useState, useEffect } from 'react';
 import Card from 'react-bootstrap/Card';
 import { Link } from 'react-router-dom';
 import Image from 'react-bootstrap/Image';
@@ -9,16 +10,34 @@ import { getImageUrl } from '../config';
 import './ProductCards.css';
 
 const ProductCard = ({ product }) => {
-    const { t } = useTranslation(['common', 'product']);
+    const { t, i18n } = useTranslation(['common', 'product']);
     const { cartItems, addToCart, removeFromCart } = useContext(CartContext);
     const [imageError, setImageError] = useState(false);
+    const [translatedProduct, setTranslatedProduct] = useState(product);
     const quantity = cartItems.find((item) => item.id === product.id)?.quantity || 0;
+
+    // Update translated product when language or product changes
+    useEffect(() => {
+        // If product has translations for current language, use them
+        if (product?.translations && product.translations[i18n.language]) {
+            const translation = product.translations[i18n.language];
+            setTranslatedProduct({
+                ...product,
+                name: translation.name || product.name,
+                description: translation.description || product.description,
+                weight: translation.weight || product.weight
+            });
+        } else {
+            // Otherwise use original product data
+            setTranslatedProduct(product);
+        }
+    }, [product, i18n.language]);
 
     // Default image URL
     const defaultImageUrl = '/assets/default-product.png'; 
 
     const handleAddToCart = () => {
-        addToCart(product);
+        addToCart(translatedProduct); // Use translated version
     };
 
     const handleRemoveFromCart = () => {
@@ -46,30 +65,30 @@ const ProductCard = ({ product }) => {
                         objectFit: 'cover' 
                     }}
                     onError={handleImageError}
-                    alt={product.name}
+                    alt={translatedProduct.name}
                 />
             </Link>
             <Card.Body className="d-flex flex-column">
                 <div>
                     <Link to={`/products/${product.id}`} style={{ textDecoration: 'none', color: 'black' }}>
-                        <Card.Title className="text-start">{product.name}</Card.Title>
+                        <Card.Title className="text-start">{translatedProduct.name}</Card.Title>
                     </Link>
                     <Card.Text className="text-white text-start mb-4">
-                        {product.description}
+                        {translatedProduct.description}
                     </Card.Text>
                 </div>
                 <div className="flex-grow-1"></div>
                 <div>
                     <div className="d-flex justify-content-between align-items-center">
                         <Card.Text className="text-dark mb-0 text-price">
-                            {product.price} CHF / {product.weight}
+                            {product.price} CHF / {translatedProduct.weight}
                         </Card.Text>
                         {quantity === 0 ? (
                             <Button 
                                 variant="light" 
                                 className="cart-button-round" 
                                 onClick={handleAddToCart}
-                                aria-label={`${t('product.add_to_cart')} ${product.name}`}
+                                aria-label={`${t('product.add_to_cart')} ${translatedProduct.name}`}
                             >
                                 <Image 
                                     src="/assets/cart.png" 

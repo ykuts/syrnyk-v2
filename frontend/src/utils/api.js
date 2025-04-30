@@ -2,9 +2,13 @@ import { API_URL } from '../config';
 
 export const apiClient = {
   get: async (endpoint, customHeaders = {}) => {
+// Get current language
+const language = localStorage.getItem('i18nextLng') || 'uk';
+
     const response = await fetch(`${API_URL}/api${endpoint}`, {
       headers: {
         'Content-Type': 'application/json',
+        'Accept-Language': language, // Include language in header
         ...customHeaders
       }
     });

@@ -6,16 +6,20 @@ import ProductCard from "./ProductCard";
 import { Alert, Spinner } from 'react-bootstrap';
 import { apiClient } from '../utils/api';
 import { getImageUrl } from '../config';
+import { useTranslation } from 'react-i18next';
 
 const Products = () => {
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const { i18n } = useTranslation();
 
     useEffect(() => {
         const fetchProducts = async () => {
             try {
-                const data = await apiClient.get('/products');
+                const currentLanguage = i18n.language;
+                // Include language in request
+                const data = await apiClient.get(`/products?lang=${currentLanguage}`);
 
                 // Validate data format
                 if (!Array.isArray(data)) {
@@ -47,7 +51,7 @@ const Products = () => {
         };
 
         fetchProducts();
-    }, []);
+    }, [i18n.language]); 
 
     // Loading state
     if (loading) {

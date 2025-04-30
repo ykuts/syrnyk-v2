@@ -2,11 +2,13 @@ import React, { useState } from 'react';
 import { Card, Button, Alert } from 'react-bootstrap';
 import { LogIn, UserPlus, ShoppingBag } from 'lucide-react';
 import LoginModal from './LoginModal';
+import { useTranslation } from 'react-i18next';
 
 const AuthChoice = ({ onChoice, onRegister }) => {
   const [showBenefits, setShowBenefits] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
 
+  const { t } = useTranslation('checkout');
   const handleGuestCheckout = () => {
     if (!showBenefits) {
       setShowBenefits(true);
@@ -25,16 +27,16 @@ const AuthChoice = ({ onChoice, onRegister }) => {
       <>
         <Card>
           <Card.Body>
-            <Card.Title>Створіть обліковий запис для кращого досвіду покупок</Card.Title>
+            <Card.Title>{t('auth_choice.benefits_title')}</Card.Title>
             
             <Alert variant="info" className="mt-3 text-start">
-              <h6 className="mb-2">Переваги реєстрації:</h6>
+              <h6 className="mb-2">{t('auth_choice.benefits_title2')}</h6>
               <ul className="mb-0">
-                <li>Відстежуйте всі свої замовлення в одному місці</li>
-                <li>Зберігайте свої адреси доставки</li>
-                <li>Швидший процес оформлення замовлення</li>
-                <li>Спеціальні пропозиції для зареєстрованих клієнтів</li>
-                <li>Історія замовлень та повторне замовлення</li>
+                <li>{t('auth_choice.benefits.0')}</li>
+                <li>{t('auth_choice.benefits.1')}</li>
+                <li>{t('auth_choice.benefits.2')}</li>
+                <li>{t('auth_choice.benefits.3')}</li>
+                <li>{t('auth_choice.benefits.4')}</li>
               </ul>
             </Alert>
 
@@ -45,7 +47,7 @@ const AuthChoice = ({ onChoice, onRegister }) => {
                 className="d-flex align-items-center justify-content-center gap-2"
               >
                 <UserPlus size={20} />
-                Зареєструватися
+                {t('buttons.register', { ns: 'common' })}
               </Button>
 
               <Button
@@ -54,7 +56,7 @@ const AuthChoice = ({ onChoice, onRegister }) => {
                 className="d-flex align-items-center justify-content-center gap-2"
               >
                 <ShoppingBag size={20} />
-                Продовжити як гість
+                {t('buttons.continueAsGuest', { ns: 'common' })}
               </Button>
             </div>
           </Card.Body>

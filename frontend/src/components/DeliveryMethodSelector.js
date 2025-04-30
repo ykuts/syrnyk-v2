@@ -1,26 +1,28 @@
 import React from 'react';
 import { Package, Truck, Train } from 'lucide-react';
 import { Row, Col, Button } from 'react-bootstrap';
+import { useTranslation } from 'react-i18next';
 
 const DeliveryMethodSelector = ({ selectedMethod, onChange }) => {
+  const { t } = useTranslation('checkout');
   const deliveryMethods = [
     {
       id: 'PICKUP',
       icon: <Package size={24} />,
-      title: 'Самовивіз',
-      description: 'З нашого магазину у Nyon'
+      title: t('delivery.pickup.title'),
+      description: t('delivery.pickup.description')
     },
     {
       id: 'ADDRESS',
       icon: <Truck size={24} />,
-      title: 'Адресна доставка',
-      description: 'Доставимо за вашою адресою'
+      title: t('delivery.address.title'),
+      description: t('delivery.address.description')
     },
     {
       id: 'RAILWAY_STATION',
       icon: <Train size={24} />,
-      title: 'Доставка до ЖД станції',
-      description: 'Зустрінемо вас на станції'
+      title: t('delivery.railway.title'),
+      description: t('delivery.railway.description')
     }
   ];
 

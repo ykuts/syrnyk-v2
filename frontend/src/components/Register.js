@@ -17,7 +17,7 @@ import {
 } from '../templates/dataProcessingTemplates';
 
 const Register = () => {
-  const { t } = useTranslation('auth');
+  const { t, i18n } = useTranslation('auth');
   // Form state
   const [formData, setFormData] = useState({
     firstName: '',
@@ -55,7 +55,13 @@ const Register = () => {
 
   // Terms and language state
   const [showTerms, setShowTerms] = useState(false);
-  const [termsLanguage, setTermsLanguage] = useState('uk'); // Default to Ukrainian
+  const [termsLanguage, setTermsLanguage] = useState(i18n.language || 'uk'); // Default to Ukrainian
+  
+  // Sync termsLanguage with i18n.language when it changes
+  useEffect(() => {
+    // Update terms language when global language changes
+    setTermsLanguage(i18n.language);
+  }, [i18n.language]);
   
   // Get UI texts based on selected language
   const getUIText = (key) => {
@@ -91,21 +97,21 @@ const Register = () => {
       case 'lastName':
         if (value.length < 2) {
           isValid = false;
-          message = 'Має бути не менше 2 символів';
+          message = t('register.validation.name_length');
         }
         break;
 
       case 'email':
         if (!patterns.email.test(value)) {
           isValid = false;
-          message = 'Будь ласка, введіть дійсну електронну адресу';
+          message = t('register.validation.email_invalid');
         }
         break;
 
       case 'phone':
         if (value && !patterns.phone.test(value)) {
           isValid = false;
-          message = 'Будь ласка, введіть дійсний номер телефону (наприклад, +380501234567)';
+          message = t('register.validation.phone_invalid');
         }
         break;
 
@@ -122,14 +128,14 @@ const Register = () => {
 
         if (!patterns.password.test(value)) {
           isValid = false;
-          message = 'Пароль повинен містити мінімум 8 символів, літери та цифри';
+          message = t('register.validation.password_requirements');
         }
         break;
 
       case 'confirmPassword':
         if (value !== formData.password) {
           isValid = false;
-          message = 'Паролі не співпадають';
+          message = t('register.validation.passwords_mismatch');
         }
         break;
 
@@ -172,7 +178,7 @@ const Register = () => {
     e.preventDefault();
     
     if (!validateForm()) {
-      setError('Будь ласка, виправте помилки у формі');
+      setError(t('register.validation.fix_errors'));
       return;
     }
 
@@ -186,10 +192,10 @@ const Register = () => {
       if (result.success) {
         navigate('/client');
       } else {
-        setError(result.error || 'Помилка реєстрації');
+        setError(result.error || t('register.error'));
       }
     } catch (error) {
-      setError('Не вдалося створити обліковий запис');
+      setError(t('register.error_generic'));
     } finally {
       setLoading(false);
     }
@@ -197,6 +203,15 @@ const Register = () => {
 
   const handleViewTerms = () => {
     setShowTerms(true);
+  };
+
+  // Handle language change in the modal
+  const handleTermsLanguageChange = (e) => {
+    const newLang = e.target.value;
+    setTermsLanguage(newLang);
+    
+    // Optionally change the global language too
+    // i18n.changeLanguage(newLang);
   };
 
 
@@ -328,7 +343,7 @@ const Register = () => {
                   name="password"
                   value={formData.password}
                   onChange={handleChange}
-                  placeholder="Пароль"
+                  placeholder={t('register.password')}
                   isInvalid={!validation.password.isValid}
                   required
                 />
@@ -349,7 +364,7 @@ const Register = () => {
                   name="confirmPassword"
                   value={formData.confirmPassword}
                   onChange={handleChange}
-                  placeholder="Підтвердження пароля"
+                  placeholder={t('register.confirm_password')}
                   isInvalid={!validation.confirmPassword.isValid}
                   required
                 />
@@ -439,7 +454,7 @@ const Register = () => {
             <Form.Select
               size="sm"
               value={termsLanguage}
-              onChange={e => setTermsLanguage(e.target.value)}
+              onChange={handleTermsLanguageChange}
               style={{ width: 'auto' }}
             >
               {Object.keys(dataProcessingTermsTemplates).map(lang => (

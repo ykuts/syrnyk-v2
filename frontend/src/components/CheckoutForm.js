@@ -3,6 +3,7 @@ import { Form, Row, Col, Card } from 'react-bootstrap';
 import DeliveryMethodSelector from './DeliveryMethodSelector';
 import PaymentMethodSelector from './PaymentMethodSelector';
 import StationSelector from './StationSelector';
+import { useTranslation } from 'react-i18next';
 
 const CheckoutForm = ({ 
   formData, 
@@ -15,6 +16,7 @@ const CheckoutForm = ({
   createAccount,
   onCreateAccountChange 
 }) => {
+  const { t } = useTranslation('checkout');
   console.log('CheckoutForm received formData:', formData);
   // Password validation helper
   const isPasswordValid = (password) => {
@@ -31,11 +33,11 @@ const CheckoutForm = ({
     return (
       <>
       <Form.Group className="mb-3">
-        <Form.Label>Пароль</Form.Label>
+        <Form.Label>{t('customer.password')}</Form.Label>
         <Form.Control
           type="password"
           name="password"
-          placeholder="Пароль (мінімум 8 символів)"
+          placeholder={`{t('customer.password')} ({t('register.password_requirements.length')})`}
           value={formData.password || ''}
           onChange={handleChange}
           required={createAccount}
@@ -72,7 +74,7 @@ const CheckoutForm = ({
   // Render customer information section
   const renderCustomerInfo = () => (
     <section className="mb-5">
-      <h4 className="mb-3">Інформація про покупця</h4>
+      <h4 className="mb-3">{t('checkout.customer_info')}</h4>
       <Card>
         <Card.Body>
           <Row>
@@ -299,7 +301,7 @@ const CheckoutForm = ({
 
       {/* Delivery Method */}
       <section className="mb-5">
-        <h4 className="mb-3">Спосіб доставки</h4>
+        <h4 className="mb-3">{t('checkout.delivery_method')}</h4>
         <DeliveryMethodSelector
           selectedMethod={deliveryType}
           onChange={handleChange}
@@ -311,7 +313,7 @@ const CheckoutForm = ({
 
       {/* Payment Method */}
       <section className="mb-5">
-        <h4 className="mb-3">Спосіб оплати</h4>
+        <h4 className="mb-3">{t('checkout.payment_method')}</h4>
         <PaymentMethodSelector
           selectedMethod={formData.paymentMethod}
           onChange={handleChange}
@@ -320,7 +322,7 @@ const CheckoutForm = ({
 
       {/* Order Notes */}
       <section className="mb-5">
-        <h4 className="mb-3">Коментар до замовлення</h4>
+        <h4 className="mb-3">{t('checkout.order_notes')}</h4>
         <Card>
           <Card.Body>
             <Form.Control
@@ -329,7 +331,7 @@ const CheckoutForm = ({
               name="notesClient"
               value={formData.notesClient}
               onChange={handleChange}
-              placeholder="Додаткова інформація про ваше замовлення"
+              placeholder={t('checkout.order_notes')}
             />
           </Card.Body>
         </Card>

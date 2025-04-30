@@ -46,10 +46,10 @@ function LoginForm({ closeModal, onLoginSuccess, returnUrl }) {
           }
         }
       } else {
-        setError(result.error || 'Невірні облікові дані, спробуйте ще раз або зареєструйтеся.');
+        setError(result.error || t('login.error'));
       }
     } catch (error) {
-      setError('An error occurred during login. Please try again.');
+      setError(t('errors.general', { ns: 'common' }));
     } finally {
       setLoading(false);
     }

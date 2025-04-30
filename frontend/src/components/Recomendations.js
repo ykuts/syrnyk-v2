@@ -6,12 +6,14 @@ import ProductCardRec from "./ProductCardRec";
 import { Alert, Spinner } from 'react-bootstrap';
 import { apiClient } from '../utils/api';
 import { getImageUrl } from '../config';
+import { useTranslation } from 'react-i18next';
 
 /**
  * Recommendations component displays random products that the user might like
  * With consistent card widths and layout
  */
 const Recommendations = () => {
+    const { t } = useTranslation('product');
     const [visibleProducts, setVisibleProducts] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -121,7 +123,7 @@ const Recommendations = () => {
     return (
         <div className="py-4 bg-light">
             <Container>
-                <h2 className="mb-4">Вам також сподобається</h2>
+                <h2 className="mb-4">{t('product.recommendations')}</h2>
                 <Row className="g-4">
                     {visibleProducts.map((product) => (
                         <Col

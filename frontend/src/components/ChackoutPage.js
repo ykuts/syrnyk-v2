@@ -7,6 +7,7 @@ import AuthChoice from './AuthChoice';
 import CheckoutForm from './CheckoutForm';
 import CartTable from './CartTable';
 import { apiClient } from '../utils/api';
+import { useTranslation } from 'react-i18next';
 
 const STORE_ADDRESS = {
   id: 1,
@@ -17,6 +18,7 @@ const STORE_ADDRESS = {
 };
 
 const CheckoutPage = () => {
+  const { t } = useTranslation('checkout');
   const navigate = useNavigate();
   const { user, login } = useAuth();
   const { cartItems, 
@@ -310,16 +312,16 @@ const CheckoutPage = () => {
 
   // Render loading state
   if (loading) {
-    return <Container className="py-5 text-center"><p>Завантаження...</p></Container>;
+    return <Container className="py-5 text-center"><p>{t('general.loading', {ns: 'common'})}</p></Container>;
   }
 
   // Render empty cart state
   if (cartItems.length === 0 && !submitSuccess) {
     return (
       <Container className="py-5 text-center">
-        <h2>Ваш кошик порожній</h2>
+        <h2>{t('cart.empty', {ns: 'common'})}</h2>
         <Button variant="primary" className="mt-3" onClick={() => navigate('/')}>
-          Повернутись до покупок
+        {t('cart.continueShopping', {ns: 'common'})}
         </Button>
       </Container>
     );
@@ -329,10 +331,10 @@ const CheckoutPage = () => {
   if (submitSuccess) {
     return (
       <Container className="py-5 text-center">
-        <h2 className="text-success mb-4">Замовлення успішно оформлено!</h2>
-        <p>Дякуємо за Ваше замовлення. Ми зв'яжемось з вами найближчим часом.</p>
+        <h2 className="text-success mb-4">{t('checkout.order_success')}</h2>
+        <p>{t('checkout.success_message')}</p>
         <Button variant="primary" className="mt-3" onClick={() => navigate('/')}>
-          Продовжити покупки
+        {t('checkout.continue_shopping')}
         </Button>
       </Container>
     );
@@ -341,7 +343,7 @@ const CheckoutPage = () => {
   // Render main checkout form
   return (
     <Container className="py-5">
-      <h1 className="text-center mb-5">Оформлення замовлення</h1>
+      <h1 className="text-center mb-5">{t('checkout.title')}</h1>
 
       {/* Show auth choice for non-authenticated users at initial step */}
       {checkoutStep === 'initial' && !user && (
@@ -391,7 +393,7 @@ const CheckoutPage = () => {
                 variant="primary"
                 disabled={isSubmitting}
               >
-                {isSubmitting ? 'Оформлення...' : 'Оформити замовлення'}
+                {isSubmitting ? t('checkout.processing') : t('checkout.submit_order')}
               </Button>
             </div>
           </div>

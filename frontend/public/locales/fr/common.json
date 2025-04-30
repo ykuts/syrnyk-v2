@@ -5,7 +5,7 @@
     "login": "Connexion",
     "logout": "Déconnexion",
     "register": "S'inscrire",
-    "addToCart": "Ajouter au panier",
+    "addToCart": "Au panier",
     "order": "Commander",
     "continue": "Continuer",
     "back": "Retour",
@@ -13,7 +13,8 @@
     "cancel": "Annuler",
     "edit": "Modifier",
     "delete": "Supprimer",
-    "submit": "Soumettre"
+    "submit": "Soumettre",
+    "continueAsGuest": "Continuer en tant qu'invité"
   },
   "cart": {
     "empty": "Votre panier est vide",
@@ -48,5 +49,10 @@
     "forbidden": "Accès refusé",
     "serverError": "Erreur du serveur"
   },
-  "backToHome": "Retour à l'accueil"
+  "backToHome": "Retour à l'accueil",
+  "consent": {
+    "checkbox": "J'accepte le traitement de mes données personnelles conformément aux conditions de traitement des données",
+    "marketing": "J'accepte de recevoir des communications marketing de Syrnyk (facultatif)",
+    "required_error": "Vous devez accepter les conditions de traitement des données pour vous inscrire"
+  }
 }

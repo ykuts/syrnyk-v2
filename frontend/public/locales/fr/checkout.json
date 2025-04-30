@@ -50,11 +50,11 @@
   "payment": {
     "twint": {
       "title": "TWINT",
-      "description": "Paiement rapide via l'application"
+      "description": "Paiement rapide via l'application (service à venir)"
     },
     "card": {
       "title": "Carte",
-      "description": "Carte de débit ou de crédit"
+      "description": "Carte de débit ou de crédit (service à venir)"
     },
     "cash": {
       "title": "Espèces",
@@ -67,6 +67,7 @@
     "register": "S'inscrire",
     "guest": "Commander en tant qu'invité",
     "benefits_title": "Créez un compte pour une meilleure expérience d'achat",
+    "benefits_title2": "Avantages de l'inscription:",
     "benefits": [
       "Suivez toutes vos commandes en un seul endroit",
       "Enregistrez vos adresses de livraison",

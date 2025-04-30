@@ -13,7 +13,8 @@
     "cancel": "Cancel",
     "edit": "Edit",
     "delete": "Delete",
-    "submit": "Submit"
+    "submit": "Submit",
+    "continueAsGuest": "Continue as guest"
   },
   "cart": {
     "empty": "Your cart is empty",
@@ -48,5 +49,10 @@
     "forbidden": "Access denied",
     "serverError": "Server error"
   },
-  "backToHome": "Back to home"
+  "backToHome": "Back to home",
+  "consent": {
+    "checkbox": "I agree to the processing of my personal data according to the data processing terms",
+    "marketing": "I agree to receive marketing communications from Syrnyk (optional)",
+    "required_error": "You must accept the data processing terms to register"
+  }
 }

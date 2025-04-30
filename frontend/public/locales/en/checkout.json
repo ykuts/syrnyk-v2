@@ -50,11 +50,11 @@
   "payment": {
     "twint": {
       "title": "TWINT",
-      "description": "Fast payment via app"
+      "description": "Fast payment via app (service coming soon)"
     },
     "card": {
       "title": "Card",
-      "description": "Debit or credit card"
+      "description": "Debit or credit card (service coming soon)"
     },
     "cash": {
       "title": "Cash",
@@ -67,6 +67,7 @@
     "register": "Register",
     "guest": "Checkout as guest",
     "benefits_title": "Create an account for a better shopping experience",
+    "benefits_title2": "Benefits of registration:",
     "benefits": [
       "Track all your orders in one place",
       "Save your delivery addresses",

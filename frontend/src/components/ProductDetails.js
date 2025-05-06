@@ -105,37 +105,34 @@ const ProductDetails = () => {
         // Get the button element
         const button = buttonRef.current;
         const cartIcon = document.querySelector('.cart-icon-container');
-
+        
         if (cartIcon && button) {
             // Get current positions at the time of the click
             const buttonRect = button.getBoundingClientRect();
             const cartRect = cartIcon.getBoundingClientRect();
-
+            
             // These positions already include scroll position
             const sourcePosition = {
                 top: buttonRect.top + window.scrollY,
                 left: buttonRect.left + window.scrollX
             };
-
+            
             const targetPosition = {
                 top: cartRect.top + window.scrollY,
                 left: cartRect.left + window.scrollX
             };
-
-            console.log('Animation positions:', {
-                sourcePosition,
-                targetPosition,
-                scroll: { x: window.scrollX, y: window.scrollY },
-                buttonRect,
-                cartRect
-            });
-
-            // Get product image URL
-            const productImgUrl = imageError ? defaultImageUrl : getImageUrl(product.image);
-
-            // Trigger animation
-            triggerAnimation(productImgUrl, product.id, sourcePosition, targetPosition);
-
+            
+            // IMPORTANT: Make sure we're passing a valid URL for the image
+            // Always use main product image for consistency
+            const mainImageUrl = product.image ? 
+                getImageUrl(product.image) : 
+                '/assets/default-product.png';
+            
+            console.log('Animation image URL:', mainImageUrl); // Debug log
+            
+            // Trigger animation with valid image URL
+            triggerAnimation(mainImageUrl, product.id, sourcePosition, targetPosition);
+            
             // Add product to cart after a short delay
             setTimeout(() => {
                 addToCart(product);
@@ -155,9 +152,6 @@ const ProductDetails = () => {
         console.log('Image load error for product:', product.id);
         setImageError(true);
     };
-
-    // Final image URL using centralized handler
-    const imageUrl = imageError ? defaultImageUrl : getImageUrl(product.image);
 
     // Open modal on image click, but not when clicking controls
     const handleImageClick = (e) => {
@@ -187,7 +181,7 @@ const ProductDetails = () => {
                 <Row>
                     <Col md={8}>
                         <Card>
-                            {/* Add inline carousel for product images */}
+                            {/* Product image carousel */}
                             <div
                                 className="product-image-carousel"
                                 ref={carouselRef}

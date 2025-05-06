@@ -1,5 +1,4 @@
-// src/components/AddToCartAnimation.js
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import './Animation.css';
 
 const AddToCartAnimation = ({
@@ -11,6 +10,12 @@ const AddToCartAnimation = ({
   onAnimationComplete
 }) => {
   const animatedImageRef = useRef(null);
+  
+  // Add a state to track image loading errors
+  const [imageError, setImageError] = useState(false);
+  
+  // Default fallback image
+  const defaultImageUrl = '/assets/default-product.png';
 
   useEffect(() => {
     if (isActive && animatedImageRef.current) {
@@ -59,15 +64,31 @@ const AddToCartAnimation = ({
     }
   }, [isActive, sourcePosition, targetPosition, onAnimationComplete, productId]);
 
-  if (!isActive || !productImage) return null;
+  // Don't render anything if animation is not active
+  if (!isActive) return null;
+  
+  // Handle case when no valid product image is provided
+  const imgSrc = productImage || defaultImageUrl;
 
   return (
     <img
       ref={animatedImageRef}
-      src={productImage}
-      alt="Product flying to cart"
+      src={imgSrc}
+      alt="Product"
       className="animated-product-image"
       data-product-id={productId}
+      onError={(e) => {
+        console.error('Failed to load animation image:', imgSrc);
+        e.target.src = defaultImageUrl; // Fallback to default image
+        setImageError(true);
+      }}
+      style={{
+        // Ensure image is properly sized and hidden when not in use
+        width: '80px',
+        height: '80px',
+        objectFit: 'cover',
+        visibility: isActive ? 'visible' : 'hidden',
+      }}
     />
   );
 };

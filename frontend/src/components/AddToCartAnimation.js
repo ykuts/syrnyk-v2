@@ -1,4 +1,4 @@
-// src/components/AddToCartAnimation.js 
+// src/components/AddToCartAnimation.js
 import React, { useEffect, useRef } from 'react';
 import './Animation.css';
 
@@ -16,18 +16,27 @@ const AddToCartAnimation = ({
     if (isActive && animatedImageRef.current) {
       const element = animatedImageRef.current;
       
-      // Set the initial position
-      element.style.top = `${sourcePosition.top}px`;
-      element.style.left = `${sourcePosition.left}px`;
+      // First, remove any existing animation class to reset
+      element.classList.remove('fly-to-cart');
       
-      // Calculate and set the animation variables based on target position
+      // IMPORTANT: For fixed positioning, we use viewport-relative coordinates
+      element.style.top = `${sourcePosition.top - window.scrollY}px`;
+      element.style.left = `${sourcePosition.left - window.scrollX}px`;
+      
+      // Calculate deltas for animation
       const deltaX = targetPosition.left - sourcePosition.left;
       const deltaY = targetPosition.top - sourcePosition.top;
       
+      console.log('Animation deltas:', { deltaX, deltaY });
+      
+      // Set the CSS variables for animation
       element.style.setProperty('--end-x', `${deltaX}px`);
       element.style.setProperty('--end-y', `${deltaY}px`);
       
-      // Add the animation class to start the movement
+      // Force a reflow before adding the animation class
+      void element.offsetWidth;
+      
+      // Now add the animation class to start the movement
       element.classList.add('fly-to-cart');
       
       // Add the bounce animation to cart icon
@@ -48,7 +57,7 @@ const AddToCartAnimation = ({
         onAnimationComplete();
       }, animationDuration);
     }
-  }, [isActive, sourcePosition, targetPosition, onAnimationComplete, productId]); // Added productId to dependencies
+  }, [isActive, sourcePosition, targetPosition, onAnimationComplete, productId]);
 
   if (!isActive || !productImage) return null;
 

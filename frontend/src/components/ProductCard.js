@@ -41,29 +41,33 @@ const ProductCard = ({ product }) => {
     const defaultImageUrl = '/assets/default-product.png'; 
 
     const handleAddToCart = () => {
-        // Get the cart icon position
-        const cartIcon = document.querySelector('.cart-icon-container');
+        // Get the button element
         const button = buttonRef.current;
+        const cartIcon = document.querySelector('.cart-icon-container');
         
         if (cartIcon && button) {
-          // Get element positions
-          const cartRect = cartIcon.getBoundingClientRect();
+          // Get current positions at the time of the click
           const buttonRect = button.getBoundingClientRect();
+          const cartRect = cartIcon.getBoundingClientRect();
           
-          // Calculate positions accounting for scroll
-          // Use the center of the button as the starting point
+          // These positions already include scroll position
           const sourcePosition = {
-            top: buttonRect.top + (buttonRect.height / 2) + window.scrollY,
-            left: buttonRect.left + (buttonRect.width / 2) + window.scrollX
+            top: buttonRect.top + window.scrollY,
+            left: buttonRect.left + window.scrollX
           };
           
-          // Use the center of the cart icon as the end point
           const targetPosition = {
-            top: cartRect.top + (cartRect.height / 2) + window.scrollY,
-            left: cartRect.left + (cartRect.width / 2) + window.scrollX
+            top: cartRect.top + window.scrollY,
+            left: cartRect.left + window.scrollX
           };
           
-          console.log('Animation positions:', { sourcePosition, targetPosition });
+          console.log('Animation positions:', { 
+            sourcePosition, 
+            targetPosition,
+            scroll: { x: window.scrollX, y: window.scrollY },
+            buttonRect,
+            cartRect
+          });
           
           // Get product image URL
           const productImgUrl = imageError ? defaultImageUrl : getImageUrl(product.image);
@@ -80,7 +84,7 @@ const ProductCard = ({ product }) => {
           console.warn('Cart icon or button not found');
           addToCart(product);
         }
-      };
+    };
     
 
     const handleRemoveFromCart = () => {
@@ -153,6 +157,7 @@ const ProductCard = ({ product }) => {
                                 </Button>
                                 <span className="quantity-display">{quantity}</span>
                                 <Button 
+                                    ref={buttonRef}
                                     variant="light" 
                                     className="quantity-button"
                                     onClick={handleAddToCart}

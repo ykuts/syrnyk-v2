@@ -1,13 +1,18 @@
 /* src/components/Animation.css */
 .animated-product-image {
-  position: fixed;
-  z-index: 9999; /* Increased from 1000 to ensure it's above everything */
+  position: fixed; /* Keep as fixed */
+  z-index: 9999;
   width: 80px;
   height: 80px;
   object-fit: cover;
   border-radius: 50%;
   box-shadow: 0 4px 8px rgba(0,0,0,0.2);
   pointer-events: none;
+  /* Don't add animation here - we'll add it with JavaScript */
+}
+
+/* Create a separate class for the animation */
+.fly-to-cart {
   animation: fly-to-cart 800ms ease-out forwards;
 }
 

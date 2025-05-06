@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext, useRef } from 'react';
 import { Link, useParams, useNavigate } from "react-router-dom";
 import { useTranslation } from 'react-i18next';
 import { getImageUrl } from '../config';
@@ -12,9 +12,11 @@ import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
 import Carousel from 'react-bootstrap/Carousel';
 import { CartContext } from '../context/CartContext';
+import { useAnimation } from '../context/AnimationContext';
 import { Alert, Spinner } from 'react-bootstrap';
 import Recomendations from "./Recomendations";
 import './ProductDetails.css';
+import './Animation.css';
 
 const ProductDetails = () => {
     const { t } = useTranslation(['common', 'product']);
@@ -26,7 +28,10 @@ const ProductDetails = () => {
     const [showGallery, setShowGallery] = useState(false);
     const [selectedImageIndex, setSelectedImageIndex] = useState(0);
     const { cartItems, addToCart, removeFromCart } = useContext(CartContext);
-    
+    const { triggerAnimation } = useAnimation();
+    const [imageError, setImageError] = useState(false);
+    const buttonRef = useRef(null);
+
     const quantity = cartItems.find((item) => item?.id === parseInt(id))?.quantity || 0;
 
     useEffect(() => {
@@ -90,17 +95,67 @@ const ProductDetails = () => {
     const additionalImages = product.images?.map(img => getImageUrl(img)) || [];
     const allImages = [mainImage, ...additionalImages].filter(Boolean);
 
-    const handleAddToCart = () => {
-        if (product) {
-            addToCart(product);
-        }
-    };
-
-    const handleRemoveFromCart = () => {
-        if (product) {
+    // Default image URL
+        const defaultImageUrl = '/assets/default-product.png'; 
+    
+        const handleAddToCart = () => {
+            // Get the button element
+            const button = buttonRef.current;
+            const cartIcon = document.querySelector('.cart-icon-container');
+            
+            if (cartIcon && button) {
+              // Get current positions at the time of the click
+              const buttonRect = button.getBoundingClientRect();
+              const cartRect = cartIcon.getBoundingClientRect();
+              
+              // These positions already include scroll position
+              const sourcePosition = {
+                top: buttonRect.top + window.scrollY,
+                left: buttonRect.left + window.scrollX
+              };
+              
+              const targetPosition = {
+                top: cartRect.top + window.scrollY,
+                left: cartRect.left + window.scrollX
+              };
+              
+              console.log('Animation positions:', { 
+                sourcePosition, 
+                targetPosition,
+                scroll: { x: window.scrollX, y: window.scrollY },
+                buttonRect,
+                cartRect
+              });
+              
+              // Get product image URL
+              const productImgUrl = imageError ? defaultImageUrl : getImageUrl(product.image);
+              
+              // Trigger animation
+              triggerAnimation(productImgUrl, product.id, sourcePosition, targetPosition);
+              
+              // Add product to cart after a short delay
+              setTimeout(() => {
+                addToCart(product);
+              }, 100);
+            } else {
+              // Fallback if elements not found
+              console.warn('Cart icon or button not found');
+              addToCart(product);
+            }
+        };
+        
+    
+        const handleRemoveFromCart = () => {
             removeFromCart(product.id);
-        }
-    };
+        };
+    
+        const handleImageError = () => {
+            console.log('Image load error for product:', product.id);
+            setImageError(true);
+        };
+    
+        // Final image URL using centralized handler
+        const imageUrl = imageError ? defaultImageUrl : getImageUrl(product.image);
 
 
 
@@ -121,6 +176,7 @@ const ProductDetails = () => {
                                     setSelectedImageIndex(0);
                                     setShowGallery(true);
                                 }}
+                                onError={handleImageError}
                             />
                             
                             {/* {additionalImages.length > 0 && (
@@ -155,7 +211,8 @@ const ProductDetails = () => {
                             <span>{product.price} CHF / {product.weight}</span>
                             <div className="cart-controls">
                                 {quantity === 0 ? (
-                                    <Button 
+                                    <Button
+                                        ref={buttonRef} 
                                         variant="light" 
                                         className="cart-button-round-det" 
                                         onClick={handleAddToCart}
@@ -180,6 +237,7 @@ const ProductDetails = () => {
                                         </Button>
                                         <span className="quantity-display-det">{quantity}</span>
                                         <Button 
+                                            ref={buttonRef}
                                             variant="light" 
                                             className="quantity-button-det"
                                             onClick={handleAddToCart}

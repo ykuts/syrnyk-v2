@@ -25,10 +25,16 @@ export const AnimationProvider = ({ children }) => {
 
   const resetAnimation = () => {
     console.log("Animation reset");
-    setAnimationState(prev => ({
-      ...prev,
-      isActive: false
-    }));
+    // Using a small timeout to ensure animation is complete before resetting
+    setTimeout(() => {
+      setAnimationState({
+        isActive: false,
+        productImage: '',
+        productId: null,
+        sourcePosition: { top: 0, left: 0 },
+        targetPosition: { top: 0, left: 0 }
+      });
+    }, 50);
   };
 
   return (

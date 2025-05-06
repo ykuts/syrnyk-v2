@@ -27,10 +27,13 @@ const ProductDetails = () => {
     const [error, setError] = useState(null);
     const [showGallery, setShowGallery] = useState(false);
     const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+    const [modalImageIndex, setModalImageIndex] = useState(0);
     const { cartItems, addToCart, removeFromCart } = useContext(CartContext);
     const { triggerAnimation } = useAnimation();
     const [imageError, setImageError] = useState(false);
     const buttonRef = useRef(null);
+    // Reference to the carousel container
+    const carouselRef = useRef(null);
 
     const quantity = cartItems.find((item) => item?.id === parseInt(id))?.quantity || 0;
 
@@ -96,68 +99,84 @@ const ProductDetails = () => {
     const allImages = [mainImage, ...additionalImages].filter(Boolean);
 
     // Default image URL
-        const defaultImageUrl = '/assets/default-product.png'; 
-    
-        const handleAddToCart = () => {
-            // Get the button element
-            const button = buttonRef.current;
-            const cartIcon = document.querySelector('.cart-icon-container');
-            
-            if (cartIcon && button) {
-              // Get current positions at the time of the click
-              const buttonRect = button.getBoundingClientRect();
-              const cartRect = cartIcon.getBoundingClientRect();
-              
-              // These positions already include scroll position
-              const sourcePosition = {
+    const defaultImageUrl = '/assets/default-product.png';
+
+    const handleAddToCart = () => {
+        // Get the button element
+        const button = buttonRef.current;
+        const cartIcon = document.querySelector('.cart-icon-container');
+
+        if (cartIcon && button) {
+            // Get current positions at the time of the click
+            const buttonRect = button.getBoundingClientRect();
+            const cartRect = cartIcon.getBoundingClientRect();
+
+            // These positions already include scroll position
+            const sourcePosition = {
                 top: buttonRect.top + window.scrollY,
                 left: buttonRect.left + window.scrollX
-              };
-              
-              const targetPosition = {
+            };
+
+            const targetPosition = {
                 top: cartRect.top + window.scrollY,
                 left: cartRect.left + window.scrollX
-              };
-              
-              console.log('Animation positions:', { 
-                sourcePosition, 
+            };
+
+            console.log('Animation positions:', {
+                sourcePosition,
                 targetPosition,
                 scroll: { x: window.scrollX, y: window.scrollY },
                 buttonRect,
                 cartRect
-              });
-              
-              // Get product image URL
-              const productImgUrl = imageError ? defaultImageUrl : getImageUrl(product.image);
-              
-              // Trigger animation
-              triggerAnimation(productImgUrl, product.id, sourcePosition, targetPosition);
-              
-              // Add product to cart after a short delay
-              setTimeout(() => {
+            });
+
+            // Get product image URL
+            const productImgUrl = imageError ? defaultImageUrl : getImageUrl(product.image);
+
+            // Trigger animation
+            triggerAnimation(productImgUrl, product.id, sourcePosition, targetPosition);
+
+            // Add product to cart after a short delay
+            setTimeout(() => {
                 addToCart(product);
-              }, 100);
-            } else {
-              // Fallback if elements not found
-              console.warn('Cart icon or button not found');
-              addToCart(product);
-            }
-        };
-        
-    
-        const handleRemoveFromCart = () => {
-            removeFromCart(product.id);
-        };
-    
-        const handleImageError = () => {
-            console.log('Image load error for product:', product.id);
-            setImageError(true);
-        };
-    
-        // Final image URL using centralized handler
-        const imageUrl = imageError ? defaultImageUrl : getImageUrl(product.image);
+            }, 100);
+        } else {
+            // Fallback if elements not found
+            console.warn('Cart icon or button not found');
+            addToCart(product);
+        }
+    };
 
+    const handleRemoveFromCart = () => {
+        removeFromCart(product.id);
+    };
 
+    const handleImageError = () => {
+        console.log('Image load error for product:', product.id);
+        setImageError(true);
+    };
+
+    // Final image URL using centralized handler
+    const imageUrl = imageError ? defaultImageUrl : getImageUrl(product.image);
+
+    // Open modal on image click, but not when clicking controls
+    const handleImageClick = (e) => {
+        // Check if the click is on a carousel control
+        const target = e.target;
+        const isControlClick =
+            target.classList.contains('carousel-control-prev') ||
+            target.classList.contains('carousel-control-next') ||
+            target.classList.contains('carousel-control-prev-icon') ||
+            target.classList.contains('carousel-control-next-icon') ||
+            target.classList.contains('carousel-indicators') ||
+            target.tagName === 'BUTTON' ||
+            target.parentElement.tagName === 'BUTTON';
+
+        // Only open modal if not clicking on controls
+        if (!isControlClick) {
+            setShowGallery(true);
+        }
+    };
 
     return (
         <div>
@@ -168,87 +187,89 @@ const ProductDetails = () => {
                 <Row>
                     <Col md={8}>
                         <Card>
-                            <Card.Img
-                                src={mainImage}
-                                alt={product.name}
-                                style={{ cursor: 'pointer' }}
-                                onClick={() => {
-                                    setSelectedImageIndex(0);
-                                    setShowGallery(true);
-                                }}
-                                onError={handleImageError}
-                            />
-                            
-                            {/* {additionalImages.length > 0 && (
-                                <div className="d-flex mt-3 gap-2 p-2 overflow-auto">
+                            {/* Add inline carousel for product images */}
+                            <div
+                                className="product-image-carousel"
+                                ref={carouselRef}
+                            >
+                                <Carousel
+                                    activeIndex={selectedImageIndex}
+                                    onSelect={setSelectedImageIndex}
+                                    interval={null}
+                                    indicators={allImages.length > 1}
+                                    controls={allImages.length > 1}
+                                >
                                     {allImages.map((img, index) => (
-                                        <img
-                                            key={index}
-                                            src={img}
-                                            alt={`${product.name} ${index + 1}`}
-                                            style={{
-                                                width: '80px',
-                                                height: '80px',
-                                                objectFit: 'cover',
-                                                cursor: 'pointer',
-                                                border: selectedImageIndex === index ? '2px solid #007bff' : 'none'
-                                            }}
-                                            onClick={() => {
-                                                setSelectedImageIndex(index);
-                                                setShowGallery(true);
-                                            }}
-                                        />
+                                        <Carousel.Item key={index}>
+                                            <div
+                                                className="carousel-image-container"
+                                                onClick={handleImageClick}
+                                                style={{ cursor: 'pointer' }}
+                                            >
+                                                <img
+                                                    className="d-block w-100"
+                                                    src={img}
+                                                    alt={`${product.name} ${index + 1}`}
+                                                    style={{
+                                                        objectFit: 'cover',
+                                                    }}
+                                                    onError={handleImageError}
+                                                />
+                                            </div>
+                                        </Carousel.Item>
                                     ))}
-                                </div>
-                            )} */}
+                                </Carousel>
+                            </div>
+
+
                         </Card>
                     </Col>
                     <Col md={4}>
                         <Card className="mb-4" style={{ border: 'none', textAlign: 'start' }}>
-                        <Card.Body>
-                        <Card.Title className="text-dark">{product.name}</Card.Title>
-                        <Card.Text className="text-muted d-flex justify-content-between align-items-center">
-                            <span>{product.price} CHF / {product.weight}</span>
-                            <div className="cart-controls">
-                                {quantity === 0 ? (
-                                    <Button
-                                        ref={buttonRef} 
-                                        variant="light" 
-                                        className="cart-button-round-det" 
-                                        onClick={handleAddToCart}
-                                        aria-label={t('product.add_to_cart')}
-                                    >
-                                        <Image 
-                                            src="/assets/cart.png" 
-                                            roundedCircle 
-                                            style={{ width: '25px', height: '25px', marginRight: '3px' }} 
-                                        />
-                                        <span>{t('product.add_to_cart', { ns: 'product' })}</span>
-                                    </Button>
-                                ) : (
-                                    <div className="quantity-controls-det">
-                                        <Button 
-                                            variant="light" 
-                                            className="quantity-button-det"
-                                            onClick={handleRemoveFromCart}
-                                            aria-label={`${t('general.quantity')} -1`}
-                                        >
-                                            -
-                                        </Button>
-                                        <span className="quantity-display-det">{quantity}</span>
-                                        <Button 
-                                            ref={buttonRef}
-                                            variant="light" 
-                                            className="quantity-button-det"
-                                            onClick={handleAddToCart}
-                                        >
-                                            +
-                                        </Button>
+                            <Card.Body>
+                                <Card.Title className="text-dark">{product.name}</Card.Title>
+                                <Card.Text className="text-muted d-flex justify-content-between align-items-center">
+                                    <span>{product.price} CHF / {product.weight}</span>
+                                    <div className="cart-controls">
+                                        {quantity === 0 ? (
+                                            <Button
+                                                ref={buttonRef}
+                                                variant="light"
+                                                className="cart-button-round-det"
+                                                onClick={handleAddToCart}
+                                                aria-label={t('product.add_to_cart')}
+                                            >
+                                                <Image
+                                                    src="/assets/cart.png"
+                                                    roundedCircle
+                                                    style={{ width: '25px', height: '25px', marginRight: '3px' }}
+                                                />
+                                                <span>{t('product.add_to_cart', { ns: 'product' })}</span>
+                                            </Button>
+                                        ) : (
+                                            <div className="quantity-controls-det">
+                                                <Button
+                                                    variant="light"
+                                                    className="quantity-button-det"
+                                                    onClick={handleRemoveFromCart}
+                                                    aria-label={`${t('general.quantity')} -1`}
+                                                >
+                                                    -
+                                                </Button>
+                                                <span className="quantity-display-det">{quantity}</span>
+                                                <Button
+                                                    ref={buttonRef}
+                                                    variant="light"
+                                                    className="quantity-button-det"
+                                                    onClick={handleAddToCart}
+                                                >
+                                                    +
+                                                </Button>
+                                            </div>
+                                        )}
                                     </div>
-                                )}
-                            </div>
-                        </Card.Text>
-                    </Card.Body>
+                                </Card.Text>
+                            </Card.Body>
                         </Card>
 
                         <Card className="mb-4" style={{ backgroundColor: '#94c4d8', textAlign: 'start', borderRadius: '15px' }}>
@@ -283,28 +304,29 @@ const ProductDetails = () => {
             </Container>
 
             {/* Modal with the carousel */}
-            <Modal 
-                show={showGallery} 
+            <Modal
+                show={showGallery}
                 onHide={() => setShowGallery(false)}
                 size="lg"
                 centered
+                onShow={() => setModalImageIndex(selectedImageIndex)} // Sync initial position
             >
                 <Modal.Header closeButton>
                     <Modal.Title>{product.name}</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    <Carousel 
-                        activeIndex={selectedImageIndex}
-                        onSelect={setSelectedImageIndex}
+                    <Carousel
+                        activeIndex={modalImageIndex}
+                        onSelect={setModalImageIndex} // Use the modal-specific state
                         interval={null}
                     >
                         {allImages.map((img, index) => (
                             <Carousel.Item key={index}>
                                 <img
                                     className="d-block w-100"
-                                    src={getImageUrl(img)}
+                                    src={img}
                                     alt={`${product.name} ${index + 1}`}
-                                    style={{ 
+                                    style={{
                                         maxHeight: '70vh',
                                         objectFit: 'contain',
                                         backgroundColor: '#f8f9fa'

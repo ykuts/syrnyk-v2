@@ -10,10 +10,10 @@ const AuthChoice = ({ onChoice, onRegister }) => {
 
   const { t } = useTranslation('checkout');
   const handleGuestCheckout = () => {
-    if (!showBenefits) {
+    /* if (!showBenefits) {
       setShowBenefits(true);
       return;
-    }
+    } */
     onChoice('guest');
   };
 
@@ -22,7 +22,7 @@ const AuthChoice = ({ onChoice, onRegister }) => {
   };
 
   // Render benefits screen when user attempts to checkout as guest
-  if (showBenefits) {
+  /* if (showBenefits) {
     return (
       <>
         <Card>
@@ -69,7 +69,7 @@ const AuthChoice = ({ onChoice, onRegister }) => {
         />
       </>
     );
-  }
+  } */
 
   // Initial authentication choice screen
   return (

@@ -15,6 +15,9 @@ import { Navigate } from 'react-router-dom';
 import Register from './components/Register';
 import { AuthProvider } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
+import { AnimationProvider } from './context/AnimationContext'; // New import
+import AddToCartAnimation from './components/AddToCartAnimation';
+import AnimationWrapper from './components/AnimationWrapper'; // New import
 import CheckoutPage from './components/ChackoutPage';
 import DeliveryPage from './components/DeliveryPage';
 import DeliveryPanel from './components/admin/panels/DeliveryPanel';
@@ -34,6 +37,7 @@ function App() {
   return (
     <AuthProvider>
       <CartProvider>
+        <AnimationProvider>
         <Router>
           <ScrollToTop />
           <Suspense fallback={<div className="loading-container">Loading...</div>}>
@@ -43,6 +47,7 @@ function App() {
                 <Menu2 />
               </div>
 
+              <AnimationWrapper />
 
               <Routes>
 
@@ -108,6 +113,7 @@ function App() {
             </div>
           </Suspense>
         </Router>
+        </AnimationProvider>
       </CartProvider>
     </AuthProvider>
   );

@@ -5,7 +5,8 @@ import { Form, Button, Alert, Container } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import AuthChoice from './AuthChoice';
 import CheckoutForm from './CheckoutForm';
-import CartTable from './CartTable';
+//import CartTable from './CartTable';
+import CartProducts from './CartProducts';
 import { apiClient } from '../utils/api';
 import { useTranslation } from 'react-i18next';
 
@@ -360,13 +361,13 @@ const CheckoutPage = () => {
       {checkoutStep === 'form' && (
         <Form onSubmit={handleSubmit}>
           <div className="container mx-auto" style={{ maxWidth: '768px' }}>
-          <CartTable 
-              items={cartItems}
-              totalPrice={totalPrice}
-              onAdd={addOneToCart}
-              onRemove={removeFromCart}
-              onRemoveAll={removeAllFromCart}
-/>
+          <CartProducts 
+            items={cartItems}
+            totalPrice={totalPrice}
+            onAdd={addOneToCart}
+            onRemove={removeFromCart}
+            onRemoveAll={removeAllFromCart}
+          />
 
             <CheckoutForm 
               formData={formData}

@@ -36,12 +36,12 @@ const FooterNav = () => {
                         <div>
                             <p style={{ marginBottom: '5px' }}>
                                 <a href="tel:+41797158774" style={{ color: '#fff', textDecoration: 'none' }}>
-                                    <Image src="/assets/call-white.png" alt="call us" fluid className='logo-header' style={{ width: '40px', height: '40px' }} />
+                                    <Image src="/assets/call-white.png" alt="call us" fluid className='logo-header' style={{ width: '25px', height: '25px' }} />
                                     +41 79 715-87-74
                                 </a>
                             </p>
                             <div >
-                                <a href="https://www.instagram.com/syrnyk.ch" target='_blank'  rel="noopener noreferrer" className="px-auto">
+                                <a href="https://www.facebook.com/profile.php?id=61565523437323&sk=about" target='_blank'  rel="noopener noreferrer" className="px-auto">
                                     <Image src="/assets/facebook-white.png"
                                         style={{ width: '50px', height: '50px' }} />
                                 </a>

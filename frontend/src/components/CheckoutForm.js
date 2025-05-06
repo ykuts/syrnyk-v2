@@ -5,16 +5,16 @@ import PaymentMethodSelector from './PaymentMethodSelector';
 import StationSelector from './StationSelector';
 import { useTranslation } from 'react-i18next';
 
-const CheckoutForm = ({ 
-  formData, 
-  handleChange, 
-  deliveryType, 
-  railwayStations, 
-  stores, 
+const CheckoutForm = ({
+  formData,
+  handleChange,
+  deliveryType,
+  railwayStations,
+  stores,
   isAuthenticated,
   isGuest,
   createAccount,
-  onCreateAccountChange 
+  onCreateAccountChange
 }) => {
   const { t } = useTranslation('checkout');
   console.log('CheckoutForm received formData:', formData);
@@ -28,48 +28,48 @@ const CheckoutForm = ({
     if (!isGuest || !createAccount) return null;
 
     const isPasswordInvalid = formData.password && !isPasswordValid(formData.password);
-  const isConfirmPasswordInvalid = formData.confirmPassword && formData.password !== formData.confirmPassword;
+    const isConfirmPasswordInvalid = formData.confirmPassword && formData.password !== formData.confirmPassword;
 
     return (
       <>
-      <Form.Group className="mb-3">
-        <Form.Label>{t('customer.password')}</Form.Label>
-        <Form.Control
-          type="password"
-          name="password"
-          placeholder={`{t('customer.password')} ({t('register.password_requirements.length')})`}
-          value={formData.password || ''}
-          onChange={handleChange}
-          required={createAccount}
-          minLength={8}
-          isInvalid={isPasswordInvalid}
-        />
-        <Form.Control.Feedback type="invalid">
-          Пароль повинен містити мінімум 8 символів та включати літери і цифри
-        </Form.Control.Feedback>
-        <Form.Text className="text-muted">
-          Пароль повинен містити мінімум 8 символів та включати літери і цифри
-        </Form.Text>
-      </Form.Group>
+        <Form.Group className="mb-3">
+          <Form.Label>{t('customer.password')}</Form.Label>
+          <Form.Control
+            type="password"
+            name="password"
+            placeholder={`{t('customer.password')} ({t('register.password_requirements.length')})`}
+            value={formData.password || ''}
+            onChange={handleChange}
+            required={createAccount}
+            minLength={8}
+            isInvalid={isPasswordInvalid}
+          />
+          <Form.Control.Feedback type="invalid">
+            Пароль повинен містити мінімум 8 символів та включати літери і цифри
+          </Form.Control.Feedback>
+          <Form.Text className="text-muted">
+            Пароль повинен містити мінімум 8 символів та включати літери і цифри
+          </Form.Text>
+        </Form.Group>
 
-      <Form.Group className="mb-3">
-        <Form.Label>Підтвердження пароля</Form.Label>
-        <Form.Control
-          type="password"
-          name="confirmPassword"
-          placeholder="Повторіть пароль"
-          value={formData.confirmPassword || ''}
-          onChange={handleChange}
-          required={createAccount}
-          isInvalid={isConfirmPasswordInvalid}
-        />
-        <Form.Control.Feedback type="invalid">
-          Паролі не співпадають
-        </Form.Control.Feedback>
-      </Form.Group>
-    </>
-  );
-};
+        <Form.Group className="mb-3">
+          <Form.Label>Підтвердження пароля</Form.Label>
+          <Form.Control
+            type="password"
+            name="confirmPassword"
+            placeholder="Повторіть пароль"
+            value={formData.confirmPassword || ''}
+            onChange={handleChange}
+            required={createAccount}
+            isInvalid={isConfirmPasswordInvalid}
+          />
+          <Form.Control.Feedback type="invalid">
+            Паролі не співпадають
+          </Form.Control.Feedback>
+        </Form.Group>
+      </>
+    );
+  };
 
   // Render customer information section
   const renderCustomerInfo = () => (
@@ -122,22 +122,22 @@ const CheckoutForm = ({
           </Form.Group>
 
           <Form.Group className="mb-3">
-  <Form.Control
-    type="tel"
-    name="phone"
-    placeholder="+XXX XXXXXXXX"
-    value={formData.phone}
-    onChange={handleChange}
-    required
-    readOnly={isAuthenticated}
-    className={isAuthenticated ? 'bg-light' : ''}
-  />
-  {!isAuthenticated && (
-    <Form.Text className="text-muted">
-      Будь ласка, вкажіть номер телефону, який прив'язаний до WhatsApp
-    </Form.Text>
-  )}
-</Form.Group>
+            <Form.Control
+              type="tel"
+              name="phone"
+              placeholder="+XXX XXXXXXXX"
+              value={formData.phone}
+              onChange={handleChange}
+              required
+              readOnly={isAuthenticated}
+              className={isAuthenticated ? 'bg-light' : ''}
+            />
+            {!isAuthenticated && (
+              <Form.Text className="text-muted">
+                Будь ласка, вкажіть номер телефону, який прив'язаний до WhatsApp
+              </Form.Text>
+            )}
+          </Form.Group>
 
           {isGuest && (
             <Form.Group className="mb-3">
@@ -146,11 +146,11 @@ const CheckoutForm = ({
                 id="create-account"
                 name="createAccount"
                 style={{
-        
-        '--bs-border-color': '#495057',
-        textAlign: 'left',
-      }}
-      
+
+                  '--bs-border-color': '#495057',
+                  textAlign: 'left',
+                }}
+
                 label="Створити обліковий запис для швидшого оформлення замовлення в майбутньому"
                 checked={createAccount}
                 onChange={(e) => {

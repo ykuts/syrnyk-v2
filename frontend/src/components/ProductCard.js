@@ -1,20 +1,24 @@
 // src/components/ProductCard.js
-import React, { useContext, useState, useEffect } from 'react';
+import React, { useContext, useState, useEffect, useRef } from 'react';
 import Card from 'react-bootstrap/Card';
 import { Link } from 'react-router-dom';
 import Image from 'react-bootstrap/Image';
 import Button from 'react-bootstrap/Button';
 import { useTranslation } from 'react-i18next';
 import { CartContext } from '../context/CartContext';
+import { useAnimation } from '../context/AnimationContext';
 import { getImageUrl } from '../config';
 import './ProductCards.css';
+import './Animation.css'; // Import your CSS file for animations
 
 const ProductCard = ({ product }) => {
     const { t, i18n } = useTranslation(['common', 'product']);
     const { cartItems, addToCart, removeFromCart } = useContext(CartContext);
+    const { triggerAnimation } = useAnimation();
     const [imageError, setImageError] = useState(false);
     const [translatedProduct, setTranslatedProduct] = useState(product);
     const quantity = cartItems.find((item) => item.id === product.id)?.quantity || 0;
+    const buttonRef = useRef(null);
 
     // Update translated product when language or product changes
     useEffect(() => {
@@ -37,8 +41,47 @@ const ProductCard = ({ product }) => {
     const defaultImageUrl = '/assets/default-product.png'; 
 
     const handleAddToCart = () => {
-        addToCart(translatedProduct); // Use translated version
-    };
+        // Get the cart icon position
+        const cartIcon = document.querySelector('.cart-icon-container');
+        const button = buttonRef.current;
+        
+        if (cartIcon && button) {
+          // Get element positions
+          const cartRect = cartIcon.getBoundingClientRect();
+          const buttonRect = button.getBoundingClientRect();
+          
+          // Calculate positions accounting for scroll
+          // Use the center of the button as the starting point
+          const sourcePosition = {
+            top: buttonRect.top + (buttonRect.height / 2) + window.scrollY,
+            left: buttonRect.left + (buttonRect.width / 2) + window.scrollX
+          };
+          
+          // Use the center of the cart icon as the end point
+          const targetPosition = {
+            top: cartRect.top + (cartRect.height / 2) + window.scrollY,
+            left: cartRect.left + (cartRect.width / 2) + window.scrollX
+          };
+          
+          console.log('Animation positions:', { sourcePosition, targetPosition });
+          
+          // Get product image URL
+          const productImgUrl = imageError ? defaultImageUrl : getImageUrl(product.image);
+          
+          // Trigger animation
+          triggerAnimation(productImgUrl, product.id, sourcePosition, targetPosition);
+          
+          // Add product to cart after a short delay
+          setTimeout(() => {
+            addToCart(product);
+          }, 100);
+        } else {
+          // Fallback if elements not found
+          console.warn('Cart icon or button not found');
+          addToCart(product);
+        }
+      };
+    
 
     const handleRemoveFromCart = () => {
         removeFromCart(product.id);
@@ -85,6 +128,7 @@ const ProductCard = ({ product }) => {
                         </Card.Text>
                         {quantity === 0 ? (
                             <Button 
+                                ref={buttonRef}
                                 variant="light" 
                                 className="cart-button-round" 
                                 onClick={handleAddToCart}

@@ -1,0 +1,48 @@
+/* src/components/Animation.css */
+.animated-product-image {
+  position: fixed;
+  z-index: 9999; /* Increased from 1000 to ensure it's above everything */
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 50%;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+  pointer-events: none;
+  animation: fly-to-cart 800ms ease-out forwards;
+}
+
+@keyframes fly-to-cart {
+  0% {
+    transform: scale(0.7);
+    opacity: 0.7;
+  }
+  15% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  70% {
+    /* This creates a slight arc by moving up a bit during the animation */
+    transform: translateX(calc(var(--end-x) * 0.7))
+               translateY(calc(var(--end-y) * 0.5 - 30px))
+               scale(0.7);
+    opacity: 0.8;
+  }
+  100% {
+    transform: translateX(var(--end-x))
+               translateY(var(--end-y))
+               scale(0.3);
+    opacity: 0;
+  }
+}
+
+@keyframes cartBounce {
+  0% { transform: scale(1); }
+  25% { transform: scale(1.2); }
+  50% { transform: scale(1); }
+  75% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+
+.cart-animation-active {
+  animation: cartBounce 0.5s ease-in-out;
+}

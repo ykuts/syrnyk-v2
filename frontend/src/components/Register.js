@@ -382,7 +382,7 @@ const Register = () => {
                   {getUIText('privacyTitle')}
                 </h6>
                 
-                <Form.Group className="mb-3">
+                <Form.Group className="mb-3 text-start">
                   <Form.Check
                     type="checkbox"
                     id="dataConsentAccepted"
@@ -410,7 +410,7 @@ const Register = () => {
                   )}
                 </Form.Group>
                 
-                <Form.Group className="mb-2">
+                <Form.Group className="mb-2 text-start">
                   <Form.Check
                     type="checkbox"
                     id="marketingConsent"

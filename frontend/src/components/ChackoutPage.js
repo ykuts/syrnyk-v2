@@ -5,10 +5,15 @@ import { Form, Button, Alert, Container } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import AuthChoice from './AuthChoice';
 import CheckoutForm from './CheckoutForm';
-//import CartTable from './CartTable';
 import CartProducts from './CartProducts';
 import { apiClient } from '../utils/api';
 import { useTranslation } from 'react-i18next';
+// Import templates
+import { 
+  consentCheckboxText, 
+  marketingConsentText, 
+  requiredConsentError 
+} from '../templates/dataProcessingTemplates';
 
 const STORE_ADDRESS = {
   id: 1,
@@ -19,16 +24,17 @@ const STORE_ADDRESS = {
 };
 
 const CheckoutPage = () => {
-  const { t } = useTranslation('checkout');
+  const { t, i18n } = useTranslation(['checkout', 'auth']);
   const navigate = useNavigate();
   const { user, login } = useAuth();
-  const { cartItems, 
-          totalPrice, 
-          clearCart,
-          addOneToCart,    
-          removeFromCart, 
-          removeAllFromCart 
-        } = useContext(CartContext);
+  const { 
+    cartItems, 
+    totalPrice, 
+    clearCart,
+    addOneToCart,    
+    removeFromCart, 
+    removeAllFromCart 
+  } = useContext(CartContext);
 
   // Checkout flow states
   const [checkoutStep, setCheckoutStep] = useState('initial');
@@ -57,7 +63,11 @@ const CheckoutPage = () => {
     storeId: '1',
     pickupTime: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().slice(0, 16),
     paymentMethod: 'TWINT',
-    notesClient: ''
+    notesClient: '',
+    // Data consent fields
+    dataConsentAccepted: false,
+    marketingConsent: false,
+    language: i18n.language || 'uk' // Current language for texts
   });
 
   // UI states
@@ -133,10 +143,13 @@ const CheckoutPage = () => {
     fetchStations();
   }, []);
 
-  // Debug log for formData changes
+  // Update language in form data when i18n.language changes
   useEffect(() => {
-    console.log('Current formData:', formData);
-  }, [formData]);
+    setFormData(prev => ({
+      ...prev,
+      language: i18n.language
+    }));
+  }, [i18n.language]);
 
   const handleAuthChoice = (choice) => {
     if (choice === 'guest') {
@@ -174,6 +187,9 @@ const CheckoutPage = () => {
       }
     }
 
+    // Handle checkbox fields
+    const newValue = type === 'checkbox' ? checked : value;
+
     if (name === 'preferredDeliveryType') {
       setFormData(prev => ({
         ...prev,
@@ -183,7 +199,7 @@ const CheckoutPage = () => {
     } else {
       setFormData(prev => ({
         ...prev,
-        [name]: value
+        [name]: newValue
       }));
     }
   };
@@ -195,14 +211,21 @@ const CheckoutPage = () => {
   
     try {
       if (isGuest && createAccount) {
+        // Validate password
         if (!formData.password || !formData.confirmPassword) {
-          throw new Error('Будь ласка, введіть пароль та його підтвердження');
+          throw new Error(t('register.validation.password_required', { ns: 'auth' }));
         }
         if (formData.password !== formData.confirmPassword) {
-          throw new Error('Паролі не співпадають');
+          throw new Error(t('register.validation.passwords_mismatch', { ns: 'auth' }));
         }
         if (!formData.password.match(/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/)) {
-          throw new Error('Пароль повинен містити мінімум 8 символів та включати літери і цифри');
+          throw new Error(t('register.validation.password_requirements', { ns: 'auth' }));
+        }
+        
+        // Validate data consent
+        if (!formData.dataConsentAccepted) {
+          const errorText = requiredConsentError[formData.language] || requiredConsentError.uk;
+          throw new Error(errorText || t('register.validation.consent_required', { ns: 'auth' }));
         }
       }
 
@@ -232,10 +255,15 @@ const CheckoutPage = () => {
           console.log('Registration requested:', {
             email: formData.email,
             hasPassword: !!formData.password,
-            createAccount
+            createAccount,
+            consentAccepted: formData.dataConsentAccepted
           });
           orderData.shouldRegister = true;
           orderData.password = formData.password;
+          orderData.dataConsentAccepted = formData.dataConsentAccepted;
+          orderData.marketingConsent = formData.marketingConsent || false;
+          orderData.dataConsentVersion = 'v1.0'; // Current version
+          orderData.dataConsentDate = new Date().toISOString();
         }
       } else {
         orderData.userId = user.id;
@@ -271,11 +299,7 @@ const CheckoutPage = () => {
           throw new Error(`Invalid delivery type: ${formData.preferredDeliveryType}`);
       }
 
-      
-  
       console.log('Sending order data:', orderData);
-
-      
   
       try {
         // Make the API call

@@ -1,10 +1,10 @@
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcryptjs';
-import { 
+import {
   sendOrderStatusUpdate,
   sendModifiedOrderConfirmation,
   sendOrderConfirmationToClient,
-  sendNewOrderNotificationToAdmin, 
+  sendNewOrderNotificationToAdmin,
   sendWelcomeEmail,
 } from '../services/emailService.js';
 
@@ -30,8 +30,8 @@ export const createOrder = async (req, res) => {
 
     // Checking required fields
     if (!deliveryType || !totalAmount || !items || items.length === 0) {
-      return res.status(400).json({ 
-        message: "Required order fields are missing" 
+      return res.status(400).json({
+        message: "Required order fields are missing"
       });
     }
 
@@ -54,7 +54,17 @@ export const createOrder = async (req, res) => {
           });
         }
 
-        // Create new user
+        // Extract consent data from request body
+        const { dataConsentAccepted, marketingConsent, dataConsentVersion, dataConsentDate } = req.body;
+
+        // Check for data consent - with fallback
+        if (!dataConsentAccepted) {
+          return res.status(400).json({
+            message: 'Data processing consent is required for registration.'
+          });
+        }
+
+        // Create new user with consent data
         const hashedPassword = await bcrypt.hash(password, 12);
         console.log('Creating new user with email:', customer.email);
         registeredUser = await prisma.user.create({
@@ -64,6 +74,10 @@ export const createOrder = async (req, res) => {
             email: customer.email,
             phone: customer.phone,
             password: hashedPassword,
+            dataConsentAccepted: dataConsentAccepted || false,
+            dataConsentDate: dataConsentDate || new Date().toISOString(),
+            dataConsentVersion: dataConsentVersion || 'v1.0',
+            marketingConsent: marketingConsent || false
           }
         });
 
@@ -161,10 +175,10 @@ export const createOrder = async (req, res) => {
     // Send notifications
     try {
       const recipient = order.user || order.guestInfo;
-      
+
       // Send order confirmation to customer
       await sendOrderConfirmationToClient(order, recipient);
-      
+
       // Send notification to admin
       await sendNewOrderNotificationToAdmin(order, recipient);
     } catch (emailError) {
@@ -181,7 +195,7 @@ export const createOrder = async (req, res) => {
         lastName: registeredUser.lastName
       } : null
     };
-    
+
     console.log('Sending response with data:', JSON.stringify(responseData, null, 2));
     res.status(201).json(responseData);
   } catch (error) {
@@ -210,7 +224,7 @@ export const updateOrderStatus = async (req, res) => {
   try {
     const { orderId } = req.params;
     const { status } = req.body;
-    
+
     // Validate status
     if (!['PENDING', 'CONFIRMED', 'DELIVERED', 'CANCELLED'].includes(status)) {
       return res.status(400).json({ error: 'Invalid order status' });
@@ -296,9 +310,9 @@ export const updateOrderStatus = async (req, res) => {
     });
   } catch (error) {
     console.error('Error updating order status:', error);
-    res.status(500).json({ 
+    res.status(500).json({
       error: 'Error updating order status',
-      details: process.env.NODE_ENV === 'development' ? error.message : undefined 
+      details: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
 };
@@ -307,7 +321,7 @@ export const updatePaymentStatus = async (req, res) => {
   try {
     const { orderId } = req.params;
     const { paymentStatus } = req.body;
-    
+
     // Check status PaymentStatus
     if (!['PENDING', 'PAID', 'REFUNDED'].includes(paymentStatus)) {
       return res.status(400).json({ error: 'Invalid payment status' });
@@ -361,7 +375,7 @@ export const updateOrderNotes = async (req, res) => {
   try {
     const { orderId } = req.params;
     const { notesAdmin } = req.body;
-    
+
     const order = await prisma.order.update({
       where: { id: Number(orderId) },
       data: { notesAdmin }
@@ -564,7 +578,7 @@ export const notifyOrderChanges = async (req, res) => {
   try {
     const { orderId } = req.params;
     const { message } = req.body;
-    
+
     // Get order with all related data
     const order = await prisma.order.findUnique({
       where: { id: Number(orderId) },
@@ -595,7 +609,7 @@ export const notifyOrderChanges = async (req, res) => {
     }
 
     const recipient = order.user || order.guestInfo;
-    
+
     // Send notification email
     await sendOrderStatusUpdate(order, recipient, {
       customMessage: message
@@ -618,7 +632,7 @@ export const notifyOrderChanges = async (req, res) => {
     });
   } catch (error) {
     console.error('Error sending notification:', error);
-    res.status(500).json({ 
+    res.status(500).json({
       message: 'Error sending notification',
       error: process.env.NODE_ENV === 'development' ? error.message : undefined
     });

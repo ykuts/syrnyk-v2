@@ -206,7 +206,7 @@ const ProductDetails = () => {
                                                     alt={`${product.name} ${index + 1}`}
                                                     style={{
                                                         objectFit: 'cover',
-                                                        height: '600px',
+                                                        height: '400px',
                                                     }}
                                                     onError={handleImageError}
                                                 />

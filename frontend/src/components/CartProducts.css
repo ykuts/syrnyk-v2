@@ -1,13 +1,16 @@
-/* CartProducts.css */
-
-/* Mobile cart styles with #94c4d8 blue color theme */
 .cart-items-mobile {
   margin-bottom: 20px;
 }
 
 .cart-item-mobile {
   padding: 12px 0;
-  border-bottom: 1px solid #eee;
+  position: relative;
+}
+
+.cart-item-border {
+  height: 1px;
+  background-color: #e0e0e0;
+  width: 100%;
 }
 
 .cart-item-info {
@@ -30,11 +33,8 @@
   color: #555;
 }
 
-.cart-item-controls {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 8px;
+.cart-bottom-row {
+  width: 100%;
 }
 
 /* Quantity selector with #94c4d8 blue color */
@@ -44,18 +44,19 @@
   border: 1px solid #94c4d8;
   border-radius: 50px;
   overflow: hidden;
+  
   padding: 0;
   height: 36px;
-  width: 120px;
+  width: 100px;
 }
 
 .quantity-btn {
-  width: 40px;
+  width: 36px;
   height: 100%;
   background: none;
   border: none;
   font-size: 16px;
-  color: rgb(5, 5, 5);
+  color: rgb(7, 7, 7);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -70,15 +71,21 @@
 .quantity-value {
   flex: 1;
   text-align: center;
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 500;
-  color: rgb(5, 5, 5);
+  color: rgb(7, 7, 7);
+}
+
+.price-controls {
+  display: flex;
+  align-items: center;
 }
 
 .item-price {
   font-weight: 600;
-  font-size: 18px;
+  font-size: 16px;
   color: #333;
+  text-align: right;
 }
 
 .remove-btn {
@@ -105,5 +112,5 @@
 .total-price {
   font-weight: 600;
   font-size: 18px;
-  color: #333;
+  color: #050505;
 }

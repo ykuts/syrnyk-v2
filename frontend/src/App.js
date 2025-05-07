@@ -16,7 +16,6 @@ import Register from './components/Register';
 import { AuthProvider } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
 import { AnimationProvider } from './context/AnimationContext'; // New import
-import AddToCartAnimation from './components/AddToCartAnimation';
 import AnimationWrapper from './components/AnimationWrapper'; // New import
 import CheckoutPage from './components/ChackoutPage';
 import DeliveryPage from './components/DeliveryPage';
@@ -98,6 +97,7 @@ function App() {
                   <Route path="products" element={<ProductsPanel />} />
                   <Route path="reports" element={<ReportsPanel />} />
                   <Route path="delivery" element={<DeliveryPanel />} />
+                  
                 </Route>
 
                 {/* Public Routes */}

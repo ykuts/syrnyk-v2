@@ -1,17 +1,17 @@
 import { Container, Nav, Row, Col } from 'react-bootstrap';
-import { Boxes, Users, ShoppingCart, Truck } from 'lucide-react';
+import { Boxes, Users, ShoppingCart, Truck, List  } from 'lucide-react';
 import { useNavigate, useLocation, Outlet } from 'react-router-dom';
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  
+
   const activeKey = location.pathname.split('/')[2] || 'orders';
-  
+
   const handleSelect = (key) => {
     navigate(`/admin/${key}`);
   };
-  
+
   return (
     <Container fluid className="p-0">
       <Row className="m-2 mt-5">
@@ -20,7 +20,7 @@ const AdminDashboard = () => {
             <h4 className="mb-0">Адмін панель</h4>
           </div>
           <Nav
-            
+
             className="flex-column mt-3 custom-nav"
             activeKey={activeKey}
             onSelect={handleSelect}
@@ -61,6 +61,7 @@ const AdminDashboard = () => {
                 Управління доставкою
               </Nav.Link>
             </Nav.Item>
+            
             {/* <Nav.Item>
               <Nav.Link
                 eventKey="reports"
@@ -72,7 +73,7 @@ const AdminDashboard = () => {
             </Nav.Item> */}
           </Nav>
         </Col>
-        
+
         <Col md={10} className="p-3">
           <Outlet />
         </Col>

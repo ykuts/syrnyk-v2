@@ -129,7 +129,10 @@ export const getProducts = async (req, res) => {
            language: lang
          }
        }
-     }
+     },
+      orderBy: {
+        displayOrder: 'asc'
+      }
    });
    
    // Transform the response to merge translations with base product data
@@ -399,4 +402,35 @@ export const getAvailableLanguages = async (req, res) => {
    console.error('Error fetching available languages:', error);
    res.status(500).json({ message: error.message });
  }
+};
+
+export const updateProductOrder = async (req, res) => {
+  try {
+    const { updates } = req.body;
+    
+    if (!Array.isArray(updates)) {
+      return res.status(400).json({ message: 'Updates must be an array' });
+    }
+    
+    // Use transaction to ensure all updates succeed or fail together
+    const result = await prisma.$transaction(
+      updates.map(update => 
+        prisma.product.update({
+          where: { id: parseInt(update.id) },
+          data: { displayOrder: update.displayOrder }
+        })
+      )
+    );
+    
+    res.status(200).json({
+      message: 'Product order updated successfully',
+      updatedCount: result.length
+    });
+  } catch (error) {
+    console.error('Error updating product order:', error);
+    res.status(500).json({
+      message: 'Error updating product order',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
 };

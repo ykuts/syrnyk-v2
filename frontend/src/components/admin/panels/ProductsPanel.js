@@ -13,6 +13,10 @@ const ProductsPanel = () => {
   const [error, setError] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
+  const [reorderStatus, setReorderStatus] = useState({
+    saving: false,
+    success: false
+  });
 
 
   useEffect(() => {
@@ -110,41 +114,81 @@ const ProductsPanel = () => {
     }
 };
 
-  if (loading && !products.length) {
-    return (
-      <Container className="d-flex justify-content-center align-items-center" style={{ minHeight: '200px' }}>
-        <Spinner animation="border" />
-      </Container>
-    );
+// handle reordering
+const handleReorder = async (reorderedProducts) => {
+  setReorderStatus({ saving: true, success: false });
+  try {
+    // Prepare updates array with only id and displayOrder
+    const updates = reorderedProducts.map((product) => ({
+      id: product.id,
+      displayOrder: product.displayOrder
+    }));
+    
+    // Send updates to backend
+    await apiClient.post('/products/update-order', { updates });
+    
+    // Update local products state
+    setProducts(reorderedProducts);
+    
+    // Show success message
+    setReorderStatus({ saving: false, success: true });
+    
+    // Hide success message after 3 seconds
+    setTimeout(() => {
+      setReorderStatus(prev => ({ ...prev, success: false }));
+    }, 3000);
+  } catch (err) {
+    setError('Помилка під час збереження порядку продуктів');
+    console.error(err);
+    setReorderStatus({ saving: false, success: false });
   }
+};
 
+if (loading && !products.length) {
   return (
-    <Container className="py-4">
-      {error && <Alert variant="danger" onClose={() => setError(null)} dismissible>{error}</Alert>}
-      
-      <ProductList 
-        products={products}
-        onDelete={handleDelete}
-        onEdit={handleEdit}
-        onAddNew={() => {
-          setSelectedProduct(null);
-          setShowModal(true);
-        }}
-      />
-
-      <ProductForm
-        show={showModal}
-        onHide={() => {
-          setShowModal(false);
-          setSelectedProduct(null);
-        }}
-        onSave={handleSave}
-        product={selectedProduct}
-        categories={categories}
-        loading={loading}
-      />
+    <Container className="d-flex justify-content-center align-items-center" style={{ minHeight: '200px' }}>
+      <Spinner animation="border" />
     </Container>
   );
+}
+
+return (
+  <Container className="py-4">
+    {error && <Alert variant="danger" onClose={() => setError(null)} dismissible>{error}</Alert>}
+    {reorderStatus.success && <Alert variant="success">Порядок продуктів успішно збережено</Alert>}
+    
+    <ProductList 
+  products={products}
+  onDelete={handleDelete}
+  onEdit={handleEdit}
+  onAddNew={() => {
+    setSelectedProduct(null);
+    setShowModal(true);
+  }}
+  onReorder={handleReorder}
+/>
+
+    {reorderStatus.saving && (
+      <div className="position-fixed top-0 end-0 p-3" style={{ zIndex: 1050 }}>
+        <Alert variant="info">
+          Зберігаємо порядок продуктів...
+        </Alert>
+      </div>
+    )}
+
+    <ProductForm
+      show={showModal}
+      onHide={() => {
+        setShowModal(false);
+        setSelectedProduct(null);
+      }}
+      onSave={handleSave}
+      product={selectedProduct}
+      categories={categories}
+      loading={loading}
+    />
+  </Container>
+);
 };
 
 export default ProductsPanel;

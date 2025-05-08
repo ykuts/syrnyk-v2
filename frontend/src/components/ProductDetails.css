@@ -95,103 +95,69 @@
     border: 2px solid #007bff;
 }
 
-/* Стили для модального окна с каруселью */
-.modal-content {
-    background-color: #f8f9fa;
-    /* width: max-content; */
-}
-
-.carousel-control-prev,
-.carousel-control-next {
-    width: 10%;
-    opacity: 0.8;
-}
-
-.carousel-control-prev:hover,
-.carousel-control-next:hover {
-    opacity: 1;
-}
-
-/* Product image carousel styles */
-.product-image-carousel {
-    border-radius: 8px;
-    overflow: hidden;
-    position: relative;
-}
-
-/* Style for the image container to make it clickable */
-.carousel-image-container {
-    cursor: pointer;
-    position: relative;
-    width: 100%;
+.product-gallery-modal .modal-dialog {
+    display: flex;
+    align-items: center;
+    min-height: calc(100% - 1rem);
+  }
+  
+  .fixed-height-modal-body {
+    height: 60vh; /* Fixed height for modal body */
+    max-height: 500px; /* Maximum height */
+    padding: 0; /* Remove default padding */
+  }
+  
+  .gallery-carousel {
+    height: 100%; /* Take full height of the modal body */
+  }
+  
+  .gallery-carousel .carousel-inner {
+    height: 100%; /* Take full height of the carousel */
+  }
+  
+  .gallery-carousel .carousel-item {
+    height: 100%; /* Take full height */
+  }
+  
+  .fixed-image-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
     height: 100%;
-}
-
-/* Make carousel indicators and controls more visible */
-.product-image-carousel .carousel-control-prev,
-.product-image-carousel .carousel-control-next {
-    z-index: 10;
-    opacity: 0.7;
-    background: rgba(0, 0, 0, 0.2);
-    height: 50px;
+    background-color: #f8f9fa;
+    overflow: hidden;
+  }
+  
+  .gallery-image {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    margin: auto;
+  }
+  
+  /* Improve carousel controls visibility */
+  .gallery-carousel .carousel-control-prev,
+  .gallery-carousel .carousel-control-next {
+    background: rgba(0, 0, 0, 0.3);
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
     top: 50%;
     transform: translateY(-50%);
-    border-radius: 50%;
-    width: 50px;
-    margin: 0 10px;
-}
-
-.product-image-carousel .carousel-control-prev-icon,
-.product-image-carousel .carousel-control-next-icon {
-    width: 24px;
-    height: 24px;
-}
-
-.product-image-carousel .carousel-indicators {
-    margin-bottom: 0.5rem;
-    z-index: 10;
-}
-
-/* Thumbnail styles */
-.product-thumbs {
-    display: flex;
-    flex-wrap: nowrap;
-    gap: 8px;
-    margin-top: 10px;
-    padding: 10px 0;
-    overflow-x: auto;
-    scrollbar-width: thin;
-}
-
-.product-thumbs img {
-    transition: all 0.2s ease;
-}
-
-.product-thumbs img:hover {
-    transform: scale(1.05);
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-}
-
-.product-thumbs img.selected-thumb {
-    border: 2px solid #007bff !important;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
-}
-
-/* Hide scrollbar for Chrome, Safari and Opera */
-.product-thumbs::-webkit-scrollbar {
-    height: 6px;
-}
-
-.product-thumbs::-webkit-scrollbar-track {
-    background: #f1f1f1;
-    border-radius: 3px;
-}
-
-.product-thumbs::-webkit-scrollbar-thumb {
-    background: #888;
-    border-radius: 3px;
-}
-
-.product-thumbs::-webkit-scrollbar-thumb:hover {
-    background: #555;
-}
+    opacity: 0.8;
+  }
+  
+  .gallery-carousel .carousel-control-prev {
+    left: 10px;
+  }
+  
+  .gallery-carousel .carousel-control-next {
+    right: 10px;
+  }
+  
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+    .fixed-height-modal-body {
+      height: 50vh;
+    }
+  }

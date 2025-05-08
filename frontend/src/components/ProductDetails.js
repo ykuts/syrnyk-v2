@@ -96,7 +96,7 @@ const ProductDetails = () => {
     // Only process images if product exists and has images
     const mainImage = getImageUrl(product.image);
     const additionalImages = product.images?.map(img => getImageUrl(img)) || [];
-    const allImages = [mainImage, ...additionalImages].filter(Boolean);
+    const allImages = [ ...additionalImages].filter(Boolean);
 
     // Default image URL
     const defaultImageUrl = '/assets/default-product.png';
@@ -300,38 +300,39 @@ const ProductDetails = () => {
 
             {/* Modal with the carousel */}
             <Modal
-                show={showGallery}
-                onHide={() => setShowGallery(false)}
-                size="lg"
-                centered
-                onShow={() => setModalImageIndex(selectedImageIndex)} // Sync initial position
-            >
-                <Modal.Header closeButton>
-                    <Modal.Title>{product.name}</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                    <Carousel
-                        activeIndex={modalImageIndex}
-                        onSelect={setModalImageIndex} // Use the modal-specific state
-                        interval={null}
-                    >
-                        {allImages.map((img, index) => (
-                            <Carousel.Item key={index}>
-                                <img
-                                    className="d-block w-100"
-                                    src={img}
-                                    alt={`${product.name} ${index + 1}`}
-                                    style={{
-                                        maxHeight: '70vh',
-                                        objectFit: 'contain',
-                                        backgroundColor: '#f8f9fa'
-                                    }}
-                                />
-                            </Carousel.Item>
-                        ))}
-                    </Carousel>
-                </Modal.Body>
-            </Modal>
+  show={showGallery}
+  onHide={() => setShowGallery(false)}
+  size="lg"
+  centered
+  onShow={() => setModalImageIndex(selectedImageIndex)} // Sync initial position
+  className="product-gallery-modal" // Add custom class for styling
+>
+  <Modal.Header closeButton>
+    <Modal.Title>{product.name}</Modal.Title>
+  </Modal.Header>
+  <Modal.Body className="fixed-height-modal-body">
+    <Carousel
+      activeIndex={modalImageIndex}
+      onSelect={setModalImageIndex}
+      interval={null}
+      className="gallery-carousel"
+    >
+      {allImages.map((img, index) => (
+        <Carousel.Item key={index}>
+          <div className="fixed-image-container">
+            <img
+              className="gallery-image"
+              src={img}
+              alt={`${product.name} ${index + 1}`}
+              onError={handleImageError}
+            />
+          </div>
+        </Carousel.Item>
+      ))}
+    </Carousel>
+  </Modal.Body>
+</Modal>
+
 
             <Container>
                 <h4 className="text-start pt-3">

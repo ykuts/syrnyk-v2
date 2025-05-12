@@ -21,7 +21,18 @@
     text-align: justify;
     line-height: 1.5;
     color: #212529;
-    margin-bottom: 0;
+    margin-bottom: 10px;
+  }
+
+  .content-section ol {
+    text-align: justify;
+    line-height: 1.5;
+    color: #212529;
+    margin-bottom: 0px;
+  }
+
+  .content-section li {
+    margin-bottom: 10px;
   }
   
   /* Медиа-запросы для адаптивности */

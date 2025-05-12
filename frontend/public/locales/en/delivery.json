@@ -1,0 +1,110 @@
+{
+  "title": "DELIVERY AND PAYMENT",
+  "payment": {
+    "title": "PAYMENT FOR PRODUCTS",
+    "intro": "We offer several convenient payment methods for your comfort.",
+    "cash": {
+      "title": "Payment upon receipt",
+      "description": " You can **pay cash** to our courier when receiving your order."
+    },
+    "transfer": {
+      "title": "Payment to our association's account",
+      "description": " You can make a payment **via TWINT** or using **the association's bank details** when receiving your order. The details will be sent to you in the order confirmation message."
+    },
+    "prepayment": "No prepayment required, pay upon receipt of your order.",
+    "conclusion": "Choose the payment method that is most convenient for you, and we will ensure fast and quality delivery of your order."
+  },
+  "station_delivery": {
+    "title": "DELIVERY TO RAILWAY STATIONS",
+    "intro": "We offer **free delivery** to the main railway stations in the cantons of Vaud and Geneva (VAUD, GENÈVE).",
+    "min_order": {
+      "label": "Minimum order",
+      "value": " for free delivery - 20 francs"
+    },
+    "schedule": {
+      "label": "Delivery days and times",
+      "value": " every Wednesday from 10:00 to 19:00 (see the schedule for each station below)"
+    }
+  },
+  "schedule": {
+    "title": "Delivery Schedule",
+    "headers": {
+      "city": "City",
+      "day_time": "Day/Time",
+      "meeting_point": "Meeting Point"
+    },
+    "nyon": {
+      "day_time": "Self-pickup: any day and time convenient for you, to be agreed by phone",
+      "meeting_point": "chemin de Pré-Fleuri 5, Nyon"
+    },
+    "aigle": {
+      "day_time": "Tuesday-Wednesday, a time convenient for you to be agreed by phone",
+      "meeting_point": "By the fountain, opposite the station in the square"
+    },
+    "rolle": {
+      "day_time": "10:15-10:30",
+      "meeting_point": "On platform 1, near the station entrance"
+    },
+    "vevey": {
+      "day_time": "11:40",
+      "meeting_point": "Near Migros shopping center (on the semicircular benches)"
+    },
+    "montreux": {
+      "day_time": "12:10-12:15",
+      "meeting_point": "Near the SBB entrance, at the bottom by the escalator"
+    },
+    "lausanne": {
+      "day_time": "13:00",
+      "meeting_point": "In the waiting room by the main entrance"
+    },
+    "morges": {
+      "day_time": "13:35",
+      "meeting_point": "On platform 1, near the entrance for strollers, suitcases, and the disabled from the McDonalds side"
+    },
+    "geneve": {
+      "day_time": "18:20-18:30",
+      "meeting_point": "Platform 3, sector B-C on the bench"
+    }
+  },
+  "address_delivery": {
+    "title": "DELIVERY TO ADDRESS (home, office, other)",
+    "free": {
+      "title": "Free delivery",
+      "description": " to addresses in the cantons of Vaud and Geneva (VAUD, GENÈVE) for orders from 200 francs"
+    },
+    "schedule": {
+      "label": "Days and times for address delivery",
+      "value": " Saturday, Monday from 9:00 to 21:00"
+    },
+    "paid": {
+      "intro": "We also offer paid delivery of products.",
+      "min_order": {
+        "label": "Minimum order",
+        "value": "**Minimum order** for paid address delivery - **100 francs**. "
+      },
+      "cost": {
+        "label": "Cost",
+        "description": "**Cost** of address delivery is discussed individually, depending on the delivery location (for reference - delivery costs an average of **10-20 francs**)"
+      }
+    }
+  },
+  "order_process": {
+    "title": "ORDER ACCEPTANCE PROCEDURE",
+    "step1": "After placing an order, you will receive a notification that we have accepted it for processing.",
+    "step2": "After verifying all data and product availability, you will receive confirmation of your order, where we will again provide you with the product range, amount to be paid, and delivery time and place.",
+    "step3": "You can place an order on any day and time. If the products are available, we will confirm it for the nearest delivery day or suggest postponing it to the next week.",
+    "step4": "Our products are delicious and safe when fresh. Therefore, in production, we adhere to strict planning and focus on your orders. For guaranteed receipt of products in full, it is advisable to place orders for the next week from Wednesday to Thursday of the current week (or earlier)."
+  },
+  "stations": {
+    "loading": "Loading stations...",
+    "not_found": "No stations found",
+    "city": "City",
+    "station": "Station",
+    "day_time": "Day/Time",
+    "meeting_point": "Meeting point",
+    "alt_text": "Meeting location at"
+  },
+  "errors": {
+    "load_stations": "Error loading station data"
+  }
+}

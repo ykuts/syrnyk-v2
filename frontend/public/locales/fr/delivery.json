@@ -1,0 +1,110 @@
+{
+  "title": "LIVRAISON ET PAIEMENT",
+  "payment": {
+    "title": "PAIEMENT DES PRODUITS",
+    "intro": "Nous proposons plusieurs méthodes de paiement pratiques pour votre confort.",
+    "cash": {
+      "title": "Paiement à la réception",
+      "description": " Vous pouvez payer **en espèces** à notre livreur lors de la réception de votre commande."
+    },
+    "transfer": {
+      "title": "Paiement sur le compte de notre association",
+      "description": " Vous pouvez effectuer un paiement **via TWINT** ou en utilisant **les coordonnées bancaires de l'association** lors de la réception de votre commande. Les détails vous seront envoyés dans le message de confirmation de commande."
+    },
+    "prepayment": "Pas de prépaiement nécessaire, payez à la réception de votre commande.",
+    "conclusion": "Choisissez le mode de paiement qui vous convient le mieux, et nous assurerons une livraison rapide et de qualité de votre commande."
+  },
+  "station_delivery": {
+    "title": "LIVRAISON AUX GARES FERROVIAIRES",
+    "intro": "Nous proposons **une livraison gratuite** aux principales gares ferroviaires des cantons de Vaud et de Genève (VAUD, GENÈVE).",
+    "min_order": {
+      "label": "Commande minimale",
+      "value": " pour une livraison gratuite - 20 francs"
+    },
+    "schedule": {
+      "label": "Jours et heures de livraison",
+      "value": " tous les mercredis de 10h00 à 19h00 (voir le calendrier pour chaque gare ci-dessous)"
+    }
+  },
+  "schedule": {
+    "title": "Calendrier de livraison",
+    "headers": {
+      "city": "Ville",
+      "day_time": "Jour/Heure",
+      "meeting_point": "Point de rencontre"
+    },
+    "nyon": {
+      "day_time": "Auto-collecte: n'importe quel jour et heure qui vous convient, à convenir par téléphone",
+      "meeting_point": "chemin de Pré-Fleuri 5, Nyon"
+    },
+    "aigle": {
+      "day_time": "Mardi-mercredi, une heure qui vous convient à convenir par téléphone",
+      "meeting_point": "Près de la fontaine, en face de la gare sur la place"
+    },
+    "rolle": {
+      "day_time": "10h15-10h30",
+      "meeting_point": "Sur le quai 1, près de l'entrée de la gare"
+    },
+    "vevey": {
+      "day_time": "11h40",
+      "meeting_point": "Près du centre commercial Migros (sur les bancs semi-circulaires)"
+    },
+    "montreux": {
+      "day_time": "12h10-12h15",
+      "meeting_point": "Près de l'entrée SBB, en bas près de l'escalator"
+    },
+    "lausanne": {
+      "day_time": "13h00",
+      "meeting_point": "Dans la salle d'attente près de l'entrée principale"
+    },
+    "morges": {
+      "day_time": "13h35",
+      "meeting_point": "Sur le quai 1, près de l'entrée pour les poussettes, valises et personnes handicapées du côté McDonalds"
+    },
+    "geneve": {
+      "day_time": "18h20-18h30",
+      "meeting_point": "Quai 3, secteur B-C sur le banc"
+    }
+  },
+  "address_delivery": {
+    "title": "LIVRAISON À DOMICILE (domicile, bureau, autre)",
+    "free": {
+      "title": "Livraison gratuite",
+      "description": " aux adresses dans les cantons de Vaud et de Genève (VAUD, GENÈVE) pour les commandes à partir de 200 francs"
+    },
+    "schedule": {
+      "label": "Jours et heures de livraison à domicile",
+      "value": " samedi, lundi de 9h00 à 21h00"
+    },
+    "paid": {
+      "intro": "Nous proposons également une livraison payante des produits.",
+      "min_order": {
+        "label": "Commande minimale",
+        "value": "**Commande minimale** pour la livraison à domicile payante - **100 francs**. "
+      },
+      "cost": {
+        "label": "Coût",
+        "description": "**Coût** de la livraison à domicile est discuté individuellement, en fonction du lieu de livraison (à titre indicatif - la livraison coûte en moyenne **10-20 francs**)"
+      }
+    }
+  },
+  "order_process": {
+    "title": "PROCÉDURE D'ACCEPTATION DES COMMANDES",
+    "step1": "Après avoir passé une commande, vous recevrez une notification indiquant que nous l'avons acceptée pour traitement.",
+    "step2": "Après vérification de toutes les données et de la disponibilité des produits, vous recevrez une confirmation de votre commande, où nous vous fournirons à nouveau la gamme de produits, le montant à payer, ainsi que l'heure et le lieu de livraison.",
+    "step3": "Vous pouvez passer une commande n'importe quel jour et à n'importe quelle heure. Si les produits sont disponibles, nous la confirmerons pour le jour de livraison le plus proche ou vous proposerons de la reporter à la semaine suivante.",
+    "step4": "Nos produits sont délicieux et sûrs lorsqu'ils sont frais. Par conséquent, dans la production, nous adhérons à une planification stricte et nous concentrons sur vos commandes. Pour une réception garantie des produits dans leur intégralité, il est conseillé de passer les commandes pour la semaine suivante du mercredi au jeudi de la semaine en cours (ou plus tôt)."
+  },
+  "stations": {
+    "loading": "Chargement des gares...",
+    "not_found": "Aucune gare trouvée",
+    "city": "Ville",
+    "station": "Station",
+    "day_time": "Jour/Heure",
+    "meeting_point": "Point de rencontre",
+    "alt_text": "Lieu de rencontre à"
+  },
+  "errors": {
+        "load_stations": "Erreur lors du chargement des données de la station"
+      }
+    }

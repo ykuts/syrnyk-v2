@@ -1,13 +1,16 @@
-import { Container, Row, Col  } from 'react-bootstrap';
+import { Container, Row, Col, Table } from 'react-bootstrap';
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { apiClient } from '../utils/api';
 import { getImageUrl } from '../config';
+import ReactMarkdown from 'react-markdown';
 import "./DeliveryPayment.css";
 import "./DeliveryContent.css";
 import './MeetingCard.css';
 
 
 const DeliveryPage = () => {
+  const { t, i18n } = useTranslation(['delivery', 'common']);
   const [stations, setStations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -18,7 +21,7 @@ const DeliveryPage = () => {
         const data = await apiClient.get('/railway-stations');
         setStations(data.data);
       } catch (err) {
-        setError('Помилка при завантаженні даних про станції');
+        setError(t('errors.load_stations', { ns: 'delivery' }));
         console.error('Error fetching stations:', err);
       } finally {
         setLoading(false);
@@ -26,52 +29,171 @@ const DeliveryPage = () => {
     };
 
     fetchStations();
-  }, []);
+  }, [t]);
+
+   // Delivery schedule data
+   const deliverySchedule = [
+    {
+      city: 'Nyon',
+      dayTime: t('schedule.nyon.day_time', { ns: 'delivery' }),
+      meetingPoint: t('schedule.nyon.meeting_point', { ns: 'delivery' })
+    },
+    {
+      city: 'Aigle',
+      dayTime: t('schedule.aigle.day_time', { ns: 'delivery' }),
+      meetingPoint: t('schedule.aigle.meeting_point', { ns: 'delivery' })
+    },
+    {
+      city: 'Rolle',
+      dayTime: t('schedule.rolle.day_time', { ns: 'delivery' }),
+      meetingPoint: t('schedule.rolle.meeting_point', { ns: 'delivery' })
+    },
+    {
+      city: 'Vevey',
+      dayTime: t('schedule.vevey.day_time', { ns: 'delivery' }),
+      meetingPoint: t('schedule.vevey.meeting_point', { ns: 'delivery' })
+    },
+    {
+      city: 'Montreux',
+      dayTime: t('schedule.montreux.day_time', { ns: 'delivery' }),
+      meetingPoint: t('schedule.montreux.meeting_point', { ns: 'delivery' })
+    },
+    {
+      city: 'Lausanne',
+      dayTime: t('schedule.lausanne.day_time', { ns: 'delivery' }),
+      meetingPoint: t('schedule.lausanne.meeting_point', { ns: 'delivery' })
+    },
+    {
+      city: 'Morges',
+      dayTime: t('schedule.morges.day_time', { ns: 'delivery' }),
+      meetingPoint: t('schedule.morges.meeting_point', { ns: 'delivery' })
+    },
+    {
+      city: 'Geneve',
+      dayTime: t('schedule.geneve.day_time', { ns: 'delivery' }),
+      meetingPoint: t('schedule.geneve.meeting_point', { ns: 'delivery' })
+    }
+  ];
+
 
   return (
     <Container>
       <div className="delivery-payment">
-        <h1 className="page-title">ДОСТАВКА ТА ОПЛАТА</h1>
+        <h1 className="page-title">{t('title', { ns: 'delivery' })}</h1>
         <Container style={{padding: "0"}}>
       <div className="content-sections-container">
         <Row xs={1} md={2} className="g-5">
           <Col>
             <ContentSection
-              title="Оплата за продукцію"
-              content="Ми пропонуємо кілька зручних способів оплати для вашого комфорту. Оплата при отриманні замовлення: Ви можете сплатити готівкою нашому кур'єру під час отримання вашого замовлення. Оплата на рахунок нашої асоціації: Ви можете здійснити оплату через TWINT або за реквізитами асоціації при отриманні замовлення, реквізити вам надішлуть у повідомленні з підтвердженням вашого замовлення. Прозора ціна на продукцію, сплачуєте сума після отримання замовлення. Обирайте найбільш зручний для вас спосіб оплати, ми забезпечимо швидку та надійну доставку вашого замовлення."
+              title={t('payment.title', { ns: 'delivery' })}
+              content={
+                <>
+                  <p>{t('payment.intro', { ns: 'delivery' })}</p>
+                  <ol>
+                    <li>
+                      {t('payment.cash.title', { ns: 'delivery' })}: 
+                      <ReactMarkdown>{t('payment.cash.description', { ns: 'delivery' })}</ReactMarkdown>
+                    </li>
+                    <li>
+                      {t('payment.transfer.title', { ns: 'delivery' })}: 
+                      <ReactMarkdown>{t('payment.transfer.description', { ns: 'delivery' })}</ReactMarkdown>
+                    </li>
+                  </ol>
+                  <p>{t('payment.prepayment', { ns: 'delivery' })}</p>
+                  <p>{t('payment.conclusion', { ns: 'delivery' })}</p>
+                </>
+              }
             />
           </Col>
           <Col>
             <ContentSection
-              title="Доставка на залізничні вокзали"
-              content="Ми пропонуємо безкоштовну доставку на основні залізничні вокзали кантону Во та Женева (VULLY, GENEVE). Мінімальне замовлення для безкоштовної доставки — 20 франків. Дні та час доставки щоденно з 10:00 до 19:00 (залежить графік на кожну станцію нижче)"
+              title={t('station_delivery.title', { ns: 'delivery' })}
+              content={
+                <>
+                  <p>
+                    <ReactMarkdown>{t('station_delivery.intro', { ns: 'delivery' })}</ReactMarkdown>
+                  </p>
+                  <p>
+                    <strong>{t('station_delivery.min_order.label', { ns: 'delivery' })}</strong>: 
+                    {t('station_delivery.min_order.value', { ns: 'delivery' })}
+                  </p>
+                  <p>
+                    <strong>{t('station_delivery.schedule.label', { ns: 'delivery' })}</strong>: 
+                    {t('station_delivery.schedule.value', { ns: 'delivery' })}
+                  </p>
+
+                  <h4>{t('schedule.title', { ns: 'delivery' })}</h4>
+                  <Table bordered responsive className="my-4">
+                    <thead>
+                      <tr>
+                        <th>{t('schedule.headers.city', { ns: 'delivery' })}</th>
+                        <th>{t('schedule.headers.day_time', { ns: 'delivery' })}</th>
+                        <th>{t('schedule.headers.meeting_point', { ns: 'delivery' })}</th>
+                      </tr>
+                    </thead>
+                    <tbody className='text-start' style={{ fontSize: '0.9rem' }}>
+                      {deliverySchedule.map((item, index) => (
+                        <tr key={index}>
+                          <td>{item.city}</td>
+                          <td>{item.dayTime}</td>
+                          <td>{item.meetingPoint}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </Table>
+                </>
+              }
             />
           </Col>
           <Col>
             <ContentSection
-              title="Доставка за адресою"
-              content="Ми пропонуємо нашу послугу доставки продукції додому або в офіс. Мінімальне замовлення для адресної доставки: 100 франків. Доставки здійснюються щоденно, за винятком вихідних. Ви отримаєте підтвердження щодо доставки з нашим оператором."
+              title={t('address_delivery.title', { ns: 'delivery' })}
+              content={
+                <>
+                  <p>
+                    <strong>{t('address_delivery.free.title', { ns: 'delivery' })}</strong> 
+                    {t('address_delivery.free.description', { ns: 'delivery' })}
+                  </p>
+                  <p>
+                    <strong>{t('address_delivery.schedule.label', { ns: 'delivery' })}</strong>: 
+                    {t('address_delivery.schedule.value', { ns: 'delivery' })}
+                  </p>
+                  <p>
+                    <ReactMarkdown>{t('address_delivery.paid.intro', { ns: 'delivery' })}</ReactMarkdown> 
+                    <ReactMarkdown>{t('address_delivery.paid.min_order.value', { ns: 'delivery' })}</ReactMarkdown>
+                    <ReactMarkdown>{t('address_delivery.paid.cost.description', { ns: 'delivery' })}</ReactMarkdown>
+                  </p>
+                </>
+              }
+
             />
           </Col>
           <Col>
             <ContentSection
-              title="Порядок прийому замовлень"
-              content="Після оформлення замовлення ви отримуєте повідомлення, що ми прийняли його в обробку. Після перевірки ми надішлемо вам статус вашого замовлення, що воно готове до отримання. Зв'яжемося з вами перед вказаним часом доставки."
+              title={t('order_process.title', { ns: 'delivery' })}
+              content={
+                <ol>
+                  <li>{t('order_process.step1', { ns: 'delivery' })}</li>
+                  <li>{t('order_process.step2', { ns: 'delivery' })}</li>
+                  <li>{t('order_process.step3', { ns: 'delivery' })}</li>
+                  <li>{t('order_process.step4', { ns: 'delivery' })}</li>
+                </ol>
+              }
             />
           </Col>
         </Row>
       </div>
     </Container>
         
-        <div className="meeting-cards">
+    <div className="meeting-cards">
           {loading ? (
-            <div className="loading">Завантаження станцій...</div>
+            <div className="loading">{t('stations.loading', { ns: 'delivery' })}</div>
           ) : error ? (
             <div className="error">{error}</div>
           ) : stations.length === 0 ? (
-            <div className="no-stations">Станції не знайдені</div>
+            <div className="no-stations">{t('stations.not_found', { ns: 'delivery' })}</div>
           ) : (
-            // Группируем станции по городам
+            // Group stations by city
             Object.entries(
               stations.reduce((acc, station) => {
                 if (!acc[station.city]) {
@@ -82,7 +204,6 @@ const DeliveryPage = () => {
               }, {})
             ).map(([city, cityStations]) => (
               <div key={city} className="city-group">
-                {/* <h3 className="city-title">{city}</h3> */}
                 <div className="city-stations">
                   {cityStations.map(station => (
                     <MeetingCard
@@ -103,48 +224,47 @@ const DeliveryPage = () => {
   );
 };
 
-// Компонент для отображения раздела с контентом
+// Component for displaying content section
 const ContentSection = ({ title, content }) => (
   <div className="content-section">
     <h2>{title}</h2>
-    <p>{content}</p>
+    <div>{content}</div>
   </div>
 );
 
-// Обновленный компонент карточки встречи
+// Updated meeting card component
 const MeetingCard = ({ city, station, location, imageSrc }) => {
+  const { t } = useTranslation('delivery');
+  const [imageError, setImageError] = useState(false);
 
-    const [imageError, setImageError] = useState(false);
 
-    console.log('MeetingCard props:', { city, station, location, imageSrc });
-
-    // Get URLs with explicit 'station' type
-  const defaultImageUrl = getImageUrl(null, 'station');
-  const imageUrl = imageError ? defaultImageUrl : getImageUrl(imageSrc, 'station');
-    
-    return (
-      <div className="meeting-card">
-      <div className="meeting-info">
-          <div className="city">{`Місто: ${city}`}</div>
-          <div className="station">{`Дата/час: ${station}`}</div>
-          <div className="location">{`Місце зустрічі:`}</div>
-          <div className="location">{`${location}`}</div>
-      </div>
-      <div className="meeting-image">
-      <img 
-          src={imageUrl}
-          alt={`Meeting location at ${station}`} 
-          onError={(e) => {
-            console.log('Failed to load image:', e.target.src);
-            if (!imageError) {
-              setImageError(true);
-            }
-          }}
-        />
-      </div>
-  </div>
-      );
-    };
+   // Get URLs with explicit 'station' type
+   const defaultImageUrl = getImageUrl(null, 'station');
+   const imageUrl = imageError ? defaultImageUrl : getImageUrl(imageSrc, 'station');
+     
+   return (
+     <div className="meeting-card">
+       <div className="meeting-info">
+         <div className="city">{`${t('stations.city')}: ${city}`}</div>
+         <div className="day-time">{`${t('stations.day_time')}: ${station}`}</div>
+         <div className="location"><strong>{`${t('stations.meeting_point')}:`}</strong></div>
+         <div className="location">{`${location}`}</div>
+       </div>
+       <div className="meeting-image">
+         <img 
+           src={imageUrl}
+           alt={`${t('stations.alt_text')} ${station}`} 
+           onError={(e) => {
+             console.log('Failed to load image:', e.target.src);
+             if (!imageError) {
+               setImageError(true);
+             }
+           }}
+         />
+       </div>
+     </div>
+   );
+ };
 
 
 export default DeliveryPage;

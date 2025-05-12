@@ -1,7 +1,7 @@
 // Update to src/components/admin/panels/DeliveryPanel.js
 
 import React, { useState, useEffect } from 'react';
-import { Table, Button, Form, Card, Modal, Alert, Spinner } from 'react-bootstrap';
+import { Table, Button, Form, Card, Modal, Alert } from 'react-bootstrap';
 import { PlusCircle, Edit, Trash2 } from 'lucide-react';
 import { apiClient } from '../../../utils/api';
 import { getImageUrl } from '../../../config';

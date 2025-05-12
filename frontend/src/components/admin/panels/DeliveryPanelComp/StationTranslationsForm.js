@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Form, Button, Tabs, Tab, Row, Col, Alert } from 'react-bootstrap';
+import { Form, Tabs, Tab, Alert } from 'react-bootstrap';
 
 const StationTranslationsForm = ({ translations, availableLanguages, onChange }) => {
   const [activeTab, setActiveTab] = useState('uk');

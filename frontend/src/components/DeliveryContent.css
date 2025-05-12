@@ -5,11 +5,11 @@
     margin-bottom: 2rem;
   }
   
-  .content-section {
+  .content-section-delivery {
     margin-bottom: 1.5rem;
   }
   
-  .content-section h2 {
+  .content-section-delivery h2 {
     text-align: left;
     color: #0d6efd;
     margin-bottom: 1rem;
@@ -17,21 +17,21 @@
     font-weight: 600;
   }
   
-  .content-section p {
+  .content-section-delivery p {
     text-align: justify;
     line-height: 1.5;
     color: #212529;
     margin-bottom: 10px;
   }
 
-  .content-section ol {
+  .content-section-delivery ol {
     text-align: justify;
     line-height: 1.5;
     color: #212529;
     margin-bottom: 0px;
   }
 
-  .content-section li {
+  .content-section-delivery li {
     margin-bottom: 10px;
   }
   
@@ -41,12 +41,12 @@
       padding: 1rem;
     }
     
-    .content-section h2 {
+    .content-section-delivery h2 {
       font-size: 1.1rem;
     }
   }
   
   /* Добавление hover-эффектов */
-  .content-section:hover h2 {
+  .content-section-delivery:hover h2 {
     color: #0a58ca;
   }

@@ -226,7 +226,7 @@ const DeliveryPage = () => {
 
 // Component for displaying content section
 const ContentSection = ({ title, content }) => (
-  <div className="content-section">
+  <div className="content-section-delivery">
     <h2>{title}</h2>
     <div>{content}</div>
   </div>

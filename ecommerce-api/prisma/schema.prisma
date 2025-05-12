@@ -137,10 +137,26 @@ model RailwayStation {
   meetingPoint  String
   photo         String?
   deliveries    StationDelivery[]
+  translations  RailwayStationTranslation[] 
   createdAt     DateTime         @default(now())
   updatedAt     DateTime         @updatedAt
 
   @@unique([city, name])
+}
+
+// Model for railway station translations
+model RailwayStationTranslation {
+  id             Int            @id @default(autoincrement())
+  stationId      Int
+  language       String         // 'uk', 'en', 'fr', etc.
+  name           String?
+  meetingPoint   String?
+  
+  // Define relationship
+  station        RailwayStation @relation(fields: [stationId], references: [id], onDelete: Cascade)
+  
+  // Composite unique constraint to ensure one translation per language per station
+  @@unique([stationId, language])
 }
 
 // New model for store locations

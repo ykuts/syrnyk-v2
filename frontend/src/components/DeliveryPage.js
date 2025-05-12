@@ -18,7 +18,8 @@ const DeliveryPage = () => {
   useEffect(() => {
     const fetchStations = async () => {
       try {
-        const data = await apiClient.get('/railway-stations');
+        const currentLanguage = i18n.language;
+        const data = await apiClient.get(`/railway-stations?lang=${currentLanguage}`);
         setStations(data.data);
       } catch (err) {
         setError(t('errors.load_stations', { ns: 'delivery' }));
@@ -29,7 +30,7 @@ const DeliveryPage = () => {
     };
 
     fetchStations();
-  }, [t]);
+  }, [t, i18n.language]);
 
    // Delivery schedule data
    const deliverySchedule = [

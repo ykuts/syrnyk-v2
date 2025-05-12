@@ -1,8 +1,11 @@
+// Update to src/components/admin/panels/DeliveryPanel.js
+
 import React, { useState, useEffect } from 'react';
-import { Table, Button, Form, Card, Modal, Alert } from 'react-bootstrap';
+import { Table, Button, Form, Card, Modal, Alert, Spinner } from 'react-bootstrap';
 import { PlusCircle, Edit, Trash2 } from 'lucide-react';
 import { apiClient } from '../../../utils/api';
-import { API_URL, getImageUrl } from '../../../config';
+import { getImageUrl } from '../../../config';
+import StationTranslationsForm from './DeliveryPanelComp/StationTranslationsForm';
 
 const DeliveryPanel = () => {
   const [stations, setStations] = useState([]);
@@ -10,15 +13,17 @@ const DeliveryPanel = () => {
   const [error, setError] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [selectedStation, setSelectedStation] = useState(null);
+  const [availableLanguages, setAvailableLanguages] = useState(['uk', 'en', 'fr']);
   const [formData, setFormData] = useState({
     city: '',
     name: '',
     meetingPoint: '',
-    photo: ''
+    photo: '',
+    translations: {}
   });
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
 
-    // Загрузка станций
+  // Fetch stations
   const fetchStations = async () => {
     try {
       const response = await apiClient.get('/railway-stations');
@@ -32,11 +37,24 @@ const DeliveryPanel = () => {
     }
   };
 
+  // Fetch available languages
+  const fetchAvailableLanguages = async () => {
+    try {
+      const response = await apiClient.get('/railway-stations/languages');
+      if (response.languages && response.languages.length > 0) {
+        setAvailableLanguages(response.languages);
+      }
+    } catch (err) {
+      console.error('Error fetching available languages:', err);
+    }
+  };
+
   useEffect(() => {
     fetchStations();
+    fetchAvailableLanguages();
   }, []);
 
-  // Обработчики формы
+  // Handle form input changes
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({
@@ -45,6 +63,15 @@ const DeliveryPanel = () => {
     }));
   };
 
+  // Handle translations changes
+  const handleTranslationsChange = (translations) => {
+    setFormData(prev => ({
+      ...prev,
+      translations
+    }));
+  };
+
+  // Handle file change
   const handleFileChange = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -70,6 +97,7 @@ const DeliveryPanel = () => {
     }
   };
 
+  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -77,17 +105,23 @@ const DeliveryPanel = () => {
 
     try {
       if (selectedStation) {
-        // Use PUT for update
+        // Update existing station
         await apiClient.put(`/railway-stations/${selectedStation.id}`, formData);
       } else {
-        // Use POST for creation
+        // Create new station
         await apiClient.post('/railway-stations', formData);
       }
       
       await fetchStations();
       setShowModal(false);
       setSelectedStation(null);
-      setFormData({ city: '', name: '', meetingPoint: '', photo: '' });
+      setFormData({ 
+        city: '', 
+        name: '', 
+        meetingPoint: '', 
+        photo: '',
+        translations: {}
+      });
     } catch (err) {
       setError(err.message);
     } finally {
@@ -95,6 +129,7 @@ const DeliveryPanel = () => {
     }
   };
 
+  // Handle station deletion
   const handleDelete = async (id) => {
     if (window.confirm('Ви впевнені, що хочете видалити цю станцію?')) {
       try {
@@ -103,15 +138,11 @@ const DeliveryPanel = () => {
         // Delete photo first if exists
         if (station.photo) {
           const filename = station.photo.split('/').pop();
-          await fetch(`${API_URL}/api/upload/stations/${filename}`, {
-            method: 'DELETE',
-          });
+          await apiClient.delete(`/upload/stations/${filename}`);
         }
   
         // Then delete the station
-        await fetch(`${API_URL}/api/railway-stations/${id}`, {
-          method: 'DELETE',
-        });
+        await apiClient.delete(`/railway-stations/${id}`);
         
         await fetchStations();
       } catch (err) {
@@ -120,6 +151,7 @@ const DeliveryPanel = () => {
     }
   };
 
+  // Helper function to check and format image URLs
   const checkImageUrl = (url) => {
     if (!url) return null;
     try {
@@ -130,15 +162,27 @@ const DeliveryPanel = () => {
     }
   };
 
-  const handleEdit = (station) => {
-    setSelectedStation(station);
-    setFormData({
-      city: station.city,
-      name: station.name,
-      meetingPoint: station.meetingPoint,
-      photo: station.photo ? station.photo.replace(/^\/+/, '') : ''
-    });
-    setShowModal(true);
+  // Handle editing a station
+  const handleEdit = async (station) => {
+    try {
+      // Fetch full station data with translations
+      const stationData = await apiClient.get(`/railway-stations/${station.id}`);
+      setSelectedStation(stationData);
+      
+      // Format data for the form
+      setFormData({
+        city: stationData.city,
+        name: stationData.name,
+        meetingPoint: stationData.meetingPoint,
+        photo: stationData.photo ? stationData.photo.replace(/^\/+/, '') : '',
+        translations: stationData.translations || {}
+      });
+      
+      setShowModal(true);
+    } catch (err) {
+      setError('Помилка при завантаженні деталей станції');
+      console.error('Error fetching station details:', err);
+    }
   };
 
   if (loading && stations.length === 0) {
@@ -154,7 +198,13 @@ const DeliveryPanel = () => {
             variant="primary"
             onClick={() => {
               setSelectedStation(null);
-              setFormData({ city: '', name: '', meetingPoint: '', photo: '' });
+              setFormData({ 
+                city: '', 
+                name: '', 
+                meetingPoint: '', 
+                photo: '',
+                translations: {}
+              });
               setShowModal(true);
             }}
             className="d-flex align-items-center gap-2"
@@ -173,6 +223,7 @@ const DeliveryPanel = () => {
                 <th>Станція</th>
                 <th>Місце зустрічі</th>
                 <th>Фото</th>
+                <th>Переклади</th>
                 <th>Дії</th>
               </tr>
             </thead>
@@ -182,22 +233,27 @@ const DeliveryPanel = () => {
                   <td>{station.city}</td>
                   <td>{station.name}</td>
                   <td>{station.meetingPoint}</td>
-                  {<td>
+                  <td>
                     {station.photo && (
                       <img
-                      src={checkImageUrl(station.photo)}
-                      alt={station.name}
-                      style={{ height: '50px', width: '50px', objectFit: 'cover' }}
-                      onError={(e) => {
-                        if (!e.target.dataset.tried) {
-                          console.error('Error loading image:', station.photo);
-                          e.target.dataset.tried = 'true';
-                          e.target.src = '/placeholder.jpg';
-                        }
-                      }}
-                    />
+                        src={checkImageUrl(station.photo)}
+                        alt={station.name}
+                        style={{ height: '50px', width: '50px', objectFit: 'cover' }}
+                        onError={(e) => {
+                          if (!e.target.dataset.tried) {
+                            console.error('Error loading image:', station.photo);
+                            e.target.dataset.tried = 'true';
+                            e.target.src = '/placeholder.jpg';
+                          }
+                        }}
+                      />
                     )}
-                  </td>}
+                  </td>
+                  <td>
+                    {station.translations ? 
+                      Object.keys(station.translations).join(', ') : 
+                      'No translations'}
+                  </td>
                   <td>
                     <Button
                       variant="outline-primary"
@@ -255,7 +311,7 @@ const DeliveryPanel = () => {
             <Form.Group className="mb-3">
               <Form.Label>Місце зустрічі</Form.Label>
               <Form.Control
-                type="text"
+                as="textarea"
                 name="meetingPoint"
                 value={formData.meetingPoint}
                 onChange={handleInputChange}
@@ -284,6 +340,13 @@ const DeliveryPanel = () => {
                 {uploadingPhoto && <div className="mt-2">Завантаження фото...</div>}
               </div>
             </Form.Group>
+
+            {/* Station translations form */}
+            <StationTranslationsForm
+              translations={formData.translations}
+              availableLanguages={availableLanguages}
+              onChange={handleTranslationsChange}
+            />
 
             <div className="d-flex justify-content-end gap-2">
               <Button variant="secondary" onClick={() => setShowModal(false)}>

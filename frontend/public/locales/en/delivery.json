@@ -93,7 +93,7 @@
     "step1": "After placing an order, you will receive a notification that we have accepted it for processing.",
     "step2": "After verifying all data and product availability, you will receive confirmation of your order, where we will again provide you with the product range, amount to be paid, and delivery time and place.",
     "step3": "You can place an order on any day and time. If the products are available, we will confirm it for the nearest delivery day or suggest postponing it to the next week.",
-    "step4": "Our products are delicious and safe when fresh. Therefore, in production, we adhere to strict planning and focus on your orders. For guaranteed receipt of products in full, it is advisable to place orders for the next week from Wednesday to Thursday of the current week (or earlier)."
+    "step4": "Our products are delicious and safe when fresh. Therefore, in production, we adhere to strict planning and focus on your orders. For guaranteed receipt of products in full, it is advisable to place orders for the next week by Wednesday of the current week (or earlier)."
   },
   "stations": {
     "loading": "Loading stations...",

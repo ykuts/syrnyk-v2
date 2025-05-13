@@ -26,6 +26,7 @@ import UserProfile from './components/UserProfile';
 import AboutUs from './components/aboutus/AboutUs';
 import ForgotPassword from './components/ForgotPassword';
 import ResetPassword from './components/ResetPassword';
+import CartLanguageSync from './components/CartLanguageSync';
 // Import i18n configuration
 import './i18n';
 import { Suspense } from 'react';
@@ -41,7 +42,7 @@ function App() {
           <ScrollToTop />
           <Suspense fallback={<div className="loading-container">Loading...</div>}>
             <div className="app">
-
+            <CartLanguageSync />
               <div>
                 <Menu2 />
               </div>

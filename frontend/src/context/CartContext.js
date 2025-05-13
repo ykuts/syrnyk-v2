@@ -1,4 +1,5 @@
 import React, { createContext, useState, useEffect } from 'react';
+import CartLanguageSync from '../components/CartLanguageSync';
 
 export const CartContext = createContext();
 
@@ -85,6 +86,7 @@ export const CartProvider = ({ children }) => {
     <CartContext.Provider value={{
       cartItems,
       addToCart,
+      setCartItems,
       removeFromCart,
       addOneToCart,
       removeAllFromCart,
@@ -92,6 +94,8 @@ export const CartProvider = ({ children }) => {
       totalPrice,
       getCartItemsCount
     }}>
+      <CartLanguageSync />
+      {/* This component doesn't render anything but is used to sync cart items with the current language */} 
       {children}
     </CartContext.Provider>
   );

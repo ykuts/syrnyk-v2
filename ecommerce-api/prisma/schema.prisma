@@ -11,58 +11,65 @@ datasource db {
 
 // User model 
 model User {
-  id            Int        @id @default(autoincrement())
-  firstName     String     
-  lastName      String     
-  email         String     @unique
-  phone         String?    
-  role          UserRole   @default(CLIENT)
-  password      String     
-  isActive      Boolean    @default(true)
-  tokens        Token[]    
+  id                  Int        @id @default(autoincrement())
+  firstName           String     
+  lastName            String     
+  email               String     @unique
+  phone               String?    
+  role                UserRole   @default(CLIENT)
+  password            String     
+  isActive            Boolean    @default(true)
+  tokens              Token[]    
   preferredDeliveryType String?
-  deliveryAddress       Json?
-  preferredStation      Json?
-  preferredStore        Json?  
-  orders        Order[]    
-  cart          Cart?      
-  reviews       Review[]
+  deliveryAddress     Json?
+  preferredStation    Json?
+  preferredStore      Json?  
+  orders              Order[]    
+  cart                Cart?      
+  reviews             Review[]
   // Data processing consent fields
-  dataConsentAccepted Boolean  @default(false)
+  dataConsentAccepted Boolean    @default(false)
   dataConsentDate     DateTime?
   dataConsentVersion  String?
-  marketingConsent    Boolean  @default(false)
-  createdAt     DateTime   @default(now())
-  updatedAt     DateTime   @updatedAt
+  marketingConsent    Boolean    @default(false)
+  createdAt           DateTime   @default(now())
+  updatedAt           DateTime   @updatedAt
 
   @@index([email])
 }
 
 // Modified Order model with new delivery options
 model Order {
-  id              Int         @id @default(autoincrement())
-  userId          Int?
-  user            User?        @relation(fields: [userId], references: [id])
-   // Guest information
-  guestInfo       GuestInfo?  // New relation to guest information
-  deliveryType    DeliveryType @default(RAILWAY_STATION)
+  id                      Int         @id @default(autoincrement())
+  userId                  Int?
+  user                    User?       @relation(fields: [userId], references: [id])
+  // Guest information
+  guestInfo               GuestInfo?  // New relation to guest information
+  deliveryType            DeliveryType @default(RAILWAY_STATION)
   // Conditional relations based on delivery type
-  addressDelivery AddressDelivery?
-  stationDelivery StationDelivery?
-  pickupDelivery  PickupDelivery?
-  status          OrderStatus @default(PENDING)
-  items           OrderItem[]
-  totalAmount     Decimal     @db.Decimal(10, 2)
-  paymentStatus   PaymentStatus @default(PENDING)
-  paymentMethod   PaymentMethod?
-  discount        Decimal?    @db.Decimal(10, 2)
-  trackingNumber  String?
-  notesAdmin      String?
-  notesClient     String?
-  changes              String[]   @default([])
-  lastNotificationSent DateTime?
-  createdAt       DateTime    @default(now())
-  updatedAt       DateTime    @updatedAt
+  addressDelivery         AddressDelivery?
+  stationDelivery         StationDelivery?
+  pickupDelivery          PickupDelivery?
+  status                  OrderStatus @default(PENDING)
+  items                   OrderItem[]
+  totalAmount             Decimal     @db.Decimal(10, 2)
+  paymentStatus           PaymentStatus @default(PENDING)
+  paymentMethod           PaymentMethod?
+  discount                Decimal?    @db.Decimal(10, 2)
+  trackingNumber          String?
+  notesAdmin              String?
+  notesClient             String?
+  changes                 String[]    @default([])
+  lastNotificationSent    DateTime?
+  deliveryMethod          String?    // "PICKUP", "RAILWAY_STATION", "ADDRESS"
+  deliveryDate            DateTime?
+  deliveryTimeSlot        String?
+  deliveryCost            Decimal?   @db.Decimal(10, 2)
+  deliveryAddress         Json?      // For address delivery
+  deliveryStationId       Int?       // For railway station delivery
+  deliveryPickupLocationId Int?      // For pickup
+  createdAt               DateTime    @default(now())
+  updatedAt               DateTime    @updatedAt
 
   @@index([userId])
   @@index([status])
@@ -173,6 +180,61 @@ model Store {
   updatedAt   DateTime        @updatedAt
 }
 
+// For storing delivery zones and rules
+model DeliveryZone {
+  id             Int               @id @default(autoincrement())
+  name           String            // e.g., "Lausanne", "Geneva"
+  canton         String            // e.g., "VD" for Vaud, "GE" for Geneva
+  description    String?
+  dayOfWeek      Int               // 0 = Sunday, 1 = Monday, 6 = Saturday
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+  cities         DeliveryCity[]
+  timeSlots      DeliveryTimeSlot[] // Add this relation field to fix the error
+}
+
+// For storing cities with free delivery thresholds
+model DeliveryCity {
+  id             Int         @id @default(autoincrement())
+  zoneId         Int
+  zone           DeliveryZone @relation(fields: [zoneId], references: [id])
+  name           String      // e.g., "Lausanne", "Pully"
+  postalCode     String      // e.g., "1000", "1009"
+  freeThreshold  Decimal     @db.Decimal(10, 2) // Free delivery threshold amount
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+
+  @@unique([postalCode, name]) // Ensure unique combination of postal code and name
+  @@index([postalCode])
+  @@index([zoneId])
+}
+
+// For storing store pickup locations
+model PickupLocation {
+  id          Int      @id @default(autoincrement())
+  name        String
+  address     String
+  city        String
+  postalCode  String
+  openingHours Json?    // Store opening hours as JSON object
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// For storing delivery time slots
+model DeliveryTimeSlot {
+  id          Int      @id @default(autoincrement())
+  name        String   // e.g., "Morning", "Afternoon"
+  startTime   String   // e.g., "09:00"
+  endTime     String   // e.g., "13:00"
+  dayOfWeek   Int?     // Optional specific day of week (0-6)
+  zoneId      Int?     // Optional specific zone
+  zone        DeliveryZone? @relation(fields: [zoneId], references: [id])
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
 model Token {
   id        Int      @id @default(autoincrement())
   userId    Int
@@ -196,7 +258,6 @@ enum UserRole {
   CLIENT
 }
 
-
 // Added OrderItem model
 model OrderItem {
   id        Int      @id @default(autoincrement())
@@ -217,24 +278,24 @@ model Product {
   name            String      
   description     String      
   descriptionFull String      @map("description_full")
-  price          Decimal     @db.Decimal(10, 2)  
-  weight         String      
-  image          String      // Основное изображение
-  images         String[]    // Массив дополнительных изображений
-  umovy          String      
-  recipe         String      
-  assortment     String[]    
-  stock          Int         @default(0)  
-  categoryId     Int         
-  category       Category    @relation(fields: [categoryId], references: [id])
-  isActive       Boolean     @default(true)  
-  orderItems     OrderItem[]
-  cartItems      CartItem[]
-  reviews        Review[]
-  displayOrder   Int         @default(9999)
-  createdAt      DateTime    @default(now())
-  updatedAt      DateTime    @updatedAt
-  translations   ProductTranslation[]
+  price           Decimal     @db.Decimal(10, 2)  
+  weight          String      
+  image           String      // Main image
+  images          String[]    // Array of additional images
+  umovy           String      
+  recipe          String      
+  assortment      String[]    
+  stock           Int         @default(0)  
+  categoryId      Int         
+  category        Category    @relation(fields: [categoryId], references: [id])
+  isActive        Boolean     @default(true)  
+  orderItems      OrderItem[]
+  cartItems       CartItem[]
+  reviews         Review[]
+  displayOrder    Int         @default(9999)
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+  translations    ProductTranslation[]
 
   @@index([categoryId])
   @@index([name])
@@ -242,18 +303,18 @@ model Product {
 
 // Prisma schema extension for product translations
 model ProductTranslation {
-  id         Int      @id @default(autoincrement())
-  productId  Int
-  language   String   // 'uk', 'en', 'fr', etc.
-  name       String?
-  description String?
+  id             Int      @id @default(autoincrement())
+  productId      Int
+  language       String   // 'uk', 'en', 'fr', etc.
+  name           String?
+  description    String?
   descriptionFull String? @db.Text
-  weight     String?
-  umovy      String?
-  recipe     String?  @db.Text
+  weight         String?
+  umovy          String?
+  recipe         String?  @db.Text
   
   // Define relationships
-  product    Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  product        Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
   
   // Composite unique constraint to ensure one translation per language per product
   @@unique([productId, language])

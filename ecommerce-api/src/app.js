@@ -7,6 +7,7 @@ import cartRoutes from './routes/cartRoutes.js';
 import categoryRoutes from './routes/categoryRoutes.js';
 import addressRoutes from './routes/addressRoutes.js';
 import railwayStationsRouter from './routes/railwayStationsRouter.js';
+import deliveryRoutes from './routes/deliveryRoutes.js';
 import uploadRoutes from './routes/uploadRoutes.js'; 
 import { handleMulterError } from './middleware/upload.js';
 import cors from 'cors';
@@ -89,6 +90,7 @@ app.use('/api/categories', categoryRoutes);
 app.use('/api/addresses', addressRoutes);
 app.use('/api/railway-stations', railwayStationsRouter);
 app.use('/api/upload', uploadRoutes); // Routes for files upload
+app.use('/api/delivery', deliveryRoutes);
 
 
 app.use(handleMulterError);

@@ -1,0 +1,114 @@
+/* src/components/checkout/DeliveryOptions.css */
+
+.delivery-section {
+  margin-top: 1.5rem;
+}
+
+.delivery-method-card {
+  background-color: #f8f9fa;
+  border: 1px solid #dee2e6;
+  transition: all 0.3s ease;
+}
+
+.delivery-method-card:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.delivery-date-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.date-card {
+  cursor: pointer;
+  padding: 0.75rem;
+  border: 1px solid #dee2e6;
+  border-radius: 0.25rem;
+  flex: 1;
+  min-width: 120px;
+  text-align: center;
+  transition: all 0.2s ease;
+}
+
+.date-card:hover {
+  background-color: #e9ecef;
+}
+
+.date-card.selected {
+  background-color: #94c4d8;
+  border-color: #94c4d8;
+  color: white;
+}
+
+.time-slot-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.time-slot-card {
+  cursor: pointer;
+  padding: 0.75rem;
+  border: 1px solid #dee2e6;
+  border-radius: 0.25rem;
+  flex: 1;
+  min-width: 100px;
+  text-align: center;
+  transition: all 0.2s ease;
+}
+
+.time-slot-card:hover {
+  background-color: #e9ecef;
+}
+
+.time-slot-card.selected {
+  background-color: #94c4d8;
+  border-color: #94c4d8;
+  color: white;
+}
+
+.delivery-cost-badge {
+  margin-left: 0.5rem;
+  padding: 0.35rem 0.65rem;
+  font-size: 0.85rem;
+}
+
+.station-card {
+  cursor: pointer;
+  border: 1px solid #dee2e6;
+  border-radius: 0.25rem;
+  transition: all 0.2s ease;
+}
+
+.station-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.station-card.selected {
+  border-color: #94c4d8;
+  background-color: rgba(148, 196, 216, 0.1);
+}
+
+.station-image {
+  height: 120px;
+  object-fit: cover;
+  border-top-left-radius: calc(0.25rem - 1px);
+  border-top-right-radius: calc(0.25rem - 1px);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .date-card, .time-slot-card {
+    min-width: calc(50% - 0.5rem);
+  }
+}
+
+@media (max-width: 576px) {
+  .date-card, .time-slot-card {
+    min-width: 100%;
+  }
+}

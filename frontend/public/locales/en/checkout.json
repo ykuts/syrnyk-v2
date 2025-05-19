@@ -9,6 +9,10 @@
     "order_success": "Order successfully placed!",
     "order_success_message": "Thank you for your order. We will contact you shortly.",
     "continue_shopping": "Continue shopping",
+    "order_summary": "Order Summary",
+    "subtotal": "Subtotal",
+    "delivery_cost": "Delivery Cost",
+    "total": "Total",
     "submit_order": "Place order",
     "processing": "Processing..."
   },
@@ -23,30 +27,7 @@
     "confirm_password": "Confirm password",
     "password_note": "Password must contain at least 8 characters and include letters and numbers"
   },
-  "delivery": {
-    "pickup": {
-      "title": "Pickup",
-      "description": "From our store in Nyon",
-      "choose_time": "Choose pickup time",
-      "working_hours": "Working hours"
-    },
-    "address": {
-      "title": "Address delivery",
-      "description": "We'll deliver to your address",
-      "street": "Street",
-      "house": "House number",
-      "apartment": "Apartment (optional)",
-      "city": "City",
-      "postal_code": "Postal code"
-    },
-    "railway": {
-      "title": "Railway station delivery",
-      "description": "We'll meet you at the station",
-      "choose_station": "Choose station",
-      "choose_date": "Choose date and time",
-      "meeting_point": "Meeting point"
-    }
-  },
+  
   "payment": {
     "twint": {
       "title": "TWINT",
@@ -75,5 +56,63 @@
       "Special offers for registered customers",
       "Order history and reordering"
     ]
+  },
+
+  "delivery": {
+  "address": {
+    "title": "Delivery to Address",
+    "description": "Home delivery to your address"
+  },
+  "railway": {
+    "title": "Railway Station Delivery",
+    "description": "Delivery to a railway station"
+  },
+  "pickup": {
+    "title": "Pickup from Store",
+    "description": "Pickup from our store in Nyon"
+  },
+  "street": "Street",
+  "house": "House Number",
+  "apartment": "Apartment",
+  "apartment_optional": "Apartment (optional)",
+  "city": "City",
+  "postal_code": "Postal Code",
+  "postal_code_placeholder": "e.g. 1201",
+  "postal_code_help": "Enter your 4-digit Swiss postal code to check delivery availability",
+  "postal_code_invalid": "Please enter a valid Swiss postal code (4 digits)",
+  "postal_code_not_found": "Postal code not found",
+  "postal_code_error": "Error checking postal code",
+  "working_hours": "Working Hours",
+  "select_date": "Select Delivery Date",
+  "select_time": "Select Delivery Time",
+  "loading_dates": "Loading available dates...",
+  "no_dates_available": "No delivery dates available for the selected method",
+  "no_time_slots": "No delivery time slots available for the selected date",
+  "calculating": "Calculating delivery cost...",
+  "cost": "Delivery Cost",
+  "minimum_order_warning": "Minimum order amount for delivery is {{amount}} CHF",
+  
+  "validation": {
+    "address": "Please complete all delivery address fields",
+    "station": "Please select a railway station",
+    "date": "Please select a delivery date",
+    "time": "Please select a delivery time"
+  },
+  
+  "errors": {
+    "dates_fetch_error": "Failed to fetch available delivery dates",
+    "cost_calculation_error": "Failed to calculate delivery cost"
   }
+},
+
+"validation": {
+  "missing_fields": "Please fill in all required fields",
+  "invalid_email": "Please enter a valid email address",
+  "invalid_phone": "Please enter a valid phone number (with country code, e.g. +41...)",
+  "missing_address": "Please complete all address fields",
+  "invalid_postal_code": "Please enter a valid Swiss postal code (4 digits)",
+  "missing_station": "Please select a railway station",
+  "missing_delivery_date": "Please select a delivery date",
+  "missing_delivery_time": "Please select a delivery time slot"
+}
 }

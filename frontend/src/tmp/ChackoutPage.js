@@ -1,26 +1,33 @@
-// src/components/CheckoutPage.js
 import React, { useState, useContext, useEffect } from 'react';
 import { CartContext } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { Form, Button, Alert, Container, Card, Row, Col } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
-import { apiClient } from '../utils/api';
-import { loadUserPreferences } from '../utils/userPreferences';
-
-// Components
 import AuthChoice from './AuthChoice';
-import CustomerInfoForm from './checkout/CustomerInfoForm';
+import CheckoutForm from './CheckoutForm';
 import CartProducts from './CartProducts';
 import DeliveryOptions from './checkout/DeliveryOptions';
 import DeliveryCostCalculator from './DeliveryCostCalculator';
-import OrderSummary from './checkout/OrderSummary';
-import PaymentMethodSelector from './PaymentMethodSelector';
+import { apiClient } from '../utils/api';
+import { useTranslation } from 'react-i18next';
+import { loadUserPreferences } from '../utils/userPreferences';
 
-/**
- * Main checkout page component
- * Manages the checkout flow and combines all checkout-related components
- */
+// Import templates
+import {
+  consentCheckboxText,
+  marketingConsentText,
+  requiredConsentError
+} from '../templates/dataProcessingTemplates';
+
+// Store configuration
+const STORE_ADDRESS = {
+  id: 1,
+  name: "Store in Nyon",
+  address: "Chemin de Pre-Fleuri, 5",
+  city: "Nyon",
+  workingHours: "Daily 9:00-20:00"
+};
+
 const CheckoutPage = () => {
   const { t, i18n } = useTranslation(['checkout', 'auth']);
   const navigate = useNavigate();
@@ -311,7 +318,8 @@ const CheckoutPage = () => {
       
       // Data consent validation
       if (!formData.dataConsentAccepted) {
-        setFormValidationError(t('register.validation.consent_required', { ns: 'auth' }));
+        const errorText = requiredConsentError[formData.language] || requiredConsentError.uk;
+        setFormValidationError(errorText || t('register.validation.consent_required', { ns: 'auth' }));
         return false;
       }
     }
@@ -319,25 +327,6 @@ const CheckoutPage = () => {
     // All validations passed
     setFormValidationError(null);
     return true;
-  };
-
-  // Prepare time from time slot string
-  const prepareTimeFromSlot = (dateString, timeSlotString) => {
-    if (!timeSlotString) return dateString;
-    
-    // If time slot is in format "09:00-12:00", extract the start time
-    const startTime = timeSlotString.split('-')[0].trim();
-    
-    // Create a new date object from delivery date
-    const date = new Date(dateString);
-    
-    // Parse time components
-    const [hours, minutes] = startTime.split(':').map(Number);
-    
-    // Set time components
-    date.setHours(hours, minutes, 0, 0);
-    
-    return date.toISOString();
   };
 
   // Handle form submission
@@ -418,15 +407,49 @@ const CheckoutPage = () => {
         case 'RAILWAY_STATION':
           orderData.stationDelivery = {
             stationId: parseInt(formData.stationId),
-            meetingTime: prepareTimeFromSlot(formData.deliveryDate, formData.deliveryTimeSlot)
+            meetingTime: new Date(formData.deliveryDate).toISOString()
           };
+          
+          // If time slot is in format "09:00-12:00", extract the start time
+          if (formData.deliveryTimeSlot) {
+            const startTime = formData.deliveryTimeSlot.split('-')[0].trim();
+            
+            // Create a new date object from delivery date
+            const meetingDate = new Date(formData.deliveryDate);
+            
+            // Parse time components
+            const [hours, minutes] = startTime.split(':').map(Number);
+            
+            // Set time components
+            meetingDate.setHours(hours, minutes, 0, 0);
+            
+            // Update the meeting time
+            orderData.stationDelivery.meetingTime = meetingDate.toISOString();
+          }
           break;
 
         case 'PICKUP':
           orderData.pickupDelivery = {
             storeId: parseInt(formData.storeId),
-            pickupTime: prepareTimeFromSlot(formData.deliveryDate, formData.deliveryTimeSlot)
+            pickupTime: new Date(formData.deliveryDate).toISOString()
           };
+          
+          // If time slot is in format "09:00-12:00", extract the start time
+          if (formData.deliveryTimeSlot) {
+            const startTime = formData.deliveryTimeSlot.split('-')[0].trim();
+            
+            // Create a new date object from delivery date
+            const pickupDate = new Date(formData.deliveryDate);
+            
+            // Parse time components
+            const [hours, minutes] = startTime.split(':').map(Number);
+            
+            // Set time components
+            pickupDate.setHours(hours, minutes, 0, 0);
+            
+            // Update the pickup time
+            orderData.pickupDelivery.pickupTime = pickupDate.toISOString();
+          }
           break;
 
         default:
@@ -465,14 +488,6 @@ const CheckoutPage = () => {
     } finally {
       setIsSubmitting(false);
     }
-  };
-
-  // Handle notes change
-  const handleNotesChange = (e) => {
-    setFormData(prev => ({
-      ...prev,
-      notesClient: e.target.value
-    }));
   };
 
   // Render loading state
@@ -546,49 +561,28 @@ const CheckoutPage = () => {
             />
 
             {/* Customer & Delivery Information */}
-            
+            <Row>
+              <Col lg={6}>
                 {/* Customer Information */}
-                <CustomerInfoForm 
+                <CheckoutForm 
                   formData={formData}
                   handleChange={handleChange}
+                  deliveryType={formData.deliveryType}
+                  railwayStations={railwayStations}
+                  stores={[STORE_ADDRESS]}
                   isAuthenticated={!!user}
                   isGuest={isGuest}
                   createAccount={createAccount}
-                  onCreateAccountChange={setCreateAccount}
+                  onCreateAccountChange={(checked) => setCreateAccount(checked)}
                 />
-
+              </Col>
+              
+              <Col lg={6}>
                 {/* Delivery Options */}
                 <DeliveryOptions 
                   formData={formData}
                   handleChange={handleChange}
-                  railwayStations={railwayStations}
                 />
-                
-                {/* Payment Method */}
-                <section className="mb-5">
-                  <h4 className="mb-3">{t('checkout.payment_method')}</h4>
-                  <PaymentMethodSelector
-                    selectedMethod={formData.paymentMethod}
-                    onChange={handleChange}
-                  />
-                </section>
-
-                {/* Order Notes */}
-                <section className="mb-5">
-                  <h4 className="mb-3">{t('checkout.order_notes')}</h4>
-                  <Card>
-                    <Card.Body>
-                      <Form.Control
-                        as="textarea"
-                        rows={3}
-                        name="notesClient"
-                        value={formData.notesClient}
-                        onChange={handleNotesChange}
-                        placeholder={t('checkout.order_notes')}
-                      />
-                    </Card.Body>
-                  </Card>
-                </section>
 
                 {/* Delivery Cost Calculator */}
                 {formData.deliveryType === 'ADDRESS' && (
@@ -599,14 +593,33 @@ const CheckoutPage = () => {
                     onCostCalculated={handleDeliveryCostCalculated}
                   />
                 )}
-              
+              </Col>
+            </Row>
 
             {/* Order Summary Card */}
-            <OrderSummary 
-              subtotal={totalPrice}
-              deliveryCost={deliveryCost}
-              finalPrice={finalPrice}
-            />
+            <Card className="mb-4 mt-4">
+              <Card.Header>
+                <h5 className="mb-0">{t('checkout.order_summary')}</h5>
+              </Card.Header>
+              <Card.Body>
+                <div className="d-flex justify-content-between mb-2">
+                  <span>{t('checkout.subtotal')}:</span>
+                  <span>{totalPrice.toFixed(2)} CHF</span>
+                </div>
+                
+                {deliveryCost >= 0 && (
+                  <div className="d-flex justify-content-between mb-2">
+                    <span>{t('checkout.delivery_cost')}:</span>
+                    <span>{deliveryCost.toFixed(2)} CHF</span>
+                  </div>
+                )}
+                
+                <div className="d-flex justify-content-between fw-bold fs-5 mt-3">
+                  <span>{t('checkout.total')}:</span>
+                  <span>{finalPrice.toFixed(2)} CHF</span>
+                </div>
+              </Card.Body>
+            </Card>
 
             {/* Submit Button */}
             <div className="d-grid gap-2">

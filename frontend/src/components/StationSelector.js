@@ -1,5 +1,5 @@
 // StationSelector.js
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Row, Col, Card } from 'react-bootstrap';
 import { MapPin } from 'lucide-react';
 import './StationSelector.css';

@@ -1,6 +1,6 @@
 // src/components/checkout/PickupScheduler.js
-import React, { useState, useEffect } from 'react';
-import { Form, Card, Row, Col, Alert } from 'react-bootstrap';
+import { useState, useEffect } from 'react';
+import { Card, Alert } from 'react-bootstrap';
 import { useTranslation } from 'react-i18next';
 import './DeliveryDatePicker.css';
 

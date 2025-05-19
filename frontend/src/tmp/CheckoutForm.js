@@ -14,7 +14,7 @@ import {
   requiredConsentError,
   languageNames,
   uiTexts
-} from '../templates/dataProcessingTemplates';
+} from '../src/templates/dataProcessingTemplates';
 
 const CheckoutForm = ({
   formData,

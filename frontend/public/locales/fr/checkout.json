@@ -45,6 +45,15 @@
       "choose_station": "Choisissez la gare",
       "choose_date": "Choisissez la date et l'heure",
       "meeting_point": "Point de rencontre"
+    },
+    "railway_station_days": "Disponible uniquement le lundi",
+    "address_ge_days": "Pour le canton de Genève - livraison le lundi uniquement",
+    "address_vd_days": "Pour le canton de Vaud - livraison le samedi uniquement",
+    "select_date": "Sélectionnez la date de livraison",
+    "no_dates_available": "Aucune date de livraison disponible pour la méthode sélectionnée",
+    "errors": {
+      "cost_calculation_error": "Échec du calcul des frais de livraison",
+      "stations_fetch_error": "Échec du chargement des gares ferroviaires"
     }
   },
   "payment": {
@@ -85,6 +94,24 @@
     "evening": "Soir",
     "no_dates_available": "Aucune date de retrait disponible pour les deux prochaines semaines",
     "note": "Le retrait est disponible uniquement le samedi, dimanche, lundi et mardi. Veuillez sélectionner une date et un créneau horaire."
+  },
+  "address": {
+    "street": "Rue",
+    "house": "Numéro de maison/bâtiment",
+    "apartment": "Appartement (facultatif)",
+    "apartment_optional": "Facultatif",
+    "city": "Ville",
+    "postal_code": "Code postal",
+    "postal_code_note": "Entrez un code postal suisse à 4 chiffres",
+    "postal_code_not_found": "Code postal introuvable dans notre zone de livraison",
+    "postal_code_error": "Erreur lors de la vérification du code postal",
+    "canton": "Canton",
+    "canton_note": "Genève: Livraison le lundi, Vaud: Livraison le samedi",
+    "delivery_date": "Sélectionnez la date de livraison",
+    "delivery_to": "Livraison à: ${city}",
+    "free_threshold": "Livraison gratuite pour les commandes de plus de ${threshold} CHF",
+    "delivery_cost": "Frais de livraison: ${cost} CHF",
+    "free_delivery": "Livraison gratuite"
   },
   "railway": {
     "schedule_title": "Horaire de livraison à la gare",

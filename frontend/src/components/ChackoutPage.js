@@ -1,5 +1,5 @@
 // src/components/CheckoutPage.js
-import React, { useState, useContext, useEffect } from 'react';
+import { useState, useContext, useEffect } from 'react';
 import { CartContext } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { Form, Button, Alert, Container, Card, Row, Col } from 'react-bootstrap';
@@ -58,6 +58,7 @@ const CheckoutPage = () => {
     // Delivery info
     preferredDeliveryType: 'PICKUP',
     deliveryType: 'PICKUP',
+    canton: 'GE',
     street: '',
     house: '',
     apartment: '',
@@ -66,7 +67,7 @@ const CheckoutPage = () => {
     
     // Station delivery
     stationId: '',
-    meetingTime: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().slice(0, 16),
+    deliveryDate: '',
     
     // Pickup delivery
     storeId: '1',
@@ -290,10 +291,11 @@ const CheckoutPage = () => {
       return false;
     }
 
-    if (!formData.deliveryTimeSlot) {
-      setFormValidationError(t('validation.missing_delivery_time'));
-      return false;
-    }
+    // Time slot validation only for pickup
+  if (formData.deliveryType === 'PICKUP' && !formData.deliveryTimeSlot) {
+    setFormValidationError(t('validation.missing_delivery_time'));
+    return false;
+  }
 
     // Account creation validation
     if (isGuest && createAccount) {
@@ -418,7 +420,7 @@ const CheckoutPage = () => {
         case 'RAILWAY_STATION':
           orderData.stationDelivery = {
             stationId: parseInt(formData.stationId),
-            meetingTime: prepareTimeFromSlot(formData.deliveryDate, formData.deliveryTimeSlot)
+            meetingTime: formData.deliveryDate,
           };
           break;
 

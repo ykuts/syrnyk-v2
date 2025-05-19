@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useContext, useRef } from 'react';
+// src/components/DeliveryCostCalculator.js
+import { useState, useEffect, useContext, useRef } from 'react';
 import { Alert, Spinner } from 'react-bootstrap';
 import { apiClient } from '../utils/api';
 import { CartContext } from '../context/CartContext';
@@ -6,7 +7,7 @@ import { useTranslation } from 'react-i18next';
 
 /**
  * Component that calculates and displays delivery cost information
- * Enhanced with fallback mechanism in case of API errors
+ * Enhanced with loop prevention mechanism
  */
 const DeliveryCostCalculator = ({
   deliveryType,
@@ -23,33 +24,51 @@ const DeliveryCostCalculator = ({
   const [error, setError] = useState(null);
   const [isValid, setIsValid] = useState(true);
   const [minimumOrderAmount, setMinimumOrderAmount] = useState(0);
-  const [calculationAttempted, setCalculationAttempted] = useState(false);
   
-  // Create a ref to track previous values and avoid unnecessary recalculations
-  const prevValuesRef = useRef({ deliveryType, postalCode, canton, totalPrice });
+  // Add a flag to prevent multiple calculations in the same render cycle
+  const calculationInProgress = useRef(false);
   
+  // Track previous values to avoid unnecessary calculations
+  const prevValues = useRef({
+    deliveryType,
+    postalCode,
+    canton,
+    totalPrice
+  });
+  
+  // Add a counter to limit the number of calculations
+  const calculationCount = useRef(0);
+  const MAX_CALCULATIONS = 5; // Maximum number of calculations allowed
+
   // Calculate delivery cost when inputs change
   useEffect(() => {
-    // Skip recalculation if inputs haven't meaningfully changed
-    const prevValues = prevValuesRef.current;
-    const inputsUnchanged = 
-      prevValues.deliveryType === deliveryType &&
-      prevValues.postalCode === postalCode &&
-      prevValues.canton === canton &&
-      prevValues.totalPrice === totalPrice;
-      
-    if (inputsUnchanged && calculationAttempted) {
+    // Skip if calculation is already in progress
+    if (calculationInProgress.current) {
       return;
     }
     
-    // Update ref with current values
-    prevValuesRef.current = { deliveryType, postalCode, canton, totalPrice };
+    // Check if any values have changed since last calculation
+    const valuesChanged = 
+      prevValues.current.deliveryType !== deliveryType ||
+      prevValues.current.postalCode !== postalCode ||
+      prevValues.current.canton !== canton ||
+      prevValues.current.totalPrice !== totalPrice;
+    
+    // Skip if nothing has changed
+    if (!valuesChanged) {
+      return;
+    }
+    
+    // Prevent too many calculations
+    if (calculationCount.current >= MAX_CALCULATIONS) {
+      console.warn('Maximum delivery cost calculations reached - stopping to prevent infinite loop');
+      return;
+    }
     
     // Skip if no delivery type is selected or if postal code is invalid for address delivery
     if (!deliveryType || (deliveryType === 'ADDRESS' && (!postalCode || postalCode.length < 4))) {
       // Use default values when postal code is not provided for address delivery
       if (deliveryType === 'ADDRESS') {
-        // Set a high minimum order amount to prevent checkout until postal code is valid
         onCostCalculated({
           cost: 0,
           isValid: false, 
@@ -63,66 +82,107 @@ const DeliveryCostCalculator = ({
           message: t('delivery.free_delivery')
         });
       }
-      setCalculationAttempted(true);
       return;
     }
     
     const calculateCost = async () => {
+      calculationInProgress.current = true;
+      calculationCount.current++;
       setLoading(true);
       setError(null);
       
       try {
-        console.log('Calculating delivery cost:', {
-          deliveryMethod: deliveryType,
-          postalCode,
-          cartTotal: totalPrice
-        });
+        // Local calculation for non-ADDRESS delivery methods
+        if (deliveryType !== 'ADDRESS') {
+          setDeliveryCost(0);
+          setMessage(t('delivery.free_delivery'));
+          setIsValid(true);
+          
+          onCostCalculated({
+            cost: 0,
+            isValid: true,
+            message: t('delivery.free_delivery')
+          });
+          
+          calculationInProgress.current = false;
+          return;
+        }
         
-        // Try API call
-        const response = await apiClient.post('/delivery/calculate-cost', {
-          deliveryMethod: deliveryType,
-          postalCode,
-          canton: canton || 'GE',
-          cartTotal: totalPrice
-        });
-
-        // Update state with response data
-        setDeliveryCost(response.deliveryCost || 0);
-        setMessage(response.message || '');
-        setIsValid(response.isValid !== undefined ? response.isValid : true);
-        setMinimumOrderAmount(response.minimumOrderAmount || 0);
-        setCalculationAttempted(true);
+        // Local calculation for ADDRESS with invalid postal code
+        if (deliveryType === 'ADDRESS' && (!postalCode || postalCode.length < 4)) {
+          setDeliveryCost(0);
+          setMessage(t('delivery.postal_code_required'));
+          setIsValid(false);
+          
+          onCostCalculated({
+            cost: 0,
+            isValid: false,
+            message: t('delivery.postal_code_required')
+          });
+          
+          calculationInProgress.current = false;
+          return;
+        }
+        
+        // For ADDRESS delivery with valid postal code, calculate based on total
+        const defaultThreshold = 200; // Default free threshold
+        const minimumOrder = 100; // Minimum order value
+        
+        // Calculate cost locally instead of API call
+        let cost = 0;
+        let resultMessage = '';
+        let valid = true;
+        
+        if (totalPrice < minimumOrder) {
+          valid = false;
+          resultMessage = t('delivery.minimum_order_required', { minimum: minimumOrder });
+        } else if (totalPrice >= defaultThreshold) {
+          cost = 0;
+          resultMessage = t('delivery.free_delivery_threshold', { threshold: defaultThreshold });
+        } else {
+          cost = 10;
+          resultMessage = t('delivery.default_fee', { cost });
+        }
+        
+        // Update states
+        setDeliveryCost(cost);
+        setMessage(resultMessage);
+        setIsValid(valid);
+        setMinimumOrderAmount(minimumOrder);
         
         // Call the callback with the calculated data
-        // Create a local copy of the data to avoid reference issues
-        const resultData = {
-          cost: response.deliveryCost || 0,
-          isValid: response.isValid !== undefined ? response.isValid : true,
-          message: response.message || ''
-        };
+        onCostCalculated({
+          cost,
+          isValid: valid,
+          message: resultMessage,
+          minimumOrderAmount: minimumOrder
+        });
         
-        onCostCalculated(resultData);
+        // Update previous values
+        prevValues.current = {
+          deliveryType,
+          postalCode,
+          canton,
+          totalPrice
+        };
       } catch (err) {
         console.error('Error calculating delivery cost:', err);
         setError(t('delivery.errors.cost_calculation_error'));
-        setCalculationAttempted(true);
         
-        // Fallback logic in case of API error
+        // Fallback logic in case of error
         if (deliveryType === 'ADDRESS') {
           // Use default cost for address delivery
           const defaultCost = 10;
           const isValid = totalPrice >= 100;
           
-          // Pass fallback data to parent with a local copy
-          const fallbackData = {
+          // Pass fallback data to parent
+          onCostCalculated({
             cost: defaultCost,
             isValid,
             message: isValid 
               ? t('delivery.default_fee', { cost: defaultCost }) 
               : t('delivery.minimum_order_required', { minimum: 100 })
-          };
-          
-          onCostCalculated(fallbackData);
+          });
         } else {
           // For non-address delivery methods, always valid with no cost
           onCostCalculated({
@@ -133,14 +193,12 @@ const DeliveryCostCalculator = ({
         }
       } finally {
         setLoading(false);
+        calculationInProgress.current = false;
       }
     };
 
     calculateCost();
-    
-    // Adding t to the dependency array can cause issues if translation keys change
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [deliveryType, postalCode, canton, totalPrice]);
+  }, [deliveryType, postalCode, canton, totalPrice, t, onCostCalculated]);
 
   // Skip rendering for non-address delivery
   if (deliveryType !== 'ADDRESS') return null;
@@ -156,7 +214,7 @@ const DeliveryCostCalculator = ({
   }
 
   // Show error state
-  if (error && calculationAttempted) {
+  if (error) {
     return (
       <Alert variant="warning" className="my-3">
         {error}
@@ -169,33 +227,28 @@ const DeliveryCostCalculator = ({
     );
   }
 
-  // Show message if calculation was successful
-  if (calculationAttempted) {
-    return (
-      <div className="delivery-cost-container my-3">
-        {!isValid && minimumOrderAmount > 0 && (
-          <Alert variant="warning">
-            {t('delivery.minimum_order_warning', { amount: minimumOrderAmount })}
-          </Alert>
-        )}
-        
-        <div className={`delivery-cost-message ${deliveryCost > 0 ? 'text-primary' : 'text-success'}`}>
-          {message || (deliveryCost > 0 
-            ? t('delivery.cost_applied', { cost: deliveryCost }) 
-            : t('delivery.free_delivery'))}
-        </div>
-        
-        {deliveryCost > 0 && (
-          <div className="delivery-cost-amount mt-2">
-            <strong>{t('delivery.cost')}: </strong> {deliveryCost.toFixed(2)} CHF
-          </div>
-        )}
+  // Show delivery cost information
+  return (
+    <div className="delivery-cost-container my-3">
+      {!isValid && minimumOrderAmount > 0 && (
+        <Alert variant="warning">
+          {t('delivery.minimum_order_warning', { amount: minimumOrderAmount })}
+        </Alert>
+      )}
+      
+      <div className={`delivery-cost-message ${deliveryCost > 0 ? 'text-primary' : 'text-success'}`}>
+        {message || (deliveryCost > 0 
+          ? t('delivery.cost_applied', { cost: deliveryCost }) 
+          : t('delivery.free_delivery'))}
       </div>
-    );
-  }
-  
-  // Default state - empty
-  return null;
+      
+      {deliveryCost > 0 && (
+        <div className="delivery-cost-amount mt-2">
+          <strong>{t('delivery.cost')}: </strong> {deliveryCost.toFixed(2)} CHF
+        </div>
+      )}
+    </div>
+  );
 };
 
 export default DeliveryCostCalculator;

@@ -1,6 +1,6 @@
 import React, { useState, useContext, useEffect } from 'react';
-import { CartContext } from '../context/CartContext';
-import { useAuth } from '../context/AuthContext';
+import { CartContext } from '../src/context/CartContext';
+import { useAuth } from '../src/context/AuthContext';
 import { Form, Button, Alert, Container, Card, Row, Col } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import AuthChoice from './AuthChoice';
@@ -8,16 +8,16 @@ import CheckoutForm from './CheckoutForm';
 import CartProducts from './CartProducts';
 import DeliveryOptions from './checkout/DeliveryOptions';
 import DeliveryCostCalculator from './DeliveryCostCalculator';
-import { apiClient } from '../utils/api';
+import { apiClient } from '../src/utils/api';
 import { useTranslation } from 'react-i18next';
-import { loadUserPreferences } from '../utils/userPreferences';
+import { loadUserPreferences } from '../src/utils/userPreferences';
 
 // Import templates
 import {
   consentCheckboxText,
   marketingConsentText,
   requiredConsentError
-} from '../templates/dataProcessingTemplates';
+} from '../src/templates/dataProcessingTemplates';
 
 // Store configuration
 const STORE_ADDRESS = {

@@ -101,8 +101,15 @@
   
   "errors": {
     "dates_fetch_error": "Failed to fetch available delivery dates",
-    "cost_calculation_error": "Failed to calculate delivery cost"
-  }
+    "cost_calculation_error": "Failed to calculate delivery cost",
+    "stations_fetch_error": "Failed to load railway stations"
+  },
+  "railway_station_days": "Available only on Mondays",
+    "address_ge_days": "For Geneva canton - delivery on Mondays only",
+    "address_vd_days": "For Vaud canton - delivery on Saturdays only",
+    "station": "Railway Station",
+    "select_station": "Select a station",
+    "meeting_point": "Meeting Point"      
 },
 
 "validation": {
@@ -142,5 +149,24 @@
     "errors": {
       "stations_fetch_error": "Failed to load railway stations. Please try again."
     }
+  }, 
+  
+  "address": {
+    "street": "Street",
+    "house": "House/Building Number",
+    "apartment": "Apartment (optional)",
+    "apartment_optional": "Optional",
+    "city": "City",
+    "postal_code": "Postal Code",
+    "postal_code_note": "Enter a 4-digit Swiss postal code",
+    "postal_code_not_found": "Postal code not found in our delivery area",
+    "postal_code_error": "Error checking postal code",
+    "canton": "Canton",
+    "canton_note": "Geneva: Delivery on Mondays, Vaud: Delivery on Saturdays",
+    "delivery_date": "Select Delivery Date",
+    "delivery_to": "Delivery to: ${city}",
+    "free_threshold": "Free delivery for orders over ${threshold} CHF",
+    "delivery_cost": "Delivery fee: ${cost} CHF",
+    "free_delivery": "Free delivery"
   }
 }

@@ -1,1 +1,0 @@
-COPY "Product" TO STDOUT CSV HEADER;

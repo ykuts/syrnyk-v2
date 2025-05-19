@@ -3,6 +3,8 @@ import { Form, Card, Row, Col, Alert, Spinner } from 'react-bootstrap';
 import { useTranslation } from 'react-i18next';
 import { apiClient } from '../../utils/api';
 import DeliveryMethodSelector from '../DeliveryMethodSelector';
+import PickupCheckout from './PickupCheckout';
+import RailwayStationCheckout from './RailwayStationCheckout';
 import StationSelector from '../StationSelector';
 import { CartContext } from '../../context/CartContext';
 import './DeliveryOptions.css';
@@ -374,9 +376,9 @@ const DeliveryOptions = ({ formData, handleChange }) => {
       case 'ADDRESS':
         return renderAddressDelivery();
       case 'RAILWAY_STATION':
-        return renderRailwayStationDelivery();
+        return <RailwayStationCheckout formData={formData} handleChange={handleChange} />;
       case 'PICKUP':
-        return renderPickupDelivery();
+        return <PickupCheckout formData={formData} handleChange={handleChange} />;
       default:
         return null;
     }
@@ -463,53 +465,6 @@ const DeliveryOptions = ({ formData, handleChange }) => {
           </Form.Group>
         </Col>
       </Row>
-      
-      {renderDeliveryDate()}
-      {renderTimeSlot()}
-    </div>
-  );
-
-  // Render railway station delivery form
-  const renderRailwayStationDelivery = () => (
-    <div>
-      <h5 className="mb-3">{t('checkout.railway_delivery')}</h5>
-      
-      <StationSelector
-        stations={railwayStations}
-        selectedStation={formData.stationId || ''}
-        meetingTime={formData.meetingTime || ''}
-        onChange={handleChange}
-      />
-    </div>
-  );
-
-  // Render pickup delivery form
-  const renderPickupDelivery = () => (
-    <div>
-      <h5 className="mb-3">{t('checkout.pickup')}</h5>
-      
-      {pickupLocations.length > 0 ? (
-        <Form.Group className="mb-3">
-          <Form.Label>{t('checkout.pickup_location')}</Form.Label>
-          <Form.Select
-            name="storeId"
-            value={formData.storeId || ''}
-            onChange={handleChange}
-            required
-          >
-            <option value="">{t('checkout.select_pickup')}</option>
-            {pickupLocations.map(location => (
-              <option key={location.id} value={location.id.toString()}>
-                {location.name} - {location.address}, {location.city}
-              </option>
-            ))}
-          </Form.Select>
-        </Form.Group>
-      ) : (
-        <Alert variant="warning">
-          {t('checkout.no_pickup_locations')}
-        </Alert>
-      )}
       
       {renderDeliveryDate()}
       {renderTimeSlot()}

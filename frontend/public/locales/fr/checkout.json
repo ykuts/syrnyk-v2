@@ -75,5 +75,33 @@
       "Offres spéciales pour les clients enregistrés",
       "Historique des commandes et récommande"
     ]
+  },
+  "pickup": {
+    "schedule_title": "Horaire de retrait",
+    "select_date": "Sélectionnez une date de retrait",
+    "select_time": "Sélectionnez un créneau horaire",
+    "morning": "Matin",
+    "afternoon": "Après-midi",
+    "evening": "Soir",
+    "no_dates_available": "Aucune date de retrait disponible pour les deux prochaines semaines",
+    "note": "Le retrait est disponible uniquement le samedi, dimanche, lundi et mardi. Veuillez sélectionner une date et un créneau horaire."
+  },
+  "railway": {
+    "schedule_title": "Horaire de livraison à la gare",
+    "select_date": "Sélectionnez une date de livraison",
+    "select_time": "Sélectionnez un créneau horaire",
+    "morning": "Matin",
+    "evening": "Soir",
+    "no_dates_available": "Aucune date de livraison disponible pour les deux prochaines semaines",
+    "note": "La livraison à la gare est disponible uniquement le lundi. Veuillez sélectionner une date et un créneau horaire.",
+    "station": "Gare ferroviaire",
+    "select_station": "Sélectionnez une gare ferroviaire",
+    "meeting_point": "Point de rencontre",
+    "free_delivery": "Livraison gratuite",
+    "free_delivery_note": "La livraison aux gares ferroviaires est toujours gratuite",
+    "no_stations": "Aucune gare ferroviaire disponible",
+    "errors": {
+      "stations_fetch_error": "Échec du chargement des gares ferroviaires. Veuillez réessayer."
+    }
   }
 }

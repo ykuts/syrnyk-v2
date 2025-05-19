@@ -114,5 +114,33 @@
   "missing_station": "Please select a railway station",
   "missing_delivery_date": "Please select a delivery date",
   "missing_delivery_time": "Please select a delivery time slot"
-}
+},
+"pickup": {
+    "schedule_title": "Pickup Schedule",
+    "select_date": "Select a pickup date",
+    "select_time": "Select a time slot",
+    "morning": "Morning",
+    "afternoon": "Afternoon",
+    "evening": "Evening",
+    "no_dates_available": "No pickup dates available for the next two weeks",
+    "note": "Pickup is available on Saturday, Sunday, Monday, and Tuesday only. Please select a date and time slot."
+  },
+  "railway": {
+    "schedule_title": "Railway Station Delivery Schedule",
+    "select_date": "Select a delivery date",
+    "select_time": "Select a time slot",
+    "morning": "Morning",
+    "evening": "Evening",
+    "no_dates_available": "No delivery dates available for the next two weeks",
+    "note": "Railway station delivery is available on Mondays only. Please select a date and time slot.",
+    "station": "Railway Station",
+    "select_station": "Select a railway station",
+    "meeting_point": "Meeting Point",
+    "free_delivery": "Free Delivery",
+    "free_delivery_note": "Delivery to railway stations is always free",
+    "no_stations": "No railway stations available",
+    "errors": {
+      "stations_fetch_error": "Failed to load railway stations. Please try again."
+    }
+  }
 }

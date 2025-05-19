@@ -1,0 +1,156 @@
+/* src/components/checkout/PickupScheduler.css */
+
+.pickup-scheduler {
+  margin-bottom: 2rem;
+}
+
+/* Date selection container */
+.dates-container {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 10px;
+  overflow-x: auto;
+  padding-bottom: 10px;
+  margin-bottom: 0.5rem;
+  scrollbar-width: thin;
+  scrollbar-color: #95c2d7 #f1f1f1;
+}
+
+/* Custom scrollbar styling */
+.dates-container::-webkit-scrollbar {
+  height: 6px;
+}
+
+.dates-container::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+.dates-container::-webkit-scrollbar-thumb {
+  background: #95c2d7;
+  border-radius: 10px;
+}
+
+.dates-container::-webkit-scrollbar-thumb:hover {
+  background: #7ba9bf;
+}
+
+/* Date option styling */
+.date-option {
+  min-width: 90px;
+  padding: 8px 12px;
+  background-color: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0; /* Prevent shrinking in flex container */
+}
+
+.date-option:hover {
+  border-color: #95c2d7;
+  transform: translateY(-2px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.date-option.selected {
+  background-color: #95c2d7;
+  color: white;
+  border-color: #95c2d7;
+  transform: translateY(-2px);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+/* Date formatting */
+.date-day {
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+.date-month {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+}
+
+.date-weekday {
+  font-size: 0.8rem;
+  margin-bottom: 0.25rem;
+}
+
+/* Time slots styling */
+.time-slots-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 1rem;
+}
+
+.time-slot {
+  padding: 8px 12px;
+  background-color: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 0.9rem;
+  flex: 1;
+  min-width: 120px;
+  text-align: center;
+}
+
+.time-slot:hover {
+  border-color: #95c2d7;
+  transform: translateY(-1px);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.time-slot.selected {
+  background-color: #95c2d7;
+  color: white;
+  border-color: #95c2d7;
+  transform: translateY(-1px);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+}
+
+/* Status messages */
+.no-dates-message {
+  color: #6c757d;
+  text-align: center;
+  padding: 1rem;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  border: 1px dashed #dee2e6;
+}
+
+/* Store information */
+.store-details {
+  font-size: 0.9rem;
+  border-left: 3px solid #95c2d7;
+}
+
+/* Responsive adjustments */
+@media (max-width: 576px) {
+  .date-option {
+    min-width: 80px;
+    padding: 6px 10px;
+  }
+  
+  .date-day {
+    font-size: 1rem;
+  }
+  
+  .time-slot {
+    min-width: 45%;
+    font-size: 0.85rem;
+    padding: 7px 10px;
+  }
+}
+
+@media (max-width: 360px) {
+  .time-slot {
+    min-width: 100%;
+  }
+}

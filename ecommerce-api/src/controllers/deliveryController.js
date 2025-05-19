@@ -56,8 +56,38 @@ export const getDeliveryCityByPostalCode = async (req, res) => {
 // Get delivery time slots
 export const getDeliveryTimeSlots = async (req, res) => {
   try {
-    const { zoneId, dayOfWeek } = req.query;
+    const { zoneId, dayOfWeek, deliveryMethod } = req.query;
     
+    // If pickup method is specified, return predefined pickup time slots
+    if (deliveryMethod === 'PICKUP') {
+      const pickupTimeSlots = [
+        {
+          id: 1,
+          name: "Morning",
+          startTime: "09:00",
+          endTime: "13:00",
+          isActive: true
+        },
+        {
+          id: 2,
+          name: "Afternoon",
+          startTime: "13:00",
+          endTime: "17:00",
+          isActive: true
+        },
+        {
+          id: 3,
+          name: "Evening",
+          startTime: "17:00",
+          endTime: "20:00",
+          isActive: true
+        }
+      ];
+      
+      return res.json(pickupTimeSlots);
+    }
+    
+    // Regular time slots logic for other delivery methods
     const whereClause = { isActive: true };
     
     // Use proper type conversion for numeric parameters
@@ -220,6 +250,7 @@ export const getAvailableDeliveryDates = async (req, res) => {
     const availableDates = [];
     const currentDate = new Date(today);
     currentDate.setHours(0, 0, 0, 0); // Reset time part
+    currentDate.setDate(currentDate.getDate() + 1); // Start from tomorrow
     
     // Get delivery zone if applicable
     let deliveryZone = null;
@@ -256,7 +287,7 @@ export const getAvailableDeliveryDates = async (req, res) => {
       dayName = dayNames[dayOfWeek];
       
       if (deliveryMethod === 'PICKUP') {
-        // Pickup available on Saturday (6), Sunday (0), Monday (1), Tuesday (2)
+        // Pickup available only on Saturday (6), Sunday (0), Monday (1), Tuesday (2)
         isAvailable = [0, 1, 2, 6].includes(dayOfWeek);
       } 
       else if (deliveryMethod === 'RAILWAY_STATION') {

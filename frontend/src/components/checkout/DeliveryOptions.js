@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext, useRef } from 'react';
 import { Form, Card, Row, Col, Alert, Spinner } from 'react-bootstrap';
 import { useTranslation } from 'react-i18next';
 import { apiClient } from '../../utils/api';
@@ -9,10 +9,6 @@ import './DeliveryOptions.css';
 
 /**
  * DeliveryOptions component for selecting delivery method and details
- * 
- * @param {Object} props - Component props
- * @param {Object} props.formData - Form data from parent component
- * @param {Function} props.handleChange - Handler for form changes
  */
 const DeliveryOptions = ({ formData, handleChange }) => {
   const { t } = useTranslation(['checkout', 'common']);
@@ -38,14 +34,43 @@ const DeliveryOptions = ({ formData, handleChange }) => {
   
   // Current delivery method
   const deliveryMethod = formData.deliveryType;
+  
+  // Refs to track previous values and prevent unnecessary API calls
+  const prevDeliveryMethod = useRef(deliveryMethod);
+  const prevPostalCode = useRef(formData.postalCode);
+  const prevZoneId = useRef(formData.zoneId);
+  const prevDeliveryDate = useRef(formData.deliveryDate);
+  const prevTotalPrice = useRef(totalPrice);
+  
+  // Refs to track API call states
+  const fetchingStations = useRef(false);
+  const fetchingPickupLocations = useRef(false);
+  const fetchingDates = useRef(false);
+  const fetchingTimeSlots = useRef(false);
+  const calculatingDeliveryCost = useRef(false);
+
+  // Debug logging
+  console.log('DeliveryOptions render:', { 
+    deliveryMethod, 
+    postalCode: formData.postalCode,
+    zoneId: formData.zoneId,
+    deliveryDate: formData.deliveryDate
+  });
 
   // Fetch railway stations
   useEffect(() => {
+    // Skip if already loading or if delivery method hasn't changed
+    if (fetchingStations.current || deliveryMethod !== 'RAILWAY_STATION' || 
+        prevDeliveryMethod.current === deliveryMethod) {
+      return;
+    }
+    
     const fetchStations = async () => {
-      if (deliveryMethod !== 'RAILWAY_STATION') return;
-      
+      fetchingStations.current = true;
       setLoading(prev => ({ ...prev, stations: true }));
+      
       try {
+        console.log('Fetching railway stations');
         const response = await apiClient.get('/railway-stations');
         setRailwayStations(response.data || []);
       } catch (err) {
@@ -53,19 +78,28 @@ const DeliveryOptions = ({ formData, handleChange }) => {
         setError('Failed to load railway stations');
       } finally {
         setLoading(prev => ({ ...prev, stations: false }));
+        fetchingStations.current = false;
       }
     };
 
     fetchStations();
+    prevDeliveryMethod.current = deliveryMethod;
   }, [deliveryMethod]);
 
   // Fetch pickup locations
   useEffect(() => {
+    // Skip if already loading or if delivery method hasn't changed
+    if (fetchingPickupLocations.current || deliveryMethod !== 'PICKUP' || 
+        prevDeliveryMethod.current === deliveryMethod) {
+      return;
+    }
+    
     const fetchPickupLocations = async () => {
-      if (deliveryMethod !== 'PICKUP') return;
-      
+      fetchingPickupLocations.current = true;
       setLoading(prev => ({ ...prev, pickupLocations: true }));
+      
       try {
+        console.log('Fetching pickup locations');
         const response = await apiClient.get('/delivery/pickup-locations');
         setPickupLocations(response || []);
       } catch (err) {
@@ -73,23 +107,45 @@ const DeliveryOptions = ({ formData, handleChange }) => {
         setError('Failed to load pickup locations');
       } finally {
         setLoading(prev => ({ ...prev, pickupLocations: false }));
+        fetchingPickupLocations.current = false;
       }
     };
 
     fetchPickupLocations();
+    prevDeliveryMethod.current = deliveryMethod;
   }, [deliveryMethod]);
 
-  // Calculate delivery cost when method or postal code changes
+  // Calculate delivery cost when method, postal code, or total price changes
   useEffect(() => {
+    // Skip if already calculating or if relevant values haven't changed
+    if (calculatingDeliveryCost.current || 
+        (prevDeliveryMethod.current === deliveryMethod && 
+         prevPostalCode.current === formData.postalCode &&
+         prevTotalPrice.current === totalPrice)) {
+      return;
+    }
+    
+    // Skip if no delivery method, or if address delivery without postal code
+    if (!deliveryMethod || (deliveryMethod === 'ADDRESS' && 
+        (!formData.postalCode || formData.postalCode.length < 4))) {
+      return;
+    }
+    
     const calculateDeliveryCost = async () => {
-      if (!deliveryMethod) return;
-      
+      calculatingDeliveryCost.current = true;
       setLoading(prev => ({ ...prev, deliveryCost: true }));
+      
       try {
+        console.log('Calculating delivery cost:', {
+          deliveryMethod,
+          postalCode: formData.postalCode,
+          cartTotal: totalPrice
+        });
+        
         const response = await apiClient.post('/delivery/calculate-cost', {
           deliveryMethod,
           postalCode: formData.postalCode,
-          canton: 'GE', // Default canton, could be dynamic
+          canton: 'GE', // Default canton
           cartTotal: totalPrice
         });
         
@@ -103,7 +159,7 @@ const DeliveryOptions = ({ formData, handleChange }) => {
           }
         });
         
-        // If delivery is not valid (e.g., minimum order not met), show an error
+        // If delivery is not valid, show an error
         if (!response.isValid) {
           setError(response.message);
         } else {
@@ -114,30 +170,46 @@ const DeliveryOptions = ({ formData, handleChange }) => {
         setError('Failed to calculate delivery cost');
       } finally {
         setLoading(prev => ({ ...prev, deliveryCost: false }));
+        calculatingDeliveryCost.current = false;
       }
     };
 
     calculateDeliveryCost();
+    
+    // Update previous values
+    prevDeliveryMethod.current = deliveryMethod;
+    prevPostalCode.current = formData.postalCode;
+    prevTotalPrice.current = totalPrice;
   }, [deliveryMethod, formData.postalCode, totalPrice, handleChange]);
 
-  // Fetch available dates when delivery method changes
+  // Fetch available dates when delivery method or zone ID changes
   useEffect(() => {
+    // Skip if already fetching or if relevant values haven't changed
+    if (fetchingDates.current || !deliveryMethod || 
+        (prevDeliveryMethod.current === deliveryMethod && 
+         prevZoneId.current === formData.zoneId)) {
+      return;
+    }
+    
     const fetchAvailableDates = async () => {
-      if (!deliveryMethod) return;
-      
+      fetchingDates.current = true;
       setLoading(prev => ({ ...prev, dates: true }));
+      
       try {
-        const params = {
+        console.log('Fetching available dates:', {
           deliveryMethod,
-          canton: 'GE' // Default canton, could be dynamic
-        };
+          zoneId: formData.zoneId
+        });
         
-        // Add zoneId if we have one from city lookup
+        // Build query string manually to avoid CORS issues
+        let endpoint = '/delivery/available-dates?deliveryMethod=' + deliveryMethod;
+        endpoint += '&canton=GE'; // Default canton
+        
         if (formData.zoneId) {
-          params.zoneId = formData.zoneId;
+          endpoint += '&zoneId=' + formData.zoneId;
         }
         
-        const response = await apiClient.get('/delivery/available-dates', { params });
+        const response = await apiClient.get(endpoint);
         
         if (response.availableDates && response.availableDates.length > 0) {
           setAvailableDates(response.availableDates);
@@ -159,41 +231,60 @@ const DeliveryOptions = ({ formData, handleChange }) => {
         setError('Failed to load available delivery dates');
       } finally {
         setLoading(prev => ({ ...prev, dates: false }));
+        fetchingDates.current = false;
       }
     };
 
     fetchAvailableDates();
+    
+    // Update previous values
+    prevDeliveryMethod.current = deliveryMethod;
+    prevZoneId.current = formData.zoneId;
   }, [deliveryMethod, formData.zoneId, formData.deliveryDate, handleChange]);
 
   // Fetch time slots when delivery date changes
   useEffect(() => {
+    // Skip if already fetching or if no delivery date or if delivery date hasn't changed
+    if (fetchingTimeSlots.current || !deliveryMethod || !formData.deliveryDate || 
+        prevDeliveryDate.current === formData.deliveryDate) {
+      return;
+    }
+    
     const fetchTimeSlots = async () => {
-      if (!deliveryMethod || !formData.deliveryDate) return;
-      
+      fetchingTimeSlots.current = true;
       setLoading(prev => ({ ...prev, timeSlots: true }));
+      
       try {
+        console.log('Fetching time slots:', {
+          deliveryDate: formData.deliveryDate,
+          zoneId: formData.zoneId
+        });
+        
         // Get day of week from selected date
         const selectedDate = new Date(formData.deliveryDate);
         const dayOfWeek = selectedDate.getDay(); // 0 = Sunday, 1 = Monday, etc.
         
-        const params = { dayOfWeek };
+        // Build query string manually
+        let endpoint = '/delivery/time-slots?dayOfWeek=' + dayOfWeek;
         
-        // Add zoneId if we have one from city lookup
         if (formData.zoneId) {
-          params.zoneId = formData.zoneId;
+          endpoint += '&zoneId=' + formData.zoneId;
         }
         
-        const response = await apiClient.get('/delivery/time-slots', { params });
+        const response = await apiClient.get(endpoint);
         
         if (response && response.length > 0) {
           setTimeSlots(response);
           
           // Auto-select first time slot if none is selected
           if (!formData.deliveryTimeSlot && response.length > 0) {
+            // Create a time slot string in the format "HH:MM-HH:MM"
+            const timeSlotValue = `${response[0].startTime}-${response[0].endTime}`;
+            
             handleChange({
               target: {
                 name: 'deliveryTimeSlot',
-                value: response[0].id.toString()
+                value: timeSlotValue
               }
             });
           }
@@ -205,22 +296,31 @@ const DeliveryOptions = ({ formData, handleChange }) => {
         setError('Failed to load delivery time slots');
       } finally {
         setLoading(prev => ({ ...prev, timeSlots: false }));
+        fetchingTimeSlots.current = false;
       }
     };
 
     fetchTimeSlots();
+    prevDeliveryDate.current = formData.deliveryDate;
   }, [deliveryMethod, formData.deliveryDate, formData.zoneId, formData.deliveryTimeSlot, handleChange]);
 
   // Fetch city details when postal code changes
   useEffect(() => {
+    // Skip if postal code is not valid or hasn't changed
+    if (!formData.postalCode || formData.postalCode.length < 4 || 
+        deliveryMethod !== 'ADDRESS' || 
+        prevPostalCode.current === formData.postalCode) {
+      return;
+    }
+    
     const fetchCityByPostalCode = async () => {
-      if (!formData.postalCode || deliveryMethod !== 'ADDRESS' || formData.postalCode.length < 4) return;
-      
       try {
+        console.log('Fetching city for postal code:', formData.postalCode);
+        
         const response = await apiClient.get(`/delivery/cities/${formData.postalCode}`);
         
         if (response) {
-          // Update zone ID in parent form for use in other API calls
+          // Update zone ID in parent form
           handleChange({
             target: {
               name: 'zoneId',
@@ -252,6 +352,7 @@ const DeliveryOptions = ({ formData, handleChange }) => {
     };
 
     fetchCityByPostalCode();
+    prevPostalCode.current = formData.postalCode;
   }, [formData.postalCode, deliveryMethod, handleChange]);
 
   // Render different sections based on delivery method
@@ -357,6 +458,7 @@ const DeliveryOptions = ({ formData, handleChange }) => {
               value={formData.postalCode || ''}
               onChange={handleChange}
               required
+              maxLength={4}
             />
           </Form.Group>
         </Col>
@@ -452,11 +554,14 @@ const DeliveryOptions = ({ formData, handleChange }) => {
           required
         >
           <option value="">{t('checkout.select_time')}</option>
-          {timeSlots.map(slot => (
-            <option key={slot.id} value={slot.id.toString()}>
-              {slot.name} ({slot.startTime} - {slot.endTime})
-            </option>
-          ))}
+          {timeSlots.map(slot => {
+            const timeSlotValue = `${slot.startTime}-${slot.endTime}`;
+            return (
+              <option key={timeSlotValue} value={timeSlotValue}>
+                {slot.name} ({slot.startTime} - {slot.endTime})
+              </option>
+            );
+          })}
         </Form.Select>
       ) : (
         <Alert variant="warning">

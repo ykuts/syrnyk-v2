@@ -1,17 +1,39 @@
 import { API_URL } from '../config';
 
 export const apiClient = {
-  get: async (endpoint, customHeaders = {}) => {
-// Get current language
-const language = localStorage.getItem('i18nextLng') || 'uk';
+  get: async (endpoint, options = {}) => {
+    // Get current language
+    const language = localStorage.getItem('i18nextLng') || 'uk';
+    
+    // Extract query parameters if provided
+    let url = `${API_URL}/api${endpoint}`;
+    
+    // If options contains params, append them to the URL as query parameters
+    if (options.params) {
+      const queryParams = new URLSearchParams();
+      Object.entries(options.params).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+          queryParams.append(key, value);
+        }
+      });
+      
+      const queryString = queryParams.toString();
+      if (queryString) {
+        url += `?${queryString}`;
+      }
+    }
+    
+    // Remove params from options to avoid sending it as a header
+    const { params, ...customHeaders } = options;
 
-    const response = await fetch(`${API_URL}/api${endpoint}`, {
+    const response = await fetch(url, {
       headers: {
         'Content-Type': 'application/json',
         'Accept-Language': language, // Include language in header
         ...customHeaders
       }
     });
+    
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     return response.json();
   },
@@ -89,7 +111,6 @@ const language = localStorage.getItem('i18nextLng') || 'uk';
     const response = await fetch(`${API_URL}/api${endpoint}`, {
         method: 'DELETE',
         headers: {
-            
             ...customHeaders
         }
     });
@@ -100,6 +121,5 @@ const language = localStorage.getItem('i18nextLng') || 'uk';
     }
     
     return response.json();
-}
-
+  }
 };

@@ -1,26 +1,24 @@
+// src/components/checkout/DeliveryOptions.js
 import React, { useState, useEffect, useContext, useRef } from 'react';
-import { Form, Card, Row, Col, Alert, Spinner } from 'react-bootstrap';
+import { Form, Card, Alert } from 'react-bootstrap';
 import { useTranslation } from 'react-i18next';
-import { apiClient } from '../../utils/api';
+import { CartContext } from '../../context/CartContext';
 import DeliveryMethodSelector from '../DeliveryMethodSelector';
 import PickupCheckout from './PickupCheckout';
 import RailwayStationCheckout from './RailwayStationCheckout';
 import AddressDeliveryCheckout from './AddressDeliveryCheckout';
-import { CartContext } from '../../context/CartContext';
 import './DeliveryOptions.css';
 
 /**
  * DeliveryOptions component for selecting delivery method and details
- * Updated to use canton-based delivery days with no time slots
+ * Fixed to improve handling of delivery cost calculation
  */
 const DeliveryOptions = ({ formData, handleChange }) => {
   const { t } = useTranslation(['checkout', 'common']);
   const { totalPrice } = useContext(CartContext);
   
-  // State for delivery cost
-  const [deliveryCost, setDeliveryCost] = useState(0);
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const deliveryCostRef = useRef(null);
   
   // Handle delivery method change
   const handleDeliveryMethodChange = (e) => {
@@ -48,61 +46,47 @@ const DeliveryOptions = ({ formData, handleChange }) => {
       }
     });
     
-    // Clear time slot as it's no longer needed
+    // Clear time slot
     handleChange({
       target: {
         name: 'deliveryTimeSlot',
         value: ''
       }
     });
+    
+    // Reset delivery cost for non-address methods
+    if (value !== 'ADDRESS') {
+      handleChange({
+        target: {
+          name: 'deliveryCost',
+          value: 0
+        }
+      });
+    }
   };
   
-  // Calculate delivery cost when method, postal code, or total price changes
-  useEffect(() => {
-    // Skip if no delivery method, or if address delivery without postal code
-    if (!formData.deliveryType || (formData.deliveryType === 'ADDRESS' && 
-        (!formData.postalCode || formData.postalCode.length < 4))) {
-      return;
-    }
-    
-    const calculateDeliveryCost = async () => {
-      setLoading(true);
-      setError(null);
+  // Handle delivery cost calculation result
+  const handleDeliveryCostCalculated = (result) => {
+    // Store result in ref to avoid unnecessary updates
+    if (
+      !deliveryCostRef.current || 
+      deliveryCostRef.current.cost !== result.cost ||
+      deliveryCostRef.current.isValid !== result.isValid
+    ) {
+      deliveryCostRef.current = result;
       
-      try {
-        const response = await apiClient.post('/delivery/calculate-cost', {
-          deliveryMethod: formData.deliveryType,
-          postalCode: formData.postalCode,
-          canton: formData.canton || 'GE', // Default to Geneva
-          cartTotal: totalPrice
-        });
-        
-        setDeliveryCost(response.deliveryCost || 0);
-        
-        // Update parent form with delivery cost
-        handleChange({
-          target: {
-            name: 'deliveryCost',
-            value: response.deliveryCost
-          }
-        });
-        
-        // If delivery is not valid, show an error
-        if (!response.isValid) {
-          setError(response.message);
-        } else {
-          setError(null);
+      // Update error message if delivery is not valid
+      setError(result.isValid ? null : result.message);
+      
+      // Update form data with delivery cost
+      handleChange({
+        target: {
+          name: 'deliveryCost',
+          value: result.cost
         }
-      } catch (err) {
-        console.error('Error calculating delivery cost:', err);
-        setError(t('delivery.errors.cost_calculation_error'));
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    calculateDeliveryCost();
-  }, [formData.deliveryType, formData.postalCode, formData.canton, totalPrice, handleChange, t]);
+      });
+    }
+  };
 
   // Render different delivery forms based on selected method
   const renderDeliveryForm = () => {
@@ -112,7 +96,6 @@ const DeliveryOptions = ({ formData, handleChange }) => {
           <AddressDeliveryCheckout
             formData={formData}
             handleChange={handleChange}
-            deliveryCost={deliveryCost}
           />
         );
       case 'RAILWAY_STATION':

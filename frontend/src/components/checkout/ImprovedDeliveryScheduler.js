@@ -49,7 +49,7 @@ const ImprovedDeliveryScheduler = ({
       const dates = [];
       const today = new Date();
       const fourWeeksLater = new Date(today);
-      fourWeeksLater.setDate(today.getDate() + 28); // 4 weeks ahead
+      fourWeeksLater.setDate(today.getDate() + 14); // 4 weeks ahead
       
       // Start from tomorrow to ensure at least 24h notice
       const startDate = new Date(today);
@@ -137,15 +137,15 @@ const ImprovedDeliveryScheduler = ({
   };
 
   // Get delivery day description
-  const getDeliveryDayDescription = () => {
+   const getDeliveryDayDescription = () => {
     if (deliveryType === 'RAILWAY_STATION') {
-      return t('railway_station_days', { ns: 'delivery' });
+      return t('railway_station_days', { ns: 'delivery', defaultValue: 'Railway station delivery is available on Mondays' });
     } else if (deliveryType === 'ADDRESS') {
       return canton === 'VD' 
-        ? t('address_vd_days', { ns: 'delivery' })
-        : t('address_ge_days', { ns: 'delivery' });
+        ? t('address_vd_days', { ns: 'delivery', defaultValue: 'Delivery in Vaud is available on Saturdays' })
+        : t('address_ge_days', { ns: 'delivery', defaultValue: 'Delivery in Geneva is available on Mondays' });
     } else if (deliveryType === 'PICKUP') {
-      return t('pickup.available_days', { ns: 'checkout' });
+      return t('pickup.available_days', { ns: 'checkout', defaultValue: 'Pickup is available on Saturday, Sunday, Monday, and Tuesday' });
     }
     return '';
   };
@@ -171,7 +171,7 @@ const ImprovedDeliveryScheduler = ({
   if (availableDates.length === 0) {
     return (
       <Alert variant="warning">
-        {t('no_dates_available', { ns: 'delivery' })}
+        {t('no_dates_available', { ns: 'delivery', defaultValue: 'No delivery dates available' })}
       </Alert>
     );
   }

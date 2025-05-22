@@ -1,5 +1,5 @@
 // src/components/checkout/AddressDeliveryCheckout.js
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext, useRef } from 'react';
 import { Form, Alert, Spinner, Row, Col } from 'react-bootstrap';
 import { useTranslation } from 'react-i18next';
 import { CartContext } from '../../context/CartContext';
@@ -8,7 +8,8 @@ import ImprovedDeliveryScheduler from './ImprovedDeliveryScheduler';
 
 /**
  * Component for handling address delivery checkout
- * Includes postal code validation and delivery cost calculation
+ * Fixed to prevent infinite loops in delivery cost calculation
+ * Added canton selection for delivery days
  */
 const AddressDeliveryCheckout = ({ formData, handleChange }) => {
   const { t } = useTranslation(['checkout', 'common']);
@@ -21,6 +22,11 @@ const AddressDeliveryCheckout = ({ formData, handleChange }) => {
   const [deliveryCost, setDeliveryCost] = useState(0);
   const [freeDeliveryThreshold, setFreeDeliveryThreshold] = useState(200); // Default threshold
   const [error, setError] = useState(null);
+  
+  // Track previous postal code to prevent duplicate API calls
+  const previousPostalCodeRef = useRef(formData.postalCode);
+  // Track if we've already updated the parent's delivery cost
+  const costUpdatedRef = useRef(false);
 
   // Calculate delivery cost based on total price and thresholds
   const calculateDeliveryCost = (total, threshold) => {
@@ -29,16 +35,34 @@ const AddressDeliveryCheckout = ({ formData, handleChange }) => {
     return total >= threshold ? 0 : 10;
   };
 
-  // Fetch city info when postal code changes
+  // Handle canton change
+  const handleCantonChange = (e) => {
+    // Update canton in parent form
+    handleChange(e);
+    
+    // Reset delivery date when canton changes (as delivery days differ by canton)
+    handleChange({
+      target: {
+        name: 'deliveryDate',
+        value: ''
+      }
+    });
+  };
+
+  // Fetch city info when postal code changes and is valid
   useEffect(() => {
-    // Skip if postal code is empty or too short
-    if (!formData.postalCode || formData.postalCode.length < 4) {
-      setPostalCodeValid(null);
-      setCityInfo(null);
-      setPostalCodeChecked(false);
+    // Skip if postal code hasn't changed or is too short
+    if (
+      !formData.postalCode || 
+      formData.postalCode.length < 4 ||
+      formData.postalCode === previousPostalCodeRef.current
+    ) {
       return;
     }
-
+    
+    // Update previous postal code reference
+    previousPostalCodeRef.current = formData.postalCode;
+    
     const fetchCityByPostalCode = async () => {
       setLoading(true);
       setError(null);
@@ -59,20 +83,34 @@ const AddressDeliveryCheckout = ({ formData, handleChange }) => {
             }
           });
           
+          // If the city has a canton, update the canton field
+          if (response.zone?.canton) {
+            handleChange({
+              target: {
+                name: 'canton',
+                value: response.zone.canton
+              }
+            });
+          }
+          
           // Set free delivery threshold from city info
-          setFreeDeliveryThreshold(response.freeThreshold || 200);
+          const threshold = response.freeThreshold || 200;
+          setFreeDeliveryThreshold(threshold);
           
           // Calculate delivery cost based on city's threshold
-          const cost = calculateDeliveryCost(totalPrice, response.freeThreshold || 200);
+          const cost = calculateDeliveryCost(totalPrice, threshold);
           setDeliveryCost(cost);
           
-          // Update delivery cost in parent form
-          handleChange({
-            target: {
-              name: 'deliveryCost',
-              value: cost
-            }
-          });
+          // Only update parent's delivery cost once per postal code change
+          if (!costUpdatedRef.current) {
+            handleChange({
+              target: {
+                name: 'deliveryCost',
+                value: cost
+              }
+            });
+            costUpdatedRef.current = true;
+          }
         }
       } catch (err) {
         console.error('Error fetching city by postal code:', err);
@@ -88,13 +126,16 @@ const AddressDeliveryCheckout = ({ formData, handleChange }) => {
         const cost = calculateDeliveryCost(totalPrice, defaultThreshold);
         setDeliveryCost(cost);
         
-        // Update delivery cost in parent form
-        handleChange({
-          target: {
-            name: 'deliveryCost',
-            value: cost
-          }
-        });
+        // Only update parent's delivery cost once per postal code change
+        if (!costUpdatedRef.current) {
+          handleChange({
+            target: {
+              name: 'deliveryCost',
+              value: cost
+            }
+          });
+          costUpdatedRef.current = true;
+        }
       } finally {
         setLoading(false);
         setPostalCodeChecked(true);
@@ -102,7 +143,12 @@ const AddressDeliveryCheckout = ({ formData, handleChange }) => {
     };
 
     fetchCityByPostalCode();
-  }, [formData.postalCode, totalPrice]);
+  }, [formData.postalCode]);
+
+  // Reset cost update flag when postal code changes
+  useEffect(() => {
+    costUpdatedRef.current = false;
+  }, [formData.postalCode]);
 
   // Recalculate delivery cost when total price changes
   useEffect(() => {
@@ -110,13 +156,15 @@ const AddressDeliveryCheckout = ({ formData, handleChange }) => {
       const cost = calculateDeliveryCost(totalPrice, freeDeliveryThreshold);
       setDeliveryCost(cost);
       
-      // Update delivery cost in parent form
-      handleChange({
-        target: {
-          name: 'deliveryCost',
-          value: cost
-        }
-      });
+      // Update delivery cost in parent form - only if cost has changed
+      if (cost !== formData.deliveryCost) {
+        handleChange({
+          target: {
+            name: 'deliveryCost',
+            value: cost
+          }
+        });
+      }
     }
   }, [totalPrice, freeDeliveryThreshold, postalCodeChecked]);
 
@@ -140,8 +188,28 @@ const AddressDeliveryCheckout = ({ formData, handleChange }) => {
         </Alert>
       )}
       
+      {/* Canton Selection */}
+      <Form.Group className="mb-3">
+        <Form.Label>{t('checkout.canton')}</Form.Label>
+        <Form.Select
+          name="canton"
+          value={formData.canton || 'GE'}
+          onChange={handleCantonChange}
+          required
+        >
+          <option value="GE">Geneva (Monday delivery)</option>
+          <option value="VD">Vaud (Saturday delivery)</option>
+        </Form.Select>
+        <Form.Text className="text-muted">
+          {formData.canton === 'VD' 
+            ? t('checkout.vaud_delivery_days', { defaultValue: 'Delivery in Vaud is available on Saturdays' })
+            : t('checkout.geneva_delivery_days', { defaultValue: 'Delivery in Geneva is available on Mondays' })}
+        </Form.Text>
+      </Form.Group>
+      
       {/* Address Form */}
       <Form.Group className="mb-3">
+        <Form.Label>{t('checkout.street')}</Form.Label>
         <Form.Control
           type="text"
           name="street"
@@ -155,6 +223,7 @@ const AddressDeliveryCheckout = ({ formData, handleChange }) => {
       <Row>
         <Col md={6}>
           <Form.Group className="mb-3">
+            <Form.Label>{t('checkout.house')}</Form.Label>
             <Form.Control
               type="text"
               name="house"
@@ -167,6 +236,7 @@ const AddressDeliveryCheckout = ({ formData, handleChange }) => {
         </Col>
         <Col md={6}>
           <Form.Group className="mb-3">
+            <Form.Label>{t('checkout.apartment')}</Form.Label>
             <Form.Control
               type="text"
               name="apartment"
@@ -181,6 +251,7 @@ const AddressDeliveryCheckout = ({ formData, handleChange }) => {
       <Row>
         <Col md={8}>
           <Form.Group className="mb-3">
+            <Form.Label>{t('checkout.city')}</Form.Label>
             <Form.Control
               type="text"
               name="city"
@@ -193,6 +264,7 @@ const AddressDeliveryCheckout = ({ formData, handleChange }) => {
         </Col>
         <Col md={4}>
           <Form.Group className="mb-3">
+            <Form.Label>{t('checkout.postal_code')}</Form.Label>
             <div className="input-group">
               <Form.Control
                 type="text"
@@ -228,7 +300,7 @@ const AddressDeliveryCheckout = ({ formData, handleChange }) => {
         deliveryType="ADDRESS"
         selectedDate={formData.deliveryDate}
         onDateChange={handleChange}
-        canton={cityInfo?.zone?.canton || 'GE'} // Default to Geneva if no city info
+        canton={formData.canton || 'GE'} // Use selected canton
       />
       
       {/* Minimum Order Warning */}

@@ -116,7 +116,7 @@ const ImprovedDeliveryScheduler = ({
       
       // Format parts of the date
       const day = format(date, 'd', { locale: currentLocale });
-      const month = format(date, 'MMM', { locale: currentLocale });
+      const month = format(date, 'MM', { locale: currentLocale });
       const weekday = format(date, 'EEEE', { locale: currentLocale });
       
       return { day, month, weekday };
@@ -196,8 +196,8 @@ const ImprovedDeliveryScheduler = ({
               aria-pressed={isSelected}
             >
               <span className="date-weekday">{weekday}</span>
-              <span className="date-day">{day}</span>
-              <span className="date-month">{month}</span>
+              <span className="date-day">{day}.{month}</span>
+              {/* <span className="date-month">{month}</span> */}
             </div>
           );
         })}

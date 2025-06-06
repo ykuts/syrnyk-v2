@@ -3,7 +3,8 @@ import handlebars from 'handlebars';
 import path from 'path';
 import fs from 'fs/promises';
 import { fileURLToPath } from 'url';
-import { get } from 'http';
+import { format } from 'date-fns';
+
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -61,6 +62,128 @@ const sendTemplatedEmail = async (to, subject, templateName, data) => {
   } catch (error) {
     console.error('Detailed error sending email:', error);
     return { success: false, error: error.message };
+  }
+};
+
+// Helper function to format date for display
+const formatDateForDisplay = (dateValue) => {
+  if (!dateValue) return 'Не вказано';
+  
+  try {
+    const date = new Date(dateValue);
+    if (isNaN(date.getTime())) return 'Некоректна дата';
+    
+    return format(date, 'dd.MM.yyyy HH:mm');
+  } catch (error) {
+    console.error('Error formatting date:', error);
+    return 'Помилка форматування дати';
+  }
+};
+
+// Helper function to format delivery details based on type with date and time
+const getDeliveryDetails = (order) => {
+  const deliveryDate = order.deliveryDate ? formatDateForDisplay(order.deliveryDate) : 'Не вказано';
+  const timeSlot = order.deliveryTimeSlot || '';
+  
+  switch (order.deliveryType) {
+    case 'ADDRESS':
+      const address = order.addressDelivery;
+      if (!address) {
+        return {
+          type: 'Доставка за адресою',
+          details: 'Адреса не вказана'
+        };
+      }
+      
+      return {
+        type: 'Доставка за адресою',
+        details: `${address.street}, ${address.house}${
+          address.apartment ? `, кв. ${address.apartment}` : ''
+        }, ${address.city}, ${address.postalCode}`,
+        date: deliveryDate,
+        timeSlot: timeSlot ? `Часовий слот: ${timeSlot}` : 'Часовий слот не вказано'
+      };
+      
+    case 'RAILWAY_STATION':
+      const station = order.stationDelivery;
+      if (!station) {
+        return {
+          type: 'Доставка на залізничну станцію',
+          details: 'Станція не вказана'
+        };
+      }
+      
+      // For railway station, use meeting time if available, otherwise use delivery date
+      const meetingTime = station.meetingTime 
+        ? formatDateForDisplay(station.meetingTime)
+        : deliveryDate;
+      
+      return {
+        type: 'Доставка на залізничну станцію',
+        details: `Станція: ${station.station.name}, Місце зустрічі: ${station.station.meetingPoint}`,
+        date: meetingTime
+      };
+      
+    case 'PICKUP':
+      const pickup = order.pickupDelivery;
+      if (!pickup) {
+        return {
+          type: 'Самовивіз',
+          details: 'Магазин не вказано'
+        };
+      }
+      
+      // For pickup, use pickup time if available, otherwise use delivery date + time slot
+      const pickupTime = pickup.pickupTime 
+        ? formatDateForDisplay(pickup.pickupTime)
+        : deliveryDate;
+      
+      return {
+        type: 'Самовивіз',
+        details: `Магазин: ${pickup.store.name}, Адреса: ${pickup.store.address}`,
+        date: pickupTime,
+        timeSlot: timeSlot && !pickup.pickupTime ? `Часовий слот: ${timeSlot}` : ''
+      };
+      
+    default:
+      return { 
+        type: 'Невідомий тип доставки', 
+        details: '',
+        date: deliveryDate,
+        timeSlot: timeSlot ? `Часовий слот: ${timeSlot}` : ''
+      };
+  }
+};
+
+// Helper function to get payment method in Ukrainian
+const getPaymentMethod = (order) => {
+  switch (order.paymentMethod) {
+    case 'CASH':
+      return 'Готівка';
+    case 'CARD':
+      return 'Картка';
+    case 'TWINT':
+      return 'TWINT';
+    case 'BANK_TRANSFER':
+      return 'Банківський переказ';
+    default:
+      return 'Не вказано';
+  }
+};
+
+// Helper function to get order status in Ukrainian
+const getOrderStatus = (order) => {
+  switch (order.status) {
+    case 'PENDING':
+      return 'В обробці';
+    case 'CONFIRMED':
+      return 'Підтверджено';
+    case 'DELIVERED':
+      return 'Доставлено';
+    case 'CANCELLED':
+      return 'Відмінено';
+    default:
+      return 'Невідомий статус';
   }
 };
 
@@ -178,7 +301,7 @@ export const sendNewOrderNotificationToAdmin = async (order, customer) => {
 };
 
 // Helper function to format delivery details based on type
-const getDeliveryDetails = (order) => {
+/* const getDeliveryDetails = (order) => {
   switch (order.deliveryType) {
     case 'ADDRESS':
       return {
@@ -230,7 +353,7 @@ const getOrderStatus = (order) => {
     default:
       return 'Unknown';
   }
-}
+} */
 
 export default {
   sendWelcomeEmail,

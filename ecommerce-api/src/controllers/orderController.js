@@ -9,6 +9,35 @@ import {
 } from '../services/emailService.js';
 
 const prisma = new PrismaClient();
+// Helper function to prepare time from time slot string
+const prepareTimeFromSlot = (dateString, timeSlotString) => {
+  if (!timeSlotString || !dateString) return dateString;
+  
+  try {
+    // If time slot is in format "09:00-12:00", extract the start time
+    const startTime = timeSlotString.split('-')[0].trim();
+    
+    // Create a new date object from delivery date
+    const date = new Date(dateString);
+    
+    // Parse time components
+    const [hours, minutes] = startTime.split(':').map(Number);
+    
+    // Validate time components
+    if (isNaN(hours) || isNaN(minutes) || hours < 0 || hours > 23 || minutes < 0 || minutes > 59) {
+      console.warn('Invalid time slot format:', timeSlotString);
+      return dateString;
+    }
+    
+    // Set time components
+    date.setHours(hours, minutes, 0, 0);
+    
+    return date.toISOString();
+  } catch (error) {
+    console.error('Error preparing time from slot:', error);
+    return dateString;
+  }
+};
 
 // Create a new order
 export const createOrder = async (req, res) => {
@@ -26,7 +55,29 @@ export const createOrder = async (req, res) => {
       addressDelivery,
       stationDelivery,
       pickupDelivery,
+      deliveryDate,
+      deliveryTimeSlot,
+      deliveryCost = 0
     } = req.body;
+
+    // Validate delivery date for all delivery types
+    if (!deliveryDate) {
+      return res.status(400).json({
+        message: "Delivery date is required"
+      });
+    }
+
+    // Validate delivery date is not in the past
+    const selectedDate = new Date(deliveryDate);
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    tomorrow.setHours(0, 0, 0, 0);
+
+    if (selectedDate < tomorrow) {
+      return res.status(400).json({
+        message: "Delivery date must be at least one day in advance"
+      });
+    }
 
     // Checking required fields
     if (!deliveryType || !totalAmount || !items || items.length === 0) {
@@ -108,6 +159,9 @@ export const createOrder = async (req, res) => {
       notesClient,
       status: 'PENDING',
       paymentStatus: 'PENDING',
+      deliveryDate: deliveryDate ? new Date(deliveryDate) : null,
+      deliveryTimeSlot: deliveryTimeSlot || null,
+      deliveryCost: parseFloat(deliveryCost) || 0,
       items: {
         create: items.map(item => ({
           product: { connect: { id: item.productId } },
@@ -134,21 +188,24 @@ export const createOrder = async (req, res) => {
       };
     }
 
-    // Add delivery information based on type
+    // Add delivery information based on type with proper time handling
     if (deliveryType === 'ADDRESS' && addressDelivery) {
       orderData.addressDelivery = { create: addressDelivery };
     } else if (deliveryType === 'RAILWAY_STATION' && stationDelivery) {
+      // For railway station, use delivery date directly
       orderData.stationDelivery = {
         create: {
           stationId: stationDelivery.stationId,
-          meetingTime: new Date(stationDelivery.meetingTime)
+          meetingTime: new Date(deliveryDate) // Use delivery date for meeting time
         }
       };
     } else if (deliveryType === 'PICKUP' && pickupDelivery) {
+      // For pickup, combine delivery date and time slot
+      const pickupDateTime = prepareTimeFromSlot(deliveryDate, deliveryTimeSlot);
       orderData.pickupDelivery = {
         create: {
           storeId: pickupDelivery.storeId,
-          pickupTime: new Date(pickupDelivery.pickupTime)
+          pickupTime: new Date(pickupDateTime)
         }
       };
     }
@@ -212,7 +269,22 @@ export const getOrders = async (req, res) => {
   const { userId } = req.user;
 
   try {
-    const orders = await prisma.order.findMany({ where: { userId }, include: { orderItems: true } });
+    const orders = await prisma.order.findMany({ 
+      where: { userId }, 
+      include: { 
+        items: {
+          include: { product: true }
+        },
+        addressDelivery: true,
+        stationDelivery: {
+          include: { station: true }
+        },
+        pickupDelivery: {
+          include: { store: true }
+        }
+      },
+      orderBy: { createdAt: 'desc' }
+    });
     res.json(orders);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -329,7 +401,19 @@ export const updatePaymentStatus = async (req, res) => {
 
     const order = await prisma.order.update({
       where: { id: Number(orderId) },
-      data: { paymentStatus }
+      data: { paymentStatus },
+      include: {
+        items: {
+          include: { product: true }
+        },
+        addressDelivery: true,
+        stationDelivery: {
+          include: { station: true }
+        },
+        pickupDelivery: {
+          include: { store: true }
+        }
+      }
     });
 
     res.json(order);
@@ -352,6 +436,7 @@ export const getAllOrders = async (req, res) => {
           }
         },
         user: true,
+        guestInfo: true,
         addressDelivery: true,
         stationDelivery: {
           include: {
@@ -378,7 +463,19 @@ export const updateOrderNotes = async (req, res) => {
 
     const order = await prisma.order.update({
       where: { id: Number(orderId) },
-      data: { notesAdmin }
+      data: { notesAdmin },
+      include: {
+        items: {
+          include: { product: true }
+        },
+        addressDelivery: true,
+        stationDelivery: {
+          include: { station: true }
+        },
+        pickupDelivery: {
+          include: { store: true }
+        }
+      }
     });
 
     res.json(order);
@@ -387,7 +484,7 @@ export const updateOrderNotes = async (req, res) => {
   }
 };
 
-// Update order items
+// Update order items with change tracking
 export const updateOrderItem = async (req, res) => {
   const { orderId, itemId } = req.params;
   const { quantity } = req.body;
@@ -397,7 +494,8 @@ export const updateOrderItem = async (req, res) => {
       // Update order item
       const updatedItem = await prisma.orderItem.update({
         where: { id: Number(itemId) },
-        data: { quantity: Number(quantity) }
+        data: { quantity: Number(quantity) },
+        include: { product: true }
       });
 
       // Recalculate total amount
@@ -415,7 +513,7 @@ export const updateOrderItem = async (req, res) => {
         data: {
           totalAmount: totalAmount.toString(),
           changes: {
-            push: `${new Date().toISOString()} - Item ${itemId} quantity updated to ${quantity}`
+            push: `${new Date().toISOString()} - Item ${updatedItem.product.name} quantity updated to ${quantity}`
           }
         },
         include: {
@@ -639,291 +737,6 @@ export const notifyOrderChanges = async (req, res) => {
   }
 };
 
-/* export const updateOrderItem = async (req, res) => {
-  const { orderId, itemId } = req.params;
-  const { quantity } = req.body;
-
-  console.log(`Updating order item:`, {
-    orderId,
-    itemId,
-    quantity,
-    params: req.params,
-    body: req.body
-  });
-
-  try {
-    // Check if order exists
-    const order = await prisma.order.findUnique({
-      where: { id: Number(orderId) }
-    });
-
-    if (!order) {
-      return res.status(404).json({ error: 'Order not found' });
-    }
-
-    // Check if item exists and belongs to the order
-    const existingItem = await prisma.orderItem.findFirst({
-      where: {
-        id: Number(itemId),
-        orderId: Number(orderId)
-      }
-    });
-
-    if (!existingItem) {
-      return res.status(404).json({ error: 'Order item not found' });
-    }
-
-    const result = await prisma.$transaction(async (prisma) => {
-      const updatedItem = await prisma.orderItem.update({
-        where: {
-          id: Number(itemId)
-        },
-        data: {
-          quantity: Number(quantity)
-        }
-      });
-
-      console.log('Item updated successfully:', updatedItem);
-
-      const orderItems = await prisma.orderItem.findMany({
-        where: {
-          orderId: Number(orderId)
-        }
-      });
-
-      const totalAmount = orderItems.reduce((sum, item) => {
-        return sum + (Number(item.price) * item.quantity);
-      }, 0);
-
-      const updatedOrder = await prisma.order.update({
-        where: {
-          id: Number(orderId)
-        },
-        data: {
-          totalAmount: totalAmount.toString()
-        },
-        include: {
-          items: {
-            include: {
-              product: true
-            }
-          },
-          user: true,
-          guestInfo: true,
-          addressDelivery: true,
-          stationDelivery: {
-            include: {
-              station: true
-            }
-          },
-          pickupDelivery: {
-            include: {
-              store: true
-            }
-          }
-        }
-      });
-
-      return updatedOrder;
-    });
-
-    console.log('Order updated successfully:', result);
-    res.json(result);
-  } catch (error) {
-    console.error('Error updating order item:', error);
-    res.status(400).json({ error: error.message });
-  }
-};
-
-export const addOrderItem = async (req, res) => {
-  const { orderId } = req.params;
-  const { productId, quantity } = req.body;
-
-  try {
-    // Check if order exists
-    const order = await prisma.order.findUnique({
-      where: { id: Number(orderId) }
-    });
-
-    if (!order) {
-      return res.status(404).json({ error: 'Order not found' });
-    }
-
-    const result = await prisma.$transaction(async (prisma) => {
-      // Get product info
-      const product = await prisma.product.findUnique({
-        where: {
-          id: Number(productId)
-        }
-      });
-
-      if (!product) {
-        throw new Error('Product not found');
-      }
-
-      // Check if product already exists in order
-      const existingItem = await prisma.orderItem.findFirst({
-        where: {
-          orderId: Number(orderId),
-          productId: Number(productId)
-        }
-      });
-
-      if (existingItem) {
-        // Update quantity instead of creating new item
-        await prisma.orderItem.update({
-          where: { id: existingItem.id },
-          data: {
-            quantity: existingItem.quantity + Number(quantity)
-          }
-        });
-      } else {
-        // Create new order item
-        await prisma.orderItem.create({
-          data: {
-            orderId: Number(orderId),
-            productId: Number(productId),
-            quantity: Number(quantity),
-            price: product.price
-          }
-        });
-      }
-
-      // Get all order items and recalculate total
-      const orderItems = await prisma.orderItem.findMany({
-        where: {
-          orderId: Number(orderId)
-        }
-      });
-
-      const totalAmount = orderItems.reduce((sum, item) => {
-        return sum + (Number(item.price) * item.quantity);
-      }, 0);
-
-      // Update order with new total
-      const updatedOrder = await prisma.order.update({
-        where: {
-          id: Number(orderId)
-        },
-        data: {
-          totalAmount: totalAmount.toString()
-        },
-        include: {
-          items: {
-            include: {
-              product: true
-            }
-          },
-          user: true,
-          guestInfo: true,
-          addressDelivery: true,
-          stationDelivery: {
-            include: {
-              station: true
-            }
-          },
-          pickupDelivery: {
-            include: {
-              store: true
-            }
-          }
-        }
-      });
-
-      return updatedOrder;
-    });
-
-    res.json(result);
-  } catch (error) {
-    console.error('Error adding order item:', error);
-    res.status(400).json({ error: error.message });
-  }
-};
-
-export const removeOrderItem = async (req, res) => {
-  const { orderId, itemId } = req.params;
-
-  try {
-    // Check if order exists
-    const order = await prisma.order.findUnique({
-      where: { id: Number(orderId) }
-    });
-
-    if (!order) {
-      return res.status(404).json({ error: 'Order not found' });
-    }
-
-    // Check if item exists and belongs to the order
-    const existingItem = await prisma.orderItem.findFirst({
-      where: {
-        id: Number(itemId),
-        orderId: Number(orderId)
-      }
-    });
-
-    if (!existingItem) {
-      return res.status(404).json({ error: 'Order item not found' });
-    }
-
-    const result = await prisma.$transaction(async (prisma) => {
-      // Delete item
-      await prisma.orderItem.delete({
-        where: {
-          id: Number(itemId)
-        }
-      });
-
-      // Get remaining items and recalculate total
-      const orderItems = await prisma.orderItem.findMany({
-        where: {
-          orderId: Number(orderId)
-        }
-      });
-
-      const totalAmount = orderItems.reduce((sum, item) => {
-        return sum + (Number(item.price) * item.quantity);
-      }, 0);
-
-      // Update order with new total
-      const updatedOrder = await prisma.order.update({
-        where: {
-          id: Number(orderId)
-        },
-        data: {
-          totalAmount: totalAmount.toString()
-        },
-        include: {
-          items: {
-            include: {
-              product: true
-            }
-          },
-          user: true,
-          guestInfo: true,
-          addressDelivery: true,
-          stationDelivery: {
-            include: {
-              station: true
-            }
-          },
-          pickupDelivery: {
-            include: {
-              store: true
-            }
-          }
-        }
-      });
-
-      return updatedOrder;
-    });
-
-    res.json(result);
-  } catch (error) {
-    console.error('Error removing order item:', error);
-    res.status(400).json({ error: error.message });
-  }
-}; */
-
 // Get single order by ID
 export const getOrderById = async (req, res) => {
   const { orderId } = req.params;
@@ -965,4 +778,3 @@ export const getOrderById = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
-

@@ -97,11 +97,11 @@ const PickupScheduler = ({
     return languageDays[dayOfWeek];
   };
 
-  // Format date for display
+  // Format date for display as DD.MM
   const formatDate = (dateString) => {
     const date = new Date(dateString);
-    const day = date.getDate();
-    const month = date.toLocaleString(i18n.language, { month: 'short' });
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
     return { day, month };
   };
 
@@ -159,8 +159,8 @@ const PickupScheduler = ({
                   onClick={() => handleDateSelect(dateOption.date)}
                 >
                   <span className="date-weekday">{dateOption.dayName}</span>
-                  <span className="date-day">{day}</span>
-                  <span className="date-month">{month}</span>
+                  <span className="date-day">{day}.{month}</span>
+                  {/* <span className="date-month">{month}</span> */}
                 </div>
               );
             })}

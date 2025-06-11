@@ -76,7 +76,7 @@ const AuthChoice = ({ onChoice, onRegister }) => {
     <>
       <Card>
         <Card.Body>
-          <Card.Title>Оберіть спосіб оформлення замовлення</Card.Title>
+          <Card.Title>{t('auth_choice.title')}</Card.Title>
           
           <div className="d-grid gap-2 mt-4">
             <Button
@@ -85,7 +85,7 @@ const AuthChoice = ({ onChoice, onRegister }) => {
               className="d-flex align-items-center justify-content-center gap-2"
             >
               <LogIn size={20} />
-              Увійти
+              {t('auth_choice.login')}
             </Button>
 
             <Button
@@ -94,7 +94,7 @@ const AuthChoice = ({ onChoice, onRegister }) => {
               className="d-flex align-items-center justify-content-center gap-2"
             >
               <UserPlus size={20} />
-              Зареєструватися
+              {t('auth_choice.register')}
             </Button>
 
             <Button
@@ -103,7 +103,7 @@ const AuthChoice = ({ onChoice, onRegister }) => {
               className="d-flex align-items-center justify-content-center gap-2"
             >
               <ShoppingBag size={20} />
-              Оформити як гість
+              {t('auth_choice.guest')}
             </Button>
           </div>
         </Card.Body>

@@ -2,6 +2,7 @@ import React, { useContext } from 'react';
 import { Trash } from 'lucide-react';
 import './CartProducts.css';
 import { CartContext } from '../context/CartContext';
+import { useTranslation } from 'react-i18next';
 
 /**
  * CartProducts component with responsive design optimized for mobile
@@ -15,6 +16,8 @@ const CartProducts = ({ items }) => {
     totalPrice
   } = useContext(CartContext);
 
+  const { t } = useTranslation('checkout');
+
   // Prevent event propagation to avoid form submission
   const handleButtonClick = (e, callback) => {
     e.preventDefault(); // Prevent the default button behavior
@@ -24,8 +27,8 @@ const CartProducts = ({ items }) => {
 
   return (
     <div className="mb-5">
-      <h2 className="h4 mb-4">Ваші продукти</h2>
-      
+      <h2 className="h4 mb-4">{t('cart.title')}</h2>
+
       <div className="cart-items-mobile flex-row">
         {items.map(item => (
           <div key={item.id} className="cart-item-mobile flex-row justify-content-between align-items-center mb-3">
@@ -85,7 +88,7 @@ const CartProducts = ({ items }) => {
         ))}
         
         <div className="cart-total">
-          <span>Усього:</span>
+          <span>{t('cart.total')}:</span>
           <span className="total-price" style={{ color: '#black', fontWeight: 'bold' }}>
             {totalPrice.toFixed(2)} CHF
           </span>

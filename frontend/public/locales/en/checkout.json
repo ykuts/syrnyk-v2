@@ -8,6 +8,7 @@
     "order_items": "Your products",
     "order_success": "Order successfully placed!",
     "order_success_message": "Thank you for your order. We will contact you shortly.",
+    "minimum_order_warning": "Minimum order amount for delivery:",
     "continue_shopping": "Continue shopping",
     "order_summary": "Order Summary",
     "subtotal": "Subtotal",
@@ -27,7 +28,6 @@
     "confirm_password": "Confirm password",
     "password_note": "Password must contain at least 8 characters and include letters and numbers"
   },
-  
   "payment": {
     "twint": {
       "title": "TWINT",
@@ -57,72 +57,70 @@
       "Order history and reordering"
     ]
   },
-
   "delivery": {
-  "address": {
-    "title": "Delivery to Address",
-    "description": "Home delivery to your address"
-  },
-  "railway": {
-    "title": "Railway Station Delivery",
-    "description": "Delivery to a railway station"
-  },
-  "pickup": {
-    "title": "Pickup from Store",
-    "description": "Pickup from our store in Nyon"
-  },
-  "street": "Street",
-  "house": "House Number",
-  "apartment": "Apartment",
-  "apartment_optional": "Apartment (optional)",
-  "city": "City",
-  "postal_code": "Postal Code",
-  "postal_code_placeholder": "e.g. 1201",
-  "postal_code_help": "Enter your 4-digit Swiss postal code to check delivery availability",
-  "postal_code_invalid": "Please enter a valid Swiss postal code (4 digits)",
-  "postal_code_not_found": "Postal code not found",
-  "postal_code_error": "Error checking postal code",
-  "working_hours": "Working Hours",
-  "select_date": "Select Delivery Date",
-  "select_time": "Select Delivery Time",
-  "loading_dates": "Loading available dates...",
-  "no_dates_available": "No delivery dates available for the selected method",
-  "no_time_slots": "No delivery time slots available for the selected date",
-  "calculating": "Calculating delivery cost...",
-  "cost": "Delivery Cost",
-  "minimum_order_warning": "Minimum order amount for delivery is {{amount}} CHF",
-  
-  "validation": {
-    "address": "Please complete all delivery address fields",
-    "station": "Please select a railway station",
-    "date": "Please select a delivery date",
-    "time": "Please select a delivery time"
-  },
-  
-  "errors": {
-    "dates_fetch_error": "Failed to fetch available delivery dates",
-    "cost_calculation_error": "Failed to calculate delivery cost",
-    "stations_fetch_error": "Failed to load railway stations"
-  },
-  "railway_station_days": "Available only on Mondays",
+    "address": {
+      "title": "Delivery to Address",
+      "description": "Home delivery to your address"
+    },
+    "railway": {
+      "title": "Railway Station Delivery",
+      "description": "Delivery to a railway station"
+    },
+    "pickup": {
+      "title": "Pickup from Store",
+      "description": "Pickup from our store in Nyon"
+    },
+    "street": "Street",
+    "house": "House Number",
+    "apartment": "Apartment",
+    "apartment_optional": "Apartment (optional)",
+    "city": "City",
+    "postal_code": "Postal Code",
+    "postal_code_placeholder": "e.g. 1201",
+    "postal_code_help": "Enter your 4-digit Swiss postal code to check delivery availability",
+    "postal_code_invalid": "Please enter a valid Swiss postal code (4 digits)",
+    "postal_code_not_found": "Postal code not found",
+    "postal_code_error": "Error checking postal code",
+    "working_hours": "Working Hours",
+    "select_date": "Select Delivery Date",
+    "select_time": "Select Delivery Time",
+    "loading_dates": "Loading available dates...",
+    "no_dates_available": "No delivery dates available for the selected method",
+    "no_time_slots": "No delivery time slots available for the selected date",
+    "calculating": "Calculating delivery cost...",
+    "cost": "Delivery Cost",
+    "minimum_order_required": "Minimum order amount for delivery is {{minimum}} CHF",
+    "default_fee": "Delivery fee {{cost}} CHF",
+    "postal_code_required": "Postal code is required",
+    "validation": {
+      "address": "Please complete all delivery address fields",
+      "station": "Please select a railway station",
+      "date": "Please select a delivery date",
+      "time": "Please select a delivery time"
+    },
+    "errors": {
+      "dates_fetch_error": "Failed to fetch available delivery dates",
+      "cost_calculation_error": "Failed to calculate delivery cost",
+      "stations_fetch_error": "Failed to load railway stations"
+    },
+    "railway_station_days": "Available only on Mondays",
     "address_ge_days": "For Geneva canton - delivery on Mondays only",
     "address_vd_days": "For Vaud canton - delivery on Saturdays only",
     "station": "Railway Station",
     "select_station": "Select a station",
-    "meeting_point": "Meeting Point"      
-},
-
-"validation": {
-  "missing_fields": "Please fill in all required fields",
-  "invalid_email": "Please enter a valid email address",
-  "invalid_phone": "Please enter a valid phone number (with country code, e.g. +41...)",
-  "missing_address": "Please complete all address fields",
-  "invalid_postal_code": "Please enter a valid Swiss postal code (4 digits)",
-  "missing_station": "Please select a railway station",
-  "missing_delivery_date": "Please select a delivery date",
-  "missing_delivery_time": "Please select a delivery time slot"
-},
-"pickup": {
+    "meeting_point": "Meeting Point"
+  },
+  "validation": {
+    "missing_fields": "Please fill in all required fields",
+    "invalid_email": "Please enter a valid email address",
+    "invalid_phone": "Please enter a valid phone number (with country code, e.g. +41...)",
+    "missing_address": "Please complete all address fields",
+    "invalid_postal_code": "Please enter a valid Swiss postal code (4 digits)",
+    "missing_station": "Please select a railway station",
+    "missing_delivery_date": "Please select a delivery date",
+    "missing_delivery_time": "Please select a delivery time slot"
+  },
+  "pickup": {
     "schedule_title": "Pickup Schedule",
     "select_date": "Select a pickup date",
     "select_time": "Select a time slot",
@@ -149,8 +147,7 @@
     "errors": {
       "stations_fetch_error": "Failed to load railway stations. Please try again."
     }
-  }, 
-  
+  },
   "address": {
     "street": "Street",
     "house": "House/Building Number",
@@ -160,6 +157,7 @@
     "postal_code": "Postal Code",
     "postal_code_note": "Enter a 4-digit Swiss postal code",
     "postal_code_not_found": "Postal code not found in our delivery area",
+    "standard_delivery_applied": "Standard delivery terms applied",
     "postal_code_error": "Error checking postal code",
     "canton": "Canton",
     "canton_note": "Geneva: Delivery on Mondays, Vaud: Delivery on Saturdays",
@@ -168,5 +166,17 @@
     "free_threshold": "Free delivery for orders over ${threshold} CHF",
     "delivery_cost": "Delivery fee: ${cost} CHF",
     "free_delivery": "Free delivery"
+  },
+  "cart": {
+    "title": "Your Products",
+    "empty": "Your cart is empty",
+    "continue_shopping": "Continue Shopping",
+    "checkout": "Proceed to Checkout",
+    "total": "Total",
+    "items_count": "${count} items",
+    "remove_item": "Remove Item",
+    "update_quantity": "Update Quantity",
+    "quantity": "Quantity",
+    "subtotal": "Subtotal"
   }
 }

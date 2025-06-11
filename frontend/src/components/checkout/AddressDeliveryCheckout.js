@@ -170,8 +170,8 @@ const AddressDeliveryCheckout = ({ formData, handleChange }) => {
 
   return (
     <div className="address-delivery-checkout">
-      <h5 className="mb-3">{t('checkout.address_delivery')}</h5>
-      
+      <h5 className="mb-3">{t('delivery.address.title')}</h5>
+
       {/* Delivery Cost Information */}
       {postalCodeChecked && (
         <Alert variant={deliveryCost === 0 ? "success" : "info"} className="mb-3">
@@ -190,7 +190,7 @@ const AddressDeliveryCheckout = ({ formData, handleChange }) => {
       
       {/* Canton Selection */}
       <Form.Group className="mb-3">
-        <Form.Label>{t('checkout.canton')}</Form.Label>
+        <Form.Label>{t('address.canton')}</Form.Label>
         <Form.Select
           name="canton"
           value={formData.canton || 'GE'}
@@ -202,18 +202,18 @@ const AddressDeliveryCheckout = ({ formData, handleChange }) => {
         </Form.Select>
         <Form.Text className="text-muted">
           {formData.canton === 'VD' 
-            ? t('checkout.vaud_delivery_days', { defaultValue: 'Delivery in Vaud is available on Saturdays' })
-            : t('checkout.geneva_delivery_days', { defaultValue: 'Delivery in Geneva is available on Mondays' })}
+            ? t('address.vaud_delivery_days', { defaultValue: 'Delivery in Vaud is available on Saturdays' })
+            : t('address.geneva_delivery_days', { defaultValue: 'Delivery in Geneva is available on Mondays' })}
         </Form.Text>
       </Form.Group>
       
       {/* Address Form */}
       <Form.Group className="mb-3">
-        <Form.Label>{t('checkout.street')}</Form.Label>
+        <Form.Label>{t('address.street')}</Form.Label>
         <Form.Control
           type="text"
           name="street"
-          placeholder={t('checkout.street')}
+          placeholder={t('address.street')}
           value={formData.street || ''}
           onChange={handleChange}
           required
@@ -223,11 +223,11 @@ const AddressDeliveryCheckout = ({ formData, handleChange }) => {
       <Row>
         <Col md={6}>
           <Form.Group className="mb-3">
-            <Form.Label>{t('checkout.house')}</Form.Label>
+            <Form.Label>{t('address.house')}</Form.Label>
             <Form.Control
               type="text"
               name="house"
-              placeholder={t('checkout.house')}
+              placeholder={t('address.house')}
               value={formData.house || ''}
               onChange={handleChange}
               required
@@ -236,11 +236,11 @@ const AddressDeliveryCheckout = ({ formData, handleChange }) => {
         </Col>
         <Col md={6}>
           <Form.Group className="mb-3">
-            <Form.Label>{t('checkout.apartment')}</Form.Label>
+            <Form.Label>{t('address.apartment')}</Form.Label>
             <Form.Control
               type="text"
               name="apartment"
-              placeholder={t('checkout.apartment')}
+              placeholder={t('address.apartment')}
               value={formData.apartment || ''}
               onChange={handleChange}
             />
@@ -251,11 +251,11 @@ const AddressDeliveryCheckout = ({ formData, handleChange }) => {
       <Row>
         <Col md={8}>
           <Form.Group className="mb-3">
-            <Form.Label>{t('checkout.city')}</Form.Label>
+            <Form.Label>{t('address.city')}</Form.Label>
             <Form.Control
               type="text"
               name="city"
-              placeholder={t('checkout.city')}
+              placeholder={t('address.city')}
               value={formData.city || ''}
               onChange={handleChange}
               required
@@ -264,12 +264,12 @@ const AddressDeliveryCheckout = ({ formData, handleChange }) => {
         </Col>
         <Col md={4}>
           <Form.Group className="mb-3">
-            <Form.Label>{t('checkout.postal_code')}</Form.Label>
+            <Form.Label>{t('address.postal_code')}</Form.Label>
             <div className="input-group">
               <Form.Control
                 type="text"
                 name="postalCode"
-                placeholder={t('checkout.postal_code')}
+                placeholder={t('address.postal_code')}
                 value={formData.postalCode || ''}
                 onChange={handleChange}
                 required
@@ -287,8 +287,8 @@ const AddressDeliveryCheckout = ({ formData, handleChange }) => {
             </div>
             {postalCodeValid === false && (
               <Form.Text className="text-muted">
-                {t('checkout.postal_code_not_found')} <br/>
-                {t('checkout.standard_delivery_applied')}
+                {t('address.postal_code_not_found')} <br/>
+                {t('address.standard_delivery_applied')}
               </Form.Text>
             )}
           </Form.Group>
@@ -306,7 +306,7 @@ const AddressDeliveryCheckout = ({ formData, handleChange }) => {
       {/* Minimum Order Warning */}
       {totalPrice < 100 && (
         <Alert variant="warning" className="mt-3">
-          {t('checkout.minimum_order_warning', { amount: 100 })}
+          {t('checkout.minimum_order_warning', { amount: 100 })} 100 CHF
         </Alert>
       )}
     </div>

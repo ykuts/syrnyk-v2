@@ -78,8 +78,8 @@ const PickupCheckout = ({ formData, handleChange }) => {
 
   return (
     <div className="pickup-checkout">
-      <h5 className="mb-3">{t('checkout.pickup')}</h5>
-      
+      <h5 className="mb-3">{t('delivery.pickup.title')}</h5>
+
       {/* Pickup Location Selection */}
       <Card className="mb-4">
         <Card.Body>

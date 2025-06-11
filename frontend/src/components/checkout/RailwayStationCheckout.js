@@ -79,8 +79,8 @@ const RailwayStationCheckout = ({ formData, handleChange }) => {
 
   return (
     <div className="railway-checkout">
-      <h5 className="mb-3">{t('checkout.railway_delivery')}</h5>
-      
+      <h5 className="mb-3">{t('delivery.railway.title')}</h5>
+
       {/* Integrated StationSelector component */}
       <StationSelector
         stations={stations}

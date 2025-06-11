@@ -8,7 +8,12 @@
     "order_items": "Vos produits",
     "order_success": "Commande passée avec succès!",
     "order_success_message": "Merci pour votre commande. Nous vous contacterons prochainement.",
+    "minimum_order_warning": "Montant minimum de commande pour la livraison : ",
     "continue_shopping": "Continuer les achats",
+    "order_summary": "Résumé de la commande",
+    "subtotal": "Sous-total",
+    "delivery_cost": "Frais de livraison",
+    "total": "Total",
     "submit_order": "Passer la commande",
     "processing": "Traitement en cours..."
   },
@@ -104,6 +109,7 @@
     "postal_code": "Code postal",
     "postal_code_note": "Entrez un code postal suisse à 4 chiffres",
     "postal_code_not_found": "Code postal introuvable dans notre zone de livraison",
+    "standard_delivery_applied": "Conditions de livraison standard appliquées",
     "postal_code_error": "Erreur lors de la vérification du code postal",
     "canton": "Canton",
     "canton_note": "Genève: Livraison le lundi, Vaud: Livraison le samedi",
@@ -130,5 +136,17 @@
     "errors": {
       "stations_fetch_error": "Échec du chargement des gares ferroviaires. Veuillez réessayer."
     }
+  },
+  "cart": {
+    "title": "Vos produits",
+    "empty": "Votre panier est vide",
+    "continue_shopping": "Continuer les achats",
+    "checkout": "Passer à la caisse",
+    "total": "Total",
+    "items_count": "${count} articles",
+    "remove_item": "Supprimer l'article",
+    "update_quantity": "Mettre à jour la quantité",
+    "quantity": "Quantité",
+    "subtotal": "Sous-total"
   }
 }

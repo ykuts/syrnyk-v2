@@ -178,9 +178,9 @@ const ImprovedDeliveryScheduler = ({
 
   return (
     <div className="delivery-scheduler">
-      <div className="delivery-method-note">
+      {/* <div className="delivery-method-note">
         {getDeliveryDayDescription()}
-      </div>
+      </div> */}
       
       <div className="dates-container">
         {availableDates.map((dateOption) => {

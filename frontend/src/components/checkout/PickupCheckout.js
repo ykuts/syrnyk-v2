@@ -84,7 +84,7 @@ const PickupCheckout = ({ formData, handleChange }) => {
       <Card className="mb-4">
         <Card.Body>
           <Form.Group className="mb-3">
-            <Form.Label>{t('pickup.location')}</Form.Label>
+            {/*<Form.Label>{t('pickup.location')}</Form.Label>
             <Form.Select
               name="storeId"
               value={formData.storeId || ''}
@@ -97,7 +97,7 @@ const PickupCheckout = ({ formData, handleChange }) => {
                   {location.name} - {location.address}, {location.city}
                 </option>
               ))}
-            </Form.Select>
+            </Form.Select>*/}
             
             {formData.storeId && (
               <div className="mt-3">
@@ -106,10 +106,11 @@ const PickupCheckout = ({ formData, handleChange }) => {
                   .filter(loc => loc.id.toString() === formData.storeId)
                   .map(location => (
                     <div key={location.id} className="store-details p-3 bg-light rounded">
-                      <p className="mb-1"><strong>{location.name}</strong></p>
+                      {/* <p className="mb-1"><strong>{location.name}</strong></p> */}
                       <p className="mb-1">{location.address}, {location.city} {location.postalCode}</p>
                       {location.phone && <p className="mb-1">{t('pickup.phone')}: {location.phone}</p>}
-                      <p className="mb-0">{t('pickup.hours')}: {location.workingHours}</p>
+                      {/* <p className="mb-0">{t('pickup.hours')}: {location.workingHours}</p> */}
+                      <p className="mt-3 text-muted small">{t('pickup.note')}</p>
                     </div>
                   ))
                 }

@@ -91,6 +91,11 @@
     ]
   },
   "pickup": {
+    "location": "Point de retrait",
+    "select_location": "Sélectionnez le lieu de retrait",
+    "store_details": "Détails du magasin",
+    "phone": "Téléphone",
+    "hours": "Heures d'ouverture",
     "schedule_title": "Horaire de retrait",
     "select_date": "Sélectionnez une date de retrait",
     "select_time": "Sélectionnez un créneau horaire",
@@ -98,7 +103,12 @@
     "afternoon": "Après-midi",
     "evening": "Soir",
     "no_dates_available": "Aucune date de retrait disponible pour les deux prochaines semaines",
-    "note": "Le retrait est disponible uniquement le samedi, dimanche, lundi et mardi. Veuillez sélectionner une date et un créneau horaire."
+    "note": "Le retrait est disponible uniquement le samedi, dimanche, lundi et mardi. Veuillez sélectionner une date et un créneau horaire.",
+    "available_days": "Le retrait est disponible le samedi, dimanche, lundi et mardi",
+      "errors": {
+        "locations_fetch_error": "Erreur de chargement des lieux de retrait"
+      },
+      "no_locations": "Aucun lieu de retrait trouvé"
   },
   "address": {
     "street": "Rue",

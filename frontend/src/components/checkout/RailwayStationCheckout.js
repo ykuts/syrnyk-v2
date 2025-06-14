@@ -10,7 +10,7 @@ import StationSelector from '../StationSelector';
  * Uses StationSelector for an improved station selection experience
  */
 const RailwayStationCheckout = ({ formData, handleChange }) => {
-  const { t } = useTranslation(['checkout', 'common']);
+  const { t } = useTranslation('checkout');
   const [stations, setStations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -80,6 +80,11 @@ const RailwayStationCheckout = ({ formData, handleChange }) => {
   return (
     <div className="railway-checkout">
       <h5 className="mb-3">{t('delivery.railway.title')}</h5>
+
+      <p className="mb-3 text-muted small">
+        {t('delivery.railway.description')} <br />
+        {t('railway.note')}
+      </p>
 
       {/* Integrated StationSelector component */}
       <StationSelector

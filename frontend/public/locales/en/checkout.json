@@ -121,6 +121,11 @@
     "missing_delivery_time": "Please select a delivery time slot"
   },
   "pickup": {
+    "location": "Pickup Location",
+    "select_location": "Select pickup location",
+    "store_details": "Store details",
+    "phone": "Phone",
+    "hours": "Working Hours",
     "schedule_title": "Pickup Schedule",
     "select_date": "Select a pickup date",
     "select_time": "Select a time slot",
@@ -128,7 +133,12 @@
     "afternoon": "Afternoon",
     "evening": "Evening",
     "no_dates_available": "No pickup dates available for the next two weeks",
-    "note": "Pickup is available on Saturday, Sunday, Monday, and Tuesday only. Please select a date and time slot."
+    "note": "Pickup is available on Saturday, Sunday, Monday, and Tuesday only. Please select a date and time slot.",
+    "available_days": "Pickup is available on Saturday, Sunday, Monday, and Tuesday",
+    "errors": {
+      "locations_fetch_error": "Error loading pickup locations"
+    },
+    "no_locations": "No pickup locations found"
   },
   "railway": {
     "schedule_title": "Railway Station Delivery Schedule",

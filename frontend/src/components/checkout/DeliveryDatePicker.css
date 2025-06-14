@@ -1,120 +1,148 @@
 .date-picker-container {
-margin-bottom: 1.5rem;
+  margin-bottom: 1.5rem;
 }
+
 .date-picker-header {
-margin-bottom: 1rem;
-font-weight: 500;
+  margin-bottom: 1rem;
+  font-weight: 500;
 }
+
+/* Updated dates container - now a flex wrap grid */
 .dates-container {
-display: flex;
-flex-wrap: nowrap;
-gap: 10px;
-overflow-x: auto;
-padding-bottom: 10px;
-margin-bottom: 0.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 0.5rem;
 }
-/* Add scrollbar styling */
-.dates-container::-webkit-scrollbar {
-height: 6px;
-}
-.dates-container::-webkit-scrollbar-track {
-background: #f1f1f1;
-border-radius: 10px;
-}
-.dates-container::-webkit-scrollbar-thumb {
-background: #95c2d7;
-border-radius: 10px;
-}
-.dates-container::-webkit-scrollbar-thumb:hover {
-background: #7ba9bf;
-}
-/* Date option styling */
+
+/* Date option styling - now matches time slots */
 .date-option {
-min-width: 90px;
-padding: 8px 12px;
-background-color: #f8f9fa;
-border: 1px solid #dee2e6;
-border-radius: 8px;
-display: flex;
-flex-direction: column;
-align-items: center;
-cursor: pointer;
-transition: all 0.2s ease;
-flex-shrink: 0;
+  flex: 1;
+  min-width: calc(50% - 4px); /* 2 columns with gap */
+  padding: 8px 12px;
+  background-color: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
 }
+
 .date-option:hover {
-border-color: #95c2d7;
-transform: translateY(-2px);
+  border-color: #95c2d7;
+  transform: translateY(-1px);
 }
+
 .date-option.selected {
-background-color: #95c2d7;
-color: white;
-border-color: #95c2d7;
-transform: translateY(-2px);
+  background-color: #95c2d7;
+  color: white;
+  border-color: #95c2d7;
+  transform: translateY(-1px);
 }
-/* Date formatting */
-.date-day {
-font-size: 1.2rem;
-font-weight: 600;
-}
-.date-month {
-font-size: 0.8rem;
-text-transform: uppercase;
-}
+
+/* Date formatting - compact layout */
 .date-weekday {
-font-size: 0.8rem;
-margin-bottom: 0.25rem;
+  font-size: 0.8rem;
+  margin-bottom: 0.2rem;
+  font-weight: 500;
 }
-/* Time slots styling */
+
+.date-day {
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.date-month {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  margin-top: 0.1rem;
+}
+
+/* Time slots styling - kept same for consistency */
 .time-slots-container {
-display: flex;
-flex-wrap: wrap;
-gap: 8px;
-margin-top: 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 1rem;
 }
+
 .time-slot {
-padding: 6px 10px;
-background-color: #f8f9fa;
-border: 1px solid #dee2e6;
-border-radius: 6px;
-cursor: pointer;
-transition: all 0.2s ease;
-font-size: 0.9rem;
+  flex: 1;
+  min-width: calc(50% - 4px); /* Match date options */
+  padding: 8px 12px;
+  background-color: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 0.9rem;
+  text-align: center;
 }
+
 .time-slot:hover {
-border-color: #95c2d7;
+  border-color: #95c2d7;
+  transform: translateY(-1px);
 }
+
 .time-slot.selected {
-background-color: #95c2d7;
-color: white;
-border-color: #95c2d7;
+  background-color: #95c2d7;
+  color: white;
+  border-color: #95c2d7;
+  transform: translateY(-1px);
 }
+
 /* Status messages */
 .no-dates {
-color: #6c757d;
-text-align: center;
-padding: 1rem;
-background-color: #f8f9fa;
-border-radius: 8px;
-border: 1px dashed #dee2e6;
+  color: #6c757d;
+  text-align: center;
+  padding: 1rem;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  border: 1px dashed #dee2e6;
 }
+
 .loading-dates {
-display: flex;
-justify-content: center;
-align-items: center;
-padding: 1rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 1rem;
 }
+
 /* Responsive adjustments */
 @media (max-width: 576px) {
-.date-option {
-min-width: 80px;
-padding: 6px 10px;
+  /* Keep 2 columns layout on mobile */
+  .date-option {
+    min-width: calc(50% - 4px);
+    padding: 6px 8px;
+  }
+  
+  .time-slot {
+    min-width: calc(50% - 4px);
+    padding: 6px 8px;
+    font-size: 0.85rem;
+  }
+  
+  .date-weekday {
+    font-size: 0.75rem;
+  }
+  
+  .date-day {
+    font-size: 0.9rem;
+  }
+  
+  .date-month {
+    font-size: 0.65rem;
+  }
 }
-.date-day {
-font-size: 1rem;
-}
-.time-slot {
-font-size: 0.8rem;
-padding: 5px 8px;
-}
+
+/* For very small screens - stack in single column if needed */
+@media (max-width: 360px) {
+  .date-option,
+  .time-slot {
+    min-width: 100%;
+  }
 }

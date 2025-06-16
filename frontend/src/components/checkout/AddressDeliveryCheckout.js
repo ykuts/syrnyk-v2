@@ -71,15 +71,43 @@ const AddressDeliveryCheckout = ({ formData, handleChange }) => {
 
   // Get delivery message for the selected canton
   const getCantonDeliveryMessage = () => {
-    const selectedCanton = formData.canton || 'VD';
-    
-    if (selectedCanton === 'VD') {
-      return t('address.delivery_message_VD', { amount: 100, cost: 10, freeAbove: 200 });
-    } else if (selectedCanton === 'GE') {
-      return t('address.delivery_message_GE', { amount: 100, cost: 10, freeAbove: 200 });
-    }
-    return '';
-  };
+  const selectedCanton = formData.canton || 'VD';
+  
+  if (selectedCanton === 'VD') {
+    return (
+      <div className="delivery-message-formatted">
+      <div className="mb-2" style={{ textAlign: 'left' }}>
+        <strong>Для регіону від Coppet до Lausanne</strong> - доставка завжди <strong>безкоштовна</strong>, незалежно від суми замовлення.
+      </div>
+      <div>
+        <div className="mb-1 " style={{ textAlign: 'left' }}>
+        <strong>Для інших регіонів:</strong>
+        </div>
+        <ul className="ms-3" style={{ listStyle: 'none', paddingLeft: 0,textAlign: 'left' }}>
+        <li>- при <strong>замовленні від 100 CHF</strong> — доставка додому <strong>10 CHF</strong></li>
+        <li>- при <strong>замовленні від 200 CHF</strong> — доставка додому <strong>безкоштовна</strong></li>
+        </ul>
+      </div>
+      </div>
+    );
+  } else if (selectedCanton === 'GE') {
+    return (
+      <div className="delivery-message-formatted">
+        <div className="mb-2" style={{ textAlign: 'left' }}>
+        <strong>Доставка в Женеву:</strong>
+      </div>
+      <div>
+        
+        <ul className="ms-3" style={{ listStyle: 'none', paddingLeft: 0,textAlign: 'left' }}>
+        <li>- при <strong>замовленні від 100 CHF</strong> — доставка додому <strong>10 CHF</strong></li>
+        <li>- при <strong>замовленні від 200 CHF</strong> — доставка додому <strong>безкоштовна</strong></li>
+        </ul>
+      </div>
+      </div>
+    );
+  }
+  return '';
+};
 
   // Handle delivery cost calculation based on canton selection
   useEffect(() => {

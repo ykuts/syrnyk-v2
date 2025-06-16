@@ -84,14 +84,14 @@ const DeliveryCostCalculator = ({
       // Missing postal code for address delivery
       if (!postalCode || postalCode.length < 4) {
         setDeliveryCost(0);
-        setMessage(t('delivery.postal_code_not_found'));
+        /* setMessage(t('delivery.postal_code_not_found')); */
         setIsValid(false);
         
         if (!callbackCalledRef.current) {
           onCostCalculated({
             cost: 0,
             isValid: false,
-            message: t('delivery.postal_code_not_found')
+            /* message: t('delivery.postal_code_not_found') */
           });
           callbackCalledRef.current = true;
         }
@@ -120,7 +120,7 @@ const DeliveryCostCalculator = ({
       // Otherwise apply standard delivery fee
       else {
         cost = 10;
-        calculationMessage = t('default_fee', { cost });
+        calculationMessage = t('address.delivery_cost', { cost });
       }
       
       // Update component state
@@ -150,7 +150,7 @@ const DeliveryCostCalculator = ({
           cost: deliveryType === 'ADDRESS' ? 10 : 0,
           isValid: deliveryType !== 'ADDRESS' || totalPrice >= 100,
           message: deliveryType !== 'ADDRESS'
-            ? t('free_delivery')
+            ? t('address.free_threshold', { cost: 200 })
             : (totalPrice >= 100
                 ? t('default_fee', { cost: 10 })
                 : t('delivery.minimum_order_required', { minimum: 100 }))
@@ -197,23 +197,23 @@ const DeliveryCostCalculator = ({
   // Show delivery cost information
   return (
     <div className="delivery-cost-container my-3">
-      {!isValid && minimumOrderAmount > 0 && (
+      {/* {!isValid && minimumOrderAmount > 0 && (
         <Alert variant="warning">
           {t('checkout.minimum_order_warning', { amount: minimumOrderAmount })}
         </Alert>
-      )}
+      )} */}
       
-      <div className={`delivery-cost-message ${deliveryCost > 0 ? 'text-primary' : 'text-success'}`}>
+      {/* <div className={`delivery-cost-message ${deliveryCost > 0 ? 'text-primary' : 'text-success'}`}>
         {message || (deliveryCost > 0 
           ? t('cost_applied', { cost: deliveryCost }) 
-          : t('free_delivery'))}
-      </div>
+          : t('address.free_threshold', { cost: 200 }))}
+      </div> */}
       
-      {deliveryCost > 0 && (
+      {/* {deliveryCost > 0 && (
         <div className="delivery-cost-amount mt-2">
           <strong>{t('cost')}: </strong> {deliveryCost.toFixed(2)} CHF
         </div>
-      )}
+      )} */}
     </div>
   );
 };

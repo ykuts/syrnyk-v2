@@ -23,7 +23,7 @@ import './ImprovedDeliveryScheduler.css';
  */
 const ImprovedDeliveryScheduler = ({ 
   deliveryType,
-  canton = 'GE', // Default to Geneva
+  canton = 'VD', // Default to Geneva
   selectedDate,
   onDateChange
 }) => {

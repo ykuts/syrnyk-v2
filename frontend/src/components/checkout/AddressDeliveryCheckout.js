@@ -1,6 +1,6 @@
 // src/components/checkout/AddressDeliveryCheckout.js
 import React, { useState, useEffect, useContext, useRef } from 'react';
-import { Form, Alert, Spinner, Row, Col } from 'react-bootstrap';
+import { Form, Alert, Spinner, Row, Col, Button, ButtonGroup } from 'react-bootstrap';
 import { useTranslation } from 'react-i18next';
 import { CartContext } from '../../context/CartContext';
 import { apiClient } from '../../utils/api';
@@ -8,8 +8,11 @@ import ImprovedDeliveryScheduler from './ImprovedDeliveryScheduler';
 
 /**
  * Component for handling address delivery checkout
- * Fixed to prevent infinite loops in delivery cost calculation
- * Added canton selection for delivery days
+ * Features:
+ * - Canton selection with buttons instead of select dropdown
+ * - Conditional delivery messages based on selected canton
+ * - Vaud (VD) is active by default
+ * - Fixed delivery cost calculation to prevent infinite loops
  */
 const AddressDeliveryCheckout = ({ formData, handleChange }) => {
   const { t } = useTranslation(['checkout', 'common']);
@@ -28,6 +31,18 @@ const AddressDeliveryCheckout = ({ formData, handleChange }) => {
   // Track if we've already updated the parent's delivery cost
   const costUpdatedRef = useRef(false);
 
+  // Set default canton to VD (Vaud) if not already set
+  useEffect(() => {
+  if (!formData.canton) {
+    handleChange({
+      target: {
+        name: 'canton',
+        value: 'VD' // Default to Vaud
+      }
+    });
+  }
+}, []);
+
   // Calculate delivery cost based on total price and thresholds
   const calculateDeliveryCost = (total, threshold) => {
     // Default delivery cost is 10 CHF
@@ -36,9 +51,14 @@ const AddressDeliveryCheckout = ({ formData, handleChange }) => {
   };
 
   // Handle canton change
-  const handleCantonChange = (e) => {
+  const handleCantonChange = (canton) => {
     // Update canton in parent form
-    handleChange(e);
+    handleChange({
+      target: {
+        name: 'canton',
+        value: canton
+      }
+    });
     
     // Reset delivery date when canton changes (as delivery days differ by canton)
     handleChange({
@@ -49,110 +69,140 @@ const AddressDeliveryCheckout = ({ formData, handleChange }) => {
     });
   };
 
-  // Fetch city info when postal code changes and is valid
+  // Get delivery message for the selected canton
+  const getCantonDeliveryMessage = () => {
+    const selectedCanton = formData.canton || 'VD';
+    
+    if (selectedCanton === 'VD') {
+      return t('address.delivery_message_VD', { amount: 100, cost: 10, freeAbove: 200 });
+    } else if (selectedCanton === 'GE') {
+      return t('address.delivery_message_GE', { amount: 100, cost: 10, freeAbove: 200 });
+    }
+    return '';
+  };
+
+  // Handle delivery cost calculation based on canton selection
   useEffect(() => {
-    // Skip if postal code hasn't changed or is too short
-    if (
-      !formData.postalCode || 
-      formData.postalCode.length < 4 ||
-      formData.postalCode === previousPostalCodeRef.current
-    ) {
+    const selectedCanton = formData.canton || 'VD';
+    
+    // For Geneva (GE): immediate calculation without postal code validation
+    if (selectedCanton === 'GE') {
+      setLoading(false);
+      setPostalCodeChecked(true);
+      setPostalCodeValid(null); // No validation needed for Geneva
+      setCityInfo(null);
+      
+      // Geneva: standard delivery rules (10 CHF fee, free above 200 CHF)
+      const threshold = 200;
+      setFreeDeliveryThreshold(threshold);
+      
+      const cost = calculateDeliveryCost(totalPrice, threshold);
+      setDeliveryCost(cost);
+      
+      // Update parent's delivery cost
+      handleChange({
+        target: {
+          name: 'deliveryCost',
+          value: cost
+        }
+      });
+      
       return;
     }
     
-    // Update previous postal code reference
-    previousPostalCodeRef.current = formData.postalCode;
-    
-    const fetchCityByPostalCode = async () => {
-      setLoading(true);
-      setError(null);
+    // For Vaud (VD): check postal code only if it's provided and valid length
+    if (selectedCanton === 'VD') {
+      // Reset state when switching to VD
+      setPostalCodeChecked(false);
+      setPostalCodeValid(null);
       
-      try {
-        const response = await apiClient.get(`/delivery/cities/${formData.postalCode}`);
+      // Skip if postal code is not provided or too short
+      if (!formData.postalCode || formData.postalCode.length < 4) {
+        setLoading(false);
+        return;
+      }
+      
+      // Skip if postal code hasn't changed
+      if (formData.postalCode === previousPostalCodeRef.current) {
+        return;
+      }
+      
+      // Update previous postal code reference
+      previousPostalCodeRef.current = formData.postalCode;
+      
+      const fetchCityByPostalCode = async () => {
+        setLoading(true);
+        setError(null);
         
-        if (response) {
-          // City found in database
-          setPostalCodeValid(true);
-          setCityInfo(response);
+        try {
+          const response = await apiClient.get(`/delivery/cities/${formData.postalCode}`);
           
-          // Update city field
-          handleChange({
-            target: {
-              name: 'city',
-              value: response.name
-            }
-          });
-          
-          // If the city has a canton, update the canton field
-          if (response.zone?.canton) {
+          if (response) {
+            // City found in our database - free delivery for these postal codes
+            setPostalCodeValid(true);
+            setCityInfo(response);
+            
+            // Update city field
             handleChange({
               target: {
-                name: 'canton',
-                value: response.zone.canton
+                name: 'city',
+                value: response.name
               }
             });
-          }
-          
-          // Set free delivery threshold from city info
-          const threshold = response.freeThreshold || 200;
-          setFreeDeliveryThreshold(threshold);
-          
-          // Calculate delivery cost based on city's threshold
-          const cost = calculateDeliveryCost(totalPrice, threshold);
-          setDeliveryCost(cost);
-          
-          // Only update parent's delivery cost once per postal code change
-          if (!costUpdatedRef.current) {
+            
+            // Free delivery for postal codes in our list
+            setFreeDeliveryThreshold(0); // Always free for listed postal codes
+            const cost = 0; // Free delivery
+            setDeliveryCost(cost);
+            
+            // Update parent's delivery cost
             handleChange({
               target: {
                 name: 'deliveryCost',
                 value: cost
               }
             });
-            costUpdatedRef.current = true;
+          } else {
+            throw new Error('Postal code not found');
           }
-        }
-      } catch (err) {
-        console.error('Error fetching city by postal code:', err);
-        // Handle postal code not found - set default delivery rules
-        setPostalCodeValid(false);
-        setCityInfo(null);
-        
-        // Apply default delivery rules (10 CHF fee, free above 200 CHF)
-        const defaultThreshold = 200;
-        setFreeDeliveryThreshold(defaultThreshold);
-        
-        // Calculate delivery cost based on default threshold
-        const cost = calculateDeliveryCost(totalPrice, defaultThreshold);
-        setDeliveryCost(cost);
-        
-        // Only update parent's delivery cost once per postal code change
-        if (!costUpdatedRef.current) {
+        } catch (err) {
+          console.error('Error fetching city by postal code:', err);
+          // Postal code not in our list - apply standard delivery rules
+          setPostalCodeValid(false);
+          setCityInfo(null);
+          
+          // Standard delivery rules for unlisted postal codes (10 CHF fee, free above 200 CHF)
+          const threshold = 200;
+          setFreeDeliveryThreshold(threshold);
+          
+          const cost = calculateDeliveryCost(totalPrice, threshold);
+          setDeliveryCost(cost);
+          
+          // Update parent's delivery cost
           handleChange({
             target: {
               name: 'deliveryCost',
               value: cost
             }
           });
-          costUpdatedRef.current = true;
+        } finally {
+          setLoading(false);
+          setPostalCodeChecked(true);
         }
-      } finally {
-        setLoading(false);
-        setPostalCodeChecked(true);
-      }
-    };
+      };
 
-    fetchCityByPostalCode();
-  }, [formData.postalCode]);
+      fetchCityByPostalCode();
+    }
+  }, [formData.postalCode, formData.canton, totalPrice]);
 
-  // Reset cost update flag when postal code changes
+  // Reset cost update flag when postal code or canton changes
   useEffect(() => {
     costUpdatedRef.current = false;
-  }, [formData.postalCode]);
+  }, [formData.postalCode, formData.canton]);
 
-  // Recalculate delivery cost when total price changes
+  // Recalculate delivery cost when total price changes (for non-free delivery cases)
   useEffect(() => {
-    if (postalCodeChecked) {
+    if (postalCodeChecked && freeDeliveryThreshold > 0) {
       const cost = calculateDeliveryCost(totalPrice, freeDeliveryThreshold);
       setDeliveryCost(cost);
       
@@ -173,39 +223,57 @@ const AddressDeliveryCheckout = ({ formData, handleChange }) => {
       <h5 className="mb-3">{t('delivery.address.title')}</h5>
 
       {/* Delivery Cost Information */}
-      {postalCodeChecked && (
+      {/* {((formData.canton === 'GE' && postalCodeChecked) || 
+        (formData.canton === 'VD' && postalCodeChecked && formData.postalCode && formData.postalCode.length >= 4)) && (
         <Alert variant={deliveryCost === 0 ? "success" : "info"} className="mb-3">
           {deliveryCost === 0 ? (
-            <>{t('checkout.free_delivery')}</>
+            <>{formData.canton === 'VD' && postalCodeValid ? 
+              'Бесплатная доставка для вашего региона!' : 
+              t('checkout.free_delivery')}</>
           ) : (
             <>
-              {t('checkout.delivery_fee')}: {deliveryCost} CHF
+              {t('address.delivery_fee')}: {deliveryCost} CHF
               <div className="mt-1 small">
                 {t('checkout.free_delivery_above')} {freeDeliveryThreshold} CHF
               </div>
             </>
           )}
         </Alert>
-      )}
+      )} */}
       
-      {/* Canton Selection */}
-      <Form.Group className="mb-3">
-        <Form.Label>{t('address.canton')}</Form.Label>
-        <Form.Select
-          name="canton"
-          value={formData.canton || 'GE'}
-          onChange={handleCantonChange}
-          required
-        >
-          <option value="GE">Geneva (Monday delivery)</option>
-          <option value="VD">Vaud (Saturday delivery)</option>
-        </Form.Select>
-        <Form.Text className="text-muted">
-          {formData.canton === 'VD' 
-            ? t('address.vaud_delivery_days', { defaultValue: 'Delivery in Vaud is available on Saturdays' })
-            : t('address.geneva_delivery_days', { defaultValue: 'Delivery in Geneva is available on Mondays' })}
-        </Form.Text>
-      </Form.Group>
+      {/* Canton Selection - Separate Buttons */}
+<Form.Group className="mb-3">
+  <Form.Label>{t('address.canton')}</Form.Label>
+  <Row className="g-2">
+    <Col md={6}>
+      <Button
+        variant={formData.canton === 'VD' ? 'primary' : 'outline-primary'}
+        onClick={() => handleCantonChange('VD')}
+        className="w-100 text-center p-3"
+      >
+        {t('address.canton_VD')}
+      </Button>
+    </Col>
+    <Col md={6}>
+      <Button
+        variant={formData.canton === 'GE' ? 'primary' : 'outline-primary'}
+        onClick={() => handleCantonChange('GE')}
+        className="w-100 text-center p-3"
+      >
+        {t('address.canton_GE')}
+      </Button>
+    </Col>
+  </Row>
+  
+  {/* Conditional delivery message based on selected canton */}
+  {(formData.canton === 'VD' || formData.canton === 'GE') && (
+    <Alert variant="info" className="mt-2 mb-0">
+      <div className="small">
+        {getCantonDeliveryMessage()}
+      </div>
+    </Alert>
+  )}
+</Form.Group>
       
       {/* Address Form */}
       <Form.Group className="mb-3">
@@ -272,10 +340,15 @@ const AddressDeliveryCheckout = ({ formData, handleChange }) => {
                 placeholder={t('address.postal_code')}
                 value={formData.postalCode || ''}
                 onChange={handleChange}
-                required
+                required={formData.canton === 'VD'} // Required only for Vaud canton
                 maxLength={4}
-                isValid={postalCodeValid === true}
-                isInvalid={postalCodeValid === false}
+                isValid={formData.canton === 'VD' ? postalCodeValid === true : undefined}
+                isInvalid={undefined}
+                style={{
+                  borderColor: formData.canton === 'VD' && postalCodeValid === false ? '#007bff' : undefined,
+                  boxShadow: formData.canton === 'VD' && postalCodeValid === false ? '0 0 0 0.2rem rgba(0, 123, 255, 0.25)' : undefined
+                }}
+                /* isInvalid={formData.canton === 'VD' ? postalCodeValid === false : undefined} */
               />
               {loading && (
                 <div className="input-group-append">
@@ -285,10 +358,15 @@ const AddressDeliveryCheckout = ({ formData, handleChange }) => {
                 </div>
               )}
             </div>
-            {postalCodeValid === false && (
+            {formData.canton === 'VD' && postalCodeValid === false && (
               <Form.Text className="text-muted">
                 {t('address.postal_code_not_found')} <br/>
                 {t('address.standard_delivery_applied')}
+              </Form.Text>
+            )}
+            {formData.canton === 'GE' && (
+              <Form.Text className="text-muted">
+                {/* Для Женевы проверка индекса не требуется */}
               </Form.Text>
             )}
           </Form.Group>
@@ -300,13 +378,20 @@ const AddressDeliveryCheckout = ({ formData, handleChange }) => {
         deliveryType="ADDRESS"
         selectedDate={formData.deliveryDate}
         onDateChange={handleChange}
-        canton={formData.canton || 'GE'} // Use selected canton
+        canton={formData.canton || 'VD'} // Use selected canton, default to VD
       />
       
       {/* Minimum Order Warning */}
       {totalPrice < 100 && (
-        <Alert variant="warning" className="mt-3">
-          {t('checkout.minimum_order_warning', { amount: 100 })} 100 CHF
+        <Alert variant="warning" className="mt-3 ">
+          <span style={{ color: 'red' }}>
+            {t('checkout.minimum_order_warning', { amount: 100 })}
+          </span>
+        </Alert>
+      )}
+      {totalPrice >= 100 && totalPrice < 200 && deliveryCost > 0 && (
+        <Alert variant="info" className="mt-3 ">
+            {t('checkout.minimum_order_warning_free', { amount: 200 - totalPrice })}
         </Alert>
       )}
     </div>

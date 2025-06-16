@@ -59,7 +59,7 @@ const CheckoutPage = () => {
     // Delivery info
     preferredDeliveryType: 'PICKUP',
     deliveryType: 'PICKUP',
-    canton: 'GE',
+    canton: 'VD',
     street: '',
     house: '',
     apartment: '',
@@ -652,7 +652,7 @@ const isSubmitDisabled = () => {
                   <DeliveryCostCalculator
                     deliveryType={formData.deliveryType}
                     postalCode={formData.postalCode}
-                    canton={formData.canton || 'GE'} // Default canton
+                    canton={formData.canton || 'VD'} // Default canton
                     onCostCalculated={handleDeliveryCostCalculated}
                   />
                 )}

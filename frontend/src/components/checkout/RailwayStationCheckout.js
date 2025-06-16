@@ -82,7 +82,7 @@ const RailwayStationCheckout = ({ formData, handleChange }) => {
       <h5 className="mb-3">{t('delivery.railway.title')}</h5>
 
       <p className="mb-3 text-muted small">
-        {t('delivery.railway.description')} <br />
+        {/* {t('delivery.railway.description')} <br /> */}
         {t('railway.note')}
       </p>
 

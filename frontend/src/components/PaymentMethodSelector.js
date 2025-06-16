@@ -142,7 +142,7 @@ const PaymentMethodSelector = ({ selectedMethod, onChange, onTwintConfirmationCh
               id="twint-payment-confirmation"
               checked={twintPaymentConfirmed}
               onChange={handleTwintConfirmationChange}
-              label={t('payment.twint.confirmation', 'Я сплатив замовлення')}
+              label={t('payment.twint.confirmation', 'Замовлення мною сплачено')}
               className="d-flex justify-content-center"
             />
           </Card.Body>

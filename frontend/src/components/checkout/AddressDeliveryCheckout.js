@@ -385,7 +385,7 @@ const AddressDeliveryCheckout = ({ formData, handleChange }) => {
       {totalPrice < 100 && (
         <Alert variant="warning" className="mt-3 ">
           <span style={{ color: 'red' }}>
-            {t('checkout.minimum_order_warning', { amount: 100 })}
+            {t('checkout.minimum_order_warning', { amount: 100 -totalPrice })}
           </span>
         </Alert>
       )}

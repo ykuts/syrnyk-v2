@@ -110,7 +110,7 @@ const DeliveryCostCalculator = ({
       // Check if order meets minimum amount
       if (totalPrice < minimumOrder) {
         valid = false;
-        calculationMessage = t('delivery.minimum_order_required', { minimum: minimumOrder });
+        /* calculationMessage = t('delivery.minimum_order_required', { minimum: minimumOrder }); */
       } 
       // Check if order qualifies for free delivery
       else if (totalPrice >= freeThreshold) {

@@ -102,27 +102,23 @@ const PaymentMethodSelector = ({ selectedMethod, onChange, onTwintConfirmationCh
                 }}
               >
                 {/* Replace this div with actual QR code image */}
-                <div className="text-center">
-                  <img 
-                    src="/assets/images/qr-twint.jpg"
-                    alt="TWINT QR Code"
-                    style={{ maxWidth: '70%', maxHeight: '80%' }}
-                  />
-                  {/* <Wallet size={48} className="text-muted mb-2" />
+                {/* <div className="text-center">
+                  
+                  <Wallet size={48} className="text-muted mb-2" />
                   <div className="small text-muted">
 
                     {t('payment.twint.qr_placeholder', 'QR Code will appear here')}
-                  </div> */}
-                </div>
+                  </div>
+                </div> */}
                 
                 {/* Uncomment and use this when you have actual QR code */}
-                {/*
+                
                 <Image 
-                  src="/path/to/twint-qr-code.png" 
+                  src="/assets/images/qr-twint.jpg" 
                   alt="TWINT QR Code"
                   style={{ maxWidth: '100%', maxHeight: '100%' }}
                 />
-                */}
+               
               </div>
             </div>
 
@@ -143,7 +139,7 @@ const PaymentMethodSelector = ({ selectedMethod, onChange, onTwintConfirmationCh
               checked={twintPaymentConfirmed}
               onChange={handleTwintConfirmationChange}
               label={t('payment.twint.confirmation', 'Замовлення мною сплачено')}
-              className="d-flex justify-content-center"
+              className="d-flex justify-content-center gap-2"
             />
           </Card.Body>
         </Card>

@@ -67,7 +67,12 @@
     "twint": {
       "title": "TWINT",
       "description": "Швидка оплата через додаток TWINT",
-      "instructions": "Відкрийте додаток TWINT, відскануйте QR-код та підтвердіть оплату."
+      "instructions": "Відкрийте додаток TWINT, відскануйте QR-код та підтвердіть оплату.",
+      "qr_title": "Оплата через TWINT QR Code",
+      "qr_placeholder": "QR код з'явиться тут",
+      "instructions_1": "Відскануйте QR код у додатку TWINT",
+      "instructions_2": "Завершіть оплату та підтвердіть нижче",
+      "confirmation": "Замовлення сплачене мною через TWINT"
     },
     "card": {
       "title": "Карта",

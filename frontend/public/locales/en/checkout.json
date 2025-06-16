@@ -31,7 +31,12 @@
   "payment": {
     "twint": {
       "title": "TWINT",
-      "description": "Fast payment via app (service coming soon)"
+      "description": "Fast payment via app (service coming soon)",
+      "qr_title": "TWINT QR Code Payment",
+      "qr_placeholder": "QR Code will appear here",
+      "instructions_1": "Scan the QR code with your TWINT app",
+      "instructions_2": "Complete the payment and confirm below",
+      "confirmation": "I have paid for the order"
     },
     "card": {
       "title": "Card",

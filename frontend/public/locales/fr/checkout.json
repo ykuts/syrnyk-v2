@@ -64,7 +64,12 @@
   "payment": {
     "twint": {
       "title": "TWINT",
-      "description": "Paiement rapide via l'application (service à venir)"
+      "description": "Paiement rapide via l'application (service à venir)",
+      "qr_title": "Paiement par QR Code TWINT",
+      "qr_placeholder": "Le QR Code apparaîtra ici",
+      "instructions_1": "Scannez le QR Code avec votre application TWINT",
+      "instructions_2": "Complétez le paiement et confirmez ci-dessous",
+      "confirmation": "J'ai payé la commande"
     },
     "card": {
       "title": "Carte",
@@ -158,5 +163,21 @@
     "update_quantity": "Mettre à jour la quantité",
     "quantity": "Quantité",
     "subtotal": "Sous-total"
+  },
+   "validation": {
+    "first_name_required": "First name is required",
+    "last_name_required": "Last name is required", 
+    "email_required": "Email is required",
+    "phone_required": "Phone number is required",
+    "payment_method_required": "Please select a payment method",
+    "street_required": "Street address is required",
+    "house_required": "House number is required",
+    "city_required": "City is required",
+    "postal_code_required": "Postal code is required",
+    "station_required": "Please select a railway station",
+    "store_required": "Please select a pickup location",
+    "delivery_date_required": "Please select a delivery date",
+    "delivery_time_required": "Please select a delivery time",
+    "twint_confirmation_required": "Please confirm that you have completed the TWINT payment"
   }
 }

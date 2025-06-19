@@ -20,7 +20,7 @@ const PickupCheckout = ({ formData, handleChange }) => {
       try {
         setLoading(true);
         const response = await apiClient.get('/delivery/pickup-locations');
-        
+        console.log('Fetched pickup locations:', response);
         if (response && Array.isArray(response)) {
           setPickupLocations(response);
           
@@ -84,7 +84,7 @@ const PickupCheckout = ({ formData, handleChange }) => {
       <Card className="mb-4">
         <Card.Body>
           <Form.Group className="mb-3">
-            {/*<Form.Label>{t('pickup.location')}</Form.Label>
+            {/* <Form.Label>{t('pickup.location')}</Form.Label>
             <Form.Select
               name="storeId"
               value={formData.storeId || ''}
@@ -97,7 +97,7 @@ const PickupCheckout = ({ formData, handleChange }) => {
                   {location.name} - {location.address}, {location.city}
                 </option>
               ))}
-            </Form.Select>*/}
+            </Form.Select> */}
             
             {formData.storeId && (
               <div className="mt-3">

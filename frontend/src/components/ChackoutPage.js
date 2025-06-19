@@ -43,7 +43,7 @@ const CheckoutPage = () => {
   // Data states
   const [railwayStations, setRailwayStations] = useState([]);
   const [loading, setLoading] = useState(true);
-  
+
   // Initialize form data with defaults
   const [formData, setFormData] = useState({
     // Customer info
@@ -51,11 +51,11 @@ const CheckoutPage = () => {
     lastName: '',
     email: '',
     phone: '',
-    
+
     // Account creation
     password: '',
     confirmPassword: '',
-    
+
     // Delivery info
     preferredDeliveryType: 'PICKUP',
     deliveryType: 'PICKUP',
@@ -65,24 +65,24 @@ const CheckoutPage = () => {
     apartment: '',
     city: '',
     postalCode: '',
-    
+
     // Station delivery
     stationId: '',
     deliveryDate: '',
-    
+
     // Pickup delivery
     storeId: '1',
     pickupTime: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().slice(0, 16),
-    
+
     // Payment info
     paymentMethod: 'CASH',
     notesClient: '',
-    
+
     // Data consent fields
     dataConsentAccepted: false,
     marketingConsent: false,
     language: i18n.language || 'uk',
-    
+
     // New delivery fields
     deliveryDate: '',
     deliveryTimeSlot: '',
@@ -103,12 +103,32 @@ const CheckoutPage = () => {
 
   // TWINT payment confirmation
   const [twintPaymentConfirmed, setTwintPaymentConfirmed] = useState(false);
-  
+
   // Handle TWINT confirmation change
   const handleTwintConfirmationChange = (isConfirmed) => {
     setTwintPaymentConfirmed(isConfirmed);
   };
-  
+
+  // Handler for TWINT comment changes
+  const handleTwintCommentChange = (twintComment) => {
+    // Get existing notes without TWINT comment
+    const existingNotes = formData.notesClient || '';
+    const notesWithoutTwint = existingNotes.replace(/TWINT:[^\n]*\n?/g, '').trim();
+
+    // Add new TWINT comment if provided
+    const updatedNotes = twintComment
+      ? `${notesWithoutTwint}\n${twintComment}`.trim()
+      : notesWithoutTwint;
+
+    // Update form data
+    handleChange({
+      target: {
+        name: 'notesClient',
+        value: updatedNotes
+      }
+    });
+  };
+
   // Load initial data when user is available
   useEffect(() => {
     const loadInitialData = async () => {
@@ -116,10 +136,10 @@ const CheckoutPage = () => {
         // Load railway stations regardless of user state
         const stationsResponse = await apiClient.get('/railway-stations');
         setRailwayStations(stationsResponse.data || []);
-        
+
         if (user) {
           console.log('Loading data for authenticated user:', user.id);
-          
+
           // Set user data
           setFormData(prev => ({
             ...prev,
@@ -134,10 +154,10 @@ const CheckoutPage = () => {
           if (token) {
             try {
               const userPrefs = await loadUserPreferences(token);
-              
+
               if (userPrefs) {
                 console.log('Loaded user preferences:', userPrefs);
-                
+
                 setFormData(prev => ({
                   ...prev,
                   ...userPrefs
@@ -147,7 +167,7 @@ const CheckoutPage = () => {
               console.error('Error loading user preferences:', error);
             }
           }
-          
+
           // Set the checkout flow directly to form for authenticated users
           setCheckoutStep('form');
           setIsGuest(false);
@@ -175,7 +195,7 @@ const CheckoutPage = () => {
   const handleDeliveryCostCalculated = (calculationResult) => {
     // Update the delivery calculation state
     setDeliveryCalculation(calculationResult);
-    
+
     // Update the form data with the calculated cost
     setFormData(prev => ({
       ...prev,
@@ -206,10 +226,10 @@ const CheckoutPage = () => {
     const { name, value, type, checked } = e.target;
 
     // Reset TWINT confirmation when switching away from TWINT
-  if (name === 'paymentMethod' && value !== 'TWINT' && twintPaymentConfirmed) {
-    setTwintPaymentConfirmed(false);
-  }
-    
+    if (name === 'paymentMethod' && value !== 'TWINT' && twintPaymentConfirmed) {
+      setTwintPaymentConfirmed(false);
+    }
+
     // Special handling for createAccount checkbox
     if (type === 'checkbox' && name === 'createAccount') {
       setCreateAccount(checked);
@@ -220,7 +240,7 @@ const CheckoutPage = () => {
     if ((name === 'meetingTime' || name === 'pickupTime') && value) {
       const selectedDate = new Date(value);
       const minDate = new Date(Date.now() + 24 * 60 * 60 * 1000);
-      
+
       if (selectedDate < minDate) {
         setFormData(prev => ({
           ...prev,
@@ -253,148 +273,148 @@ const CheckoutPage = () => {
   };
 
   // Update submit button disabled condition
-const isSubmitDisabled = () => {
-  // Base conditions
-  const baseDisabled = isSubmitting || !deliveryCalculation.isValid;
-  
-  // Additional TWINT condition
-  const twintDisabled = formData.paymentMethod === 'TWINT' && !twintPaymentConfirmed;
-  
-  return baseDisabled || twintDisabled;
-};
+  const isSubmitDisabled = () => {
+    // Base conditions
+    const baseDisabled = isSubmitting || !deliveryCalculation.isValid;
+
+    // Additional TWINT condition
+    const twintDisabled = formData.paymentMethod === 'TWINT' && !twintPaymentConfirmed;
+
+    return baseDisabled || twintDisabled;
+  };
 
   // Validate the form before submission
   const validateForm = () => {
-  let isValid = true;
-  let errorMessage = '';
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  const phoneRegex = /^\+[1-9]\d{6,14}$/;
-  
-  // Basic required field validation with specific messages
-  if (!formData.firstName?.trim()) {
-    errorMessage = t('validation.first_name_required');
-    isValid = false;
-  } else if (!formData.lastName?.trim()) {
-    errorMessage = t('validation.last_name_required');
-    isValid = false;
-  } else if (!formData.email?.trim()) {
-    errorMessage = t('validation.email_required');
-    isValid = false;
-  } else if (!formData.phone?.trim()) {
-    errorMessage = t('validation.phone_required');
-    isValid = false;
-  }
+    let isValid = true;
+    let errorMessage = '';
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const phoneRegex = /^\+[1-9]\d{6,14}$/;
 
-  // Email validation
-  else if (!emailRegex.test(formData.email)) {
-    errorMessage = t('validation.invalid_email');
-    isValid = false;
-  }
-
-  // Phone validation
-  else if (formData.phone && !phoneRegex.test(formData.phone)) {
-    errorMessage = t('validation.invalid_phone');
-    isValid = false;
-  }
-
-  // Payment method validation
-  else if (!formData.paymentMethod) {
-    errorMessage = t('validation.payment_method_required');
-    isValid = false;
-  }
-
-  // TWINT specific validation
-  else if (formData.paymentMethod === 'TWINT' && !twintPaymentConfirmed) {
-    errorMessage = t('validation.twint_confirmation_required');
-    isValid = false;
-  }
-
-  // Delivery validation based on type
-  else if (formData.deliveryType === 'ADDRESS') {
-    if (!formData.street?.trim()) {
-      errorMessage = t('validation.street_required');
+    // Basic required field validation with specific messages
+    if (!formData.firstName?.trim()) {
+      errorMessage = t('validation.first_name_required');
       isValid = false;
-    } else if (!formData.house?.trim()) {
-      errorMessage = t('validation.house_required');
+    } else if (!formData.lastName?.trim()) {
+      errorMessage = t('validation.last_name_required');
       isValid = false;
-    } else if (!formData.city?.trim()) {
-      errorMessage = t('validation.city_required');
+    } else if (!formData.email?.trim()) {
+      errorMessage = t('validation.email_required');
       isValid = false;
-    } else if (!formData.postalCode?.trim()) {
-      errorMessage = t('validation.postal_code_required');
-      isValid = false;
-    } else if (!/^\d{4}$/.test(formData.postalCode)) {
-      errorMessage = t('validation.invalid_postal_code');
-      isValid = false;
-    } else if (!deliveryCalculation.isValid) {
-      errorMessage = deliveryCalculation.message || t('validation.delivery_not_available');
+    } else if (!formData.phone?.trim()) {
+      errorMessage = t('validation.phone_required');
       isValid = false;
     }
-  } else if (formData.deliveryType === 'RAILWAY_STATION') {
-    if (!formData.stationId) {
-      errorMessage = t('validation.station_required');
+
+    // Email validation
+    else if (!emailRegex.test(formData.email)) {
+      errorMessage = t('validation.invalid_email');
       isValid = false;
     }
-  } else if (formData.deliveryType === 'PICKUP') {
-    if (!formData.storeId) {
-      errorMessage = t('validation.store_required');
+
+    // Phone validation
+    else if (formData.phone && !phoneRegex.test(formData.phone)) {
+      errorMessage = t('validation.invalid_phone');
       isValid = false;
     }
-  }
 
-  // Delivery date and time validation
-  else if (!formData.deliveryDate) {
-    errorMessage = t('validation.delivery_date_required');
-    isValid = false;
-  }
-
-  // Time slot validation only for pickup
-  else if (formData.deliveryType === 'PICKUP' && !formData.deliveryTimeSlot) {
-    errorMessage = t('validation.delivery_time_required');
-    isValid = false;
-  }
-
-  // Account creation validation
-  else if (isGuest && createAccount) {
-    if (!formData.password || formData.password.length < 8) {
-      errorMessage = t('register.validation.password_requirements', { ns: 'auth' });
-      isValid = false;
-    } else if (formData.password !== formData.confirmPassword) {
-      errorMessage = t('register.validation.passwords_mismatch', { ns: 'auth' });
-      isValid = false;
-    } else if (!formData.dataConsentAccepted) {
-      errorMessage = t('register.validation.consent_required', { ns: 'auth' });
+    // Payment method validation
+    else if (!formData.paymentMethod) {
+      errorMessage = t('validation.payment_method_required');
       isValid = false;
     }
-  }
 
-  setFormValidationError(isValid ? null : errorMessage);
-  return isValid;
-};
+    // TWINT specific validation
+    else if (formData.paymentMethod === 'TWINT' && !twintPaymentConfirmed) {
+      errorMessage = t('validation.twint_confirmation_required');
+      isValid = false;
+    }
+
+    // Delivery validation based on type
+    else if (formData.deliveryType === 'ADDRESS') {
+      if (!formData.street?.trim()) {
+        errorMessage = t('validation.street_required');
+        isValid = false;
+      } else if (!formData.house?.trim()) {
+        errorMessage = t('validation.house_required');
+        isValid = false;
+      } else if (!formData.city?.trim()) {
+        errorMessage = t('validation.city_required');
+        isValid = false;
+      } else if (!formData.postalCode?.trim()) {
+        errorMessage = t('validation.postal_code_required');
+        isValid = false;
+      } else if (!/^\d{4}$/.test(formData.postalCode)) {
+        errorMessage = t('validation.invalid_postal_code');
+        isValid = false;
+      } else if (!deliveryCalculation.isValid) {
+        errorMessage = deliveryCalculation.message || t('validation.delivery_not_available');
+        isValid = false;
+      }
+    } else if (formData.deliveryType === 'RAILWAY_STATION') {
+      if (!formData.stationId) {
+        errorMessage = t('validation.station_required');
+        isValid = false;
+      }
+    } else if (formData.deliveryType === 'PICKUP') {
+      if (!formData.storeId) {
+        errorMessage = t('validation.store_required');
+        isValid = false;
+      }
+    }
+
+    // Delivery date and time validation
+    else if (!formData.deliveryDate) {
+      errorMessage = t('validation.delivery_date_required');
+      isValid = false;
+    }
+
+    // Time slot validation only for pickup
+    else if (formData.deliveryType === 'PICKUP' && !formData.deliveryTimeSlot) {
+      errorMessage = t('validation.delivery_time_required');
+      isValid = false;
+    }
+
+    // Account creation validation
+    else if (isGuest && createAccount) {
+      if (!formData.password || formData.password.length < 8) {
+        errorMessage = t('register.validation.password_requirements', { ns: 'auth' });
+        isValid = false;
+      } else if (formData.password !== formData.confirmPassword) {
+        errorMessage = t('register.validation.passwords_mismatch', { ns: 'auth' });
+        isValid = false;
+      } else if (!formData.dataConsentAccepted) {
+        errorMessage = t('register.validation.consent_required', { ns: 'auth' });
+        isValid = false;
+      }
+    }
+
+    setFormValidationError(isValid ? null : errorMessage);
+    return isValid;
+  };
 
   // Prepare time from time slot string
   const prepareTimeFromSlot = (dateString, timeSlotString) => {
     if (!timeSlotString) return dateString;
-    
+
     // If time slot is in format "09:00-12:00", extract the start time
     const startTime = timeSlotString.split('-')[0].trim();
-    
+
     // Create a new date object from delivery date
     const date = new Date(dateString);
-    
+
     // Parse time components
     const [hours, minutes] = startTime.split(':').map(Number);
-    
+
     // Set time components
     date.setHours(hours, minutes, 0, 0);
-    
+
     return date.toISOString();
   };
 
   // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     // Clear previous errors
     setSubmitError(null);
     setFormValidationError(null);
@@ -425,10 +445,10 @@ const isSubmitDisabled = () => {
         deliveryDate: formData.deliveryDate,
         deliveryTimeSlot: formData.deliveryTimeSlot,
         // Add TWINT confirmation data
-      ...(formData.paymentMethod === 'TWINT' && {
-        twintPaymentConfirmed: twintPaymentConfirmed,
-        twintConfirmationTime: new Date().toISOString()
-      })
+        ...(formData.paymentMethod === 'TWINT' && {
+          twintPaymentConfirmed: twintPaymentConfirmed,
+          twintConfirmationTime: new Date().toISOString()
+        })
       };
 
       // For guest orders, add customer info
@@ -447,7 +467,7 @@ const isSubmitDisabled = () => {
             hasPassword: !!formData.password,
             consentAccepted: formData.dataConsentAccepted
           });
-          
+
           orderData.shouldRegister = true;
           orderData.password = formData.password;
           orderData.dataConsentAccepted = formData.dataConsentAccepted;
@@ -533,16 +553,16 @@ const isSubmitDisabled = () => {
 
   // Render loading state
   if (loading) {
-    return <Container className="py-5 text-center"><p>{t('general.loading', {ns: 'common'})}</p></Container>;
+    return <Container className="py-5 text-center"><p>{t('general.loading', { ns: 'common' })}</p></Container>;
   }
 
   // Render empty cart state
   if (cartItems.length === 0 && !submitSuccess) {
     return (
       <Container className="py-5 text-center">
-        <h2>{t('cart.empty', {ns: 'common'})}</h2>
+        <h2>{t('cart.empty', { ns: 'common' })}</h2>
         <Button variant="primary" className="mt-3" onClick={() => navigate('/')}>
-          {t('cart.continueShopping', {ns: 'common'})}
+          {t('cart.continueShopping', { ns: 'common' })}
         </Button>
       </Container>
     );
@@ -569,7 +589,7 @@ const isSubmitDisabled = () => {
   return (
     <Container className="py-5">
       <h1 className="text-center mb-5">{t('checkout.title')}</h1>
-      
+
       {/* Show error alerts at the top */}
       {(submitError || formValidationError) && (
         <Alert variant="danger" className="mb-4">
@@ -580,7 +600,7 @@ const isSubmitDisabled = () => {
       {/* Show auth choice for non-authenticated users at initial step */}
       {checkoutStep === 'initial' && !user && (
         <div className="container-sm mb-4" style={{ maxWidth: '672px' }}>
-          <AuthChoice 
+          <AuthChoice
             onChoice={handleAuthChoice}
             onLogin={handleLogin}
             onRegister={handleRegister}
@@ -593,7 +613,7 @@ const isSubmitDisabled = () => {
         <Form onSubmit={handleSubmit}>
           <div className="container mx-auto" style={{ maxWidth: '768px' }}>
             {/* Cart Contents */}
-            <CartProducts 
+            <CartProducts
               items={cartItems}
               totalPrice={totalPrice}
               onAdd={addOneToCart}
@@ -602,64 +622,69 @@ const isSubmitDisabled = () => {
             />
 
             {/* Customer & Delivery Information */}
-            
-                {/* Customer Information */}
-                <CustomerInfoForm 
-                  formData={formData}
-                  handleChange={handleChange}
-                  isAuthenticated={!!user}
-                  isGuest={isGuest}
-                  createAccount={createAccount}
-                  onCreateAccountChange={setCreateAccount}
-                />
 
-                {/* Delivery Options */}
-                <DeliveryOptions 
-                  formData={formData}
-                  handleChange={handleChange}
-                  railwayStations={railwayStations}
-                />
-                
-                {/* Payment Method */}
-                <section className="mb-5">
-                  <h4 className="mb-3">{t('checkout.payment_method')}</h4>
-                  <PaymentMethodSelector
-                    selectedMethod={formData.paymentMethod}
+            {/* Customer Information */}
+            <CustomerInfoForm
+              formData={formData}
+              handleChange={handleChange}
+              isAuthenticated={!!user}
+              isGuest={isGuest}
+              createAccount={createAccount}
+              onCreateAccountChange={setCreateAccount}
+            />
+
+            {/* Delivery Options */}
+            <DeliveryOptions
+              formData={formData}
+              handleChange={handleChange}
+              railwayStations={railwayStations}
+            />
+
+            {/* Payment Method */}
+            <section className="mb-5">
+              <h4 className="mb-3">{t('checkout.payment_method')}</h4>
+              <PaymentMethodSelector
+                selectedMethod={formData.paymentMethod}
+                onChange={handleChange}
+                onTwintConfirmationChange={setTwintPaymentConfirmed}
+                onTwintCommentChange={handleTwintCommentChange}
+              />
+            </section>
+
+            {/* Order Notes */}
+            {/* The order notes section will now automatically include TWINT payment details */}
+            <section className="mb-5">
+              <h4 className="mb-3">{t('checkout.order_notes')}</h4>
+              <Card>
+                <Card.Body>
+                  <Form.Control
+                    as="textarea"
+                    rows={3}
+                    name="notesClient"
+                    value={formData.notesClient}
                     onChange={handleChange}
-                    onTwintConfirmationChange={handleTwintConfirmationChange}
+                    placeholder={t('checkout.order_notes')}
                   />
-                </section>
+                  <Form.Text className="text-muted">
+                    {t('checkout.order_notes_hint', 'Автоматично додається інформація про спосіб оплати TWINT')}
+                  </Form.Text>
+                </Card.Body>
+              </Card>
+            </section>
 
-                {/* Order Notes */}
-                <section className="mb-5">
-                  <h4 className="mb-3">{t('checkout.order_notes')}</h4>
-                  <Card>
-                    <Card.Body>
-                      <Form.Control
-                        as="textarea"
-                        rows={3}
-                        name="notesClient"
-                        value={formData.notesClient}
-                        onChange={handleNotesChange}
-                        placeholder={t('checkout.order_notes')}
-                      />
-                    </Card.Body>
-                  </Card>
-                </section>
+            {/* Delivery Cost Calculator */}
+            {formData.deliveryType === 'ADDRESS' && (
+              <DeliveryCostCalculator
+                deliveryType={formData.deliveryType}
+                postalCode={formData.postalCode}
+                canton={formData.canton || 'VD'} // Default canton
+                onCostCalculated={handleDeliveryCostCalculated}
+              />
+            )}
 
-                {/* Delivery Cost Calculator */}
-                {formData.deliveryType === 'ADDRESS' && (
-                  <DeliveryCostCalculator
-                    deliveryType={formData.deliveryType}
-                    postalCode={formData.postalCode}
-                    canton={formData.canton || 'VD'} // Default canton
-                    onCostCalculated={handleDeliveryCostCalculated}
-                  />
-                )}
-              
 
             {/* Order Summary Card */}
-            <OrderSummary 
+            <OrderSummary
               subtotal={totalPrice}
               deliveryCost={deliveryCost}
               finalPrice={finalPrice}
@@ -675,7 +700,7 @@ const isSubmitDisabled = () => {
               >
                 {isSubmitting ? t('checkout.processing') : t('checkout.submit_order')}
               </Button>
-              
+
               {/* Minimum order warning */}
               {!deliveryCalculation.isValid && (
                 <Alert variant="warning" className="mt-2">

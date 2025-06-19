@@ -3,9 +3,9 @@ import { Wallet, CreditCard, Banknote } from 'lucide-react';
 import { Row, Col, Button, Card, Form, Image } from 'react-bootstrap';
 import { useTranslation } from 'react-i18next';
 
-const PaymentMethodSelector = ({ selectedMethod, onChange, onTwintConfirmationChange }) => {
+const PaymentMethodSelector = ({ selectedMethod, onChange, onTwintConfirmationChange, onTwintCommentChange }) => {
   const { t } = useTranslation('checkout');
-  const [twintPaymentConfirmed, setTwintPaymentConfirmed] = useState(false);
+  const [twintPaymentOption, setTwintPaymentOption] = useState('paid'); // 'paid' or 'pay_on_delivery'
 
   // Effect to set default payment method to CASH on component mount
   useEffect(() => {
@@ -15,14 +15,24 @@ const PaymentMethodSelector = ({ selectedMethod, onChange, onTwintConfirmationCh
     }
   }, [selectedMethod, onChange]);
 
-  // Handle TWINT payment confirmation change
-  const handleTwintConfirmationChange = (e) => {
-    const isConfirmed = e.target.checked;
-    setTwintPaymentConfirmed(isConfirmed);
+  // Handle TWINT payment option change
+  const handleTwintOptionChange = (e) => {
+    const selectedOption = e.target.value;
+    setTwintPaymentOption(selectedOption);
     
     // Notify parent component about TWINT confirmation status
+    // 'paid' means payment is confirmed, 'pay_on_delivery' means not confirmed yet
     if (onTwintConfirmationChange) {
-      onTwintConfirmationChange(isConfirmed);
+      onTwintConfirmationChange(selectedOption === 'paid');
+    }
+
+    // Send comment about payment option to parent component
+    if (onTwintCommentChange) {
+      const commentText = selectedOption === 'paid' 
+        ? t('payment.twint.confirmation', 'Замовлення мною сплачено')
+        : t('payment.twint.pay_on_delivery', 'Оплачу по факту отримання замовлення');
+      
+      onTwintCommentChange(`TWINT: ${commentText}`);
     }
   };
 
@@ -54,10 +64,27 @@ const PaymentMethodSelector = ({ selectedMethod, onChange, onTwintConfirmationCh
     onChange({ target: { name: 'paymentMethod', value: methodId } });
     
     // Reset TWINT confirmation if switching away from TWINT
-    if (methodId !== 'TWINT' && twintPaymentConfirmed) {
-      setTwintPaymentConfirmed(false);
+    if (methodId !== 'TWINT') {
+      setTwintPaymentOption('paid');
       if (onTwintConfirmationChange) {
         onTwintConfirmationChange(false);
+      }
+      // Clear TWINT comment when switching away from TWINT
+      if (onTwintCommentChange) {
+        onTwintCommentChange('');
+      }
+    } else {
+      // When selecting TWINT, notify parent with current option status
+      if (onTwintConfirmationChange) {
+        onTwintConfirmationChange(twintPaymentOption === 'paid');
+      }
+      // Add TWINT comment when selecting TWINT
+      if (onTwintCommentChange) {
+        const commentText = twintPaymentOption === 'paid' 
+          ? t('payment.twint.confirmation', 'Замовлення мною сплачено')
+          : t('payment.twint.pay_on_delivery', 'Оплачу по факту отримання замовлення');
+        
+        onTwintCommentChange(`TWINT: ${commentText}`);
       }
     }
   };
@@ -101,24 +128,11 @@ const PaymentMethodSelector = ({ selectedMethod, onChange, onTwintConfirmationCh
                   border: '2px solid #dee2e6'
                 }}
               >
-                {/* Replace this div with actual QR code image */}
-                {/* <div className="text-center">
-                  
-                  <Wallet size={48} className="text-muted mb-2" />
-                  <div className="small text-muted">
-
-                    {t('payment.twint.qr_placeholder', 'QR Code will appear here')}
-                  </div>
-                </div> */}
-                
-                {/* Uncomment and use this when you have actual QR code */}
-                
-                <Image 
-                  src="/assets/images/qr-twint.jpg" 
+                <Image
+                  src="/assets/images/qr-twint.jpg"
                   alt="TWINT QR Code"
                   style={{ maxWidth: '100%', maxHeight: '100%' }}
                 />
-               
               </div>
             </div>
 
@@ -132,15 +146,39 @@ const PaymentMethodSelector = ({ selectedMethod, onChange, onTwintConfirmationCh
               </p>
             </div>
 
-            {/* Payment Confirmation Checkbox */}
-            <Form.Check
-              type="checkbox"
-              id="twint-payment-confirmation"
-              checked={twintPaymentConfirmed}
-              onChange={handleTwintConfirmationChange}
-              label={t('payment.twint.confirmation', 'Замовлення мною сплачено')}
-              className="d-flex justify-content-center gap-2"
-            />
+            {/* Payment Options - Radio Buttons */}
+            <div className="mb-3">
+              <Form.Check
+                type="radio"
+                id="twint-payment-paid"
+                name="twintPaymentOption"
+                value="paid"
+                checked={twintPaymentOption === 'paid'}
+                onChange={handleTwintOptionChange}
+                label={t('payment.twint.confirmation', 'Замовлення мною сплачено')}
+                className="d-flex justify-content-center gap-2 mb-2"
+              />
+              <Form.Check
+                type="radio"
+                id="twint-payment-later"
+                name="twintPaymentOption"
+                value="pay_on_delivery"
+                checked={twintPaymentOption === 'pay_on_delivery'}
+                onChange={handleTwintOptionChange}
+                label={t('payment.twint.pay_on_delivery', 'Оплачу по факту отримання замовлення')}
+                className="d-flex justify-content-center gap-2"
+              />
+            </div>
+
+            {/* Note about payment confirmation */}
+            <div className="small text-muted">
+              <p className="mb-0">
+                {twintPaymentOption === 'paid' 
+                  ? t('payment.twint.note_paid', 'Підтвердіть, що оплата пройшла успішно')
+                  : t('payment.twint.note_later', 'Ви зможете оплатити при отриманні замовлення')
+                }
+              </p>
+            </div>
           </Card.Body>
         </Card>
       )}

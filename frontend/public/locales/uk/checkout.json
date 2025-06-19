@@ -71,8 +71,9 @@
       "qr_title": "Оплата через TWINT QR Code",
       "qr_placeholder": "QR код з'явиться тут",
       "instructions_1": "Відскануйте QR код у додатку TWINT",
-      "instructions_2": "Завершіть оплату та підтвердіть нижче",
-      "confirmation": "Замовлення сплачене мною через TWINT"
+      "instructions_2": "Оберіть коли вам зручно оплатити:",
+      "confirmation": "Замовлення сплачене мною через TWINT",
+      "pay_on_delivery": "Оплачу по факту отримання замовлення"
     },
     "card": {
       "title": "Карта",

@@ -68,8 +68,9 @@
       "qr_title": "Paiement par QR Code TWINT",
       "qr_placeholder": "Le QR Code apparaîtra ici",
       "instructions_1": "Scannez le QR Code avec votre application TWINT",
-      "instructions_2": "Complétez le paiement et confirmez ci-dessous",
-      "confirmation": "J'ai payé la commande"
+      "instructions_2": "Choisissez quand il vous convient de payer :",
+      "confirmation": "J'ai payé la commande",
+      "pay_on_delivery": "Je paierai lors de la réception de la commande"
     },
     "card": {
       "title": "Carte",

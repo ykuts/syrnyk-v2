@@ -35,8 +35,9 @@
       "qr_title": "TWINT QR Code Payment",
       "qr_placeholder": "QR Code will appear here",
       "instructions_1": "Scan the QR code with your TWINT app",
-      "instructions_2": "Complete the payment and confirm below",
-      "confirmation": "I have paid for the order"
+      "instructions_2": "Choose when it's convenient for you to pay:",
+      "confirmation": "I have paid for the order",
+      "pay_on_delivery": "Pay on delivery"
     },
     "card": {
       "title": "Card",

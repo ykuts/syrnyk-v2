@@ -59,21 +59,6 @@ const StationSelector = ({
         <Card className="bg-light">
           <Card.Body>
             <Row>
-              {selectedStationData?.photo && (
-                <Col md={4}>
-                  <img
-                    src={getStationImage(selectedStationData.photo)}
-                    alt="Meeting Point"
-                    onError={() => {
-                      setImageError(prev => ({
-                        ...prev,
-                        [selectedStationData.photo]: true
-                      }));
-                    }}
-                    className="img-fluid rounded w-100 mb-3 mb-md-0"
-                  />
-                </Col>
-              )}
               <Col md={selectedStationData?.photo ? 8 : 12}>
                 <h5 className="mb-2">{selectedStationData?.city} - {selectedStationData?.name}</h5>
                 <div className="mb-3">
@@ -96,6 +81,22 @@ const StationSelector = ({
                   </div>
                 )}
               </Col>
+              {selectedStationData?.photo && (
+                <Col md={4}>
+                  <img
+                    src={getStationImage(selectedStationData.photo)}
+                    alt="Meeting Point"
+                    onError={() => {
+                      setImageError(prev => ({
+                        ...prev,
+                        [selectedStationData.photo]: true
+                      }));
+                    }}
+                    className="img-fluid rounded w-100 mb-3 mb-md-0"
+                  />
+                </Col>
+              )}
+              
             </Row>
           </Card.Body>
         </Card>

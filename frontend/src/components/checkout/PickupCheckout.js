@@ -84,38 +84,27 @@ const PickupCheckout = ({ formData, handleChange }) => {
       <Card className="mb-4">
         <Card.Body>
           <Form.Group className="mb-3">
-            {/* <Form.Label>{t('pickup.location')}</Form.Label>
-            <Form.Select
+            {/* Hidden input to store the selected store ID */}
+            <input
+              type="hidden"
               name="storeId"
               value={formData.storeId || ''}
               onChange={handleChange}
-              required
-            >
-              <option value="">{t('pickup.select_location')}</option>
-              {pickupLocations.map(location => (
-                <option key={location.id} value={location.id.toString()}>
-                  {location.name} - {location.address}, {location.city}
-                </option>
-              ))}
-            </Form.Select> */}
+            />
             
-            {formData.storeId && (
-              <div className="mt-3">
-                <h6>{t('pickup.store_details')}</h6>
-                {pickupLocations
-                  .filter(loc => loc.id.toString() === formData.storeId)
-                  .map(location => (
-                    <div key={location.id} className="store-details p-3 bg-light rounded">
-                      {/* <p className="mb-1"><strong>{location.name}</strong></p> */}
-                      <p className="mb-1">{location.address}, {location.city} {location.postalCode}</p>
-                      {location.phone && <p className="mb-1">{t('pickup.phone')}: {location.phone}</p>}
-                      {/* <p className="mb-0">{t('pickup.hours')}: {location.workingHours}</p> */}
-                      <p className="mt-3 text-muted small">{t('pickup.note')}</p>
-                    </div>
-                  ))
-                }
-              </div>
-            )}
+            {/* Display store details directly without dropdown */}
+            <div>
+              <h6>{t('pickup.store_details')}</h6>
+              {pickupLocations.map(location => (
+                <div key={location.id} className="store-details p-3 bg-light rounded">
+                  <p className="mb-1"><strong>{location.name}</strong></p>
+                  <p className="mb-1">{location.address}, {location.city} {location.postalCode}</p>
+                  {location.phone && <p className="mb-1">{t('pickup.phone')}: {location.phone}</p>}
+                  {/* {location.openingHours && <p className="mb-0">{t('pickup.hours')}: {location.openingHours}</p>} */}
+                  <p className="mt-3 text-muted small">{t('pickup.note')}</p>
+                </div>
+              ))}
+            </div>
           </Form.Group>
         </Card.Body>
       </Card>

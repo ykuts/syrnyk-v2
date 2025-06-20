@@ -73,7 +73,7 @@ const formatDateForDisplay = (dateValue) => {
     const date = new Date(dateValue);
     if (isNaN(date.getTime())) return 'Некоректна дата';
     
-    return format(date, 'dd.MM.yyyy HH:mm');
+    return format(date, 'dd.MM.yyyy');
   } catch (error) {
     console.error('Error formatting date:', error);
     return 'Помилка форматування дати';
@@ -120,7 +120,9 @@ const getDeliveryDetails = (order) => {
       
       return {
         type: 'Доставка на залізничну станцію',
-        details: `Станція: ${station.station.name}, Місце зустрічі: ${station.station.meetingPoint}`,
+        station: `${station.station.city}`,
+        meetingPoint: `${station.station.meetingPoint}`,
+        stationMeetingTime: `${station.station.name}`,
         date: meetingTime
       };
       

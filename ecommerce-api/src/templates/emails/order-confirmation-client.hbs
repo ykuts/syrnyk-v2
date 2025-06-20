@@ -74,19 +74,27 @@
       <div class="delivery-info">
         <h4>Інформація про доставку:</h4>
         <p><strong>Спосіб доставки:</strong> {{deliveryDetails.type}}</p>
-        <p>{{deliveryDetails.details}}</p>
-        <p>{{deliveryDetails.date}}</p>
-        <p>{{deliveryDetails.timeSlot}}</p>
+        <p><strong>Станція:</strong> {{deliveryDetails.station}}</p>
+        <p><strong>Місце зустрічі:</strong> {{deliveryDetails.meetingPoint}}</p>
+        <p><strong>Час зустрічі:</strong> {{deliveryDetails.stationMeetingTime}}</p>
+        <p><strong>Дата доставки:</strong> {{deliveryDetails.date}}</p>
 
         <h4>Спосіб оплати:</h4>
         <p>{{paymentMethod}}</p>
+
+        {{#if notesClient}}
+        <div>
+          <h4>Примітки:</h4>
+          <p>{{notesClient}}</p>
+        </div>
+      {{/if}}
       </div>
     </div>
 
     <div class="footer">
       <p>Ми повідомимо вас про статус вашого замовлення.</p>
       <p>Якщо у вас виникли питання, будь ласка, зв'яжіться з нами.</p>
-      <p>З найкращими побажаннями,<br>Ваша команда Syrnyk</p>
+      <p>З найкращими побажаннями,<br>Ваша команда SYRNYK</p>
     </div>
   </div>
 </body>

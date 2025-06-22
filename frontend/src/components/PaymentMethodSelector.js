@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 
 const PaymentMethodSelector = ({ selectedMethod, onChange, onTwintConfirmationChange, onTwintCommentChange }) => {
   const { t } = useTranslation('checkout');
-  const [twintPaymentOption, setTwintPaymentOption] = useState('paid'); // 'paid' or 'pay_on_delivery'
+  const [twintPaymentOption, setTwintPaymentOption] = useState('');
 
   // Effect to set default payment method to CASH on component mount
   useEffect(() => {
@@ -28,11 +28,18 @@ const PaymentMethodSelector = ({ selectedMethod, onChange, onTwintConfirmationCh
 
     // Send comment about payment option to parent component
     if (onTwintCommentChange) {
-      const commentText = selectedOption === 'paid' 
-        ? t('payment.twint.confirmation', 'Замовлення мною сплачено')
-        : t('payment.twint.pay_on_delivery', 'Оплачу по факту отримання замовлення');
-      
-      onTwintCommentChange(`TWINT: ${commentText}`);
+      let commentText = '';
+
+      if (twintPaymentOption === 'paid') {
+          commentText = t('payment.twint.confirmation', 'Замовлення мною сплачено');
+        } else if (twintPaymentOption === 'pay_on_delivery') {
+          commentText = t('payment.twint.pay_on_delivery', 'Оплачу по факту отримання замовлення');
+        }
+        // If twintPaymentOption is empty string '', commentText remains empty
+        
+        // Only add TWINT prefix if there's actual text
+        const finalComment = commentText ? `TWINT: ${commentText}` : '';
+        onTwintCommentChange(finalComment);
     }
   };
 
@@ -65,7 +72,7 @@ const PaymentMethodSelector = ({ selectedMethod, onChange, onTwintConfirmationCh
     
     // Reset TWINT confirmation if switching away from TWINT
     if (methodId !== 'TWINT') {
-      setTwintPaymentOption('paid');
+      setTwintPaymentOption('');
       if (onTwintConfirmationChange) {
         onTwintConfirmationChange(false);
       }
@@ -80,11 +87,18 @@ const PaymentMethodSelector = ({ selectedMethod, onChange, onTwintConfirmationCh
       }
       // Add TWINT comment when selecting TWINT
       if (onTwintCommentChange) {
-        const commentText = twintPaymentOption === 'paid' 
-          ? t('payment.twint.confirmation', 'Замовлення мною сплачено')
-          : t('payment.twint.pay_on_delivery', 'Оплачу по факту отримання замовлення');
+        let commentText = '';
         
-        onTwintCommentChange(`TWINT: ${commentText}`);
+        if (twintPaymentOption === 'paid') {
+          commentText = t('payment.twint.confirmation', 'Замовлення мною сплачено');
+        } else if (twintPaymentOption === 'pay_on_delivery') {
+          commentText = t('payment.twint.pay_on_delivery', 'Оплачу по факту отримання замовлення');
+        }
+        // If twintPaymentOption is empty string '', commentText remains empty
+        
+        // Only add TWINT prefix if there's actual text
+        const finalComment = commentText ? `TWINT: ${commentText}` : '';
+        onTwintCommentChange(finalComment);
       }
     }
   };

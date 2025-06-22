@@ -226,9 +226,17 @@ const CheckoutPage = () => {
     const { name, value, type, checked } = e.target;
 
     // Reset TWINT confirmation when switching away from TWINT
-    if (name === 'paymentMethod' && value !== 'TWINT' && twintPaymentConfirmed) {
+  if (name === 'paymentMethod') {
+    if (value !== 'TWINT' && twintPaymentConfirmed) {
       setTwintPaymentConfirmed(false);
     }
+    // Also reset TWINT confirmation when switching to TWINT 
+    // (user will need to select radio option)
+    if (value === 'TWINT') {
+      setTwintPaymentConfirmed(false);
+    }
+  }
+
 
     // Special handling for createAccount checkbox
     if (type === 'checkbox' && name === 'createAccount') {

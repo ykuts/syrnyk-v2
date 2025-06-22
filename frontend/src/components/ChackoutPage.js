@@ -103,6 +103,11 @@ const CheckoutPage = () => {
 
   // TWINT payment confirmation
   const [twintPaymentConfirmed, setTwintPaymentConfirmed] = useState(false);
+  const [twintPaymentOption, setTwintPaymentOption] = useState('');
+
+  const handleTwintPaymentOptionChange = (option) => {
+    setTwintPaymentOption(option);
+  };
 
   // Handle TWINT confirmation change
   const handleTwintConfirmationChange = (isConfirmed) => {
@@ -226,16 +231,16 @@ const CheckoutPage = () => {
     const { name, value, type, checked } = e.target;
 
     // Reset TWINT confirmation when switching away from TWINT
-  if (name === 'paymentMethod') {
-    if (value !== 'TWINT' && twintPaymentConfirmed) {
-      setTwintPaymentConfirmed(false);
+    if (name === 'paymentMethod') {
+      if (value !== 'TWINT' && twintPaymentConfirmed) {
+        setTwintPaymentConfirmed(false);
+      }
+      // Also reset TWINT confirmation when switching to TWINT 
+      // (user will need to select radio option)
+      if (value === 'TWINT') {
+        setTwintPaymentConfirmed(false);
+      }
     }
-    // Also reset TWINT confirmation when switching to TWINT 
-    // (user will need to select radio option)
-    if (value === 'TWINT') {
-      setTwintPaymentConfirmed(false);
-    }
-  }
 
 
     // Special handling for createAccount checkbox
@@ -286,7 +291,7 @@ const CheckoutPage = () => {
     const baseDisabled = isSubmitting || !deliveryCalculation.isValid;
 
     // Additional TWINT condition
-    const twintDisabled = formData.paymentMethod === 'TWINT' && !twintPaymentConfirmed;
+    const twintDisabled = formData.paymentMethod === 'TWINT' && (twintPaymentOption === '' || twintPaymentOption === undefined);
 
     return baseDisabled || twintDisabled;
   };
@@ -332,8 +337,9 @@ const CheckoutPage = () => {
     }
 
     // TWINT specific validation
-    else if (formData.paymentMethod === 'TWINT' && !twintPaymentConfirmed) {
-      errorMessage = t('validation.twint_confirmation_required');
+    else if (formData.paymentMethod === 'TWINT' &&
+      (twintPaymentOption === '' || twintPaymentOption === undefined)) {
+      errorMessage = t('validation.twint_option_required', 'Please select a TWINT payment option');
       isValid = false;
     }
 
@@ -654,8 +660,9 @@ const CheckoutPage = () => {
               <PaymentMethodSelector
                 selectedMethod={formData.paymentMethod}
                 onChange={handleChange}
-                onTwintConfirmationChange={setTwintPaymentConfirmed}
+                onTwintConfirmationChange={handleTwintConfirmationChange}
                 onTwintCommentChange={handleTwintCommentChange}
+                onTwintPaymentOptionChange={handleTwintPaymentOptionChange}
               />
             </section>
 

@@ -3,7 +3,13 @@ import { Wallet, CreditCard, Banknote } from 'lucide-react';
 import { Row, Col, Button, Card, Form, Image } from 'react-bootstrap';
 import { useTranslation } from 'react-i18next';
 
-const PaymentMethodSelector = ({ selectedMethod, onChange, onTwintConfirmationChange, onTwintCommentChange }) => {
+const PaymentMethodSelector = ({ 
+  selectedMethod, 
+  onChange, 
+  onTwintConfirmationChange, 
+  onTwintCommentChange,
+  onTwintPaymentOptionChange
+ }) => {
   const { t } = useTranslation('checkout');
   const [twintPaymentOption, setTwintPaymentOption] = useState('');
 
@@ -20,6 +26,11 @@ const PaymentMethodSelector = ({ selectedMethod, onChange, onTwintConfirmationCh
     const selectedOption = e.target.value;
     setTwintPaymentOption(selectedOption);
     
+    // Notify parent component about the selected option
+    if (onTwintPaymentOptionChange) {
+      onTwintPaymentOptionChange(selectedOption);
+    }
+    
     // Notify parent component about TWINT confirmation status
     // 'paid' means payment is confirmed, 'pay_on_delivery' means not confirmed yet
     if (onTwintConfirmationChange) {
@@ -30,12 +41,12 @@ const PaymentMethodSelector = ({ selectedMethod, onChange, onTwintConfirmationCh
     if (onTwintCommentChange) {
       let commentText = '';
 
-      if (twintPaymentOption === 'paid') {
+      if (selectedOption === 'paid') {
           commentText = t('payment.twint.confirmation', 'Замовлення мною сплачено');
-        } else if (twintPaymentOption === 'pay_on_delivery') {
+        } else if (selectedOption === 'pay_on_delivery') {
           commentText = t('payment.twint.pay_on_delivery', 'Оплачу по факту отримання замовлення');
         }
-        // If twintPaymentOption is empty string '', commentText remains empty
+        // If selectedOption is empty string '', commentText remains empty
         
         // Only add TWINT prefix if there's actual text
         const finalComment = commentText ? `TWINT: ${commentText}` : '';
@@ -73,6 +84,9 @@ const PaymentMethodSelector = ({ selectedMethod, onChange, onTwintConfirmationCh
     // Reset TWINT confirmation if switching away from TWINT
     if (methodId !== 'TWINT') {
       setTwintPaymentOption('');
+      if (onTwintPaymentOptionChange) {
+        onTwintPaymentOptionChange('');
+      }
       if (onTwintConfirmationChange) {
         onTwintConfirmationChange(false);
       }
@@ -82,6 +96,9 @@ const PaymentMethodSelector = ({ selectedMethod, onChange, onTwintConfirmationCh
       }
     } else {
       // When selecting TWINT, notify parent with current option status
+      if (onTwintPaymentOptionChange) {
+        onTwintPaymentOptionChange(twintPaymentOption);
+      }
       if (onTwintConfirmationChange) {
         onTwintConfirmationChange(twintPaymentOption === 'paid');
       }

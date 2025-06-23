@@ -26,7 +26,13 @@
     "create_account": "Create an account for faster checkout in the future",
     "password": "Password",
     "confirm_password": "Confirm password",
-    "password_note": "Password must contain at least 8 characters and include letters and numbers"
+    "password_note": "Password must contain at least 8 characters and include letters and numbers",
+    "password_requirements": {
+      "length": "At least 8 characters",
+      "letter": "At least one letter",
+      "number": "At least one number"
+    },
+    "profile_update_note": "To update your personal information, please visit your profile page."
   },
   "payment": {
     "twint": {

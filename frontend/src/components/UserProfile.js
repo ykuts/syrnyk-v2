@@ -64,7 +64,7 @@ const UserProfile = () => {
             house: prefsResponse.preferences.address?.house || '',
             apartment: prefsResponse.preferences.address?.apartment || '',
             city: prefsResponse.preferences.address?.city || '',
-            postalCode: prefsResponse.preferences.postalCode || '',
+            postalCode: prefsResponse.preferences.address?.postalCode || '',
             stationId: prefsResponse.preferences.stationId?.toString() || '',
           }));
         }

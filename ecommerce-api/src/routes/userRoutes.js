@@ -33,7 +33,7 @@ router.put('/profile', protect, updateUserProfile);
 router.put('/password', protect, changePassword);
 router.get('/orders', protect, getUserOrders);
 router.get('/delivery-preferences', protect, getUserDeliveryPreferences);
-router.post('/delivery-preferences', protect, updateDeliveryPreferences);
+router.put('/delivery-preferences', protect, updateDeliveryPreferences);
 router.put('/consent', protect, updateUserConsent); // Endpoint for updating consent
 //router.get('/data-export', protect, getUserDataExport); // Endpoint for exporting user data
 //router.post('/request-deletion', protect, requestAccountDeletion); // Endpoint for requesting account deletion

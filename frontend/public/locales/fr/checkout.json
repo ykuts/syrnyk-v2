@@ -26,7 +26,13 @@
     "create_account": "Créer un compte pour une commande plus rapide à l'avenir",
     "password": "Mot de passe",
     "confirm_password": "Confirmer le mot de passe",
-    "password_note": "Le mot de passe doit contenir au moins 8 caractères et inclure des lettres et des chiffres"
+    "password_note": "Le mot de passe doit contenir au moins 8 caractères et inclure des lettres et des chiffres",
+    "password_requirements": {
+      "length": "Au moins 8 caractères",
+      "letter": "Au moins une lettre",
+      "number": "Au moins un chiffre"
+    },
+    "profile_update_note": "Pour mettre à jour vos informations personnelles, veuillez visiter votre page de profil."
   },
   "delivery": {
     "pickup": {

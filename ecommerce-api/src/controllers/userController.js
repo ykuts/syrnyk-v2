@@ -306,6 +306,7 @@ export const loginUser = async (req, res) => {
         email: true,
         password: true,
         role: true,
+        phone: true,
       },
     });
 
@@ -388,21 +389,49 @@ export const updateUserProfile = async (req, res) => {
       deliveryPreferences 
     } = req.body;
 
+    console.log('Received delivery preferences:', deliveryPreferences); // Debug log
+
+    // Prepare base update data
     const updateData = {
       firstName,
       lastName,
       phone,
-      // Add delivery preferences if provided
-      ...(deliveryPreferences && {
-        preferredDeliveryType: deliveryPreferences.type,
-        deliveryAddress: deliveryPreferences.type === 'ADDRESS' ? 
-          deliveryPreferences.address : null,
-        preferredStation: deliveryPreferences.type === 'RAILWAY_STATION' ? 
-          { id: parseInt(deliveryPreferences.stationId) } : null,
-        preferredStore: deliveryPreferences.type === 'PICKUP' ? 
-          { id: parseInt(deliveryPreferences.storeId) } : null
-      })
     };
+
+    // Add delivery preferences if provided
+    if (deliveryPreferences) {
+      updateData.preferredDeliveryType = deliveryPreferences.type;
+      
+      // Handle address delivery - store as JSON
+      if (deliveryPreferences.type === 'ADDRESS' && deliveryPreferences.address) {
+        updateData.deliveryAddress = deliveryPreferences.address;
+      } else {
+        // Clear address if not ADDRESS delivery type
+        updateData.deliveryAddress = null;
+      }
+      
+      // Handle railway station delivery - store as JSON
+      if (deliveryPreferences.type === 'RAILWAY_STATION' && deliveryPreferences.stationId) {
+        updateData.preferredStation = {
+          id: parseInt(deliveryPreferences.stationId)
+        };
+      } else {
+        // Clear station if not RAILWAY_STATION delivery type
+        updateData.preferredStation = null;
+      }
+      
+      // Handle pickup delivery - store as JSON
+      if (deliveryPreferences.type === 'PICKUP' && deliveryPreferences.storeId) {
+        updateData.preferredStore = {
+          id: parseInt(deliveryPreferences.storeId)
+        };
+      } else {
+        // Clear store if not PICKUP delivery type
+        updateData.preferredStore = null;
+      }
+    }
+
+    console.log('Prepared update data:', JSON.stringify(updateData, null, 2)); // Debug log
 
     const updatedUser = await prisma.user.update({
       where: { id: userId },
@@ -421,6 +450,8 @@ export const updateUserProfile = async (req, res) => {
         preferredStore: true
       },
     });
+
+    console.log('Updated user:', updatedUser); // Debug log
 
     res.json({
       message: 'Profile updated successfully',
@@ -623,15 +654,19 @@ export const getUserDeliveryPreferences = async (req, res) => {
       });
     }
 
+    const preferences = {
+      type: user.preferredDeliveryType || 'PICKUP',
+      address: user.deliveryAddress || null,
+      stationId: user.preferredStation?.id || null,
+      storeId: user.preferredStore?.id || null
+    };
+
+    console.log('Retrieved preferences:', preferences); // Debug log
+
     res.json({
       message: 'Delivery preferences retrieved successfully',
-      preferences: {
-        type: user.preferredDeliveryType,
-        address: user.deliveryAddress,
-        stationId: user.preferredStation?.id,
-        storeId: user.preferredStore?.id
-      }
-    });
+      preferences
+      });
   } catch (error) {
     console.error('Error retrieving delivery preferences:', error);
     res.status(500).json({

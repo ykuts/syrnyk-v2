@@ -196,8 +196,26 @@ const CheckoutPage = () => {
     }));
   }, [i18n.language]);
 
+  useEffect(() => {
+  console.log('=== CHECKOUT PAGE DEBUG ===');
+  console.log('Delivery type:', formData.deliveryType);
+  console.log('Total price:', totalPrice);
+  console.log('Delivery calculation:', deliveryCalculation);
+  console.log('Submit button disabled:', isSubmitDisabled());
+  console.log('==========================');
+}, [formData.deliveryType, totalPrice, deliveryCalculation]);
+
   // Handle delivery cost calculation
   const handleDeliveryCostCalculated = (calculationResult) => {
+
+console.log('=== DELIVERY COST CALCULATED ===');
+  console.log('Calculation result:', calculationResult);
+  console.log('Delivery type:', formData.deliveryType);
+  console.log('Total price:', totalPrice);
+  console.log('================================');
+
+    // Update the delivery calculation state
+    if (calculationResult.deliveryType === formData.deliveryType) {
     // Update the delivery calculation state
     setDeliveryCalculation(calculationResult);
 
@@ -206,6 +224,9 @@ const CheckoutPage = () => {
       ...prev,
       deliveryCost: calculationResult.cost
     }));
+    } else {
+    console.log('⚠️ Ignoring outdated calculation result');
+  }
   };
 
   // User makes auth choice (guest checkout, login, or register)
@@ -293,6 +314,17 @@ const CheckoutPage = () => {
     // Additional TWINT condition
     const twintDisabled = formData.paymentMethod === 'TWINT' && (twintPaymentOption === '' || twintPaymentOption === undefined);
 
+  const result = baseDisabled || twintDisabled;
+    // Debug logging
+  console.log('=== SUBMIT BUTTON DEBUG ===');
+  console.log('isSubmitting:', isSubmitting);
+  console.log('deliveryCalculation.isValid:', deliveryCalculation.isValid);
+  console.log('deliveryCalculation:', deliveryCalculation);
+  console.log('baseDisabled:', baseDisabled);
+  console.log('twintDisabled:', twintDisabled);
+  console.log('final result (disabled):', result);
+  console.log('===========================');
+
     return baseDisabled || twintDisabled;
   };
 
@@ -365,6 +397,12 @@ const CheckoutPage = () => {
         isValid = false;
       }
     } else if (formData.deliveryType === 'RAILWAY_STATION') {
+      console.log('=== RAILWAY VALIDATION ===');
+  console.log('Station ID:', formData.stationId);
+  console.log('Total price:', totalPrice);
+  console.log('Delivery calculation:', deliveryCalculation);
+  console.log('=========================');
+  
       if (!formData.stationId) {
         errorMessage = t('validation.station_required');
         isValid = false;
@@ -424,6 +462,77 @@ const CheckoutPage = () => {
 
     return date.toISOString();
   };
+
+  useEffect(() => {
+  // Force recalculation when total price changes
+  console.log('🔄 Total price changed, forcing delivery calculation...');
+  
+  // Принудительно пересчитать стоимость доставки
+  const DELIVERY_MINIMUMS = {
+    PICKUP: 0,
+    RAILWAY_STATION: 20,
+    ADDRESS: 100
+  };
+
+  const minimumOrder = DELIVERY_MINIMUMS[formData.deliveryType] || 0;
+  let cost = 0;
+  let isValid = true;
+  let message = '';
+  
+  switch (formData.deliveryType) {
+    case 'PICKUP':
+      cost = 0;
+      isValid = true;
+      message = 'Безкоштовний самовивіз';
+      break;
+      
+    case 'RAILWAY_STATION':
+      cost = 0;
+      if (totalPrice < minimumOrder) {
+        isValid = false;
+        const needed = minimumOrder - totalPrice;
+        message = `Мінімальне замовлення для доставки на ЖД станцію - ${minimumOrder} CHF. Додайте ще продукції на ${needed.toFixed(2)} CHF.`;
+      } else {
+        isValid = true;
+        message = 'Безкоштовна доставка на ЖД станцію';
+      }
+      break;
+      
+    case 'ADDRESS':
+      if (totalPrice < minimumOrder) {
+        isValid = false;
+        const needed = minimumOrder - totalPrice;
+        message = `Мінімальне замовлення для адресної доставки - ${minimumOrder} CHF. Додайте ще продукції на ${needed.toFixed(2)} CHF.`;
+        cost = 0;
+      } else if (totalPrice >= 200) {
+        cost = 0;
+        isValid = true;
+        message = 'Безкоштовна доставка для замовлень від 200 CHF';
+      } else {
+        cost = 10;
+        isValid = true;
+        message = `Вартість доставки: ${cost} CHF`;
+      }
+      break;
+  }
+  
+  console.log('🎯 Manual calculation result:', { cost, isValid, message, deliveryType: formData.deliveryType, totalPrice });
+  
+  // Обновить состояние
+  setDeliveryCalculation({
+    cost,
+    isValid,
+    message,
+    minimumOrderAmount: minimumOrder,
+    deliveryType: formData.deliveryType
+  });
+  
+  setFormData(prev => ({
+    ...prev,
+    deliveryCost: cost
+  }));
+  
+}, [totalPrice, formData.deliveryType]);
 
   // Handle form submission
   const handleSubmit = async (e) => {
@@ -688,14 +797,12 @@ const CheckoutPage = () => {
             </section>
 
             {/* Delivery Cost Calculator */}
-            {formData.deliveryType === 'ADDRESS' && (
-              <DeliveryCostCalculator
-                deliveryType={formData.deliveryType}
-                postalCode={formData.postalCode}
-                canton={formData.canton || 'VD'} // Default canton
-                onCostCalculated={handleDeliveryCostCalculated}
-              />
-            )}
+            <DeliveryCostCalculator
+  deliveryType={formData.deliveryType}
+  postalCode={formData.postalCode}
+  canton={formData.canton || 'VD'}
+  onCostCalculated={handleDeliveryCostCalculated}
+/>
 
 
             {/* Order Summary Card */}
@@ -717,11 +824,11 @@ const CheckoutPage = () => {
               </Button>
 
               {/* Minimum order warning */}
-              {!deliveryCalculation.isValid && (
+              {/* {!deliveryCalculation.isValid && (
                 <Alert variant="warning" className="mt-2">
                   {deliveryCalculation.message}
                 </Alert>
-              )}
+              )} */}
             </div>
           </div>
         </Form>

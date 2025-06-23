@@ -22,7 +22,7 @@ const AddressDeliveryCheckout = ({ formData, handleChange }) => {
   const [postalCodeValid, setPostalCodeValid] = useState(null);
   const [cityInfo, setCityInfo] = useState(null);
   const [postalCodeChecked, setPostalCodeChecked] = useState(false);
-  const [deliveryCost, setDeliveryCost] = useState(0);
+  const [deliveryCost, setDeliveryCost] = useState(10);
   const [freeDeliveryThreshold, setFreeDeliveryThreshold] = useState(200); // Default threshold
   const [error, setError] = useState(null);
   

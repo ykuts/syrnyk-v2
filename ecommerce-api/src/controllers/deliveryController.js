@@ -1,5 +1,3 @@
-// src/controllers/deliveryController.js
-
 import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
@@ -157,7 +155,7 @@ export const calculateDeliveryCost = async (req, res) => {
   try {
     const { deliveryMethod, postalCode, canton, cartTotal } = req.body;
     
-    // Enhanced input validation
+    /* // Enhanced input validation
     if (!deliveryMethod) {
       return res.status(400).json({ error: 'Delivery method is required' });
     }
@@ -165,50 +163,103 @@ export const calculateDeliveryCost = async (req, res) => {
     // Validate delivery method is one of the allowed values
     if (!['PICKUP', 'RAILWAY_STATION', 'ADDRESS'].includes(deliveryMethod)) {
       return res.status(400).json({ error: 'Invalid delivery method' });
+    } */
+    
+    // Validate required fields
+    if (!deliveryMethod || !['PICKUP', 'RAILWAY_STATION', 'ADDRESS'].includes(deliveryMethod)) {
+      return res.status(400).json({ error: 'Invalid delivery method' });
     }
     
-    if (!cartTotal || isNaN(parseFloat(cartTotal))) {
+      if (!cartTotal || isNaN(parseFloat(cartTotal))) {
       return res.status(400).json({ error: 'Valid cart total is required' });
     }
+
+    const cartTotalNum = parseFloat(cartTotal);
+    
+    // Delivery minimums for each method
+    const DELIVERY_MINIMUMS = {
+      PICKUP: 0,           // No minimum for pickup
+      RAILWAY_STATION: 20, // 20 CHF minimum for railway delivery
+      ADDRESS: 100         // 100 CHF minimum for address delivery
+    };
     
     let deliveryCost = 0;
     let message = '';
     let isValid = true;
-    let minimumOrderAmount = 0;
-    const cartTotalNum = parseFloat(cartTotal);
+    let minimumOrderAmount = DELIVERY_MINIMUMS[deliveryMethod];
     
-    if (deliveryMethod === 'PICKUP' || deliveryMethod === 'RAILWAY_STATION') {
-      // Pickup and railway station delivery is always free
-      message = 'Free delivery';
-    } else if (deliveryMethod === 'ADDRESS') {
-      minimumOrderAmount = 100;
-      
-      if (cartTotalNum < minimumOrderAmount) {
-        isValid = false;
-        message = `Minimum order amount for delivery is ${minimumOrderAmount} CHF`;
-      } else if (cartTotalNum >= 200) {
-        // Orders over 200 CHF have free delivery everywhere
-        message = 'Free delivery for orders over 200 CHF';
-      } else if (postalCode) {
-        // Check if the city has a free delivery threshold
-        const city = await prisma.deliveryCity.findFirst({
-          where: { postalCode },
-        });
+    // Calculate based on delivery method
+    switch (deliveryMethod) {
+      case 'PICKUP':
+        // Pickup is always free with no minimum
+        deliveryCost = 0;
+        isValid = true;
+        message = 'Free pickup - no minimum order required';
+        break;
         
-        if (city && cartTotalNum >= city.freeThreshold) {
-          message = `Free delivery for orders over ${city.freeThreshold} CHF in this area`;
+      case 'RAILWAY_STATION':
+        // Railway delivery: minimum 20 CHF, always free delivery
+        deliveryCost = 0; // Always free
+        
+        if (cartTotalNum < minimumOrderAmount) {
+          isValid = false;
+          const needed = minimumOrderAmount - cartTotalNum;
+          message = `Minimum order for railway delivery is ${minimumOrderAmount} CHF. Add ${needed.toFixed(2)} CHF more to your cart.`;
         } else {
-          deliveryCost = 10;
-          message = 'Delivery fee: 10 CHF';
+          isValid = true;
+          message = 'Free railway station delivery';
         }
-      } else {
-        // Default to paid delivery
-        deliveryCost = 10;
-        message = 'Delivery fee: 10 CHF';
-      }
+        break;
+        
+      case 'ADDRESS':
+        // Address delivery logic
+        if (cartTotalNum < minimumOrderAmount) {
+          // Below minimum order
+          isValid = false;
+          const needed = minimumOrderAmount - cartTotalNum;
+          message = `Minimum order for address delivery is ${minimumOrderAmount} CHF. Add ${needed.toFixed(2)} CHF more to your cart.`;
+          deliveryCost = 0;
+        } else if (cartTotalNum >= 200) {
+          // Free delivery for orders 200+ CHF
+          deliveryCost = 0;
+          isValid = true;
+          message = 'Free delivery for orders over 200 CHF';
+        } else {
+          // Standard delivery fee for orders 100-199 CHF
+          if (postalCode) {
+            // Check if the city has a free delivery threshold
+            try {
+              const city = await prisma.deliveryCity.findFirst({
+                where: { postalCode },
+              });
+              
+              if (city && cartTotalNum >= city.freeThreshold) {
+                deliveryCost = 0;
+                message = `Free delivery for orders over ${city.freeThreshold} CHF in this area`;
+              } else {
+                deliveryCost = 10;
+                message = 'Delivery fee: 10 CHF';
+              }
+            } catch (dbError) {
+              console.error('Database error checking postal code:', dbError);
+              // Fallback to standard delivery
+              deliveryCost = 10;
+              message = 'Delivery fee: 10 CHF';
+            }
+          } else {
+            // No postal code provided, use standard delivery
+            deliveryCost = 10;
+            message = 'Delivery fee: 10 CHF';
+          }
+          isValid = true;
+        }
+        break;
+        
+      default:
+        return res.status(400).json({ error: 'Unsupported delivery method' });
     }
     
-    // Return a more comprehensive response
+    // Return comprehensive response
     res.json({
       deliveryCost,
       message,
@@ -220,8 +271,9 @@ export const calculateDeliveryCost = async (req, res) => {
       calculationDetails: {
         postalCode,
         canton,
-        isAddressDelivery: deliveryMethod === 'ADDRESS',
-        isFreeDeliveryApplicable: cartTotalNum >= 200 || deliveryMethod !== 'ADDRESS'
+        meetsMinimumOrder: cartTotalNum >= minimumOrderAmount,
+        qualifiesForFreeDelivery: deliveryCost === 0,
+        standardFeeApplied: deliveryCost === 10
       }
     });
   } catch (error) {

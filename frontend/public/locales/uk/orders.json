@@ -1,0 +1,50 @@
+{
+  "title": "Історія замовлень",
+  "empty_message": "У вас поки немає замовлень",
+  
+  "status": {
+    "pending": "В обробці",
+    "confirmed": "Підтверджено",
+    "delivered": "Доставлено",
+    "cancelled": "Скасовано"
+  },
+  
+  "delivery": {
+    "address_format": "Доставка за адресою: {{street}}, {{house}}{{apartment}}, {{city}}",
+    "apartment": ", кв. {{number}}",
+    "station_format": "Доставка на станцію: {{station}}, час: {{time}}",
+    "pickup_format": "Самовивіз з: {{store}}, час: {{time}}",
+    "not_specified": "Спосіб доставки не вказано"
+  },
+  
+  "table": {
+    "date": "Дата",
+    "status": "Статус",
+    "delivery_method": "Спосіб доставки",
+    "amount": "Сума",
+    "actions": "Дії",
+    "product": "Товар",
+    "quantity": "Кількість",
+    "price": "Ціна",
+    "total": "Сума",
+    "grand_total": "Загальна сума",
+    "discount": "Знижка"
+  },
+  
+  "buttons": {
+    "details": "Деталі"
+  },
+  
+  "modal": {
+    "title": "Деталі замовлення #{{id}}",
+    "delivery_info": "Інформація про доставку",
+    "status": "Статус",
+    "tracking_number": "Номер відстеження",
+    "products": "Товари",
+    "order_notes": "Примітки до замовлення"
+  },
+  
+  "errors": {
+    "fetch_failed": "Не вдалося завантажити замовлення"
+  }
+}

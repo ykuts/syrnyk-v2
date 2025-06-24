@@ -1,0 +1,50 @@
+{
+  "title": "Order History",
+  "empty_message": "You don't have any orders yet",
+  
+  "status": {
+    "pending": "Processing",
+    "confirmed": "Confirmed",
+    "delivered": "Delivered",
+    "cancelled": "Cancelled"
+  },
+  
+  "delivery": {
+    "address_format": "Home delivery: {{street}}, {{house}}{{apartment}}, {{city}}",
+    "apartment": ", apt. {{number}}",
+    "station_format": "Station delivery: {{station}}, time: {{time}}",
+    "pickup_format": "Pickup from: {{store}}, time: {{time}}",
+    "not_specified": "Delivery method not specified"
+  },
+  
+  "table": {
+    "date": "Date",
+    "status": "Status",
+    "delivery_method": "Delivery Method",
+    "amount": "Amount",
+    "actions": "Actions",
+    "product": "Product",
+    "quantity": "Quantity",
+    "price": "Price",
+    "total": "Total",
+    "grand_total": "Grand Total",
+    "discount": "Discount"
+  },
+  
+  "buttons": {
+    "details": "Details"
+  },
+  
+  "modal": {
+    "title": "Order Details #{{id}}",
+    "delivery_info": "Delivery Information",
+    "status": "Status",
+    "tracking_number": "Tracking Number",
+    "products": "Products",
+    "order_notes": "Order Notes"
+  },
+  
+  "errors": {
+    "fetch_failed": "Failed to fetch orders"
+  }
+}

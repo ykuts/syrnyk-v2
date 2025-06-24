@@ -4,9 +4,8 @@ import { Form, Button, Alert } from 'react-bootstrap';
 import { apiClient } from '../utils/api';
 import { useTranslation } from 'react-i18next';
 
-
 const ChangePassword = () => {
-  const { t } = useTranslation(['common', 'changePassword']);
+  const { t } = useTranslation(['auth', 'common']);
   const [formData, setFormData] = useState({
     currentPassword: '',
     newPassword: '',
@@ -16,6 +15,7 @@ const ChangePassword = () => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
+  // Handle form input changes
   const handleChange = (e) => {
     setFormData({
       ...formData,
@@ -23,6 +23,7 @@ const ChangePassword = () => {
     });
   };
 
+  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (loading) return;
@@ -34,18 +35,19 @@ const ChangePassword = () => {
 
       const token = localStorage.getItem('token');
       if (!token) {
-        setError('Authentication required');
+        setError(t('auth_required', { ns: 'common' }));
         return;
       }
 
-      // Validate passwords
+      // Validate passwords match
       if (formData.newPassword !== formData.confirmPassword) {
-        setError('New passwords do not match');
+        setError(t('validation.passwords_mismatch', { ns: 'auth' }));
         return;
       }
 
+      // Validate password length
       if (formData.newPassword.length < 8) {
-        setError('New password must be at least 8 characters long');
+        setError(t('validation.password_min_length', { ns: 'auth' }));
         return;
       }
 
@@ -62,8 +64,8 @@ const ChangePassword = () => {
         }
       );
 
-      setSuccess('Password successfully changed');
-      // Clear form
+      setSuccess(t('change_password.success'));
+      // Clear form after successful change
       setFormData({
         currentPassword: '',
         newPassword: '',
@@ -71,7 +73,13 @@ const ChangePassword = () => {
       });
     } catch (err) {
       console.error('Password change error:', err);
-      setError(err.message || 'Failed to change password');
+      
+      // Handle specific error cases
+      if (err.message?.includes('Current password is incorrect')) {
+        setError(t('change_password.current_password_incorrect'));
+      } else {
+        setError(err.message || t('change_password.error'));
+      }
     } finally {
       setLoading(false);
     }
@@ -79,19 +87,23 @@ const ChangePassword = () => {
 
   return (
     <Form onSubmit={handleSubmit}>
+      {/* Error alert */}
       {error && (
         <Alert variant="danger" onClose={() => setError('')} dismissible>
           {error}
         </Alert>
       )}
+      
+      {/* Success alert */}
       {success && (
         <Alert variant="success" onClose={() => setSuccess('')} dismissible>
           {success}
         </Alert>
       )}
 
+      {/* Current Password Field */}
       <Form.Group className="mb-3">
-        <Form.Label>Current Password</Form.Label>
+        <Form.Label>{t('change_password.current_password')}</Form.Label>
         <Form.Control
           type="password"
           name="currentPassword"
@@ -99,11 +111,13 @@ const ChangePassword = () => {
           onChange={handleChange}
           required
           disabled={loading}
+          placeholder={t('change_password.current_password')}
         />
       </Form.Group>
 
+      {/* New Password Field */}
       <Form.Group className="mb-3">
-        <Form.Label>New Password</Form.Label>
+        <Form.Label>{t('change_password.new_password')}</Form.Label>
         <Form.Control
           type="password"
           name="newPassword"
@@ -112,14 +126,16 @@ const ChangePassword = () => {
           required
           disabled={loading}
           minLength={8}
+          placeholder={t('change_password.new_password')}
         />
         <Form.Text className="text-muted">
-          Password must be at least 8 characters long
+          {t('validation.password_requirements', { ns: 'auth' })}
         </Form.Text>
       </Form.Group>
 
+      {/* Confirm New Password Field */}
       <Form.Group className="mb-3">
-        <Form.Label>Confirm New Password</Form.Label>
+        <Form.Label>{t('change_password.confirm_password')}</Form.Label>
         <Form.Control
           type="password"
           name="confirmPassword"
@@ -127,15 +143,17 @@ const ChangePassword = () => {
           onChange={handleChange}
           required
           disabled={loading}
+          placeholder={t('change_password.confirm_password')}
         />
       </Form.Group>
 
+      {/* Submit Button */}
       <Button 
         type="submit" 
         variant="primary"
         disabled={loading}
       >
-        {loading ? 'Changing Password...' : 'Change Password'}
+        {loading ? t('change_password.loading') : t('change_password.submit')}
       </Button>
     </Form>
   );

@@ -1,5 +1,12 @@
 {
+  "loading": "Chargement...",
+  "error": "Erreur",
+  "currency": "CHF",
+  "auth_required": "Authentification requise",
   "buttons": {
+    "close": "Fermer",
+    "add": "Ajouter",
+    "next": "Suivant",
     "cart": "Panier",
     "profile": "Profil",
     "login": "Connexion",

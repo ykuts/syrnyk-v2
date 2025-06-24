@@ -1,5 +1,12 @@
 {
+  "loading": "Loading...",
+  "error": "Error",
+  "currency": "CHF",
+  "auth_required": "Authentication required",
   "buttons": {
+    "close": "Close",
+    "add": "Add",
+    "next": "Next",
     "cart": "Cart",
     "profile": "Profile",
     "login": "Log in",

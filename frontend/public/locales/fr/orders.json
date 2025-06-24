@@ -1,0 +1,50 @@
+{
+  "title": "Historique des commandes",
+  "empty_message": "Vous n'avez pas encore de commandes",
+  
+  "status": {
+    "pending": "En traitement",
+    "confirmed": "Confirmée",
+    "delivered": "Livrée",
+    "cancelled": "Annulée"
+  },
+  
+  "delivery": {
+    "address_format": "Livraison à domicile : {{street}}, {{house}}{{apartment}}, {{city}}",
+    "apartment": ", apt. {{number}}",
+    "station_format": "Livraison en gare : {{station}}, heure : {{time}}",
+    "pickup_format": "Retrait en magasin : {{store}}, heure : {{time}}",
+    "not_specified": "Méthode de livraison non spécifiée"
+  },
+  
+  "table": {
+    "date": "Date",
+    "status": "Statut",
+    "delivery_method": "Méthode de livraison",
+    "amount": "Montant",
+    "actions": "Actions",
+    "product": "Produit",
+    "quantity": "Quantité",
+    "price": "Prix",
+    "total": "Total",
+    "grand_total": "Total général",
+    "discount": "Remise"
+  },
+  
+  "buttons": {
+    "details": "Détails"
+  },
+  
+  "modal": {
+    "title": "Détails de la commande #{{id}}",
+    "delivery_info": "Informations de livraison",
+    "status": "Statut",
+    "tracking_number": "Numéro de suivi",
+    "products": "Produits",
+    "order_notes": "Notes de commande"
+  },
+  
+  "errors": {
+    "fetch_failed": "Échec du chargement des commandes"
+  }
+}

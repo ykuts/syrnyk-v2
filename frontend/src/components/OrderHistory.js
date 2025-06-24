@@ -1,11 +1,13 @@
 // components/OrderHistory.js
 import React, { useState, useEffect } from 'react';
 import { Container, Table, Badge, Button, Modal, Row, Col, Card } from 'react-bootstrap';
+import { useTranslation } from 'react-i18next';
 import { apiClient } from '../utils/api';
 import { getImageUrl } from '../config'
 import { format } from 'date-fns';
 
 const OrderHistory = () => {
+  const { t, i18n } = useTranslation(['orders', 'common']);
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -27,59 +29,67 @@ const OrderHistory = () => {
       const response = await apiClient.get('/users/orders', customHeaders);
       setOrders(response.orders);
     } catch (err) {
-      setError('Failed to fetch orders');
+      setError(t('errors.fetch_failed'));
     } finally {
       setLoading(false);
     }
   };
 
+  // Get status badge with localized text
   const getStatusBadge = (status) => {
     const variants = {
-      PENDING: { bg: 'warning', text: 'В обробці' },
-      CONFIRMED: { bg: 'info', text: 'Підтверджено' },
-      DELIVERED: { bg: 'success', text: 'Доставлено' },
-      CANCELLED: { bg: 'danger', text: 'Скасовано' }
+      PENDING: { bg: 'warning', text: t('status.pending') },
+      CONFIRMED: { bg: 'info', text: t('status.confirmed') },
+      DELIVERED: { bg: 'success', text: t('status.delivered') },
+      CANCELLED: { bg: 'danger', text: t('status.cancelled') }
     };
     return <Badge bg={variants[status].bg}>{variants[status].text}</Badge>;
   };
 
+  // Format delivery information with localized text
   const formatDeliveryInfo = (order) => {
     if (order.addressDelivery) {
-      return `Доставка за адресою: ${order.addressDelivery.street}, ${order.addressDelivery.house}${
-        order.addressDelivery.apartment ? `, кв. ${order.addressDelivery.apartment}` : ''
-      }, ${order.addressDelivery.city}`;
+      return t('delivery.address_format', {
+        street: order.addressDelivery.street,
+        house: order.addressDelivery.house,
+        apartment: order.addressDelivery.apartment ? t('delivery.apartment', { number: order.addressDelivery.apartment }) : '',
+        city: order.addressDelivery.city
+      });
     } else if (order.stationDelivery) {
-      return `Доставка на станцію: ${order.stationDelivery.station.name}, час: ${
-        format(new Date(order.stationDelivery.meetingTime), 'dd.MM.yyyy HH:mm')
-      }`;
+      return t('delivery.station_format', {
+        station: order.stationDelivery.station.name,
+        time: format(new Date(order.stationDelivery.meetingTime), 'dd.MM.yyyy HH:mm')
+      });
     } else if (order.pickupDelivery) {
-      return `Самовивіз з: ${order.pickupDelivery.store.name}, час: ${
-        format(new Date(order.pickupDelivery.pickupTime), 'dd.MM.yyyy HH:mm')
-      }`;
+      return t('delivery.pickup_format', {
+        store: order.pickupDelivery.store.name,
+        time: format(new Date(order.pickupDelivery.pickupTime), 'dd.MM.yyyy HH:mm')
+      });
     }
-    return 'Спосіб доставки не вказано';
+    return t('delivery.not_specified');
   };
 
+  // Order details modal component
   const OrderDetailsModal = ({ order, show, onHide }) => {
     if (!order) return null;
 
     return (
       <Modal show={show} onHide={onHide} size="lg">
         <Modal.Header closeButton>
-          <Modal.Title>Деталі замовлення #{order.id}</Modal.Title>
+          <Modal.Title>{t('modal.title', { id: order.id })}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <Row>
             <Col>
               <Card className="mb-4">
                 <Card.Header>
-                  <h5 className="mb-0">Інформація про доставку</h5>
+                  <h5 className="mb-0">{t('modal.delivery_info')}</h5>
                 </Card.Header>
                 <Card.Body>
                   <p>{formatDeliveryInfo(order)}</p>
-                  <p>Статус: {getStatusBadge(order.status)}</p>
+                  <p>{t('modal.status')}: {getStatusBadge(order.status)}</p>
                   {order.trackingNumber && (
-                    <p>Номер відстеження: {order.trackingNumber}</p>
+                    <p>{t('modal.tracking_number')}: {order.trackingNumber}</p>
                   )}
                 </Card.Body>
               </Card>
@@ -88,16 +98,16 @@ const OrderHistory = () => {
 
           <Card>
             <Card.Header>
-              <h5 className="mb-0">Товари</h5>
+              <h5 className="mb-0">{t('modal.products')}</h5>
             </Card.Header>
             <Card.Body>
               <Table responsive>
                 <thead>
                   <tr>
-                    <th>Товар</th>
-                    <th>Кількість</th>
-                    <th>Ціна</th>
-                    <th>Сума</th>
+                    <th>{t('table.product')}</th>
+                    <th>{t('table.quantity')}</th>
+                    <th>{t('table.price')}</th>
+                    <th>{t('table.total')}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -116,20 +126,20 @@ const OrderHistory = () => {
                         </div>
                       </td>
                       <td>{item.quantity}</td>
-                      <td>{item.price} CHF</td>
-                      <td>{(item.quantity * item.price).toFixed(2)} CHF</td>
+                      <td>{item.price} {t('common:currency')}</td>
+                      <td>{(item.quantity * item.price).toFixed(2)} {t('common:currency')}</td>
                     </tr>
                   ))}
                 </tbody>
                 <tfoot>
                   <tr>
-                    <td colSpan="3" className="text-end"><strong>Загальна сума:</strong></td>
-                    <td><strong>{order.totalAmount} CHF</strong></td>
+                    <td colSpan="3" className="text-end"><strong>{t('table.grand_total')}:</strong></td>
+                    <td><strong>{order.totalAmount} {t('common:currency')}</strong></td>
                   </tr>
                   {order.discount && (
                     <tr>
-                      <td colSpan="3" className="text-end"><strong>Знижка:</strong></td>
-                      <td><strong>-{order.discount} CHF</strong></td>
+                      <td colSpan="3" className="text-end"><strong>{t('table.discount')}:</strong></td>
+                      <td><strong>-{order.discount} {t('common:currency')}</strong></td>
                     </tr>
                   )}
                 </tfoot>
@@ -140,7 +150,7 @@ const OrderHistory = () => {
           {order.notesClient && (
             <Card className="mt-4">
               <Card.Header>
-                <h5 className="mb-0">Примітки до замовлення</h5>
+                <h5 className="mb-0">{t('modal.order_notes')}</h5>
               </Card.Header>
               <Card.Body>
                 <p>{order.notesClient}</p>
@@ -150,37 +160,39 @@ const OrderHistory = () => {
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={onHide}>
-            Закрити
+            {t('common:buttons.close')}
           </Button>
         </Modal.Footer>
       </Modal>
     );
   };
 
+  // Loading state
   if (loading) {
-    return <Container className="py-4">Loading...</Container>;
+    return <Container className="py-4">{t('common:loading')}</Container>;
   }
 
+  // Error state
   if (error) {
-    return <Container className="py-4">Error: {error}</Container>;
+    return <Container className="py-4">{t('common:error')}: {error}</Container>;
   }
 
   return (
     <Container className="py-4">
-      <h2 className="mb-4">Історія замовлень</h2>
+      <h2 className="mb-4">{t('title')}</h2>
 
       {orders.length === 0 ? (
-        <p>У вас поки немає замовлень</p>
+        <p>{t('empty_message')}</p>
       ) : (
         <Table responsive>
           <thead>
             <tr>
               <th>#</th>
-              <th>Дата</th>
-              <th>Статус</th>
-              <th>Спосіб доставки</th>
-              <th>Сума</th>
-              <th>Дії</th>
+              <th>{t('table.date')}</th>
+              <th>{t('table.status')}</th>
+              <th>{t('table.delivery_method')}</th>
+              <th>{t('table.amount')}</th>
+              <th>{t('table.actions')}</th>
             </tr>
           </thead>
           <tbody>
@@ -190,7 +202,7 @@ const OrderHistory = () => {
                 <td>{format(new Date(order.createdAt), 'dd.MM.yyyy')}</td>
                 <td>{getStatusBadge(order.status)}</td>
                 <td>{order.deliveryType}</td>
-                <td>{order.totalAmount} CHF</td>
+                <td>{order.totalAmount} {t('common:currency')}</td>
                 <td>
                   <Button 
                     variant="outline-primary" 
@@ -200,7 +212,7 @@ const OrderHistory = () => {
                       setShowDetails(true);
                     }}
                   >
-                    Деталі
+                    {t('buttons.details')}
                   </Button>
                 </td>
               </tr>

@@ -6,20 +6,19 @@ import DeliveryMethodSelector from './DeliveryMethodSelector';
 import StationSelector from './StationSelector';
 import { apiClient } from '../utils/api';
 import ChangePassword from './ChangePassword';
+import { useTranslation } from 'react-i18next';
 import './UserProfile.css';
 
-// Store address constant
+// Store address constant - will be translated dynamically
 const STORE_ADDRESS = {
   id: 1,
-  name: "Магазин у Ньоні",
   address: "Chemin de Pre-Fleuri, 5",
   city: "Nyon",
-  workingHours: "Щоденно 9:00-20:00"
+  workingHours: "Щоденно 9:00-20:00" // This could also be translated
 };
 
-
-
 const UserProfile = () => {
+  const { t } = useTranslation('auth');
   const { user, updateProfile } = useAuth();
   const [activeTab, setActiveTab] = useState('profile');
   const [loading, setLoading] = useState(false);
@@ -77,14 +76,14 @@ const UserProfile = () => {
 
       } catch (error) {
         console.error('Error loading initial data:', error);
-        setError('Failed to load user preferences');
+        setError(t('profile.messages.updateError'));
       } finally {
         setLoading(false);
       }
     };
 
     loadInitialData();
-  }, [user]);
+  }, [user, t]);
 
   // Handle form field changes
   const handleChange = (e) => {
@@ -143,7 +142,7 @@ const UserProfile = () => {
 
       const token = localStorage.getItem('token');
       if (!token) {
-        setError('Authentication required');
+        setError(t('profile.messages.authRequired'));
         return;
       }
 
@@ -166,52 +165,51 @@ const UserProfile = () => {
       console.log('Prepared delivery preferences:', deliveryPreferences);
 
       // Send request to update profile
-  const result = await updateProfile({
-    firstName: formData.firstName,
-    lastName: formData.lastName,
-    phone: formData.phone,
-    deliveryPreferences
-  });
+      const result = await updateProfile({
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        phone: formData.phone,
+        deliveryPreferences
+      });
 
-  console.log('Update result:', result);
+      console.log('Update result:', result);
 
-  if (result.success) {
-    try {
-    const token = localStorage.getItem('token');
-        const prefsResponse = await apiClient.get('/users/delivery-preferences', {
-          'Authorization': `Bearer ${token}`
-        });
+      if (result.success) {
+        try {
+          const token = localStorage.getItem('token');
+          const prefsResponse = await apiClient.get('/users/delivery-preferences', {
+            'Authorization': `Bearer ${token}`
+          });
 
-        if (prefsResponse.preferences) {
-          setFormData(prev => ({
-            ...prev,
-            preferredDeliveryType: prefsResponse.preferences.type || 'PICKUP',
-            stationId: prefsResponse.preferences.stationId?.toString() || '',
-            street: prefsResponse.preferences.address?.street || '',
-            house: prefsResponse.preferences.address?.house || '',
-            apartment: prefsResponse.preferences.address?.apartment || '',
-            city: prefsResponse.preferences.address?.city || '',
-            postalCode: prefsResponse.preferences.address?.postalCode || '',
-            
-          }));
+          if (prefsResponse.preferences) {
+            setFormData(prev => ({
+              ...prev,
+              preferredDeliveryType: prefsResponse.preferences.type || 'PICKUP',
+              stationId: prefsResponse.preferences.stationId?.toString() || '',
+              street: prefsResponse.preferences.address?.street || '',
+              house: prefsResponse.preferences.address?.house || '',
+              apartment: prefsResponse.preferences.address?.apartment || '',
+              city: prefsResponse.preferences.address?.city || '',
+              postalCode: prefsResponse.preferences.address?.postalCode || '',
+            }));
+          }
+        } catch (error) {
+          console.error('Error reloading preferences:', error);
         }
-      } catch (error) {
-        console.error('Error reloading preferences:', error);
+
+        setSuccess(t('profile.messages.profileUpdated'));
+        setTimeout(() => setSuccess(''), 3000);
+      } else {
+        setError(result.error || t('profile.messages.updateError'));
       }
 
-    setSuccess('Profile successfully updated');
-    setTimeout(() => setSuccess(''), 3000);
-  } else {
-    setError(result.error || 'Error updating profile');
-  }
-
-} catch (err) {
-  console.error('Update error:', err);
-  setError(err.message || 'Error updating profile');
-} finally {
-  setLoading(false);
-}
-};
+    } catch (err) {
+      console.error('Update error:', err);
+      setError(err.message || t('profile.messages.updateError'));
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Render delivery preferences section based on type
   const renderDeliveryPreferences = () => {
@@ -221,7 +219,7 @@ const UserProfile = () => {
           <Card className="mt-3">
             <Card.Body>
               <Form.Group className="mb-3">
-                <Form.Label>Вулиця</Form.Label>
+                <Form.Label>{t('profile.delivery.address.street')}</Form.Label>
                 <Form.Control
                   type="text"
                   name="street"
@@ -233,7 +231,7 @@ const UserProfile = () => {
               <Row>
                 <Col md={6}>
                   <Form.Group className="mb-3">
-                    <Form.Label>Будинок</Form.Label>
+                    <Form.Label>{t('profile.delivery.address.house')}</Form.Label>
                     <Form.Control
                       type="text"
                       name="house"
@@ -245,7 +243,7 @@ const UserProfile = () => {
                 </Col>
                 <Col md={6}>
                   <Form.Group className="mb-3">
-                    <Form.Label>Квартира (не обов'язково)</Form.Label>
+                    <Form.Label>{t('profile.delivery.address.apartment')}</Form.Label>
                     <Form.Control
                       type="text"
                       name="apartment"
@@ -258,7 +256,7 @@ const UserProfile = () => {
               <Row>
                 <Col md={8}>
                   <Form.Group className="mb-3">
-                    <Form.Label>Місто</Form.Label>
+                    <Form.Label>{t('profile.delivery.address.city')}</Form.Label>
                     <Form.Control
                       type="text"
                       name="city"
@@ -270,7 +268,7 @@ const UserProfile = () => {
                 </Col>
                 <Col md={4}>
                   <Form.Group className="mb-3">
-                    <Form.Label>Індекс</Form.Label>
+                    <Form.Label>{t('profile.delivery.address.postalCode')}</Form.Label>
                     <Form.Control
                       type="text"
                       name="postalCode"
@@ -304,9 +302,11 @@ const UserProfile = () => {
           <Card className="mt-3">
             <Card.Body>
               <div className="bg-light p-3 rounded">
-                <h6 className="mb-2">{STORE_ADDRESS.name}</h6>
+                <h6 className="mb-2">{t('profile.delivery.store.name')}</h6>
                 <p className="mb-2">{STORE_ADDRESS.address}, {STORE_ADDRESS.city}</p>
-                <p className="mb-0"><strong>Часи роботи:</strong> {STORE_ADDRESS.workingHours}</p>
+                <p className="mb-0">
+                  <strong>{t('profile.delivery.store.workingHours')}:</strong> {STORE_ADDRESS.workingHours}
+                </p>
               </div>
             </Card.Body>
           </Card>
@@ -325,22 +325,22 @@ const UserProfile = () => {
           <Col md={3}>
             <Nav className="flex-column custom-nav">
               <Nav.Item>
-                <Nav.Link eventKey="profile">Профіль</Nav.Link>
+                <Nav.Link eventKey="profile">{t('profile.tabs.profile')}</Nav.Link>
               </Nav.Item>
               <Nav.Item>
-                <Nav.Link eventKey="delivery">Доставка за замовчанням</Nav.Link>
+                <Nav.Link eventKey="delivery">{t('profile.tabs.delivery')}</Nav.Link>
               </Nav.Item>
               <Nav.Item>
-                <Nav.Link eventKey="password">Змінити пароль</Nav.Link>
+                <Nav.Link eventKey="password">{t('profile.tabs.password')}</Nav.Link>
               </Nav.Item>
               <Nav.Item>
-                <Nav.Link eventKey="orders">Історія замовлень</Nav.Link>
+                <Nav.Link eventKey="orders">{t('profile.tabs.orders')}</Nav.Link>
               </Nav.Item>
             </Nav>
           </Col>
           
           <Col md={9}>
-            {loading && <Alert variant="info">Завантаження...</Alert>}
+            {loading && <Alert variant="info">{t('profile.loading')}</Alert>}
             {error && <Alert variant="danger" onClose={() => setError('')} dismissible>{error}</Alert>}
             {success && <Alert variant="success" onClose={() => setSuccess('')} dismissible>{success}</Alert>}
             
@@ -351,7 +351,7 @@ const UserProfile = () => {
                   <Row>
                     <Col md={6}>
                       <Form.Group className="mb-3">
-                        <Form.Label>Ім'я</Form.Label>
+                        <Form.Label>{t('profile.fields.firstName')}</Form.Label>
                         <Form.Control
                           type="text"
                           name="firstName"
@@ -365,7 +365,7 @@ const UserProfile = () => {
                     
                     <Col md={6}>
                       <Form.Group className="mb-3">
-                        <Form.Label>Прізвище</Form.Label>
+                        <Form.Label>{t('profile.fields.lastName')}</Form.Label>
                         <Form.Control
                           type="text"
                           name="lastName"
@@ -379,7 +379,7 @@ const UserProfile = () => {
                   </Row>
 
                   <Form.Group className="mb-3">
-                    <Form.Label>Email</Form.Label>
+                    <Form.Label>{t('profile.fields.email')}</Form.Label>
                     <Form.Control
                       type="email"
                       value={formData.email}
@@ -388,18 +388,18 @@ const UserProfile = () => {
                   </Form.Group>
 
                   <Form.Group className="mb-3">
-                    <Form.Label>Телефон (WhatsApp)</Form.Label>
+                    <Form.Label>{t('profile.fields.phone')}</Form.Label>
                     <Form.Control
                       type="tel"
                       name="phone"
                       value={formData.phone}
                       onChange={handleChange}
                       disabled={loading}
-                      placeholder="+XXX XXXXXXXX"
+                      placeholder={t('profile.fields.phonePlaceholder')}
                       required
                     />
                     <Form.Text className="text-muted">
-                      Будь ласка, вкажіть телефон з WhatsApp для спілкування з вами
+                      {t('profile.fields.phoneHelper')}
                     </Form.Text>
                   </Form.Group>
 
@@ -408,14 +408,14 @@ const UserProfile = () => {
                     variant="primary"
                     disabled={loading}
                   >
-                    {loading ? 'Зберігаємо...' : 'Зберегти'}
+                    {loading ? t('profile.saving') : t('profile.save')}
                   </Button>
                 </Form>
               </Tab.Pane>
 
               {/* Delivery Preferences Tab */}
               <Tab.Pane eventKey="delivery">
-                <h4 className="mb-4">Доставка за замовчанням</h4>
+                <h4 className="mb-4">{t('profile.delivery.title')}</h4>
                 
                 <DeliveryMethodSelector
                   selectedMethod={formData.preferredDeliveryType}
@@ -430,7 +430,7 @@ const UserProfile = () => {
                   className="mt-3"
                   disabled={loading}
                 >
-                  {loading ? 'Зберігаємо...' : 'Зберегти'}
+                  {loading ? t('profile.saving') : t('profile.save')}
                 </Button>
               </Tab.Pane>
 

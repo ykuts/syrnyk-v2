@@ -2,9 +2,9 @@ import 'dotenv/config';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { PrismaClient } from '@prisma/client';
-import { 
-  sendWelcomeEmail, 
-  sendPasswordResetEmail 
+import {
+  sendWelcomeEmail,
+  sendPasswordResetEmail
 } from '../services/emailService.js';
 import crypto from 'crypto';
 import dataProcessingTermsTemplates from '../templates/dataProcessingTermsTemplates.js'; // Centralized storage for templates
@@ -24,31 +24,32 @@ const validatePassword = (password) => {
 // Register a new user
 export const registerUser = async (req, res) => {
   try {
-    const { firstName, 
-      lastName, 
-      email, 
-      password, 
+    const { firstName,
+      lastName,
+      email,
+      password,
       phone,
-      dataConsentAccepted, 
-      marketingConsent 
+      dataConsentAccepted,
+      marketingConsent,
+      preferredLanguage
     } = req.body;
 
     // Validate input
     if (!firstName || !lastName || !email || !password) {
-      return res.status(400).json({ 
-        message: 'All required fields must be provided' 
+      return res.status(400).json({
+        message: 'All required fields must be provided'
       });
     }
 
     if (!validateEmail(email)) {
-      return res.status(400).json({ 
-        message: 'Invalid email format' 
+      return res.status(400).json({
+        message: 'Invalid email format'
       });
     }
 
     if (!validatePassword(password)) {
-      return res.status(400).json({ 
-        message: 'Password must be at least 8 characters long' 
+      return res.status(400).json({
+        message: 'Password must be at least 8 characters long'
       });
     }
 
@@ -60,21 +61,21 @@ export const registerUser = async (req, res) => {
     }
 
     // Check if user already exists
-    const userExists = await prisma.user.findUnique({ 
-      where: { email } 
+    const userExists = await prisma.user.findUnique({
+      where: { email }
     });
-    
+
     if (userExists) {
-      return res.status(400).json({ 
-        message: 'Користувач з такою поштою вже зареєстрований' 
+      return res.status(400).json({
+        message: 'Користувач з такою поштою вже зареєстрований'
       });
     }
 
     // Hash the password
     const hashedPassword = await bcrypt.hash(password, 12);
 
-     // Current version of the data processing agreement
-     const currentConsentVersion = 'v1.0'; // Should be managed by configuration
+    // Current version of the data processing agreement
+    const currentConsentVersion = 'v1.0'; // Should be managed by configuration
 
     // Create user
     const user = await prisma.user.create({
@@ -87,7 +88,8 @@ export const registerUser = async (req, res) => {
         dataConsentAccepted: true,
         dataConsentDate: new Date(),
         dataConsentVersion: currentConsentVersion,
-        marketingConsent: marketingConsent || false
+        marketingConsent: marketingConsent || false,
+        preferredLanguage: preferredLanguage || 'uk'
       },
       select: {
         id: true,
@@ -111,17 +113,17 @@ export const registerUser = async (req, res) => {
     );
 
     // Send welcome email
-    await sendWelcomeEmail(user);
+    await sendWelcomeEmail(user, user.preferredLanguage);
 
-    res.status(201).json({ 
+    res.status(201).json({
       message: 'User registered successfully',
       user,
-      token 
+      token
     });
 
   } catch (error) {
     console.error('Registration error:', error);
-    res.status(500).json({ 
+    res.status(500).json({
       message: 'Error creating user account',
       error: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
@@ -142,7 +144,7 @@ export const getDataProcessingTerms = async (req, res) => {
     res.json(dataProcessingTerms);
   } catch (error) {
     console.error('Error fetching data processing terms:', error);
-    res.status(500).json({ 
+    res.status(500).json({
       message: 'Error retrieving data processing terms',
       error: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
@@ -200,7 +202,16 @@ export const requestPasswordReset = async (req, res) => {
     }
 
     // Find user by email
-    const user = await prisma.user.findUnique({ where: { email } });
+    const user = await prisma.user.findUnique({
+      where: { email },
+      select: {
+        id: true,
+        firstName: true,
+        lastName: true,
+        email: true,
+        preferredLanguage: true
+      }
+    });
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
@@ -220,14 +231,15 @@ export const requestPasswordReset = async (req, res) => {
     });
 
     // Send reset email
-    await sendPasswordResetEmail(user, resetToken);
+    const userLanguage = user.preferredLanguage || 'uk';
+    await sendPasswordResetEmail(user, resetToken, userLanguage);
 
     res.json({
       message: 'Password reset instructions sent to email'
     });
   } catch (error) {
     console.error('Password reset request error:', error);
-    res.status(500).json({ 
+    res.status(500).json({
       message: 'Error processing password reset request',
       error: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
@@ -240,15 +252,15 @@ export const resetPassword = async (req, res) => {
     const { token, newPassword } = req.body;
 
     if (!token || !newPassword) {
-      return res.status(400).json({ 
-        message: 'Token and new password are required' 
+      return res.status(400).json({
+        message: 'Token and new password are required'
       });
     }
 
     // Validate new password
     if (!validatePassword(newPassword)) {
-      return res.status(400).json({ 
-        message: 'Password must be at least 8 characters long' 
+      return res.status(400).json({
+        message: 'Password must be at least 8 characters long'
       });
     }
 
@@ -263,8 +275,8 @@ export const resetPassword = async (req, res) => {
     });
 
     if (!resetToken) {
-      return res.status(400).json({ 
-        message: 'Invalid or expired reset token' 
+      return res.status(400).json({
+        message: 'Invalid or expired reset token'
       });
     }
 
@@ -285,7 +297,7 @@ export const resetPassword = async (req, res) => {
     res.json({ message: 'Password successfully reset' });
   } catch (error) {
     console.error('Password reset error:', error);
-    res.status(500).json({ 
+    res.status(500).json({
       message: 'Error resetting password',
       error: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
@@ -297,7 +309,7 @@ export const loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    const user = await prisma.user.findUnique({ 
+    const user = await prisma.user.findUnique({
       where: { email },
       select: {
         id: true,
@@ -316,7 +328,7 @@ export const loginUser = async (req, res) => {
 
     // Генерируем JWT
     const token = jwt.sign(
-      { userId: user.id },  
+      { userId: user.id },
       process.env.JWT_SECRET,
       { expiresIn: '24h' }
     );
@@ -339,8 +351,8 @@ export const getUserProfile = async (req, res) => {
     const { userId } = req.user;
 
     if (!userId) {
-      return res.status(401).json({ 
-        message: 'Authentication required' 
+      return res.status(401).json({
+        message: 'Authentication required'
       });
     }
 
@@ -359,8 +371,8 @@ export const getUserProfile = async (req, res) => {
     });
 
     if (!user) {
-      return res.status(404).json({ 
-        message: 'User not found' 
+      return res.status(404).json({
+        message: 'User not found'
       });
     }
 
@@ -371,7 +383,7 @@ export const getUserProfile = async (req, res) => {
 
   } catch (error) {
     console.error('Profile retrieval error:', error);
-    res.status(500).json({ 
+    res.status(500).json({
       message: 'Error retrieving user profile',
       error: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
@@ -382,11 +394,11 @@ export const getUserProfile = async (req, res) => {
 export const updateUserProfile = async (req, res) => {
   try {
     const { userId } = req.user;
-    const { 
-      firstName, 
-      lastName, 
-      phone, 
-      deliveryPreferences 
+    const {
+      firstName,
+      lastName,
+      phone,
+      deliveryPreferences
     } = req.body;
 
     console.log('Received delivery preferences:', deliveryPreferences); // Debug log
@@ -401,7 +413,7 @@ export const updateUserProfile = async (req, res) => {
     // Add delivery preferences if provided
     if (deliveryPreferences) {
       updateData.preferredDeliveryType = deliveryPreferences.type;
-      
+
       // Handle address delivery - store as JSON
       if (deliveryPreferences.type === 'ADDRESS' && deliveryPreferences.address) {
         updateData.deliveryAddress = deliveryPreferences.address;
@@ -409,7 +421,7 @@ export const updateUserProfile = async (req, res) => {
         // Clear address if not ADDRESS delivery type
         updateData.deliveryAddress = null;
       }
-      
+
       // Handle railway station delivery - store as JSON
       if (deliveryPreferences.type === 'RAILWAY_STATION' && deliveryPreferences.stationId) {
         updateData.preferredStation = {
@@ -419,7 +431,7 @@ export const updateUserProfile = async (req, res) => {
         // Clear station if not RAILWAY_STATION delivery type
         updateData.preferredStation = null;
       }
-      
+
       // Handle pickup delivery - store as JSON
       if (deliveryPreferences.type === 'PICKUP' && deliveryPreferences.storeId) {
         updateData.preferredStore = {
@@ -474,8 +486,8 @@ export const changePassword = async (req, res) => {
 
     // Validate new password
     if (!validatePassword(newPassword)) {
-      return res.status(400).json({ 
-        message: 'New password must be at least 8 characters long' 
+      return res.status(400).json({
+        message: 'New password must be at least 8 characters long'
       });
     }
 
@@ -491,8 +503,8 @@ export const changePassword = async (req, res) => {
     // Verify current password
     const isMatch = await bcrypt.compare(currentPassword, user.password);
     if (!isMatch) {
-      return res.status(400).json({ 
-        message: 'Current password is incorrect' 
+      return res.status(400).json({
+        message: 'Current password is incorrect'
       });
     }
 
@@ -510,7 +522,7 @@ export const changePassword = async (req, res) => {
     });
   } catch (error) {
     console.error('Password change error:', error);
-    res.status(500).json({ 
+    res.status(500).json({
       message: 'Error changing password',
       error: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
@@ -560,7 +572,7 @@ export const getUserOrders = async (req, res) => {
     });
   } catch (error) {
     console.error('Orders retrieval error:', error);
-    res.status(500).json({ 
+    res.status(500).json({
       message: 'Error retrieving orders',
       error: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
@@ -593,7 +605,7 @@ export const getAllUsers = async (req, res) => {
     });
   } catch (error) {
     console.error('Get users error:', error);
-    res.status(500).json({ 
+    res.status(500).json({
       message: 'Error retrieving users',
       error: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
@@ -627,7 +639,7 @@ export const updateUserStatus = async (req, res) => {
     });
   } catch (error) {
     console.error('Update user status error:', error);
-    res.status(500).json({ 
+    res.status(500).json({
       message: 'Error updating user status',
       error: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
@@ -666,7 +678,7 @@ export const getUserDeliveryPreferences = async (req, res) => {
     res.json({
       message: 'Delivery preferences retrieved successfully',
       preferences
-      });
+    });
   } catch (error) {
     console.error('Error retrieving delivery preferences:', error);
     res.status(500).json({
@@ -693,9 +705,9 @@ export const updateDeliveryPreferences = async (req, res) => {
     const updateData = {
       preferredDeliveryType: type,
       deliveryAddress: type === 'ADDRESS' ? address : null,
-      preferredStation: type === 'RAILWAY_STATION' && stationId ? 
+      preferredStation: type === 'RAILWAY_STATION' && stationId ?
         { id: parseInt(stationId) } : null,
-      preferredStore: type === 'PICKUP' && storeId ? 
+      preferredStore: type === 'PICKUP' && storeId ?
         { id: parseInt(storeId) } : null
     };
 

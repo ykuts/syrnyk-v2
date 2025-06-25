@@ -1,17 +1,28 @@
+// Updated emailService.js with multilingual support
+// Path: ecommerce-api/src/services/emailService.js
+
 import nodemailer from 'nodemailer';
 import handlebars from 'handlebars';
 import path from 'path';
 import fs from 'fs/promises';
 import { fileURLToPath } from 'url';
 import { format } from 'date-fns';
-
+import { 
+  emailSubjects, 
+  deliveryTypes, 
+  paymentMethods, 
+  orderStatuses, 
+  commonPhrases,
+  getTranslatedText,
+  formatSubject
+} from '../constants/emailTranslations.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // Create transporter with configuration
 const createTransporter = () => {
-  return nodemailer.createTransport({
+  return nodemailer.createTransport({ // Fixed: changed from createTransporter to createTransport
     host: process.env.EMAIL_HOST,
     port: process.env.EMAIL_PORT,
     secure: process.env.EMAIL_SECURE === 'true',
@@ -25,24 +36,51 @@ const createTransporter = () => {
   });
 };
 
-// Load and compile email template
-const loadTemplate = async (templateName) => {
-  const templatePath = path.join(__dirname, '../templates/emails', `${templateName}.hbs`);
-  const template = await fs.readFile(templatePath, 'utf-8');
-  return handlebars.compile(template);
+// Load template with language support
+const loadTemplate = async (templateName, language = 'uk') => {
+  // For admin templates, use the root directory (no language subfolder)
+  if (templateName.includes('admin')) {
+    const templatePath = path.join(__dirname, '../templates/emails', `${templateName}.hbs`);
+    try {
+      const template = await fs.readFile(templatePath, 'utf-8');
+      return handlebars.compile(template);
+    } catch (error) {
+      console.error(`Admin template ${templateName} not found:`, error);
+      throw error;
+    }
+  }
+
+  // For user templates, use language-specific folders
+  const templatePath = path.join(__dirname, '../templates/emails', language, `${templateName}.hbs`);
+  
+  try {
+    const template = await fs.readFile(templatePath, 'utf-8');
+    return handlebars.compile(template);
+  } catch (error) {
+    // Fallback to Ukrainian if template not found for requested language
+    console.warn(`Template ${templateName} not found for language ${language}, falling back to Ukrainian`);
+    try {
+      const fallbackPath = path.join(__dirname, '../templates/emails/uk', `${templateName}.hbs`);
+      const template = await fs.readFile(fallbackPath, 'utf-8');
+      return handlebars.compile(template);
+    } catch (fallbackError) {
+      console.error(`Fallback template ${templateName} not found:`, fallbackError);
+      throw fallbackError;
+    }
+  }
 };
 
-// Send email using template
-const sendTemplatedEmail = async (to, subject, templateName, data) => {
+// Send email using template with language support
+const sendTemplatedEmail = async (to, subject, templateName, data, language = 'uk') => {
   try {
     console.log('Starting email send process...');
-    console.log('Template:', templateName);
+    console.log('Template:', templateName, 'Language:', language);
     console.log('Sending to:', to);
     
     const transporter = createTransporter();
     console.log('Transporter created');
     
-    const template = await loadTemplate(templateName);
+    const template = await loadTemplate(templateName, language);
     console.log('Template loaded');
     
     const html = template(data);
@@ -65,304 +103,221 @@ const sendTemplatedEmail = async (to, subject, templateName, data) => {
   }
 };
 
-// Helper function to format date for display
-const formatDateForDisplay = (dateValue) => {
-  if (!dateValue) return 'Не вказано';
+// Helper function to format date for display with language support
+const formatDateForDisplay = (dateValue, language = 'uk') => {
+  if (!dateValue) return getTranslatedText(commonPhrases, language, 'notSpecified');
   
   try {
     const date = new Date(dateValue);
-    if (isNaN(date.getTime())) return 'Некоректна дата';
+    if (isNaN(date.getTime())) return getTranslatedText(commonPhrases, language, 'invalidDate');
     
     return format(date, 'dd.MM.yyyy');
   } catch (error) {
     console.error('Error formatting date:', error);
-    return 'Помилка форматування дати';
+    return getTranslatedText(commonPhrases, language, 'dateFormatError');
   }
 };
 
-// Helper function to format delivery details based on type with date and time
-const getDeliveryDetails = (order) => {
-  const deliveryDate = order.deliveryDate ? formatDateForDisplay(order.deliveryDate) : 'Не вказано';
+// Helper function to format delivery details with language support
+const getDeliveryDetails = (order, language = 'uk') => {
+  const deliveryDate = order.deliveryDate ? 
+    formatDateForDisplay(order.deliveryDate, language) : 
+    getTranslatedText(commonPhrases, language, 'notSpecified');
   const timeSlot = order.deliveryTimeSlot || '';
+  
+  const deliveryTypeText = getTranslatedText(deliveryTypes, language, order.deliveryType);
   
   switch (order.deliveryType) {
     case 'ADDRESS':
       const address = order.addressDelivery;
       if (!address) {
         return {
-          type: 'Доставка за адресою',
-          details: 'Адреса не вказана'
+          type: deliveryTypeText,
+          details: getTranslatedText(commonPhrases, language, 'addressNotSpecified'),
+          date: deliveryDate,
+          timeSlot: timeSlot ? `${getTranslatedText(commonPhrases, language, 'timeSlot')}: ${timeSlot}` : ''
         };
       }
       
+      const apartmentText = address.apartment ? 
+        `, ${getTranslatedText(commonPhrases, language, 'apartment')}${address.apartment}` : '';
+      
       return {
-        type: 'Доставка за адресою',
-        details: `${address.street}, ${address.house}${
-          address.apartment ? `, кв. ${address.apartment}` : ''
-        }, ${address.city}, ${address.postalCode}`,
+        type: deliveryTypeText,
+        details: `${address.street}, ${address.house}${apartmentText}`,
         date: deliveryDate,
-        timeSlot: timeSlot ? `Часовий слот: ${timeSlot}` : 'Часовий слот не вказано'
+        timeSlot: timeSlot ? `${getTranslatedText(commonPhrases, language, 'timeSlot')}: ${timeSlot}` : ''
       };
       
-    case 'RAILWAY_STATION':
+    case 'STATION':
       const station = order.stationDelivery;
       if (!station) {
         return {
-          type: 'Доставка на залізничну станцію',
-          details: 'Станція не вказана'
+          type: deliveryTypeText,
+          details: getTranslatedText(commonPhrases, language, 'notSpecified'),
+          date: deliveryDate,
+          timeSlot: ''
         };
       }
       
-      // For railway station, use meeting time if available, otherwise use delivery date
-      const meetingTime = station.meetingTime 
-        ? formatDateForDisplay(station.meetingTime)
-        : deliveryDate;
-      
       return {
-        type: 'Доставка на залізничну станцію',
-        station: `${station.station.city}`,
-        meetingPoint: `${station.station.meetingPoint}`,
-        stationMeetingTime: `${station.station.name}`,
-        date: meetingTime
+        type: deliveryTypeText,
+        station: station.station?.name || getTranslatedText(commonPhrases, language, 'notSpecified'),
+        meetingPoint: station.meetingPoint || getTranslatedText(commonPhrases, language, 'notSpecified'),
+        stationMeetingTime: station.stationMeetingTime || getTranslatedText(commonPhrases, language, 'notSpecified'),
+        date: deliveryDate,
+        timeSlot: timeSlot ? `${getTranslatedText(commonPhrases, language, 'timeSlot')}: ${timeSlot}` : ''
       };
       
     case 'PICKUP':
       const pickup = order.pickupDelivery;
-      if (!pickup) {
+      if (!pickup || !pickup.store) {
         return {
-          type: 'Самовивіз',
-          details: 'Магазин не вказано'
+          type: deliveryTypeText,
+          details: getTranslatedText(commonPhrases, language, 'notSpecified'),
+          date: deliveryDate,
+          timeSlot: ''
         };
       }
       
-      // For pickup, use pickup time if available, otherwise use delivery date + time slot
-      const pickupTime = pickup.pickupTime 
-        ? formatDateForDisplay(pickup.pickupTime)
-        : deliveryDate;
+      const pickupTime = pickup.pickupTime ? 
+        formatDateForDisplay(pickup.pickupTime, language) : deliveryDate;
       
       return {
-        type: 'Самовивіз',
-        details: `Магазин: ${pickup.store.name}, Адреса: ${pickup.store.address}`,
+        type: deliveryTypeText,
+        details: `${language === 'en' ? 'Store' : language === 'fr' ? 'Magasin' : 'Магазин'}: ${pickup.store.name}, ${language === 'en' ? 'Address' : language === 'fr' ? 'Adresse' : 'Адреса'}: ${pickup.store.address}`,
         date: pickupTime,
-        timeSlot: timeSlot && !pickup.pickupTime ? `Часовий слот: ${timeSlot}` : ''
+        timeSlot: timeSlot && !pickup.pickupTime ? `${getTranslatedText(commonPhrases, language, 'timeSlot')}: ${timeSlot}` : ''
       };
       
     default:
       return { 
-        type: 'Невідомий тип доставки', 
+        type: getTranslatedText(commonPhrases, language, 'unknownDeliveryType'),
         details: '',
         date: deliveryDate,
-        timeSlot: timeSlot ? `Часовий слот: ${timeSlot}` : ''
+        timeSlot: timeSlot ? `${getTranslatedText(commonPhrases, language, 'timeSlot')}: ${timeSlot}` : ''
       };
   }
 };
 
-// Helper function to get payment method in Ukrainian
-const getPaymentMethod = (order) => {
-  switch (order.paymentMethod) {
-    case 'CASH':
-      return 'Готівка';
-    case 'CARD':
-      return 'Картка';
-    case 'TWINT':
-      return 'TWINT';
-    case 'BANK_TRANSFER':
-      return 'Банківський переказ';
-    default:
-      return 'Не вказано';
-  }
+// Helper function to get payment method with language support
+const getPaymentMethod = (order, language = 'uk') => {
+  return getTranslatedText(paymentMethods, language, order.paymentMethod);
 };
 
-// Helper function to get order status in Ukrainian
-const getOrderStatus = (order) => {
-  switch (order.status) {
-    case 'PENDING':
-      return 'В обробці';
-    case 'CONFIRMED':
-      return 'Підтверджено';
-    case 'DELIVERED':
-      return 'Доставлено';
-    case 'CANCELLED':
-      return 'Відмінено';
-    default:
-      return 'Невідомий статус';
-  }
+// Helper function to get order status with language support
+const getOrderStatus = (order, language = 'uk') => {
+  return getTranslatedText(orderStatuses, language, order.status);
 };
 
-// Specific email sending functions
-export const sendWelcomeEmail = async (user) => {
-  return sendTemplatedEmail(
-    user.email,
-    'Ласкаво посимо до Syrnyk!',
-    'welcome',
-    {
-      firstName: user.firstName,
-    }
-  );
-};
+// Email sending functions with language support
 
-export const sendPasswordResetEmail = async (user, resetToken) => {
-  const resetUrl = `${process.env.CLIENT_URL}/reset-password?token=${resetToken}`;
+export const sendWelcomeEmail = async (user, language = 'uk') => {
+  const subject = emailSubjects.welcome[language] || emailSubjects.welcome.uk;
   
   return sendTemplatedEmail(
     user.email,
-    'Password Reset Request',
+    subject,
+    'welcome',
+    {
+      firstName: user.firstName,
+    },
+    language
+  );
+};
+
+export const sendPasswordResetEmail = async (user, resetToken, language = 'uk') => {
+  const resetUrl = `${process.env.CLIENT_URL}/reset-password?token=${resetToken}`;
+  const subject = emailSubjects.passwordReset[language] || emailSubjects.passwordReset.uk;
+  
+  return sendTemplatedEmail(
+    user.email,
+    subject,
     'password-reset',
     {
       firstName: user.firstName,
       resetUrl,
-    }
+    },
+    language
   );
 };
 
-export const sendOrderConfirmation = async (order, user) => {
+export const sendOrderConfirmation = async (order, user, language = 'uk') => {
+  const subjectTemplate = emailSubjects.orderConfirmation[language] || emailSubjects.orderConfirmation.uk;
+  const subject = formatSubject(subjectTemplate, { orderId: order.id });
+  
   return sendTemplatedEmail(
     user.email,
-    `Order Confirmation #${order.id}`,
-    'order-confirmation',
+    subject,
+    'order-confirmation-client',
     {
       firstName: user.firstName,
       orderId: order.id,
       items: order.items,
       totalAmount: order.totalAmount,
-      deliveryDetails: getDeliveryDetails(order),
-    }
+      deliveryDetails: getDeliveryDetails(order, language),
+      paymentMethod: getPaymentMethod(order, language),
+      notesClient: order.notesClient
+    },
+    language
   );
 };
 
-export const sendOrderStatusUpdate = async (order, user) => {
+export const sendOrderStatusUpdate = async (order, user, language = 'uk', customMessage = null) => {
+  const subjectTemplate = emailSubjects.orderStatusUpdate[language] || emailSubjects.orderStatusUpdate.uk;
+  const subject = formatSubject(subjectTemplate, { orderId: order.id });
+  
   return sendTemplatedEmail(
     user.email,
-    `Order #${order.id} Status Update`,
+    subject,
     'order-status-update',
     {
       firstName: user.firstName,
       orderId: order.id,
-      status: getOrderStatus(order),
+      status: getOrderStatus(order, language),
       items: order.items,
       totalAmount: order.totalAmount,
-      deliveryDetails: getDeliveryDetails(order),
-    }
+      deliveryDetails: getDeliveryDetails(order, language),
+      customMessage
+    },
+    language
   );
 };
 
-export const sendModifiedOrderConfirmation = async (order, recipient) => {
+export const sendModifiedOrderConfirmation = async (order, recipient, language = 'uk') => {
+  const subjectTemplate = emailSubjects.orderModified[language] || emailSubjects.orderModified.uk;
+  const subject = formatSubject(subjectTemplate, { orderId: order.id });
+  
   return sendTemplatedEmail(
     recipient.email,
-    `Order #${order.id} Modified and Confirmed`,
+    subject,
     'order-modified-confirmation',
     {
       orderId: order.id,
       firstName: recipient.firstName,
       totalAmount: order.totalAmount,
       items: order.items,
-      deliveryDetails: getDeliveryDetails(order),
-      changes: order.changes || [], // Array of changes made to the order
-      paymentMethod: getPaymentMethod(order)
-    }
+      deliveryDetails: getDeliveryDetails(order, language),
+    },
+    language
   );
 };
 
-export const sendOrderConfirmationToClient = async (order, recipient) => {
-  return sendTemplatedEmail(
-    recipient.email,
-    `Ваше замовлення #${order.id} отримано!`,
-    'order-confirmation-client',
-    {
-      orderId: order.id,
-      firstName: recipient.firstName,
-      totalAmount: order.totalAmount,
-      items: order.items,
-      deliveryDetails: getDeliveryDetails(order),
-      paymentMethod: getPaymentMethod(order),
-    }
-  );
-};
-
-export const sendNewOrderNotificationToAdmin = async (order, customer) => {
+// Admin emails (still in Ukrainian)
+export const sendNewOrderAdminEmail = async (order, customer) => {
   return sendTemplatedEmail(
     process.env.ADMIN_EMAIL,
     `Нове замовлення #${order.id}`,
     'new-order-admin',
     {
       orderId: order.id,
-      customer: {
-        firstName: customer.firstName,
-        lastName: customer.lastName,
-        email: customer.email,
-        phone: customer.phone,
-        isGuest: !order.userId
-      },
-      totalAmount: order.totalAmount,
+      customer,
       items: order.items,
-      deliveryDetails: getDeliveryDetails(order),
-      paymentMethod: getPaymentMethod(order),
+      totalAmount: order.totalAmount,
+      deliveryDetails: getDeliveryDetails(order, 'uk'), // Admin emails in Ukrainian
+      paymentMethod: getPaymentMethod(order, 'uk'),
       notesClient: order.notesClient
-    }
+    },
+    'uk' // Admin emails always in Ukrainian
   );
-};
-
-// Helper function to format delivery details based on type
-/* const getDeliveryDetails = (order) => {
-  switch (order.deliveryType) {
-    case 'ADDRESS':
-      return {
-        type: 'Доставка за адресою',
-        details: `${order.addressDelivery.street}, ${order.addressDelivery.house}, 
-                 ${order.addressDelivery.apartment || ''}, 
-                 ${order.addressDelivery.city}, ${order.addressDelivery.postalCode}`
-      };
-    case 'RAILWAY_STATION':
-      return {
-        type: 'Доставка на залізничну станцію',
-        details: `Станція: ${order.stationDelivery.station.name}, 
-                 Місце зустрічи: ${order.stationDelivery.station.meetingPoint},
-                 Час: ${new Date(order.stationDelivery.meetingTime).toLocaleString()}`
-      };
-    case 'PICKUP':
-      return {
-        type: 'Самовивіз',
-        details: `Магазин: ${order.pickupDelivery.store.name}, 
-                 Адреса: ${order.pickupDelivery.store.address},
-                 Час: ${new Date(order.pickupDelivery.pickupTime).toLocaleString()}`
-      };
-    default:
-      return { type: 'Unknown', details: '' };
-  }
-};
-
-const getPaymentMethod = (order) => {
-  switch (order.paymentMethod) {
-    case 'CASH':
-      return 'Готівка';
-    case 'CARD':
-      return 'Картка';
-    case 'TWINT':
-      return 'TWINT';
-    default:
-      return 'Unknown';
-  }
-}
-
-const getOrderStatus = (order) => {
-  switch (order.status) {
-    case 'CONFIRMED':
-      return 'Підтверджено';
-    case 'DELIVERED':
-      return 'Доставлено';
-    case 'CANCELLED':
-      return 'Відмінено';
-    default:
-      return 'Unknown';
-  }
-} */
-
-export default {
-  sendWelcomeEmail,
-  sendPasswordResetEmail,
-  sendOrderConfirmation,
-  sendOrderStatusUpdate,
-  sendModifiedOrderConfirmation,
-  sendOrderConfirmationToClient,
-  sendNewOrderNotificationToAdmin,
 };

@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <style>
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      font-family: Arial, sans-serif;
+      color: #333;
+    }
+    .header {
+      background-color: #f8f9fa;
+      padding: 20px;
+      text-align: center;
+      border-bottom: 3px solid #0056b3;
+    }
+    .order-details {
+      margin: 20px 0;
+      padding: 15px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+    }
+    .item {
+      margin: 10px 0;
+      padding: 10px;
+      background: #f9f9f9;
+    }
+    .message {
+      background: #fff3cd;
+      padding: 15px;
+      border-radius: 5px;
+      margin: 15px 0;
+      border-left: 4px solid #ffc107;
+    }
+    .footer {
+      margin-top: 30px;
+      padding: 20px;
+      text-align: center;
+      font-size: 14px;
+      color: #666;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h2>Mise à jour de votre commande #{{orderId}}</h2>
+      <p>Bonjour {{firstName}} !</p>
+    </div>
+
+    {{#if customMessage}}
+      <div class="message">
+        <p><strong>Message de mise à jour :</strong></p>
+        <p>{{customMessage}}</p>
+      </div>
+    {{/if}}
+
+    <div class="order-details">
+      <h3>Détails de la commande :</h3>
+      <p><strong>Statut de la commande :</strong> {{status}}</p>
+      <p><strong>Montant total :</strong> {{totalAmount}} CHF</p>
+
+      <h4>Articles :</h4>
+      {{#each items}}
+        <div class="item">
+          <p><strong>{{product.name}}</strong></p>
+          <p>Quantité : {{quantity}}</p>
+          <p>Prix : {{price}} CHF</p>
+        </div>
+      {{/each}}
+
+      <h4>Informations de livraison :</h4>
+      <p><strong>Mode de livraison :</strong> {{deliveryDetails.type}}</p>
+      <p>{{deliveryDetails.details}}</p>
+    </div>
+
+    <div class="footer">
+      <p>Si vous avez des questions, n'hésitez pas à nous contacter.</p>
+      <p>Cordialement,<br>Votre équipe SYRNYK</p>
+    </div>
+  </div>
+</body>
+</html>

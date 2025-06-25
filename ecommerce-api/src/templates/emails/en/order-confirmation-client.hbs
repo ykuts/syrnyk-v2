@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <style>
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      font-family: Arial, sans-serif;
+      color: #333;
+    }
+    .header {
+      background-color: #f8f9fa;
+      padding: 20px;
+      text-align: center;
+      border-bottom: 3px solid #0056b3;
+    }
+    .order-details {
+      margin: 20px 0;
+      padding: 15px;
+      border: 1px solid #dee2e6;
+      border-radius: 5px;
+    }
+    .item {
+      margin: 10px 0;
+      padding: 10px;
+      background: #f8f9fa;
+      border-radius: 4px;
+    }
+    .total {
+      font-size: 18px;
+      font-weight: bold;
+      margin: 15px 0;
+      color: #0056b3;
+    }
+    .delivery-info {
+      background: #e9ecef;
+      padding: 15px;
+      border-radius: 4px;
+      margin: 15px 0;
+    }
+    .footer {
+      margin-top: 30px;
+      padding: 20px;
+      text-align: center;
+      font-size: 14px;
+      color: #666;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h2>Thank you for your order!</h2>
+      <p>Dear {{firstName}},</p>
+      <p>Your order #{{orderId}} has been successfully placed.</p>
+    </div>
+
+    <div class="order-details">
+      <h3>Order Details:</h3>
+      <div class="total">
+        Total Amount: {{totalAmount}} CHF
+      </div>
+      
+      <h4>Items:</h4>
+      {{#each items}}
+        <div class="item">
+          <p><strong>{{product.name}}</strong></p>
+          <p>Quantity: {{quantity}}</p>
+          <p>Price: {{price}} CHF</p>
+        </div>
+      {{/each}}
+
+      <div class="delivery-info">
+        <h4>Delivery Information:</h4>
+        <p><strong>Delivery Method:</strong> {{deliveryDetails.type}}</p>
+        {{#if deliveryDetails.station}}
+        <p><strong>Station:</strong> {{deliveryDetails.station}}</p>
+        {{/if}}
+        {{#if deliveryDetails.meetingPoint}}
+        <p><strong>Meeting Point:</strong> {{deliveryDetails.meetingPoint}}</p>
+        {{/if}}
+        {{#if deliveryDetails.stationMeetingTime}}
+        <p><strong>Meeting Time:</strong> {{deliveryDetails.stationMeetingTime}}</p>
+        {{/if}}
+        <p><strong>Delivery Date:</strong> {{deliveryDetails.date}}</p>
+
+        <h4>Payment Method:</h4>
+        <p>{{paymentMethod}}</p>
+
+        {{#if notesClient}}
+        <div>
+          <h4>Notes:</h4>
+          <p>{{notesClient}}</p>
+        </div>
+        {{/if}}
+      </div>
+    </div>
+
+    <div class="footer">
+      <p>We will notify you about your order status.</p>
+      <p>If you have any questions, please feel free to contact us.</p>
+      <p>Best regards,<br>Your SYRNYK Team</p>
+    </div>
+  </div>
+</body>
+</html>

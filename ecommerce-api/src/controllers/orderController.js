@@ -3,8 +3,8 @@ import bcrypt from 'bcryptjs';
 import {
   sendOrderStatusUpdate,
   sendModifiedOrderConfirmation,
-  sendOrderConfirmationToClient,
-  sendNewOrderNotificationToAdmin,
+  sendOrderConfirmation,
+  sendNewOrderAdminEmail,
   sendWelcomeEmail,
 } from '../services/emailService.js';
 
@@ -57,7 +57,8 @@ export const createOrder = async (req, res) => {
       pickupDelivery,
       deliveryDate,
       deliveryTimeSlot,
-      deliveryCost = 0
+      deliveryCost = 0,
+      userLanguage
     } = req.body;
 
     // Validate delivery date for all delivery types
@@ -128,7 +129,8 @@ export const createOrder = async (req, res) => {
             dataConsentAccepted: dataConsentAccepted || false,
             dataConsentDate: dataConsentDate || new Date().toISOString(),
             dataConsentVersion: dataConsentVersion || 'v1.0',
-            marketingConsent: marketingConsent || false
+            marketingConsent: marketingConsent || false,
+            preferredLanguage: userLanguage || 'uk'
           }
         });
 
@@ -137,7 +139,7 @@ export const createOrder = async (req, res) => {
 
         // Send welcome email to new user
         try {
-          await sendWelcomeEmail(registeredUser);
+          await sendWelcomeEmail(registeredUser, registeredUser.preferredLanguage|| 'uk');
           console.log('Welcome email sent successfully');
         } catch (emailError) {
           console.error('Welcome email sending failed:', emailError);
@@ -232,12 +234,13 @@ export const createOrder = async (req, res) => {
     // Send notifications
     try {
       const recipient = order.user || order.guestInfo;
+const recipientLanguage = recipient.preferredLanguage || userLanguage || 'uk';
 
       // Send order confirmation to customer
-      await sendOrderConfirmationToClient(order, recipient);
+      await sendOrderConfirmation(order, recipient, recipientLanguage);
 
       // Send notification to admin
-      await sendNewOrderNotificationToAdmin(order, recipient);
+      await sendNewOrderAdminEmail(order, recipient);
     } catch (emailError) {
       console.error('Error sending order notifications:', emailError);
     }
@@ -364,13 +367,14 @@ export const updateOrderStatus = async (req, res) => {
     const recipient = updatedOrder.user || updatedOrder.guestInfo;
 
     try {
+      const recipientLanguage = recipient.preferredLanguage || 'uk';
       // Send appropriate email based on status and changes
       if (status === 'CONFIRMED' && hasChanges) {
         // If confirming modified order
-        await sendModifiedOrderConfirmation(updatedOrder, recipient);
+        await sendModifiedOrderConfirmation(updatedOrder, recipient, recipientLanguage);
       } else {
         // For all other status changes
-        await sendOrderStatusUpdate(updatedOrder, recipient);
+        await sendOrderStatusUpdate(updatedOrder, recipient, recipientLanguage);
       }
     } catch (emailError) {
       console.error('Error sending status update email:', emailError);
@@ -707,11 +711,10 @@ export const notifyOrderChanges = async (req, res) => {
     }
 
     const recipient = order.user || order.guestInfo;
+    const recipientLanguage = recipient.preferredLanguage || 'uk'
 
     // Send notification email
-    await sendOrderStatusUpdate(order, recipient, {
-      customMessage: message
-    });
+    await sendOrderStatusUpdate(order, recipient, recipientLanguage, message);
 
     // Update notification timestamp
     const updatedOrder = await prisma.order.update({

@@ -571,7 +571,8 @@ const CheckoutPage = () => {
         ...(formData.paymentMethod === 'TWINT' && {
           twintPaymentConfirmed: twintPaymentConfirmed,
           twintConfirmationTime: new Date().toISOString()
-        })
+        }),
+        userLanguage: i18n.language
       };
 
       // For guest orders, add customer info

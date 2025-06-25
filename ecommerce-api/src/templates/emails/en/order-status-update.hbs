@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <style>
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      font-family: Arial, sans-serif;
+      color: #333;
+    }
+    .header {
+      background-color: #f8f9fa;
+      padding: 20px;
+      text-align: center;
+      border-bottom: 3px solid #0056b3;
+    }
+    .order-details {
+      margin: 20px 0;
+      padding: 15px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+    }
+    .item {
+      margin: 10px 0;
+      padding: 10px;
+      background: #f9f9f9;
+    }
+    .message {
+      background: #fff3cd;
+      padding: 15px;
+      border-radius: 5px;
+      margin: 15px 0;
+      border-left: 4px solid #ffc107;
+    }
+    .footer {
+      margin-top: 30px;
+      padding: 20px;
+      text-align: center;
+      font-size: 14px;
+      color: #666;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h2>Your Order #{{orderId}} Update</h2>
+      <p>Hello {{firstName}}!</p>
+    </div>
+
+    {{#if customMessage}}
+      <div class="message">
+        <p><strong>Update Message:</strong></p>
+        <p>{{customMessage}}</p>
+      </div>
+    {{/if}}
+
+    <div class="order-details">
+      <h3>Order Details:</h3>
+      <p><strong>Order Status:</strong> {{status}}</p>
+      <p><strong>Total Amount:</strong> {{totalAmount}} CHF</p>
+
+      <h4>Items:</h4>
+      {{#each items}}
+        <div class="item">
+          <p><strong>{{product.name}}</strong></p>
+          <p>Quantity: {{quantity}}</p>
+          <p>Price: {{price}} CHF</p>
+        </div>
+      {{/each}}
+
+      <h4>Delivery Information:</h4>
+      <p><strong>Delivery Method:</strong> {{deliveryDetails.type}}</p>
+      <p>{{deliveryDetails.details}}</p>
+    </div>
+
+    <div class="footer">
+      <p>If you have any questions, please feel free to contact us.</p>
+      <p>Best regards,<br>Your SYRNYK Team</p>
+    </div>
+  </div>
+</body>
+</html>

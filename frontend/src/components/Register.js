@@ -187,7 +187,16 @@ const Register = () => {
       setLoading(true);
       // Remove confirmPassword before sending
       const { confirmPassword, ...registrationData } = formData;
-      const result = await register(formData);
+      // Add user's preferred language to registration data
+    const registrationDataWithLanguage = {
+      ...registrationData,
+      preferredLanguage: i18n.language, // Add current language from i18n
+      dataConsentVersion: 'v1.0',
+      dataConsentDate: new Date().toISOString()
+    };
+
+    console.log('Registration data with language:', registrationDataWithLanguage); // Debug log
+      const result = await register(registrationDataWithLanguage);
 
       if (result.success) {
         navigate('/client');

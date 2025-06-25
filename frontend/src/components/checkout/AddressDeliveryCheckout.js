@@ -1,7 +1,7 @@
 // src/components/checkout/AddressDeliveryCheckout.js
 import React, { useState, useEffect, useContext, useRef } from 'react';
 import { Form, Alert, Spinner, Row, Col, Button, ButtonGroup } from 'react-bootstrap';
-import { useTranslation } from 'react-i18next';
+import { useTranslation, Trans } from 'react-i18next';
 import { CartContext } from '../../context/CartContext';
 import { apiClient } from '../../utils/api';
 import ImprovedDeliveryScheduler from './ImprovedDeliveryScheduler';
@@ -69,45 +69,94 @@ const AddressDeliveryCheckout = ({ formData, handleChange }) => {
     });
   };
 
-  // Get delivery message for the selected canton
+   // Get delivery message for the selected canton with Trans component
   const getCantonDeliveryMessage = () => {
-  const selectedCanton = formData.canton || 'VD';
-  
-  if (selectedCanton === 'VD') {
-    return (
-      <div className="delivery-message-formatted">
-      <div className="mb-2" style={{ textAlign: 'left' }}>
-        <strong>Для регіону від Coppet до Lausanne</strong> - доставка завжди <strong>безкоштовна</strong>, незалежно від суми замовлення.
-      </div>
-      <div>
-        <div className="mb-1 " style={{ textAlign: 'left' }}>
-        <strong>Для інших регіонів:</strong>
+    const selectedCanton = formData.canton || 'VD';
+    
+    if (selectedCanton === 'VD') {
+      return (
+        <div className="delivery-message-formatted">
+          <div className="mb-2" style={{ textAlign: 'left' }}>
+            <Trans 
+              i18nKey="delivery.vaud.coppet_lausanne_free"
+              ns="checkout"
+              components={{
+                strong: <strong />,
+              }}
+            />
+          </div>
+          <div>
+            <div className="mb-1" style={{ textAlign: 'left' }}>
+              <Trans 
+                i18nKey="delivery.vaud.other_regions_title"
+                ns="checkout"
+                components={{
+                  strong: <strong />,
+                }}
+              />
+            </div>
+            <ul className="ms-3" style={{ listStyle: 'none', paddingLeft: 0, textAlign: 'left' }}>
+              <li>
+                <Trans 
+                  i18nKey="delivery.vaud.rule_100_chf"
+                  ns="checkout"
+                  components={{
+                    strong: <strong />,
+                  }}
+                />
+              </li>
+              <li>
+                <Trans 
+                  i18nKey="delivery.vaud.rule_200_chf"
+                  ns="checkout"
+                  components={{
+                    strong: <strong />,
+                  }}
+                />
+              </li>
+            </ul>
+          </div>
         </div>
-        <ul className="ms-3" style={{ listStyle: 'none', paddingLeft: 0,textAlign: 'left' }}>
-        <li>- при <strong>замовленні від 100 CHF</strong> — доставка додому <strong>10 CHF</strong></li>
-        <li>- при <strong>замовленні від 200 CHF</strong> — доставка додому <strong>безкоштовна</strong></li>
-        </ul>
-      </div>
-      </div>
-    );
-  } else if (selectedCanton === 'GE') {
-    return (
-      <div className="delivery-message-formatted">
-        <div className="mb-2" style={{ textAlign: 'left' }}>
-        <strong>Доставка в Женеву:</strong>
-      </div>
-      <div>
-        
-        <ul className="ms-3" style={{ listStyle: 'none', paddingLeft: 0,textAlign: 'left' }}>
-        <li>- при <strong>замовленні від 100 CHF</strong> — доставка додому <strong>10 CHF</strong></li>
-        <li>- при <strong>замовленні від 200 CHF</strong> — доставка додому <strong>безкоштовна</strong></li>
-        </ul>
-      </div>
-      </div>
-    );
-  }
-  return '';
-};
+      );
+    } else if (selectedCanton === 'GE') {
+      return (
+        <div className="delivery-message-formatted">
+          <div className="mb-2" style={{ textAlign: 'left' }}>
+            <Trans 
+              i18nKey="delivery.geneva.title"
+              ns="checkout"
+              components={{
+                strong: <strong />,
+              }}
+            />
+          </div>
+          <div>
+            <ul className="ms-3" style={{ listStyle: 'none', paddingLeft: 0, textAlign: 'left' }}>
+              <li>
+                <Trans 
+                  i18nKey="delivery.geneva.rule_100_chf"
+                  ns="checkout"
+                  components={{
+                    strong: <strong />,
+                  }}
+                />
+              </li>
+              <li>
+                <Trans 
+                  i18nKey="delivery.geneva.rule_200_chf"
+                  ns="checkout"
+                  components={{
+                    strong: <strong />,
+                  }}
+                />
+              </li>
+            </ul>
+          </div>
+        </div>
+      );
+    }
+    return '';
+  };
 
   // Handle delivery cost calculation based on canton selection
   useEffect(() => {
@@ -394,7 +443,7 @@ const AddressDeliveryCheckout = ({ formData, handleChange }) => {
             )}
             {formData.canton === 'GE' && (
               <Form.Text className="text-muted">
-                {/* Для Женевы проверка индекса не требуется */}
+                {/* No postal code check required for Geneva */}
               </Form.Text>
             )}
           </Form.Group>

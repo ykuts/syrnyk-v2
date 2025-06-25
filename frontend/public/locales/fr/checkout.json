@@ -8,14 +8,16 @@
     "order_items": "Vos produits",
     "order_success": "Commande passée avec succès!",
     "order_success_message": "Merci pour votre commande. Nous vous contacterons prochainement.",
-    "minimum_order_warning": "Montant minimum de commande pour la livraison : ",
+    "minimum_order_warning": "Le montant minimum de commande est de 100 CHF. Ajoutez {{amount}} CHF de plus",
+    "minimum_order_warning_free": "Ajoutez {{amount}} CHF de plus pour la livraison gratuite",
     "continue_shopping": "Continuer les achats",
     "order_summary": "Résumé de la commande",
     "subtotal": "Sous-total",
     "delivery_cost": "Frais de livraison",
     "total": "Total",
     "submit_order": "Passer la commande",
-    "processing": "Traitement en cours..."
+    "processing": "Traitement en cours...",
+    "free_delivery": "Livraison gratuite"
   },
   "customer": {
     "first_name": "Prénom",
@@ -65,6 +67,17 @@
     "errors": {
       "cost_calculation_error": "Échec du calcul des frais de livraison",
       "stations_fetch_error": "Échec du chargement des gares ferroviaires"
+    },
+    "vaud": {
+      "coppet_lausanne_free": "Pour la région de <strong>Coppet à Lausanne</strong> - la livraison est toujours <strong>gratuite</strong>, quel que soit le montant de la commande.",
+      "other_regions_title": "<strong>Pour les autres régions :</strong>",
+      "rule_100_chf": "- avec <strong>commandes à partir de 100 CHF</strong> — livraison à domicile <strong>10 CHF</strong>",
+      "rule_200_chf": "- avec <strong>commandes à partir de 200 CHF</strong> — livraison à domicile <strong>gratuite</strong>"
+    },
+    "geneva": {
+      "title": "<strong>Livraison à Genève :</strong>",
+      "rule_100_chf": "- avec <strong>commandes à partir de 100 CHF</strong> — livraison à domicile <strong>10 CHF</strong>",
+      "rule_200_chf": "- avec <strong>commandes à partir de 200 CHF</strong> — livraison à domicile <strong>gratuite</strong>"
     }
   },
   "payment": {
@@ -134,6 +147,8 @@
     "standard_delivery_applied": "Conditions de livraison standard appliquées",
     "postal_code_error": "Erreur lors de la vérification du code postal",
     "canton": "Canton",
+    "canton_VD": "Vaud",
+    "canton_GE": "Genève",
     "canton_note": "Genève: Livraison le lundi, Vaud: Livraison le samedi",
     "delivery_date": "Sélectionnez la date de livraison",
     "delivery_to": "Livraison à: ${city}",

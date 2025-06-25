@@ -8,14 +8,16 @@
     "order_items": "Your products",
     "order_success": "Order successfully placed!",
     "order_success_message": "Thank you for your order. We will contact you shortly.",
-    "minimum_order_warning": "Minimum order amount for delivery:",
     "continue_shopping": "Continue shopping",
+    "submit_order": "Place order",
+    "processing": "Processing...",
+    "minimum_order_warning": "Minimum order amount is 100 CHF. Add {{amount}} CHF more",
+    "minimum_order_warning_free": "Add {{amount}} CHF more for free delivery",
     "order_summary": "Order Summary",
     "subtotal": "Subtotal",
     "delivery_cost": "Delivery Cost",
     "total": "Total",
-    "submit_order": "Place order",
-    "processing": "Processing..."
+    "free_delivery": "Free delivery"
   },
   "customer": {
     "first_name": "First name",
@@ -120,7 +122,18 @@
     "address_vd_days": "For Vaud canton - delivery on Saturdays only",
     "station": "Railway Station",
     "select_station": "Select a station",
-    "meeting_point": "Meeting Point"
+    "meeting_point": "Meeting Point",
+    "vaud": {
+      "coppet_lausanne_free": "For the region from <strong>Coppet to Lausanne</strong> - delivery is always <strong>free</strong>, regardless of order amount.",
+      "other_regions_title": "<strong>For other regions:</strong>",
+      "rule_100_chf": "- with <strong>orders from 100 CHF</strong> — home delivery <strong>10 CHF</strong>",
+      "rule_200_chf": "- with <strong>orders from 200 CHF</strong> — home delivery <strong>free</strong>"
+    },
+    "geneva": {
+      "title": "<strong>Delivery to Geneva:</strong>",
+      "rule_100_chf": "- with <strong>orders from 100 CHF</strong> — home delivery <strong>10 CHF</strong>",
+      "rule_200_chf": "- with <strong>orders from 200 CHF</strong> — home delivery <strong>free</strong>"
+    }
   },
   "validation": {
     "missing_fields": "Please fill in all required fields",
@@ -182,6 +195,8 @@
     "standard_delivery_applied": "Standard delivery terms applied",
     "postal_code_error": "Error checking postal code",
     "canton": "Canton",
+    "canton_VD": "Vaud",
+    "canton_GE": "Geneva",
     "canton_note": "Geneva: Delivery on Mondays, Vaud: Delivery on Saturdays",
     "delivery_date": "Select Delivery Date",
     "delivery_to": "Delivery to: ${city}",

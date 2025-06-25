@@ -101,7 +101,8 @@ export const registerUser = async (req, res) => {
         role: true,
         dataConsentAccepted: true,
         dataConsentDate: true,
-        marketingConsent: true
+        marketingConsent: true, 
+        preferredLanguage: true
       },
     });
 
@@ -113,7 +114,7 @@ export const registerUser = async (req, res) => {
     );
 
     // Send welcome email
-    await sendWelcomeEmail(user, user.preferredLanguage);
+    await sendWelcomeEmail(user, user.preferredLanguage || 'uk');
 
     res.status(201).json({
       message: 'User registered successfully',

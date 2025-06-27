@@ -98,19 +98,19 @@ const CartDropdown = () => {
                     <div className="d-flex align-items-center gap-2">
                       <Button 
                         variant="light" 
-                        size="sm"
+                        size="lg"
                         onClick={() => removeFromCart(item.id)}
                       >
-                        -
+                        <span className="text-muted"><strong>&ndash;</strong></span>
                       </Button>
-                      <span>{item.quantity}</span>
+                      <span><strong>{item.quantity}</strong></span>
                       <Button 
                         variant="light" 
-                        size="sm"
+                        size="lg"
                         onClick={() => addOneToCart(item.id)}
                         aria-label={`Add ${item.name}`}
                       >
-                        +
+                        <span className="text-muted"><strong>+</strong></span>
                       </Button>
                       <Button 
                         variant="outline-danger" 

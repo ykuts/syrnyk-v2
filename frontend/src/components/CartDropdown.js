@@ -134,7 +134,7 @@ const CartDropdown = () => {
 
               <div className="p-3 d-grid gap-2">
                 <Button 
-                  variant="primary" 
+                  variant="danger" 
                   onClick={handleCheckout}
                   className="w-100"
                 >

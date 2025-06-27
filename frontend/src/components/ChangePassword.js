@@ -125,7 +125,7 @@ const ChangePassword = () => {
           onChange={handleChange}
           required
           disabled={loading}
-          minLength={8}
+          /* minLength={8} */
           placeholder={t('change_password.new_password')}
         />
         <Form.Text className="text-muted">

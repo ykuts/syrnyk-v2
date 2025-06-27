@@ -18,7 +18,7 @@ const validateEmail = (email) => {
 };
 
 const validatePassword = (password) => {
-  return password.length >= 8;
+  return password.length > 0;
 };
 
 // Register a new user
@@ -49,7 +49,7 @@ export const registerUser = async (req, res) => {
 
     if (!validatePassword(password)) {
       return res.status(400).json({
-        message: 'Password must be at least 8 characters long'
+        message: 'Password is required'
       });
     }
 
@@ -261,7 +261,7 @@ export const resetPassword = async (req, res) => {
     // Validate new password
     if (!validatePassword(newPassword)) {
       return res.status(400).json({
-        message: 'Password must be at least 8 characters long'
+        message: 'Password is required'
       });
     }
 
@@ -488,7 +488,7 @@ export const changePassword = async (req, res) => {
     // Validate new password
     if (!validatePassword(newPassword)) {
       return res.status(400).json({
-        message: 'New password must be at least 8 characters long'
+        message: 'New password is required'
       });
     }
 

@@ -5,12 +5,13 @@ import { useAuth } from '../context/AuthContext';
 import { Phone, Mail, Lock, User, AlertCircle, FileText, Check } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { useTranslation } from 'react-i18next';
+import SimplePhoneInput, { useSimplePhoneValidation, cleanPhoneNumber } from './common/SimplePhoneInput';
 
 // Импортируем шаблоны из отдельного файла
-import { 
-  dataProcessingTermsTemplates, 
-  consentCheckboxText, 
-  marketingConsentText, 
+import {
+  dataProcessingTermsTemplates,
+  consentCheckboxText,
+  marketingConsentText,
   requiredConsentError,
   languageNames,
   uiTexts
@@ -18,6 +19,7 @@ import {
 
 const Register = () => {
   const { t, i18n } = useTranslation('auth');
+
   // Form state
   const [formData, setFormData] = useState({
     firstName: '',
@@ -29,6 +31,9 @@ const Register = () => {
     dataConsentAccepted: false,
     marketingConsent: false
   });
+
+  // Use phone validation hook
+  const { isValid: isPhoneValid, message: phoneMessage, handleValidationChange } = useSimplePhoneValidation();
 
   // Validation state
   const [validation, setValidation] = useState({
@@ -55,14 +60,13 @@ const Register = () => {
 
   // Terms and language state
   const [showTerms, setShowTerms] = useState(false);
-  const [termsLanguage, setTermsLanguage] = useState(i18n.language || 'uk'); // Default to Ukrainian
-  
+  const [termsLanguage, setTermsLanguage] = useState(i18n.language || 'uk');
+
   // Sync termsLanguage with i18n.language when it changes
   useEffect(() => {
-    // Update terms language when global language changes
     setTermsLanguage(i18n.language);
   }, [i18n.language]);
-  
+
   // Get UI texts based on selected language
   const getUIText = (key) => {
     return uiTexts[termsLanguage]?.[key] || uiTexts.uk[key];
@@ -72,7 +76,7 @@ const Register = () => {
   const patterns = {
     phone: /^\+[1-9]\d{6,14}$/,
     email: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-    password: /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/
+    //password: /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/
   };
 
   // Handle input changes
@@ -83,8 +87,10 @@ const Register = () => {
       [name]: type === 'checkbox' ? checked : value
     }));
 
-    // Real-time validation
-    validateField(name, type === 'checkbox' ? checked : value);
+    // Real-time validation (skip phone as it's handled by SimplePhoneInput)
+    if (name !== 'phone') {
+      validateField(name, type === 'checkbox' ? checked : value);
+    }
   };
 
   // Validate individual field
@@ -109,27 +115,28 @@ const Register = () => {
         break;
 
       case 'phone':
-        if (value && !patterns.phone.test(value)) {
-          isValid = false;
-          message = t('register.validation.phone_invalid');
-        }
+        // Phone validation is handled by SimplePhoneInput component
         break;
 
       case 'password':
-        const hasLength = value.length >= 8;
-        const hasLetter = /[A-Za-z]/.test(value);
-        const hasNumber = /\d/.test(value);
+        //const hasLength = value.length >= 8;
+        //const hasLetter = /[A-Za-z]/.test(value);
+        //const hasNumber = /\d/.test(value);
+        if (!value || value.length === 0) {
+          isValid = false;
+          message = t('register.validation.password_required');
+        }
 
         setPasswordStrength({
-          hasLength,
-          hasLetter,
-          hasNumber
+          hasLength: true,    // Always true now
+          hasLetter: true,    // Always true now
+          hasNumber: true // Always true now
         });
 
-        if (!patterns.password.test(value)) {
+        /* if (!patterns.password.test(value)) {
           isValid = false;
           message = t('register.validation.password_requirements');
-        }
+        } */
         break;
 
       case 'confirmPassword':
@@ -138,8 +145,6 @@ const Register = () => {
           message = t('register.validation.passwords_mismatch');
         }
         break;
-
-      
 
       case 'dataConsentAccepted':
         if (!value) {
@@ -162,21 +167,27 @@ const Register = () => {
 
   // Validate all fields
   const validateForm = () => {
-    let isValid = true;
-    Object.keys(formData).forEach(field => {
-      // Skip confirmPassword as it's not sent to the API
-      if (field !== 'confirmPassword' && field !== 'marketingConsent') {
-        if (!validateField(field, formData[field])) {
-          isValid = false;
-        }
+    let isFormValid = true;
+
+    // Validate regular fields
+    ['firstName', 'lastName', 'email', 'password', 'confirmPassword', 'dataConsentAccepted'].forEach(field => {
+      if (!validateField(field, formData[field])) {
+        isFormValid = false;
       }
     });
-    return isValid;
+
+    // Check phone validation
+    if (!isPhoneValid || !formData.phone || formData.phone === '+') {
+      isFormValid = false;
+    }
+
+    return isFormValid;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+    if (loading) return;
+
     if (!validateForm()) {
       setError(t('register.validation.fix_errors'));
       return;
@@ -185,17 +196,29 @@ const Register = () => {
     try {
       setError('');
       setLoading(true);
-      // Remove confirmPassword before sending
-      const { confirmPassword, ...registrationData } = formData;
-      // Add user's preferred language to registration data
-    const registrationDataWithLanguage = {
-      ...registrationData,
-      preferredLanguage: i18n.language, // Add current language from i18n
-      dataConsentVersion: 'v1.0',
-      dataConsentDate: new Date().toISOString()
-    };
 
-    console.log('Registration data with language:', registrationDataWithLanguage); // Debug log
+      // Clean phone number before sending - remove spaces and formatting
+      const cleanedFormData = {
+        ...formData,
+        phone: cleanPhoneNumber(formData.phone)
+      };
+
+      // Remove confirmPassword before sending
+      const { confirmPassword, ...registrationData } = cleanedFormData;
+
+      // Add user's preferred language to registration data
+      const registrationDataWithLanguage = {
+        ...registrationData,
+        preferredLanguage: i18n.language,
+        dataConsentVersion: 'v1.0',
+        dataConsentDate: new Date().toISOString()
+      };
+
+      console.log('Отправляем данные регистрации:', {
+        ...registrationDataWithLanguage,
+        password: '***' // Hide password in logs
+      });
+
       const result = await register(registrationDataWithLanguage);
 
       if (result.success) {
@@ -204,7 +227,8 @@ const Register = () => {
         setError(result.error || t('register.error'));
       }
     } catch (error) {
-      setError(t('register.error_generic'));
+      console.error('Ошибка регистрации:', error);
+      setError(error.message || t('register.error_generic'));
     } finally {
       setLoading(false);
     }
@@ -218,11 +242,7 @@ const Register = () => {
   const handleTermsLanguageChange = (e) => {
     const newLang = e.target.value;
     setTermsLanguage(newLang);
-    
-    // Optionally change the global language too
-    // i18n.changeLanguage(newLang);
   };
-
 
   // Password strength indicator component
   const PasswordStrengthIndicator = () => (
@@ -250,9 +270,9 @@ const Register = () => {
       <Card className="mx-auto shadow-sm" style={{ maxWidth: '550px' }}>
         <Card.Body className="p-4">
           <h2 className="text-center mb-4">{t('register.title')}</h2>
-          
+
           {error && <Alert variant="danger">{error}</Alert>}
-          
+
           <Form onSubmit={handleSubmit} noValidate>
             <Row className="mb-3">
               <Col sm={6}>
@@ -276,7 +296,7 @@ const Register = () => {
                   </InputGroup>
                 </Form.Group>
               </Col>
-              
+
               <Col sm={6}>
                 <Form.Group>
                   <InputGroup>
@@ -320,25 +340,28 @@ const Register = () => {
               </InputGroup>
             </Form.Group>
 
+            {/* Phone Field */}
             <Form.Group className="mb-3">
-              <InputGroup>
-                <InputGroup.Text>
-                  <Phone size={18} />
-                </InputGroup.Text>
-                <Form.Control
-                  type="tel"
-                  name="phone"
-                  value={formData.phone}
-                  onChange={handleChange}
-                  placeholder="+XXX XXXXXXXX"
-                  isInvalid={!validation.phone.isValid}
-                />
-                <Form.Control.Feedback type="invalid">
-                  {validation.phone.message}
-                </Form.Control.Feedback>
-              </InputGroup>
+              <Form.Label>
+                {t('register.phone')}
+                <span className="text-danger ms-1">*</span>
+              </Form.Label>
+              <SimplePhoneInput
+                name="phone"
+                value={formData.phone}
+                onChange={handleChange}
+                onValidationChange={handleValidationChange}
+                isInvalid={!isPhoneValid}
+                required
+                placeholder="+"
+              />
+              {!isPhoneValid && phoneMessage && (
+                <div className="invalid-feedback d-block">
+                  {phoneMessage}
+                </div>
+              )}
               <Form.Text className="text-muted">
-                {t('register.phone_hint')}
+                {t('register.phone_hint', "Будь ласка, вкажіть номер телефону, який прив'язаний до WhatsApp")}
               </Form.Text>
             </Form.Group>
 
@@ -360,7 +383,7 @@ const Register = () => {
                   {validation.password.message}
                 </Form.Control.Feedback>
               </InputGroup>
-              <PasswordStrengthIndicator />
+              {/* <PasswordStrengthIndicator /> */}
             </Form.Group>
 
             <Form.Group className="mb-4">
@@ -390,7 +413,7 @@ const Register = () => {
                   <FileText size={18} className="me-2" />
                   {getUIText('privacyTitle')}
                 </h6>
-                
+
                 <Form.Group className="mb-3 text-start">
                   <Form.Check
                     type="checkbox"
@@ -402,9 +425,9 @@ const Register = () => {
                     label={
                       <>
                         {consentCheckboxText[termsLanguage] || consentCheckboxText.uk}{' '}
-                        <Button 
-                          variant="link" 
-                          className="p-0 align-baseline text-decoration-underline" 
+                        <Button
+                          variant="link"
+                          className="p-0 align-baseline text-decoration-underline"
                           onClick={handleViewTerms}
                         >
                           {getUIText('termsLinkText')}
@@ -418,7 +441,7 @@ const Register = () => {
                     </div>
                   )}
                 </Form.Group>
-                
+
                 <Form.Group className="mb-2 text-start">
                   <Form.Check
                     type="checkbox"
@@ -429,7 +452,7 @@ const Register = () => {
                     label={marketingConsentText[termsLanguage] || marketingConsentText.uk}
                   />
                 </Form.Group>
-                
+
                 <div className="text-muted small">
                   <p className="mb-0">
                     {getUIText('privacyNote')}
@@ -444,16 +467,23 @@ const Register = () => {
               className="w-100 py-2"
               disabled={loading}
             >
-              {loading ? t('register.loading') : t('register.submit')}
+              {loading ? (
+                <>
+                  <Spinner size="sm" className="me-2" />
+                  {t('register.loading')}
+                </>
+              ) : (
+                t('register.submit')
+              )}
             </Button>
           </Form>
         </Card.Body>
       </Card>
 
       {/* Data Processing Terms Modal */}
-      <Modal 
-        show={showTerms} 
-        onHide={() => setShowTerms(false)} 
+      <Modal
+        show={showTerms}
+        onHide={() => setShowTerms(false)}
         size="lg"
         scrollable
       >
@@ -480,14 +510,14 @@ const Register = () => {
           </ReactMarkdown>
         </Modal.Body>
         <Modal.Footer>
-          <Button 
-            variant="secondary" 
+          <Button
+            variant="secondary"
             onClick={() => setShowTerms(false)}
           >
             {getUIText('closeButton')}
           </Button>
-          <Button 
-            variant="primary" 
+          <Button
+            variant="primary"
             onClick={() => {
               setFormData({
                 ...formData,

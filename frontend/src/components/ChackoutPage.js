@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { apiClient } from '../utils/api';
 import { loadUserPreferences } from '../utils/userPreferences';
+import { cleanPhoneNumber } from '../components/common/SimplePhoneInput';
 
 
 // Components
@@ -337,16 +338,16 @@ const CheckoutPage = () => {
 
     // Basic required field validation with specific messages
     if (!formData.firstName?.trim()) {
-      errorMessage = t('validation.first_name_required');
+      errorMessage = t('validation.first_name_required', { ns: 'auth' });
       isValid = false;
     } else if (!formData.lastName?.trim()) {
-      errorMessage = t('validation.last_name_required');
+      errorMessage = t('validation.last_name_required', { ns: 'auth' });
       isValid = false;
     } else if (!formData.email?.trim()) {
-      errorMessage = t('validation.email_required');
+      errorMessage = t('validation.email_required', { ns: 'auth' });
       isValid = false;
     } else if (!formData.phone?.trim()) {
-      errorMessage = t('validation.phone_required');
+      errorMessage = t('validation.phone_required', { ns: 'auth' });
       isValid = false;
     }
 
@@ -357,7 +358,7 @@ const CheckoutPage = () => {
     }
 
     // Phone validation
-    else if (formData.phone && !phoneRegex.test(formData.phone)) {
+    else if (!formData.phone?.trim() || formData.phone === '+') {
       errorMessage = t('validation.invalid_phone');
       isValid = false;
     }
@@ -428,8 +429,8 @@ const CheckoutPage = () => {
 
     // Account creation validation
     else if (isGuest && createAccount) {
-      if (!formData.password || formData.password.length < 8) {
-        errorMessage = t('register.validation.password_requirements', { ns: 'auth' });
+      if (!formData.password || formData.password.length === 0) {
+        errorMessage = t('register.validation.password_required', { ns: 'auth' });
         isValid = false;
       } else if (formData.password !== formData.confirmPassword) {
         errorMessage = t('register.validation.passwords_mismatch', { ns: 'auth' });
@@ -633,10 +634,15 @@ const CheckoutPage = () => {
           throw new Error(`Invalid delivery type: ${formData.deliveryType}`);
       }
 
-      console.log('Sending order data:', orderData);
+      const cleanedOrderData = {
+        ...orderData,
+        phone: cleanPhoneNumber(orderData.phone)
+      };
+
+      console.log('Sending order data:', cleanedOrderData);
 
       // Make the API call to create order
-      const response = await apiClient.post('/orders', orderData);
+      const response = await apiClient.post('/orders', cleanedOrderData);
       console.log('Order created successfully:', response);
 
       // Handle successful registration and auto-login
@@ -818,7 +824,7 @@ const CheckoutPage = () => {
               <Button
                 type="submit"
                 size="lg"
-                variant="primary"
+                variant="danger"
                 disabled={isSubmitDisabled()}
               >
                 {isSubmitting ? t('checkout.processing') : t('checkout.submit_order')}

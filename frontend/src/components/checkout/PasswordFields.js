@@ -11,7 +11,8 @@ const PasswordFields = ({ password, confirmPassword, handleChange }) => {
   
   // Password validation
   const isPasswordValid = (pwd) => {
-    return pwd && pwd.length >= 8 && /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/.test(pwd);
+    return pwd && pwd.length >= 0;
+    //8 && /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/.test(pwd);
   };
   
   const isPasswordInvalid = password && !isPasswordValid(password);
@@ -20,27 +21,31 @@ const PasswordFields = ({ password, confirmPassword, handleChange }) => {
   return (
     <>
       <Form.Group className="mb-3">
-        <Form.Label>{t('customer.password')}</Form.Label>
+        <Form.Label>{t('customer.password')}
+          <span style={{ color: 'red', marginLeft: '2px' }}>*</span>
+        </Form.Label>
         <Form.Control
           type="password"
           name="password"
-          placeholder={`${t('customer.password')} (${t('register.password_requirements.length', { ns: 'auth' })})`}
+          placeholder={`${t('customer.password')}`}
           value={password || ''}
           onChange={handleChange}
           required
-          minLength={8}
+          /* minLength={8} */
           isInvalid={isPasswordInvalid}
         />
-        <Form.Control.Feedback type="invalid">
+        {/* <Form.Control.Feedback type="invalid">
           {t('register.validation.password_requirements', { ns: 'auth' })}
-        </Form.Control.Feedback>
-        <Form.Text className="text-muted">
-          {t('register.password_requirements.title', { ns: 'auth' })}
-        </Form.Text>
+        </Form.Control.Feedback> */}
+        {/* <Form.Text className="text-muted">
+          {t('register.password_required', { ns: 'auth' })}
+        </Form.Text> */}
       </Form.Group>
 
       <Form.Group className="mb-3">
-        <Form.Label>{t('register.confirm_password', { ns: 'auth' })}</Form.Label>
+        <Form.Label>{t('register.confirm_password', { ns: 'auth' })}
+          <span style={{ color: 'red', marginLeft: '2px' }}>*</span>
+        </Form.Label>
         <Form.Control
           type="password"
           name="confirmPassword"

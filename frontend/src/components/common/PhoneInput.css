@@ -1,0 +1,240 @@
+/* src/components/common/PhoneInput.css */
+
+.phone-input-container {
+  position: relative;
+}
+
+/* Country Selector Button */
+.country-selector-btn {
+  min-width: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 0.75rem;
+  border: 1.5px solid #dee2e6;
+  background-color: #f8f9fa;
+  color: #495057;
+  font-size: 0.875rem;
+}
+
+.country-selector-btn:hover {
+  background-color: #e9ecef;
+  border-color: #adb5bd;
+}
+
+.country-selector-btn:focus {
+  box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
+  border-color: #0d6efd;
+}
+
+.country-selector-btn.dropdown-toggle::after {
+  margin-left: 0.5rem;
+  margin-top: 0.125rem;
+}
+
+/* Country Flag and Code */
+.country-flag {
+  font-size: 1.1em;
+  margin-right: 0.5rem;
+}
+
+.country-code {
+  font-weight: 500;
+  font-size: 0.875rem;
+}
+
+/* Dropdown Menu */
+.dropdown-menu {
+  min-width: 200px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  padding: 0.5rem 1rem;
+}
+
+.dropdown-item:hover {
+  background-color: #f8f9fa;
+}
+
+.dropdown-item.active {
+  background-color: #0d6efd;
+  color: white;
+}
+
+.country-name {
+  flex: 1;
+  font-size: 0.875rem;
+}
+
+/* Input Group Adjustments */
+.phone-input-container .input-group {
+  position: relative;
+}
+
+.phone-input-container .form-control {
+  border-left: none;
+  padding-left: 1rem;
+}
+
+.phone-input-container .input-group-text {
+  border-right: none;
+  background-color: #f8f9fa;
+  color: #6c757d;
+}
+
+/* Focus States */
+.phone-input-container .input-group:focus-within .country-selector-btn,
+.phone-input-container .input-group:focus-within .input-group-text {
+  border-color: #0d6efd;
+  box-shadow: none;
+}
+
+.phone-input-container .input-group:focus-within .form-control {
+  border-color: #0d6efd;
+  box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
+}
+
+/* Error States */
+.phone-input-container .form-control.is-invalid {
+  border-color: #dc3545;
+}
+
+.phone-input-container .input-group:has(.form-control.is-invalid) .country-selector-btn,
+.phone-input-container .input-group:has(.form-control.is-invalid) .input-group-text {
+  border-color: #dc3545;
+}
+
+.phone-input-container .input-group:focus-within:has(.form-control.is-invalid) .form-control {
+  box-shadow: 0 0 0 0.25rem rgba(220, 53, 69, 0.15);
+}
+
+/* Read-only States */
+.phone-input-container .form-control:read-only {
+  background-color: #f8f9fa;
+  opacity: 1;
+}
+
+.phone-input-container .input-group:has(.form-control:read-only) .country-selector-btn,
+.phone-input-container .input-group:has(.form-control:read-only) .input-group-text {
+  background-color: #e9ecef;
+  color: #6c757d;
+}
+
+/* Disabled States */
+.phone-input-container .form-control:disabled {
+  background-color: #e9ecef;
+  opacity: 1;
+}
+
+.phone-input-container .country-selector-btn:disabled {
+  background-color: #e9ecef;
+  color: #6c757d;
+  cursor: not-allowed;
+}
+
+/* Custom Invalid Feedback */
+.phone-input-container .invalid-feedback {
+  margin-top: 0.25rem;
+  font-size: 0.875em;
+  color: #dc3545;
+}
+
+/* Responsive Design */
+@media (max-width: 576px) {
+  .country-selector-btn {
+    min-width: 70px;
+    padding: 0.375rem 0.5rem;
+    font-size: 0.8rem;
+  }
+  
+  .country-flag {
+    font-size: 1em;
+    margin-right: 0.25rem;
+  }
+  
+  .country-code {
+    font-size: 0.8rem;
+  }
+  
+  .dropdown-menu {
+    min-width: 180px;
+  }
+  
+  .dropdown-item {
+    padding: 0.375rem 0.75rem;
+    font-size: 0.875rem;
+  }
+}
+
+/* Loading State */
+.phone-input-container.loading::after {
+  content: '';
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 16px;
+  height: 16px;
+  border: 2px solid #f3f3f3;
+  border-top: 2px solid #0d6efd;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  z-index: 10;
+}
+
+@keyframes spin {
+  0% { transform: translateY(-50%) rotate(0deg); }
+  100% { transform: translateY(-50%) rotate(360deg); }
+}
+
+/* Integration with Bootstrap Form Validation */
+.was-validated .phone-input-container .form-control:valid {
+  border-color: #198754;
+}
+
+.was-validated .phone-input-container .input-group:has(.form-control:valid) .country-selector-btn,
+.was-validated .phone-input-container .input-group:has(.form-control:valid) .input-group-text {
+  border-color: #198754;
+}
+
+.was-validated .phone-input-container .form-control:valid:focus {
+  box-shadow: 0 0 0 0.25rem rgba(25, 135, 84, 0.15);
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+  .country-selector-btn {
+    background-color: #343a40;
+    border-color: #495057;
+    color: #adb5bd;
+  }
+  
+  .country-selector-btn:hover {
+    background-color: #495057;
+    border-color: #6c757d;
+  }
+  
+  .phone-input-container .input-group-text {
+    background-color: #343a40;
+    border-color: #495057;
+    color: #adb5bd;
+  }
+  
+  .dropdown-menu {
+    background-color: #343a40;
+    border-color: #495057;
+  }
+  
+  .dropdown-item {
+    color: #adb5bd;
+  }
+  
+  .dropdown-item:hover {
+    background-color: #495057;
+    color: #fff;
+  }
+}

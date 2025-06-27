@@ -8,6 +8,7 @@ import { apiClient } from '../utils/api';
 import ChangePassword from './ChangePassword';
 import { useTranslation } from 'react-i18next';
 import './UserProfile.css';
+import SimplePhoneInput, { useSimplePhoneValidation, cleanPhoneNumber } from './common/SimplePhoneInput';
 
 // Store address constant - will be translated dynamically
 const STORE_ADDRESS = {
@@ -25,6 +26,10 @@ const UserProfile = () => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [railwayStations, setRailwayStations] = useState([]);
+
+  // Use phone validation hook
+  const { isValid: isPhoneValid, message: phoneMessage, handleValidationChange } = useSimplePhoneValidation();
+  
   
   const [formData, setFormData] = useState({
     firstName: user?.firstName || '',
@@ -133,6 +138,12 @@ const UserProfile = () => {
     e.preventDefault();
     if (loading) return;
 
+    // Validate phone if it's filled
+    if (formData.phone && formData.phone !== '+' && !isPhoneValid) {
+      setError(t('profile.messages.phoneInvalid'));
+      return;
+    }
+
     try {
       setLoading(true);
       setError('');
@@ -145,6 +156,9 @@ const UserProfile = () => {
         setError(t('profile.messages.authRequired'));
         return;
       }
+
+      // Clean phone number before sending
+      const cleanedPhone = formData.phone ? cleanPhoneNumber(formData.phone) : '';
 
       // Prepare delivery preferences based on type
       const deliveryPreferences = {
@@ -168,7 +182,7 @@ const UserProfile = () => {
       const result = await updateProfile({
         firstName: formData.firstName,
         lastName: formData.lastName,
-        phone: formData.phone,
+        phone: cleanedPhone, // Use cleaned phone
         deliveryPreferences
       });
 
@@ -389,24 +403,29 @@ const UserProfile = () => {
 
                   <Form.Group className="mb-3">
                     <Form.Label>{t('profile.fields.phone')}</Form.Label>
-                    <Form.Control
-                      type="tel"
+                    <SimplePhoneInput
                       name="phone"
                       value={formData.phone}
                       onChange={handleChange}
+                      onValidationChange={handleValidationChange}
+                      isInvalid={!isPhoneValid}
                       disabled={loading}
-                      placeholder={t('profile.fields.phonePlaceholder')}
-                      required
+                      placeholder="+"
                     />
+                    {!isPhoneValid && phoneMessage && (
+                      <div className="invalid-feedback d-block">
+                        {phoneMessage}
+                      </div>
+                    )}
                     <Form.Text className="text-muted">
-                      {t('profile.fields.phoneHelper')}
+                      {t('profile.fields.phoneHelper', 'Начните с + и кода страны')}
                     </Form.Text>
                   </Form.Group>
 
                   <Button 
                     type="submit" 
                     variant="primary"
-                    disabled={loading}
+                    disabled={loading || (!isPhoneValid && formData.phone && formData.phone !== '+')}
                   >
                     {loading ? t('profile.saving') : t('profile.save')}
                   </Button>

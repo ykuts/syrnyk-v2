@@ -112,11 +112,11 @@ const CustomerInfoForm = ({
               required
               placeholder="+"
             />
-            {!isPhoneValid && phoneMessage && (
+            {/* {!isPhoneValid && phoneMessage && (
               <div className="invalid-feedback d-block">
                 {phoneMessage}
               </div>
-            )}
+            )} */}
             {!isAuthenticated && (
               <Form.Text className="text-muted">
                 {t('register.phone_hint', "Будь ласка, вкажіть номер телефону, який прив'язаний до WhatsApp")}

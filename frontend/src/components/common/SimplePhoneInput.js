@@ -78,7 +78,7 @@ const SimplePhoneInput = ({
   placeholder = 'Phone',
   ...props
 }) => {
-  const { t } = useTranslation();
+  const { t } = useTranslation('auth');
   const [isValid, setIsValid] = useState(true);
   const [validationMessage, setValidationMessage] = useState('');
   const inputRef = useRef(null);
@@ -134,10 +134,14 @@ const SimplePhoneInput = ({
     return { formattedValue, newCursorPosition };
   }, [detectCountryFromInput]);
 
-  // Validate phone number
+  // Validate phone number - FIXED VERSION
   const validatePhoneNumber = useCallback((phoneNumber) => {
+    // Empty or just + is considered valid during typing but invalid for submission
     if (!phoneNumber || phoneNumber === '+') {
-      return { isValid: true, message: '' };
+      return { 
+        isValid: false, // Changed: empty phone should be invalid for submission
+        message: required ? t('validation.phone_required') : ''
+      };
     }
 
     const country = detectCountryFromInput(phoneNumber);
@@ -145,20 +149,21 @@ const SimplePhoneInput = ({
       // If no country detected but has more than just +, it might be invalid
       const digits = phoneNumber.replace(/\D/g, '');
       if (digits.length > 3) {
-        return { isValid: false, message: 'Неподдерживаемый код страны' };
+        return { isValid: false, message: t('validation.phone_invalid_country') };
       }
-      return { isValid: true, message: '' }; // Still typing
+      // Still typing - show as invalid but no message yet
+      return { isValid: false, message: '' }; 
     }
 
     const config = PHONE_CONFIGS[country];
     if (!config) {
-      return { isValid: false, message: 'Неподдерживаемая страна' };
+      return { isValid: false, message: t('validation.phone_unsupported') };
     }
 
     // Get only digits for validation
     const digits = phoneNumber.replace(/\D/g, '');
     
-    // Check length requirements
+    // Check length requirements - FIXED
     let requiredLength;
     switch (country) {
       case '380': requiredLength = 12; break; // +380 + 9 digits
@@ -172,19 +177,26 @@ const SimplePhoneInput = ({
     const cleanPhone = phoneNumber.replace(/[^\d+]/g, '');
     const isValidFormat = config.pattern.test(cleanPhone);
     
-    // Also check if we have enough digits
+    // Check if we have enough digits
     const hasEnoughDigits = digits.length >= requiredLength;
     const isComplete = digits.length === requiredLength;
     
+    // FIXED: Strict validation - must have complete number
     if (!hasEnoughDigits) {
-      return { isValid: true, message: '' }; // Still typing
+      return { 
+        isValid: false, 
+        message: `Введіть повний номер телефону для ${config.name} (${requiredLength} цифр всього)` 
+      };
     }
     
+    // FIXED: Must be both valid format AND complete
+    const finalValid = isValidFormat && isComplete;
+    
     return {
-      isValid: isValidFormat && isComplete,
-      message: (isValidFormat && isComplete) ? '' : `Введите полный номер для ${config.name}`
+      isValid: finalValid,
+      message: finalValid ? '' : `Введіть повний номер телефону для ${config.name}`
     };
-  }, [detectCountryFromInput, t]);
+  }, [detectCountryFromInput, required]);
 
   // Handle input change
   const handleInputChange = useCallback((e) => {
@@ -249,54 +261,36 @@ const SimplePhoneInput = ({
 
     // Set cursor position
     setTimeout(() => {
-      if (inputRef.current) {
+      if (inputRef.current && newCursorPosition !== undefined) {
         inputRef.current.setSelectionRange(newCursorPosition, newCursorPosition);
       }
     }, 0);
-  }, [name, onChange, onValidationChange, formatPhoneNumber, validatePhoneNumber]);
+  }, [onChange, onValidationChange, name, formatPhoneNumber, validatePhoneNumber]);
 
-  // Handle key down for special cases
+  // Handle key down for backspace behavior
   const handleKeyDown = useCallback((e) => {
     const inputElement = e.target;
     const cursorPosition = inputElement.selectionStart;
-    const inputValue = inputElement.value;
+    const value = inputElement.value;
 
-    // Prevent deleting the + at the beginning
-    if ((e.key === 'Backspace' || e.key === 'Delete') && cursorPosition <= 1) {
-      e.preventDefault();
-      return;
-    }
-
-    // Handle Backspace more intelligently
-    if (e.key === 'Backspace' && cursorPosition > 1) {
-      const newValue = inputValue.slice(0, cursorPosition - 1) + inputValue.slice(cursorPosition);
-      
-      // If this would leave us with just + or empty, reset to +
-      if (newValue.length <= 1 || newValue.replace(/\D/g, '').length === 0) {
+    // Prevent deletion of + if cursor is at position 1 or if trying to delete +
+    if (e.key === 'Backspace') {
+      if (cursorPosition === 1 || (cursorPosition === 0 && value.startsWith('+'))) {
         e.preventDefault();
-        
-        if (onChange) {
-          onChange({
-            target: {
-              name: name,
-              value: '+'
-            }
-          });
-        }
-        
-        setTimeout(() => {
-          if (inputRef.current) {
-            inputRef.current.setSelectionRange(1, 1);
-          }
-        }, 0);
+        return;
       }
     }
-  }, [name, onChange]);
+
+    // Prevent non-numeric input (except +)
+    if (!/[\d+\s-()]/.test(e.key) && !['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Tab'].includes(e.key)) {
+      e.preventDefault();
+    }
+  }, []);
 
   // Handle focus - ensure cursor is after +
-  const handleFocus = useCallback((e) => {
-    const inputElement = e.target;
-    if (inputElement.value === '' || inputElement.value === '+') {
+  const handleFocus = useCallback(() => {
+    const inputElement = inputRef.current;
+    if (inputElement && inputElement.value === '+') {
       setTimeout(() => {
         inputElement.setSelectionRange(1, 1);
       }, 0);

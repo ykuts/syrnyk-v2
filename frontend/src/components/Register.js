@@ -74,7 +74,7 @@ const Register = () => {
 
   // Validation patterns
   const patterns = {
-    phone: /^\+[1-9]\d{6,14}$/,
+    phone: /^\+[1-9]\d{9,14}$/,
     email: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
     //password: /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/
   };
@@ -116,6 +116,14 @@ const Register = () => {
 
       case 'phone':
         // Phone validation is handled by SimplePhoneInput component
+        // But we can add a basic fallback check here
+        if (!value || value === '+') {
+          isValid = false;
+          message = t('register.validation.phone_invalid');
+        } else if (!patterns.phone.test(cleanPhoneNumber(value))) {
+          isValid = false;
+          message = t('register.validation.phone_invalid');
+        }
         break;
 
       case 'password':
@@ -176,9 +184,20 @@ const Register = () => {
       }
     });
 
-    // Check phone validation
-    if (!isPhoneValid || !formData.phone || formData.phone === '+') {
+    // FIXED: Strict phone validation - check for complete valid phone number
+    if (!formData.phone ||
+      formData.phone === '+' ||
+      !isPhoneValid ||
+      phoneMessage) {
       isFormValid = false;
+      // Ensure phone validation error is shown
+      setValidation(prev => ({
+        ...prev,
+        phone: {
+          isValid: false,
+          message: 'Please enter a complete phone number'
+        }
+      }));
     }
 
     return isFormValid;
@@ -355,11 +374,11 @@ const Register = () => {
                 required
                 placeholder="+"
               />
-              {!isPhoneValid && phoneMessage && (
+              {/* {!isPhoneValid && phoneMessage && (
                 <div className="invalid-feedback d-block">
                   {phoneMessage}
                 </div>
-              )}
+              )} */}
               <Form.Text className="text-muted">
                 {t('register.phone_hint', "Будь ласка, вкажіть номер телефону, який прив'язаний до WhatsApp")}
               </Form.Text>

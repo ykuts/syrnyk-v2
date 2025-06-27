@@ -5,6 +5,7 @@
     "delivery_method": "Méthode de livraison",
     "payment_method": "Méthode de paiement",
     "order_notes": "Notes de commande",
+    "order_notes_hint": "Avez-vous des instructions spéciales pour votre commande ?",
     "order_items": "Vos produits",
     "order_success": "Commande passée avec succès!",
     "order_success_message": "Merci pour votre commande. Nous vous contacterons prochainement.",
@@ -187,19 +188,25 @@
     "subtotal": "Sous-total"
   },
    "validation": {
-    "first_name_required": "First name is required",
-    "last_name_required": "Last name is required", 
-    "email_required": "Email is required",
-    "phone_required": "Phone number is required",
-    "payment_method_required": "Please select a payment method",
-    "street_required": "Street address is required",
-    "house_required": "House number is required",
-    "city_required": "City is required",
-    "postal_code_required": "Postal code is required",
-    "station_required": "Please select a railway station",
-    "store_required": "Please select a pickup location",
-    "delivery_date_required": "Please select a delivery date",
-    "delivery_time_required": "Please select a delivery time",
-    "twint_confirmation_required": "Please confirm that you have completed the TWINT payment"
+    "first_name_required": "Le prénom est requis",
+    "last_name_required": "Le nom est requis",
+    "email_required": "L'email est requis",
+    "phone_required": "Le numéro de téléphone est requis",
+    "payment_method_required": "Veuillez sélectionner une méthode de paiement",
+    "street_required": "L'adresse de la rue est requise",
+    "house_required": "Le numéro de maison est requis",
+    "city_required": "La ville est requise",
+    "postal_code_required": "Le code postal est requis",
+    "station_required": "Veuillez sélectionner une gare ferroviaire",
+    "store_required": "Veuillez sélectionner un lieu de retrait",
+    "delivery_date_required": "Veuillez sélectionner une date de livraison",
+    "delivery_time_required": "Veuillez sélectionner une heure de livraison",
+    "twint_confirmation_required": "Veuillez confirmer que vous avez effectué le paiement TWINT",
+    "invalid_email": "Veuillez saisir une adresse email valide",
+    "invalid_phone": "Veuillez saisir un numéro de téléphone valide (format : +41234567890)",
+    "twint_option_required": "Veuillez sélectionner une option de paiement TWINT",
+    "invalid_postal_code": "Le code postal doit comporter 4 chiffres",
+    "delivery_not_available": "La livraison n'est pas disponible pour cette adresse"
+
   }
 }

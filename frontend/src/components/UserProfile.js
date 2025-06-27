@@ -29,8 +29,8 @@ const UserProfile = () => {
 
   // Use phone validation hook
   const { isValid: isPhoneValid, message: phoneMessage, handleValidationChange } = useSimplePhoneValidation();
-  
-  
+
+
   const [formData, setFormData] = useState({
     firstName: user?.firstName || '',
     lastName: user?.lastName || '',
@@ -54,12 +54,12 @@ const UserProfile = () => {
       try {
         setLoading(true);
         const token = localStorage.getItem('token');
-        
+
         // Load delivery preferences
         const prefsResponse = await apiClient.get('/users/delivery-preferences', {
           'Authorization': `Bearer ${token}`
         });
-        
+
         if (prefsResponse.preferences) {
           setFormData(prev => ({
             ...prev,
@@ -127,7 +127,7 @@ const UserProfile = () => {
           ...prev,
           [name]: value
         };
-        console.log('New form state:', newState); 
+        console.log('New form state:', newState);
         return newState;
       });
     }
@@ -138,10 +138,21 @@ const UserProfile = () => {
     e.preventDefault();
     if (loading) return;
 
-    // Validate phone if it's filled
-    if (formData.phone && formData.phone !== '+' && !isPhoneValid) {
-      setError(t('profile.messages.phoneInvalid'));
-      return;
+    // Strict phone validation
+    if (formData.phone && formData.phone !== '+') {
+      // If phone is provided, it must be valid
+      if (!isPhoneValid || phoneMessage) {
+        setError(t('profile.messages.phoneInvalid'));
+        return;
+      }
+
+      // Additional pattern check for complete phone numbers
+      const phoneRegex = /^\+[1-9]\d{9,14}$/;
+      const cleanedPhone = cleanPhoneNumber(formData.phone);
+      if (!phoneRegex.test(cleanedPhone)) {
+        setError('Please enter a complete phone number');
+        return;
+      }
     }
 
     try {
@@ -157,8 +168,9 @@ const UserProfile = () => {
         return;
       }
 
-      // Clean phone number before sending
-      const cleanedPhone = formData.phone ? cleanPhoneNumber(formData.phone) : '';
+       // Clean phone number before sending (only if phone is provided and not empty)
+    const cleanedPhone = (formData.phone && formData.phone !== '+') ? 
+      cleanPhoneNumber(formData.phone) : '';
 
       // Prepare delivery preferences based on type
       const deliveryPreferences = {
@@ -170,9 +182,9 @@ const UserProfile = () => {
           city: formData.city,
           postalCode: formData.postalCode,
         } : null,
-        stationId: formData.preferredDeliveryType === 'RAILWAY_STATION' ? 
+        stationId: formData.preferredDeliveryType === 'RAILWAY_STATION' ?
           parseInt(formData.stationId) : null,
-        storeId: formData.preferredDeliveryType === 'PICKUP' ? 
+        storeId: formData.preferredDeliveryType === 'PICKUP' ?
           parseInt(formData.storeId) : null,
       };
 
@@ -183,6 +195,8 @@ const UserProfile = () => {
         firstName: formData.firstName,
         lastName: formData.lastName,
         phone: cleanedPhone, // Use cleaned phone
+        email: formData.email,
+        preferredDeliveryType: formData.preferredDeliveryType,
         deliveryPreferences
       });
 
@@ -352,12 +366,12 @@ const UserProfile = () => {
               </Nav.Item>
             </Nav>
           </Col>
-          
+
           <Col md={9}>
             {loading && <Alert variant="info">{t('profile.loading')}</Alert>}
             {error && <Alert variant="danger" onClose={() => setError('')} dismissible>{error}</Alert>}
             {success && <Alert variant="success" onClose={() => setSuccess('')} dismissible>{success}</Alert>}
-            
+
             <Tab.Content>
               {/* Profile Tab */}
               <Tab.Pane eventKey="profile">
@@ -376,7 +390,7 @@ const UserProfile = () => {
                         />
                       </Form.Group>
                     </Col>
-                    
+
                     <Col md={6}>
                       <Form.Group className="mb-3">
                         <Form.Label>{t('profile.fields.lastName')}</Form.Label>
@@ -412,18 +426,18 @@ const UserProfile = () => {
                       disabled={loading}
                       placeholder="+"
                     />
-                    {!isPhoneValid && phoneMessage && (
+                    {/* {!isPhoneValid && phoneMessage && (
                       <div className="invalid-feedback d-block">
                         {phoneMessage}
                       </div>
-                    )}
+                    )} */}
                     <Form.Text className="text-muted">
-                      {t('profile.fields.phoneHelper', 'Начните с + и кода страны')}
+                      {t('profile.fields.phoneHelper', 'Будь ласка, вкажіть телефон з WhatsApp для спілкування з вами')}
                     </Form.Text>
                   </Form.Group>
 
-                  <Button 
-                    type="submit" 
+                  <Button
+                    type="submit"
                     variant="primary"
                     disabled={loading || (!isPhoneValid && formData.phone && formData.phone !== '+')}
                   >
@@ -435,15 +449,15 @@ const UserProfile = () => {
               {/* Delivery Preferences Tab */}
               <Tab.Pane eventKey="delivery">
                 <h4 className="mb-4">{t('profile.delivery.title')}</h4>
-                
+
                 <DeliveryMethodSelector
                   selectedMethod={formData.preferredDeliveryType}
                   onChange={handleChange}
                 />
 
                 {renderDeliveryPreferences()}
-                
-                <Button 
+
+                <Button
                   onClick={handleSubmit}
                   variant="primary"
                   className="mt-3"

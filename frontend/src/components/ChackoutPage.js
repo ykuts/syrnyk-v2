@@ -334,7 +334,7 @@ const CheckoutPage = () => {
     let isValid = true;
     let errorMessage = '';
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    const phoneRegex = /^\+[1-9]\d{6,14}$/;
+    const phoneRegex = /^\+[1-9]\d{9,14}$/;
 
     // Basic required field validation with specific messages
     if (!formData.firstName?.trim()) {
@@ -357,11 +357,13 @@ const CheckoutPage = () => {
       isValid = false;
     }
 
-    // Phone validation
-    else if (!formData.phone?.trim() || formData.phone === '+') {
-      errorMessage = t('validation.invalid_phone');
-      isValid = false;
-    }
+    // Strict phone validation
+  else if (!formData.phone?.trim() || 
+           formData.phone === '+' || 
+           !phoneRegex.test(cleanPhoneNumber(formData.phone))) {
+    errorMessage = t('validation.invalid_phone');
+    isValid = false;
+  }
 
     // Payment method validation
     else if (!formData.paymentMethod) {
@@ -441,7 +443,7 @@ const CheckoutPage = () => {
       }
     }
 
-    setFormValidationError(isValid ? null : errorMessage);
+    setFormValidationError(isValid ? '' : errorMessage);
     return isValid;
   };
 

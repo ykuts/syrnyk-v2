@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Wallet, CreditCard, Banknote } from 'lucide-react';
+import { Wallet, CreditCard, Banknote, CheckCircle, Clock } from 'lucide-react';
 import { Row, Col, Button, Card, Form, Image } from 'react-bootstrap';
 import { useTranslation } from 'react-i18next';
 
@@ -22,8 +22,7 @@ const PaymentMethodSelector = ({
   }, [selectedMethod, onChange]);
 
   // Handle TWINT payment option change
-  const handleTwintOptionChange = (e) => {
-    const selectedOption = e.target.value;
+  const handleTwintOptionChange = (selectedOption) => {
     setTwintPaymentOption(selectedOption);
     
     // Notify parent component about the selected option
@@ -75,6 +74,22 @@ const PaymentMethodSelector = ({
       disabled: true,
       title: t('payment.card.title'),
       description: t('payment.card.description')
+    }
+  ];
+
+  // Define TWINT payment options similar to payment methods
+  const twintOptions = [
+    {
+      id: 'paid',
+      icon: <CheckCircle size={20} />,
+      title: t('payment.twint.confirmation', 'Замовлення мною сплачено'),
+      description: t('payment.twint.paid_description', 'Payment completed via TWINT')
+    },
+    {
+      id: 'pay_on_delivery',
+      icon: <Clock size={20} />,
+      title: t('payment.twint.pay_on_delivery', 'Оплачу по факту отримання замовлення'),
+      description: t('payment.twint.later_description', 'Pay when receiving order')
     }
   ];
 
@@ -177,39 +192,38 @@ const PaymentMethodSelector = ({
               </p>
             </div>
 
-            {/* Payment Options - Radio Buttons */}
+            {/* Payment Options - Button Style (same as delivery methods/cantons) */}
             <div className="mb-3">
-              <Form.Check
-                type="radio"
-                id="twint-payment-paid"
-                name="twintPaymentOption"
-                value="paid"
-                checked={twintPaymentOption === 'paid'}
-                onChange={handleTwintOptionChange}
-                label={t('payment.twint.confirmation', 'Замовлення мною сплачено')}
-                className="d-flex justify-content-center gap-2 mb-2"
-              />
-              <Form.Check
-                type="radio"
-                id="twint-payment-later"
-                name="twintPaymentOption"
-                value="pay_on_delivery"
-                checked={twintPaymentOption === 'pay_on_delivery'}
-                onChange={handleTwintOptionChange}
-                label={t('payment.twint.pay_on_delivery', 'Оплачу по факту отримання замовлення')}
-                className="d-flex justify-content-center gap-2"
-              />
+              <Row className="g-2">
+                {twintOptions.map((option) => (
+                  <Col md={6} key={option.id}>
+                    <Button
+                      variant={twintPaymentOption === option.id ? "primary" : "outline-primary"}
+                      onClick={() => handleTwintOptionChange(option.id)}
+                      className="w-100 h-100 d-flex flex-column align-items-center p-3 gap-2"
+                    >
+                      <div className="icon-wrapper">
+                        {option.icon}
+                      </div>
+                      <div className="fw-medium text-center">{option.title}</div>
+                      {/* <small className={twintPaymentOption === option.id ? "text-light" : "text-muted"}>
+                        {option.description}
+                      </small> */}
+                    </Button>
+                  </Col>
+                ))}
+              </Row>
             </div>
 
             {/* Note about payment confirmation */}
-            <div className="small text-muted">
+            {/* <div className="small text-muted">
               <p className="mb-0">
                 {twintPaymentOption === 'paid' 
                   ? t('payment.twint.note_paid', 'Підтвердіть, що оплата пройшла успішно')
                   : t('payment.twint.note_later', 'Ви зможете оплатити при отриманні замовлення')
                 }
               </p>
-            </div>
+            </div> */}
           </Card.Body>
         </Card>
       )}

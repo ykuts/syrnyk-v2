@@ -7,7 +7,7 @@ import Row from 'react-bootstrap/esm/Row';
 import Col from 'react-bootstrap/esm/Col';
 import Dropdown from 'react-bootstrap/Dropdown';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom'; 
+import { useNavigate } from 'react-router-dom';
 import { LogOut } from "lucide-react";
 import '../custom.scss';
 import { useAuth } from '../context/AuthContext';
@@ -22,7 +22,13 @@ const Menu2 = () => {
     const { t } = useTranslation(['common', 'menu']);
     const { user, logout } = useAuth();
     const [showLogin, setShowLogin] = useState(false);
-    const navigate = useNavigate(); 
+    const navigate = useNavigate();
+    const [navbarExpanded, setNavbarExpanded] = useState(false);
+
+    // Add this handler for toggle
+    const handleNavbarToggle = () => {
+        setNavbarExpanded(!navbarExpanded);
+    };
 
     // Handle scroll for sticky navbar
     useEffect(() => {
@@ -48,34 +54,34 @@ const Menu2 = () => {
     // Profile Button Component
     const ProfileButton = () => {
         const navigate = useNavigate();
-            
+
         if (!user) {
             return (
                 <button className="custom-button round-button" onClick={() => setShowLogin(true)}>
-                    <Image 
-                        src="/assets/account.png" 
+                    <Image
+                        src="/assets/account.png"
                         roundedCircle
-                        style={{ width: '24px', height: '24px' }} 
+                        style={{ width: '24px', height: '24px' }}
                     />
                     <span className="profile-text">{t('buttons.profile', { ns: 'common' })}</span>
                 </button>
             );
         }
-    
+
         return (
             <Dropdown className="position-relative">
-                <Dropdown.Toggle 
-                    as="div" 
+                <Dropdown.Toggle
+                    as="div"
                     className="custom-button round-button d-flex align-items-center"
                 >
-                    <Image 
-                        src="/assets/account-logged.png" 
+                    <Image
+                        src="/assets/account-logged.png"
                         roundedCircle
-                        style={{ width: '24px', height: '24px' }} 
+                        style={{ width: '24px', height: '24px' }}
                     />
                     <span className="profile-text ms-2">{user.firstName}</span>
                 </Dropdown.Toggle>
-    
+
                 <Dropdown.Menu className="position-absolute">
                     {user.role === 'CLIENT' ? (
                         <>
@@ -114,16 +120,19 @@ const Menu2 = () => {
 
     return (
         <>
-            <Navbar 
-                collapseOnSelect 
-                expand="lg" 
+            <Navbar
+                collapseOnSelect
+                expand="lg"
                 className={`justify-content-between ${isSticky ? 'sticky-navbar' : ''}`}
             >
                 <Container fluid className="mobile-container">
-                    <Navbar.Toggle 
+                    <Navbar.Toggle
                         aria-controls="responsive-navbar-nav"
-                        className="mobile-toggle"
-                    />
+                        className={`mobile-toggle ${navbarExpanded ? 'expanded' : ''}`}
+                        onClick={handleNavbarToggle}
+                    >
+                        <span className="navbar-toggler-icon"></span>
+                    </Navbar.Toggle>
 
                     <Nav className='icons ms-auto d-flex flex-row align-self-start order-lg-4' id='nav-account'>
                         <div className='p-2'>
@@ -132,7 +141,11 @@ const Menu2 = () => {
                         <CartDropdown />
                     </Nav>
 
-                    <Navbar.Collapse id="responsive-navbar-nav" className='align-items-baseline nav-collapse'>
+                    <Navbar.Collapse
+                        id="responsive-navbar-nav"
+                        className='align-items-baseline nav-collapse'
+                        in={navbarExpanded}
+                    >
                         <Nav className='links mx-auto order-lg-3 flex-column'>
                             <Row className="justify-content-md-center">
                                 <Col md="auto">
@@ -154,10 +167,10 @@ const Menu2 = () => {
                         </Nav>
 
                         <Nav className='select-lg d-flex flex-row justify-content-center order-lg-1'>
-                            <Nav.Link href="https://www.facebook.com/profile.php?id=61565523437323&sk=about" target='_blank'  rel="noopener noreferrer">
+                            <Nav.Link href="https://www.facebook.com/profile.php?id=61565523437323&sk=about" target='_blank' rel="noopener noreferrer">
                                 <Image src="/assets/facebook.png" style={{ width: '40px', height: '40px' }} />
                             </Nav.Link>
-                            <Nav.Link href="https://www.instagram.com/syrnyk.ch" target='_blank'  rel="noopener noreferrer">
+                            <Nav.Link href="https://www.instagram.com/syrnyk.ch" target='_blank' rel="noopener noreferrer">
                                 <Image src="/assets/instagram.png" style={{ width: '40px', height: '40px' }} />
                             </Nav.Link>
                         </Nav>
@@ -169,8 +182,8 @@ const Menu2 = () => {
                 </Container>
             </Navbar>
 
-            <LoginModal 
-                show={showLogin} 
+            <LoginModal
+                show={showLogin}
                 onHide={() => setShowLogin(false)}
             />
         </>

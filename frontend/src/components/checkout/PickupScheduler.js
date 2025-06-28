@@ -58,7 +58,7 @@ const PickupScheduler = ({
         const dayOfWeek = currentDate.getDay(); // 0 = Sunday, 1 = Monday, etc.
         
         // Only include Saturday (6), Sunday (0), Monday (1), Tuesday (2)
-        if ([0, 1, 2, 6].includes(dayOfWeek)) {
+        if ([1, 6].includes(dayOfWeek)) {
           allAvailableDates.push({
             date: currentDate.toISOString().split('T')[0], // YYYY-MM-DD format
             dayOfWeek: dayOfWeek,

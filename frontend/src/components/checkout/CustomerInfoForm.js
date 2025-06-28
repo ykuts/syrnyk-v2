@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import PasswordFields from './PasswordFields';
 import ConsentSection from './ConsentSection';
 import SimplePhoneInput, { useSimplePhoneValidation } from '../common/SimplePhoneInput';
+import './CustomerInfoForm.css';
 
 /**
  * Customer information form component for checkout
@@ -40,14 +41,14 @@ const CustomerInfoForm = ({
   return (
     <section className="mb-5">
       <h4 className="mb-3">{t('checkout.customer_info')}</h4>
-      <Card>
+      <Card className="register-form-labels">
         <Card.Body>
           <Row>
             <Col md={6}>
               <Form.Group className="mb-3">
                 <Form.Label className="text-start">
                   {t('customer.first_name')}
-                  <span style={{ color: 'red', marginLeft: '2px' }}>*</span>
+                  <span className="required-asterisk">*</span>
                 </Form.Label>
                 <Form.Control
                   type="text"
@@ -64,7 +65,7 @@ const CustomerInfoForm = ({
               <Form.Group className="mb-3">
                 <Form.Label className="text-start">
                   {t('customer.last_name')}
-                  <span style={{ color: 'red', marginLeft: '2px' }}>*</span>
+                  <span className="required-asterisk">*</span>
                 </Form.Label>
                 <Form.Control
                   type="text"
@@ -82,7 +83,7 @@ const CustomerInfoForm = ({
           <Form.Group className="mb-3">
             <Form.Label className="text-start">
               E-mail
-              <span style={{ color: 'red', marginLeft: '2px' }}>*</span>
+              <span className="required-asterisk">*</span>
             </Form.Label>
             <Form.Control
               type="email"
@@ -99,7 +100,7 @@ const CustomerInfoForm = ({
           <Form.Group className="mb-3 ">
             <Form.Label className="text-start">
               {t('customer.phone', 'Телефон')}
-              <span style={{ color: 'red', marginLeft: '2px' }}>*</span>
+             <span className="required-asterisk">*</span>
             </Form.Label>
             <SimplePhoneInput
               name="phone"

@@ -4,6 +4,7 @@ import { Form, Button, Card, Modal } from 'react-bootstrap';
 import { FileText, Check } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { useTranslation } from 'react-i18next';
+import './ConsentSection.css';
 
 // Import templates
 import {
@@ -79,7 +80,8 @@ const ConsentSection = ({
 
   return (
     <>
-      <Card className="mb-4 bg-light border">
+    
+      <Card className="mb-4 consent-section border-0">
         <Card.Body className="py-3">
           <h6 className="d-flex align-items-center mb-3">
             <FileText size={18} className="me-2" />
@@ -104,7 +106,8 @@ const ConsentSection = ({
                     onClick={handleViewTerms}
                   >
                     {getUIText('termsLinkText')}
-                  </Button>*
+                  </Button>
+                  <span className="required-asterisk">*</span>
                 </>
               }
             />
@@ -129,13 +132,15 @@ const ConsentSection = ({
             />
           </Form.Group>
 
-          <div className="text-muted small">
+          <div className="privacy-note">
             <p className="mb-0">
               {getUIText('privacyNote')}
             </p>
           </div>
         </Card.Body>
       </Card>
+    
+      
 
       {/* Data Processing Terms Modal */}
       <Modal

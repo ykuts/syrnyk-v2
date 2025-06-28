@@ -36,6 +36,34 @@ const CheckoutPage = () => {
     removeAllFromCart
   } = useContext(CartContext);
 
+  // Validation
+  const [fieldValidation, setFieldValidation] = useState({
+    firstName: { isValid: true, message: '' },
+    lastName: { isValid: true, message: '' },
+    email: { isValid: true, message: '' },
+    phone: { isValid: true, message: '' },
+    paymentMethod: { isValid: true, message: '' },
+    deliveryType: { isValid: true, message: '' },
+    // Address fields
+    street: { isValid: true, message: '' },
+    house: { isValid: true, message: '' },
+    city: { isValid: true, message: '' },
+    postalCode: { isValid: true, message: '' },
+    // Station delivery
+    stationId: { isValid: true, message: '' },
+    // Pickup delivery
+    storeId: { isValid: true, message: '' },
+    // Date and time
+    deliveryDate: { isValid: true, message: '' },
+    deliveryTimeSlot: { isValid: true, message: '' },
+    // Account creation
+    password: { isValid: true, message: '' },
+    confirmPassword: { isValid: true, message: '' },
+    dataConsentAccepted: { isValid: true, message: '' },
+    // TWINT
+    twintOption: { isValid: true, message: '' }
+  });
+
   // Checkout flow states
   const [checkoutStep, setCheckoutStep] = useState('initial');
   const [isGuest, setIsGuest] = useState(false);
@@ -137,28 +165,28 @@ const CheckoutPage = () => {
   }; */
 
   // Handler for TWINT admin comment (hidden from client)
-const handleTwintCommentChange = (twintStatus) => {
-  setTwintAdminComment(twintStatus);
-};
+  const handleTwintCommentChange = (twintStatus) => {
+    setTwintAdminComment(twintStatus);
+  };
 
-// Function to prepare admin notes by combining client comment + TWINT status
-const prepareAdminNotes = () => {
-  const clientComment = formData.notesClient?.trim() || '';
-  const twintComment = twintAdminComment?.trim() || '';
-  
-  // Combine client comment and TWINT status for admin
-  const adminNotes = [];
-  
-  if (clientComment) {
-    adminNotes.push(`Коментар клієнта: ${clientComment}`);
-  }
-  
-  if (twintComment) {
-    adminNotes.push(`TWINT статус: ${twintComment}`);
-  }
-  
-  return adminNotes.join('\n');
-};
+  // Function to prepare admin notes by combining client comment + TWINT status
+  const prepareAdminNotes = () => {
+    const clientComment = formData.notesClient?.trim() || '';
+    const twintComment = twintAdminComment?.trim() || '';
+
+    // Combine client comment and TWINT status for admin
+    const adminNotes = [];
+
+    if (clientComment) {
+      adminNotes.push(`Коментар клієнта: ${clientComment}`);
+    }
+
+    if (twintComment) {
+      adminNotes.push(`TWINT статус: ${twintComment}`);
+    }
+
+    return adminNotes.join('\n');
+  };
 
   // Load initial data when user is available
   useEffect(() => {
@@ -323,12 +351,29 @@ const prepareAdminNotes = () => {
         deliveryDate: '',
         deliveryTimeSlot: ''
       }));
+
+      // Clear validation for delivery-specific fields when delivery type changes
+      setFieldValidation(prev => ({
+        ...prev,
+        street: { isValid: true, message: '' },
+        house: { isValid: true, message: '' },
+        city: { isValid: true, message: '' },
+        postalCode: { isValid: true, message: '' },
+        stationId: { isValid: true, message: '' },
+        storeId: { isValid: true, message: '' }
+      }));
+
     } else {
       // General case for all other fields
       setFormData(prev => ({
         ...prev,
         [name]: newValue
       }));
+    }
+
+    // Real-time validation for specific fields (skip phone as it's handled by SimplePhoneInput)
+    if (name !== 'phone' && name !== 'preferredDeliveryType') {
+      validateField(name, newValue);
     }
   };
 
@@ -355,7 +400,7 @@ const prepareAdminNotes = () => {
   };
 
   // Validate the form before submission
-  const validateForm = () => {
+  /* const validateForm = () => {
     let isValid = true;
     let errorMessage = '';
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -470,6 +515,320 @@ const prepareAdminNotes = () => {
 
     setFormValidationError(isValid ? '' : errorMessage);
     return isValid;
+  }; */
+
+  const validateForm = () => {
+    let isValid = true;
+    let newValidation = { ...fieldValidation };
+
+    // Reset all validations
+    Object.keys(newValidation).forEach(key => {
+      newValidation[key] = { isValid: true, message: '' };
+    });
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const phoneRegex = /^\+[1-9]\d{9,14}$/;
+
+    // Basic required field validation
+    if (!formData.firstName?.trim()) {
+      newValidation.firstName = {
+        isValid: false,
+        message: t('validation.first_name_required', { ns: 'auth' })
+      };
+      isValid = false;
+    }
+
+    if (!formData.lastName?.trim()) {
+      newValidation.lastName = {
+        isValid: false,
+        message: t('validation.last_name_required', { ns: 'auth' })
+      };
+      isValid = false;
+    }
+
+    if (!formData.email?.trim()) {
+      newValidation.email = {
+        isValid: false,
+        message: t('validation.email_required', { ns: 'auth' })
+      };
+      isValid = false;
+    } else if (!emailRegex.test(formData.email)) {
+      newValidation.email = {
+        isValid: false,
+        message: t('validation.invalid_email')
+      };
+      isValid = false;
+    }
+
+    if (!formData.phone?.trim()) {
+      newValidation.phone = {
+        isValid: false,
+        message: t('validation.phone_required', { ns: 'auth' })
+      };
+      isValid = false;
+    } else if (formData.phone === '+' || !phoneRegex.test(cleanPhoneNumber(formData.phone))) {
+      newValidation.phone = {
+        isValid: false,
+        message: t('validation.invalid_phone')
+      };
+      isValid = false;
+    }
+
+    // Payment method validation
+    if (!formData.paymentMethod) {
+      newValidation.paymentMethod = {
+        isValid: false,
+        message: t('validation.payment_method_required')
+      };
+      isValid = false;
+    }
+
+    // TWINT specific validation
+    if (formData.paymentMethod === 'TWINT' &&
+      (twintPaymentOption === '' || twintPaymentOption === undefined)) {
+      newValidation.twintOption = {
+        isValid: false,
+        message: t('validation.twint_option_required', 'Please select a TWINT payment option')
+      };
+      isValid = false;
+    }
+
+    // Delivery validation based on type
+    if (formData.deliveryType === 'ADDRESS') {
+      if (!formData.street?.trim()) {
+        newValidation.street = {
+          isValid: false,
+          message: t('validation.street_required')
+        };
+        isValid = false;
+      }
+
+      if (!formData.house?.trim()) {
+        newValidation.house = {
+          isValid: false,
+          message: t('validation.house_required')
+        };
+        isValid = false;
+      }
+
+      if (!formData.city?.trim()) {
+        newValidation.city = {
+          isValid: false,
+          message: t('validation.city_required')
+        };
+        isValid = false;
+      }
+
+      if (!formData.postalCode?.trim()) {
+        newValidation.postalCode = {
+          isValid: false,
+          message: t('validation.postal_code_required')
+        };
+        isValid = false;
+      } else if (!/^\d{4}$/.test(formData.postalCode)) {
+        newValidation.postalCode = {
+          isValid: false,
+          message: t('validation.invalid_postal_code')
+        };
+        isValid = false;
+      }
+
+      if (!deliveryCalculation.isValid) {
+        // Don't mark specific field as invalid, just show general error
+        setFormValidationError(deliveryCalculation.message || t('validation.delivery_not_available'));
+        isValid = false;
+      }
+    } else if (formData.deliveryType === 'RAILWAY_STATION') {
+      if (!formData.stationId) {
+        newValidation.stationId = {
+          isValid: false,
+          message: t('validation.station_required')
+        };
+        isValid = false;
+      }
+    } else if (formData.deliveryType === 'PICKUP') {
+      if (!formData.storeId) {
+        newValidation.storeId = {
+          isValid: false,
+          message: t('validation.store_required')
+        };
+        isValid = false;
+      }
+    }
+
+    // Delivery date validation
+    if (!formData.deliveryDate) {
+      newValidation.deliveryDate = {
+        isValid: false,
+        message: t('validation.delivery_date_required')
+      };
+      isValid = false;
+    }
+
+    // Time slot validation only for pickup
+    if (formData.deliveryType === 'PICKUP' && !formData.deliveryTimeSlot) {
+      newValidation.deliveryTimeSlot = {
+        isValid: false,
+        message: t('validation.delivery_time_required')
+      };
+      isValid = false;
+    }
+
+    // Account creation validation
+    if (isGuest && createAccount) {
+      if (!formData.password || formData.password.length === 0) {
+        newValidation.password = {
+          isValid: false,
+          message: t('register.validation.password_required', { ns: 'auth' })
+        };
+        isValid = false;
+      }
+
+      if (formData.password !== formData.confirmPassword) {
+        newValidation.confirmPassword = {
+          isValid: false,
+          message: t('register.validation.passwords_mismatch', { ns: 'auth' })
+        };
+        isValid = false;
+      }
+
+      if (!formData.dataConsentAccepted) {
+        newValidation.dataConsentAccepted = {
+          isValid: false,
+          message: t('register.validation.consent_required', { ns: 'auth' })
+        };
+        isValid = false;
+      }
+    }
+
+    // Update validation state
+    setFieldValidation(newValidation);
+
+    // Clear form validation error if no general errors
+    if (isValid) {
+      setFormValidationError(null);
+    }
+
+    return isValid;
+  };
+
+  // Validate individual fields on change
+  const validateField = (name, value) => {
+    let isValid = true;
+    let message = '';
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const phoneRegex = /^\+[1-9]\d{9,14}$/;
+
+    switch (name) {
+      case 'firstName':
+      case 'lastName':
+        if (!value?.trim()) {
+          isValid = false;
+          message = name === 'firstName'
+            ? t('validation.first_name_required', { ns: 'auth' })
+            : t('validation.last_name_required', { ns: 'auth' });
+        }
+        break;
+
+      case 'email':
+        if (!value?.trim()) {
+          isValid = false;
+          message = t('validation.email_required', { ns: 'auth' });
+        } else if (!emailRegex.test(value)) {
+          isValid = false;
+          message = t('validation.invalid_email');
+        }
+        break;
+
+      case 'phone':
+        if (!value?.trim() || value === '+') {
+          isValid = false;
+          message = t('validation.phone_required', { ns: 'auth' });
+        } else if (!phoneRegex.test(cleanPhoneNumber(value))) {
+          isValid = false;
+          message = t('validation.invalid_phone');
+        }
+        break;
+
+      case 'street':
+        if (formData.deliveryType === 'ADDRESS' && !value?.trim()) {
+          isValid = false;
+          message = t('validation.street_required');
+        }
+        break;
+
+      case 'house':
+        if (formData.deliveryType === 'ADDRESS' && !value?.trim()) {
+          isValid = false;
+          message = t('validation.house_required');
+        }
+        break;
+
+      case 'city':
+        if (formData.deliveryType === 'ADDRESS' && !value?.trim()) {
+          isValid = false;
+          message = t('validation.city_required');
+        }
+        break;
+
+      case 'postalCode':
+        if (formData.deliveryType === 'ADDRESS') {
+          if (!value?.trim()) {
+            isValid = false;
+            message = t('validation.postal_code_required');
+          } else if (!/^\d{4}$/.test(value)) {
+            isValid = false;
+            message = t('validation.invalid_postal_code');
+          }
+        }
+        break;
+
+      case 'stationId':
+        if (formData.deliveryType === 'RAILWAY_STATION' && !value) {
+          isValid = false;
+          message = t('validation.station_required');
+        }
+        break;
+
+      case 'deliveryDate':
+        if (!value) {
+          isValid = false;
+          message = t('validation.delivery_date_required');
+        }
+        break;
+
+      case 'deliveryTimeSlot':
+        if (formData.deliveryType === 'PICKUP' && !value) {
+          isValid = false;
+          message = t('validation.delivery_time_required');
+        }
+        break;
+
+      case 'password':
+        if (isGuest && createAccount && (!value || value.length === 0)) {
+          isValid = false;
+          message = t('register.validation.password_required', { ns: 'auth' });
+        }
+        break;
+
+      case 'confirmPassword':
+        if (isGuest && createAccount && value !== formData.password) {
+          isValid = false;
+          message = t('register.validation.passwords_mismatch', { ns: 'auth' });
+        }
+        break;
+
+      default:
+        break;
+    }
+
+    setFieldValidation(prev => ({
+      ...prev,
+      [name]: { isValid, message }
+    }));
+
+    return isValid;
   };
 
   // Prepare time from time slot string
@@ -565,8 +924,9 @@ const prepareAdminNotes = () => {
   // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     // Prevent double submission
-    setIsSubmitting(true);
+    if (isSubmitting) return;
 
     // Clear previous errors
     setSubmitError(null);
@@ -574,7 +934,22 @@ const prepareAdminNotes = () => {
 
     // Validate form
     if (!validateForm()) {
-      window.scrollTo(0, 0); // Scroll to top to show validation error
+      // Find first invalid field and scroll to it
+      const firstInvalidField = Object.keys(fieldValidation).find(
+        key => !fieldValidation[key].isValid
+      );
+
+      if (firstInvalidField) {
+        const element = document.querySelector(`[name="${firstInvalidField}"]`);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          element.focus();
+        }
+      } else {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+
+      setFormValidationError(t('register.validation.fix_errors', { ns: 'auth' }));
       return;
     }
 
@@ -791,6 +1166,7 @@ const prepareAdminNotes = () => {
               isGuest={isGuest}
               createAccount={createAccount}
               onCreateAccountChange={setCreateAccount}
+              fieldValidation={fieldValidation} // Add this
             />
 
             {/* Delivery Options */}

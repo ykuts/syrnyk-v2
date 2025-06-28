@@ -6,6 +6,7 @@ import { Phone, Mail, Lock, User, AlertCircle, FileText, Check } from 'lucide-re
 import ReactMarkdown from 'react-markdown';
 import { useTranslation } from 'react-i18next';
 import SimplePhoneInput, { useSimplePhoneValidation, cleanPhoneNumber } from './common/SimplePhoneInput';
+import './Register.css'; 
 
 // Импортируем шаблоны из отдельного файла
 import {
@@ -184,7 +185,7 @@ const Register = () => {
       }
     });
 
-    // FIXED: Strict phone validation - check for complete valid phone number
+    // Strict phone validation - check for complete valid phone number
     if (!formData.phone ||
       formData.phone === '+' ||
       !isPhoneValid ||
@@ -286,7 +287,7 @@ const Register = () => {
 
   return (
     <Container className="py-5">
-      <Card className="mx-auto shadow-sm" style={{ maxWidth: '550px' }}>
+      <Card className="mx-auto shadow-sm register-form-labels" style={{ maxWidth: '550px' }}>
         <Card.Body className="p-4">
           <h2 className="text-center mb-4">{t('register.title')}</h2>
 
@@ -296,6 +297,10 @@ const Register = () => {
             <Row className="mb-3">
               <Col sm={6}>
                 <Form.Group>
+                  <Form.Label>
+                    {t('register.first_name')}
+                    <span className="required-asterisk">*</span>
+                  </Form.Label>
                   <InputGroup>
                     <InputGroup.Text>
                       <User size={18} />
@@ -305,7 +310,7 @@ const Register = () => {
                       name="firstName"
                       value={formData.firstName}
                       onChange={handleChange}
-                      placeholder={t('register.first_name')}
+                      placeholder={t('register.input_first_name')} 
                       isInvalid={!validation.firstName.isValid}
                       required
                     />
@@ -318,6 +323,10 @@ const Register = () => {
 
               <Col sm={6}>
                 <Form.Group>
+                  <Form.Label>
+                {t('register.last_name')}
+                <span className="required-asterisk">*</span>
+              </Form.Label>
                   <InputGroup>
                     <InputGroup.Text>
                       <User size={18} />
@@ -327,7 +336,7 @@ const Register = () => {
                       name="lastName"
                       value={formData.lastName}
                       onChange={handleChange}
-                      placeholder={t('register.last_name')}
+                      placeholder={t('register.input_last_name')}
                       isInvalid={!validation.lastName.isValid}
                       required
                     />
@@ -340,6 +349,10 @@ const Register = () => {
             </Row>
 
             <Form.Group className="mb-3">
+              <Form.Label>
+                {t('register.email')}
+                <span className="required-asterisk">*</span>
+              </Form.Label>
               <InputGroup>
                 <InputGroup.Text>
                   <Mail size={18} />
@@ -349,7 +362,7 @@ const Register = () => {
                   name="email"
                   value={formData.email}
                   onChange={handleChange}
-                  placeholder={t('register.email')}
+                  placeholder="example@email.com"
                   isInvalid={!validation.email.isValid}
                   required
                 />
@@ -363,7 +376,7 @@ const Register = () => {
             <Form.Group className="mb-3">
               <Form.Label>
                 {t('register.phone')}
-                <span className="text-danger ms-1">*</span>
+                <span className="required-asterisk">*</span>
               </Form.Label>
               <SimplePhoneInput
                 name="phone"
@@ -385,6 +398,10 @@ const Register = () => {
             </Form.Group>
 
             <Form.Group className="mb-3">
+              <Form.Label>
+                {t('register.password')}
+                <span className="required-asterisk">*</span>
+              </Form.Label>
               <InputGroup>
                 <InputGroup.Text>
                   <Lock size={18} />
@@ -394,7 +411,7 @@ const Register = () => {
                   name="password"
                   value={formData.password}
                   onChange={handleChange}
-                  placeholder={t('register.password')}
+                  placeholder={t('register.input_password')}
                   isInvalid={!validation.password.isValid}
                   required
                 />
@@ -406,6 +423,10 @@ const Register = () => {
             </Form.Group>
 
             <Form.Group className="mb-4">
+              <Form.Label>
+                {t('register.confirm_password')}
+                <span className="required-asterisk">*</span>
+              </Form.Label>
               <InputGroup>
                 <InputGroup.Text>
                   <Lock size={18} />
@@ -415,7 +436,7 @@ const Register = () => {
                   name="confirmPassword"
                   value={formData.confirmPassword}
                   onChange={handleChange}
-                  placeholder={t('register.confirm_password')}
+                  placeholder={t('register.input_confirm_password')}
                   isInvalid={!validation.confirmPassword.isValid}
                   required
                 />
@@ -426,7 +447,7 @@ const Register = () => {
             </Form.Group>
 
             {/* Consent section */}
-            <Card className="mb-4 bg-light border">
+            {/* <Card className="mb-4 bg-light border">
               <Card.Body className="py-3">
                 <h6 className="d-flex align-items-center mb-3">
                   <FileText size={18} className="me-2" />
@@ -478,6 +499,62 @@ const Register = () => {
                   </p>
                 </div>
               </Card.Body>
+            </Card> */}
+
+            {/* Consent section */}
+            <Card className="mb-4 consent-section border-0">
+              <Card.Body className="py-3">
+                <h6 className="d-flex align-items-center mb-3">
+                  <FileText size={18} className="me-2" />
+                  {getUIText('privacyTitle')}
+                </h6>
+
+                <Form.Group className="mb-3 text-start">
+                  <Form.Check
+                    type="checkbox"
+                    id="dataConsentAccepted"
+                    name="dataConsentAccepted"
+                    checked={formData.dataConsentAccepted}
+                    onChange={handleChange}
+                    isInvalid={!validation.dataConsentAccepted.isValid}
+                    label={
+                      <>
+                        {consentCheckboxText[termsLanguage] || consentCheckboxText.uk}{' '}
+                        <Button
+                          variant="link"
+                          className="p-0 align-baseline text-decoration-underline"
+                          onClick={handleViewTerms}
+                        >
+                          {getUIText('termsLinkText')}
+                        </Button>
+                        <span className="required-asterisk">*</span>
+                      </>
+                    }
+                  />
+                  {!validation.dataConsentAccepted.isValid && (
+                    <div className="text-danger small mt-1">
+                      {validation.dataConsentAccepted.message}
+                    </div>
+                  )}
+                </Form.Group>
+
+                <Form.Group className="mb-3 text-start">
+                  <Form.Check
+                    type="checkbox"
+                    id="marketingConsent"
+                    name="marketingConsent"
+                    checked={formData.marketingConsent}
+                    onChange={handleChange}
+                    label={marketingConsentText[termsLanguage] || marketingConsentText.uk}
+                  />
+                </Form.Group>
+
+                <div className="privacy-note">
+                  <p className="mb-0">
+                    {getUIText('privacyNote')}
+                  </p>
+                </div>
+              </Card.Body>
             </Card>
 
             <Button
@@ -499,6 +576,9 @@ const Register = () => {
         </Card.Body>
       </Card>
 
+      
+      
+      
       {/* Data Processing Terms Modal */}
       <Modal
         show={showTerms}

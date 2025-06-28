@@ -93,13 +93,15 @@
     "vaud": {
       "coppet_lausanne_free": "Для регіону від <strong>Coppet до Lausanne</strong> - доставка завжди <strong>безкоштовна</strong>, незалежно від суми замовлення.",
       "other_regions_title": "<strong>Для інших регіонів:</strong>",
-      "rule_100_chf": "- при <strong>замовленні від 100 CHF</strong> — доставка додому <strong>10 CHF</strong>",
-      "rule_200_chf": "- при <strong>замовленні від 200 CHF</strong> — доставка додому <strong>безкоштовна</strong>"
+      "rule_100_chf": "- при <strong>замовленні від 100 CHF</strong> - доставка додому <strong>10 CHF</strong>",
+      "rule_chf": "— доставка додому <strong>10 CHF</strong>",
+      "rule_200_chf": "— при <strong>замовленні від 200 CHF</strong> - доставка додому <strong>безкоштовна</strong>"
     },
     "geneva": {
       "title": "<strong>Доставка в Женеву:</strong>",
-      "rule_100_chf": "- при <strong>замовленні від 100 CHF</strong> — доставка додому <strong>10 CHF</strong>",
-      "rule_200_chf": "- при <strong>замовленні від 200 CHF</strong> — доставка додому <strong>безкоштовна</strong>"
+      "rule_100_chf": "- при <strong>замовленні від 100 CHF</strong> - доставка додому <strong>10 CHF</strong>",
+      "rule_chf": "— доставка додому <strong>10 CHF</strong>",
+      "rule_200_chf": "— при <strong>замовленні від 200 CHF</strong> - доставка додому <strong>безкоштовна</strong>"
     }
   },
   "payment": {

@@ -22,14 +22,14 @@ const DeliveryCostCalculator = ({
   const [error, setError] = useState(null);
   const [isValid, setIsValid] = useState(true);
   const [minimumOrderAmount, setMinimumOrderAmount] = useState(0);
-  
+
   // Delivery method minimum order requirements
   const DELIVERY_MINIMUMS = {
     PICKUP: 0,           // No minimum for pickup
-    RAILWAY_STATION: 20, // 20 CHF minimum for railway delivery
-    ADDRESS: 100         // 100 CHF minimum for address delivery
+    RAILWAY_STATION: 0, // 20 CHF minimum for railway delivery
+    ADDRESS: 0         // 100 CHF minimum for address delivery
   };
-  
+
   // Track previous values to avoid unnecessary recalculations
   const prevValuesRef = useRef({
     deliveryType,
@@ -37,7 +37,7 @@ const DeliveryCostCalculator = ({
     canton,
     totalPrice
   });
-  
+
   // Reference to track if we already called the callback for this render
   const callbackCalledRef = useRef(false);
 
@@ -48,21 +48,21 @@ const DeliveryCostCalculator = ({
     console.log('Delivery type:', deliveryType);
     console.log('Total price:', totalPrice);
     console.log('Minimum required:', DELIVERY_MINIMUMS[deliveryType]);
-    
+
     // Only recalculate if inputs have changed
-    const hasInputChanged = 
+    const hasInputChanged =
       prevValuesRef.current.deliveryType !== deliveryType ||
       prevValuesRef.current.postalCode !== postalCode ||
       prevValuesRef.current.canton !== canton ||
       prevValuesRef.current.totalPrice !== totalPrice;
-    
+
     console.log('🔍 Checking for changes:', {
       hasInputChanged,
       callbackCalled: callbackCalledRef.current,
       previous: prevValuesRef.current,
       current: { deliveryType, postalCode, canton, totalPrice }
     });
-      
+
     // Skip if nothing has changed to prevent infinite loops
     if (!hasInputChanged && callbackCalledRef.current) {
       console.log('Skipping calculation - no changes detected');
@@ -70,7 +70,7 @@ const DeliveryCostCalculator = ({
       console.log('Current values:', { deliveryType, postalCode, canton, totalPrice });
       return;
     }
-    
+
     // Update our tracking of previous values
     prevValuesRef.current = {
       deliveryType,
@@ -78,20 +78,20 @@ const DeliveryCostCalculator = ({
       canton,
       totalPrice
     };
-    
+
     // Start calculation
     setLoading(true);
     setError(null);
-    
+
     try {
       let cost = 0;
       let calculationMessage = '';
       let valid = true;
       let minimumOrder = DELIVERY_MINIMUMS[deliveryType] || 0;
-      
+
       console.log('Calculating for delivery type:', deliveryType);
       console.log('Minimum order required:', minimumOrder);
-      
+
       // Calculate based on delivery type
       switch (deliveryType) {
         case 'PICKUP':
@@ -101,12 +101,15 @@ const DeliveryCostCalculator = ({
           calculationMessage = 'Безкоштовний самовивіз';
           console.log('PICKUP: Always valid, no minimum');
           break;
-          
+
         case 'RAILWAY_STATION':
           // Railway delivery: minimum 20 CHF, always free delivery cost
           cost = 0; // Always free delivery
-          
-          if (totalPrice < minimumOrder) {
+          valid = true;
+          calculationMessage = 'Безкоштовна доставка на ЖД станцію';
+          console.log('RAILWAY_STATION: Always valid, no minimum');
+
+          /* if (totalPrice < minimumOrder) {
             valid = false;
             const needed = minimumOrder - totalPrice;
             calculationMessage = `Мінімальне замовлення для доставки на ЖД станцію - ${minimumOrder} CHF. Додайте ще продукції на ${needed.toFixed(2)} CHF.`;
@@ -115,12 +118,25 @@ const DeliveryCostCalculator = ({
             valid = true;
             calculationMessage = t('railway.free_delivery'); // "Free delivery for railway station"
             console.log('RAILWAY_STATION: Valid - meets minimum');
-          }
+          } */
           break;
-          
+
         case 'ADDRESS':
           // Address delivery logic
-          if (totalPrice < minimumOrder) {
+          console.log('ADDRESS delivery calculation started');
+          if (totalPrice < 200) {
+            cost = 10;
+            valid = true;
+            calculationMessage = t('checkout.default_fee', { cost: 10 });
+            console.log('ADDRESS: Valid - standard delivery fee');
+          } else if (totalPrice >= 200) {
+            cost = 0; // Free delivery for orders above 200 CHF
+            valid = true;
+            calculationMessage = 'Безкоштовна доставка для замовлень від 200 CHF';
+            console.log('ADDRESS: Valid - free delivery (200+ CHF)');
+          } 
+
+          /* if (totalPrice < minimumOrder) {
             valid = false;
             const needed = minimumOrder - totalPrice;
             calculationMessage = t('address.free_threshold', { threshold: minimumOrder });
@@ -139,9 +155,9 @@ const DeliveryCostCalculator = ({
             valid = true;
             calculationMessage = t('checkout.default_fee', { cost: 10 });
             console.log('ADDRESS: Valid - standard delivery fee');
-          }
+          } */
           break;
-          
+
         default:
           // Fallback for unknown delivery types
           cost = 0;
@@ -150,15 +166,15 @@ const DeliveryCostCalculator = ({
           console.log('UNKNOWN delivery type:', deliveryType);
           break;
       }
-      
+
       console.log('Final calculation result:', { cost, valid, calculationMessage });
-      
+
       // Update component state
       setDeliveryCost(cost);
       setMessage(calculationMessage);
       setIsValid(valid);
       setMinimumOrderAmount(minimumOrder);
-      
+
       // Call the callback with results (only once per calculation)
       if (!callbackCalledRef.current) {
         console.log('Calling onCostCalculated with:', {
@@ -168,7 +184,7 @@ const DeliveryCostCalculator = ({
           minimumOrderAmount: minimumOrder,
           deliveryType
         });
-        
+
         onCostCalculated({
           cost,
           isValid: valid,
@@ -178,19 +194,19 @@ const DeliveryCostCalculator = ({
         });
         callbackCalledRef.current = true;
       }
-      
+
     } catch (err) {
       console.error('Error calculating delivery cost:', err);
       setError('Помилка розрахунку вартості доставки');
-      
+
       // Fallback values on error
-      const fallbackValid = deliveryType === 'PICKUP' || 
-                           (deliveryType === 'RAILWAY_STATION' && totalPrice >= 20) ||
-                           (deliveryType === 'ADDRESS' && totalPrice >= 100);
-      
+      const fallbackValid = deliveryType === 'PICKUP' ||
+        (deliveryType === 'RAILWAY_STATION') ||
+        (deliveryType === 'ADDRESS');
+
       if (!callbackCalledRef.current) {
         onCostCalculated({
-          cost: deliveryType === 'ADDRESS' && totalPrice >= 100 && totalPrice < 200 ? 10 : 0,
+          cost: deliveryType === 'ADDRESS' && totalPrice < 200 ? 10 : 0,
           isValid: fallbackValid,
           message: fallbackValid ? 'Розрахунок завершено' : 'Не виконано мінімальні вимоги',
           minimumOrderAmount: DELIVERY_MINIMUMS[deliveryType] || 0,
@@ -212,7 +228,7 @@ const DeliveryCostCalculator = ({
 
   // Only skip rendering for non-address delivery UI, but still calculate for all types
   const shouldRenderUI = deliveryType === 'ADDRESS';
-  
+
   // Show loading state (only for ADDRESS delivery)
   if (loading && shouldRenderUI) {
     return (

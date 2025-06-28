@@ -98,7 +98,7 @@ const AddressDeliveryCheckout = ({ formData, handleChange }) => {
             <ul className="ms-3" style={{ listStyle: 'none', paddingLeft: 0, textAlign: 'left' }}>
               <li>
                 <Trans 
-                  i18nKey="delivery.vaud.rule_100_chf"
+                  i18nKey="delivery.vaud.rule_chf"
                   ns="checkout"
                   components={{
                     strong: <strong />,
@@ -134,7 +134,7 @@ const AddressDeliveryCheckout = ({ formData, handleChange }) => {
             <ul className="ms-3" style={{ listStyle: 'none', paddingLeft: 0, textAlign: 'left' }}>
               <li>
                 <Trans 
-                  i18nKey="delivery.geneva.rule_100_chf"
+                  i18nKey="delivery.geneva.rule_chf"
                   ns="checkout"
                   components={{
                     strong: <strong />,
@@ -459,14 +459,14 @@ const AddressDeliveryCheckout = ({ formData, handleChange }) => {
       />
       
       {/* Minimum Order Warning */}
-      {totalPrice < 100 && (
+      {/* {totalPrice < 100 && (
         <Alert variant="warning" className="mt-3 ">
           <span style={{ color: 'red' }}>
             {t('checkout.minimum_order_warning', { amount: 100 -totalPrice })}
           </span>
         </Alert>
-      )}
-      {totalPrice >= 100 && totalPrice < 200 && deliveryCost > 0 && (
+      )} */}
+      {totalPrice < 200 && deliveryCost > 0 && (
         <Alert variant="info" className="mt-3 ">
             {t('checkout.minimum_order_warning_free', { amount: 200 - totalPrice })}
         </Alert>

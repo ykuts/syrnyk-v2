@@ -36,20 +36,18 @@ const PaymentMethodSelector = ({
       onTwintConfirmationChange(selectedOption === 'paid');
     }
 
-    // Send comment about payment option to parent component
+    // Send TWINT status for admin notes only (not visible to client)
     if (onTwintCommentChange) {
-      let commentText = '';
+      let twintStatusText = '';
 
       if (selectedOption === 'paid') {
-          commentText = t('payment.twint.confirmation', 'Замовлення мною сплачено');
-        } else if (selectedOption === 'pay_on_delivery') {
-          commentText = t('payment.twint.pay_on_delivery', 'Оплачу по факту отримання замовлення');
-        }
-        // If selectedOption is empty string '', commentText remains empty
-        
-        // Only add TWINT prefix if there's actual text
-        const finalComment = commentText ? `TWINT: ${commentText}` : '';
-        onTwintCommentChange(finalComment);
+        twintStatusText = t('payment.twint.confirmation', 'Замовлення мною сплачено');
+      } else if (selectedOption === 'pay_on_delivery') {
+        twintStatusText = t('payment.twint.pay_on_delivery', 'Оплачу по факту отримання замовлення');
+      }
+      
+      // Send just the TWINT status text (will be combined with client notes in parent)
+      onTwintCommentChange(twintStatusText);
     }
   };
 
@@ -64,14 +62,14 @@ const PaymentMethodSelector = ({
     {
       id: 'TWINT',
       icon: <Wallet size={24} />,
-      disabled: false, // Now enabled
+      disabled: false, 
       title: t('payment.twint.title'),
       description: t('payment.twint.description')
     },
     {
       id: 'CARD',
       icon: <CreditCard size={24} />,
-      disabled: true,
+      disabled: true, // Now enabled
       title: t('payment.card.title'),
       description: t('payment.card.description')
     }
@@ -117,20 +115,17 @@ const PaymentMethodSelector = ({
       if (onTwintConfirmationChange) {
         onTwintConfirmationChange(twintPaymentOption === 'paid');
       }
-      // Add TWINT comment when selecting TWINT
-      if (onTwintCommentChange) {
-        let commentText = '';
+      // Add TWINT status to admin comment when selecting TWINT (if option is already selected)
+      if (onTwintCommentChange && twintPaymentOption) {
+        let twintStatusText = '';
         
         if (twintPaymentOption === 'paid') {
-          commentText = t('payment.twint.confirmation', 'Замовлення мною сплачено');
+          twintStatusText = t('payment.twint.confirmation', 'Замовлення мною сплачено');
         } else if (twintPaymentOption === 'pay_on_delivery') {
-          commentText = t('payment.twint.pay_on_delivery', 'Оплачу по факту отримання замовлення');
+          twintStatusText = t('payment.twint.pay_on_delivery', 'Оплачу по факту отримання замовлення');
         }
-        // If twintPaymentOption is empty string '', commentText remains empty
         
-        // Only add TWINT prefix if there's actual text
-        const finalComment = commentText ? `TWINT: ${commentText}` : '';
-        onTwintCommentChange(finalComment);
+        onTwintCommentChange(twintStatusText);
       }
     }
   };
@@ -184,9 +179,9 @@ const PaymentMethodSelector = ({
 
             {/* Payment Instructions */}
             <div className="mb-4">
-              <p className="mb-2">
+              {/* <p className="mb-2">
                 {t('payment.twint.instructions_1', 'Scan the QR code with your TWINT app')}
-              </p>
+              </p> */}
               <p className="mb-0 small text-muted">
                 {t('payment.twint.instructions_2', 'Complete the payment and confirm below')}
               </p>

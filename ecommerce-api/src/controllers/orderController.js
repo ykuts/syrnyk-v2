@@ -51,6 +51,7 @@ export const createOrder = async (req, res) => {
       totalAmount,
       paymentMethod,
       notesClient,
+      notesAdmin,
       items,
       addressDelivery,
       stationDelivery,
@@ -158,7 +159,8 @@ export const createOrder = async (req, res) => {
       deliveryType,
       totalAmount,
       paymentMethod,
-      notesClient,
+      notesClient: notesClient || '',
+      notesAdmin: notesAdmin || '',
       status: 'PENDING',
       paymentStatus: 'PENDING',
       deliveryDate: deliveryDate ? new Date(deliveryDate) : null,
@@ -234,7 +236,7 @@ export const createOrder = async (req, res) => {
     // Send notifications
     try {
       const recipient = order.user || order.guestInfo;
-const recipientLanguage = recipient.preferredLanguage || userLanguage || 'uk';
+      const recipientLanguage = recipient.preferredLanguage || userLanguage || 'uk';
 
       // Send order confirmation to customer
       await sendOrderConfirmation(order, recipient, recipientLanguage);
@@ -245,9 +247,15 @@ const recipientLanguage = recipient.preferredLanguage || userLanguage || 'uk';
       console.error('Error sending order notifications:', emailError);
     }
 
+    // Prepare response data - exclude admin notes from client response
+    const clientOrderData = {
+      ...order,
+      notesAdmin: undefined // Hide admin notes from client response
+    };
+
     const responseData = {
       message: 'Order created successfully',
-      order,
+      order: clientOrderData,
       user: registeredUser ? {
         id: registeredUser.id,
         email: registeredUser.email,
@@ -274,7 +282,21 @@ export const getOrders = async (req, res) => {
   try {
     const orders = await prisma.order.findMany({ 
       where: { userId }, 
-      include: { 
+      select: {
+        // Explicitly select fields, excluding notesAdmin
+        id: true,
+        deliveryType: true,
+        totalAmount: true,
+        paymentMethod: true,
+        notesClient: true,  // Include client notes
+        // notesAdmin: false, // Exclude admin notes for client
+        status: true,
+        paymentStatus: true,
+        deliveryDate: true,
+        deliveryTimeSlot: true,
+        deliveryCost: true,
+        createdAt: true,
+        updatedAt: true,
         items: {
           include: { product: true }
         },

@@ -105,6 +105,7 @@ const CheckoutPage = () => {
   // TWINT payment confirmation
   const [twintPaymentConfirmed, setTwintPaymentConfirmed] = useState(false);
   const [twintPaymentOption, setTwintPaymentOption] = useState('');
+  const [twintAdminComment, setTwintAdminComment] = useState(''); // TWINT status for admin
 
   const handleTwintPaymentOptionChange = (option) => {
     setTwintPaymentOption(option);
@@ -115,7 +116,7 @@ const CheckoutPage = () => {
     setTwintPaymentConfirmed(isConfirmed);
   };
 
-  // Handler for TWINT comment changes
+  /* // Handler for TWINT comment changes
   const handleTwintCommentChange = (twintComment) => {
     // Get existing notes without TWINT comment
     const existingNotes = formData.notesClient || '';
@@ -133,7 +134,31 @@ const CheckoutPage = () => {
         value: updatedNotes
       }
     });
-  };
+  }; */
+
+  // Handler for TWINT admin comment (hidden from client)
+const handleTwintCommentChange = (twintStatus) => {
+  setTwintAdminComment(twintStatus);
+};
+
+// Function to prepare admin notes by combining client comment + TWINT status
+const prepareAdminNotes = () => {
+  const clientComment = formData.notesClient?.trim() || '';
+  const twintComment = twintAdminComment?.trim() || '';
+  
+  // Combine client comment and TWINT status for admin
+  const adminNotes = [];
+  
+  if (clientComment) {
+    adminNotes.push(`Коментар клієнта: ${clientComment}`);
+  }
+  
+  if (twintComment) {
+    adminNotes.push(`TWINT статус: ${twintComment}`);
+  }
+  
+  return adminNotes.join('\n');
+};
 
   // Load initial data when user is available
   useEffect(() => {
@@ -540,6 +565,8 @@ const CheckoutPage = () => {
   // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
+    // Prevent double submission
+    setIsSubmitting(true);
 
     // Clear previous errors
     setSubmitError(null);
@@ -559,7 +586,8 @@ const CheckoutPage = () => {
         deliveryType: formData.deliveryType,
         totalAmount: totalPrice,
         paymentMethod: formData.paymentMethod,
-        notesClient: formData.notesClient,
+        notesClient: formData.notesClient || '',
+        notesAdmin: prepareAdminNotes(),
         items: cartItems.map(item => ({
           productId: item.id,
           quantity: item.quantity,

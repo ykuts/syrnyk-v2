@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
   <meta charset="UTF-8">
   <style>
@@ -9,22 +10,26 @@
       font-family: Arial, sans-serif;
       color: #333;
     }
+
     .header {
       background-color: #f8f9fa;
       padding: 20px;
       text-align: center;
       border-bottom: 3px solid #0056b3;
     }
+
     .content {
       padding: 20px;
       line-height: 1.6;
     }
+
     .benefits {
       background: #e9ecef;
       padding: 15px;
       margin: 15px 0;
       border-radius: 4px;
     }
+
     .footer {
       margin-top: 30px;
       padding: 20px;
@@ -34,6 +39,7 @@
     }
   </style>
 </head>
+
 <body>
   <div class="container">
     <div class="header">
@@ -42,29 +48,40 @@
 
     <div class="content">
       <p>Merci de rejoindre notre communauté ! Nous sommes ravis de vous compter parmi nos clients.</p>
-      
+
       <div class="benefits">
         <h3>Vos avantages en tant que client enregistré :</h3>
         <ul>
           <li>Suivez facilement vos commandes</li>
           <li>Enregistrez vos préférences de livraison</li>
           <li>Accédez à des offres exclusives</li>
-          <li>Processus de commande rapide</li>
+          <li>Procédure de commande rapide</li>
         </ul>
       </div>
 
       <p>Vous pouvez maintenant vous connecter à votre compte pour :</p>
       <ul>
-        <li>Consulter l'historique des commandes</li>
+        <li>Consulter l’historique de vos commandes</li>
         <li>Mettre à jour les informations de votre profil</li>
-        <li>Gérer les adresses de livraison</li>
+        <li>Gérer vos adresses de livraison</li>
       </ul>
     </div>
 
     <div class="footer">
-      <p>Si vous avez des questions, n'hésitez pas à nous contacter.</p>
-      <p>Cordialement,<br>Votre équipe Syrnyk</p>
+      <p>Si vous avez des questions, n’hésitez pas à nous contacter.</p>
+      <p>Cordialement,<br>L’équipe Syrnyk</p>
+      
+      <!-- Logo section with fallback -->
+      <div style="margin-bottom: 20px; text-align: center;">
+        <img src="{{frontendUrl}}/assets/logo2.png" alt="SYRNYK"
+          style="max-width: 150px; height: auto; display: block; margin: 0 auto;"
+          onerror="this.style.display='none'; this.nextElementSibling.style.display='block';" />
+        <div style="display: none; font-size: 24px; font-weight: bold; color: #0056b3; padding: 10px;">
+          🧀 SYRNYK
+        </div>
+      </div>
     </div>
   </div>
 </body>
+
 </html>

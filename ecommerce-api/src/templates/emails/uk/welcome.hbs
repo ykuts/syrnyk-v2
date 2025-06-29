@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
   <meta charset="UTF-8">
   <style>
@@ -9,22 +10,26 @@
       font-family: Arial, sans-serif;
       color: #333;
     }
+
     .header {
       background-color: #f8f9fa;
       padding: 20px;
       text-align: center;
       border-bottom: 3px solid #0056b3;
     }
+
     .content {
       padding: 20px;
       line-height: 1.6;
     }
+
     .benefits {
       background: #e9ecef;
       padding: 15px;
       margin: 15px 0;
       border-radius: 4px;
     }
+
     .footer {
       margin-top: 30px;
       padding: 20px;
@@ -34,6 +39,7 @@
     }
   </style>
 </head>
+
 <body>
   <div class="container">
     <div class="header">
@@ -42,7 +48,7 @@
 
     <div class="content">
       <p>Дякуємо, що приєдналися до нашої спільноти! Ми раді бачити вас серед наших клієнтів.</p>
-      
+
       <div class="benefits">
         <h3>Ваші переваги як зареєстрованого клієнта:</h3>
         <ul>
@@ -64,7 +70,18 @@
     <div class="footer">
       <p>Якщо у вас виникли питання, будь ласка, зв'яжіться з нами.</p>
       <p>З найкращими побажаннями,<br>Ваша команда Syrnyk</p>
+      
+      <!-- Logo section with fallback -->
+      <div style="margin-bottom: 20px; text-align: center;">
+        <img src="{{frontendUrl}}/assets/logo2.png" alt="SYRNYK"
+          style="max-width: 150px; height: auto; display: block; margin: 0 auto;"
+          onerror="this.style.display='none'; this.nextElementSibling.style.display='block';" />
+        <div style="display: none; font-size: 24px; font-weight: bold; color: #0056b3; padding: 10px;">
+          🧀 SYRNYK
+        </div>
+      </div>
     </div>
   </div>
 </body>
+
 </html>

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
   <meta charset="UTF-8">
   <style>
@@ -9,36 +10,59 @@
       font-family: Arial, sans-serif;
       color: #333;
     }
+
     .header {
       background-color: #f8f9fa;
       padding: 20px;
       text-align: center;
       border-bottom: 3px solid #0056b3;
     }
+
     .order-details {
       margin: 20px 0;
       padding: 15px;
       border: 1px solid #dee2e6;
       border-radius: 5px;
     }
+
     .item {
       margin: 10px 0;
       padding: 10px;
       background: #f8f9fa;
       border-radius: 4px;
     }
+
     .total {
       font-size: 18px;
       font-weight: bold;
       margin: 15px 0;
       color: #0056b3;
     }
+
     .delivery-info {
       background: #e9ecef;
       padding: 15px;
       border-radius: 4px;
       margin: 15px 0;
     }
+
+    .delivery-detail-item {
+      margin: 8px 0;
+      padding: 5px 0;
+    }
+
+    .delivery-label {
+      font-weight: bold;
+      color: #0056b3;
+    }
+
+    .notes {
+      background: #fff3cd;
+      padding: 10px;
+      margin: 10px 0;
+      border-left: 4px solid #ffc107;
+    }
+
     .footer {
       margin-top: 30px;
       padding: 20px;
@@ -48,9 +72,19 @@
     }
   </style>
 </head>
+
 <body>
   <div class="container">
     <div class="header">
+      <!-- Logo section with fallback -->
+      <div style="margin-bottom: 20px; text-align: center;">
+        <img src="{{frontendUrl}}/assets/logo2.png" alt="SYRNYK"
+          style="max-width: 150px; height: auto; display: block; margin: 0 auto;"
+          onerror="this.style.display='none'; this.nextElementSibling.style.display='block';" />
+        <div style="display: none; font-size: 24px; font-weight: bold; color: #0056b3; padding: 10px;">
+          🧀 SYRNYK
+        </div>
+      </div>
       <h2>Thank you for your order!</h2>
       <p>Dear {{firstName}},</p>
       <p>Your order #{{orderId}} has been successfully placed.</p>
@@ -59,49 +93,90 @@
     <div class="order-details">
       <h3>Order Details:</h3>
       <div class="total">
-        Total Amount: {{totalAmount}} CHF
+        Total amount: {{totalAmount}} CHF
       </div>
-      
+
       <h4>Items:</h4>
       {{#each items}}
-        <div class="item">
-          <p><strong>{{product.name}}</strong></p>
-          <p>Quantity: {{quantity}}</p>
-          <p>Price: {{price}} CHF</p>
-        </div>
+      <div class="item">
+        <p><strong>{{product.name}}</strong></p>
+        <p>Quantity: {{quantity}}</p>
+        <p>Price: {{price}} CHF</p>
+      </div>
       {{/each}}
 
       <div class="delivery-info">
-        <h4>Delivery Information:</h4>
-        <p><strong>Delivery Method:</strong> {{deliveryDetails.type}}</p>
-        {{#if deliveryDetails.station}}
-        <p><strong>Station:</strong> {{deliveryDetails.station}}</p>
-        {{/if}}
-        {{#if deliveryDetails.meetingPoint}}
-        <p><strong>Meeting Point:</strong> {{deliveryDetails.meetingPoint}}</p>
-        {{/if}}
-        {{#if deliveryDetails.stationMeetingTime}}
-        <p><strong>Meeting Time:</strong> {{deliveryDetails.stationMeetingTime}}</p>
-        {{/if}}
-        <p><strong>Delivery Date:</strong> {{deliveryDetails.date}}</p>
+        <h4>📦 Delivery Information:</h4>
 
-        <h4>Payment Method:</h4>
-        <p>{{paymentMethod}}</p>
+        <div class="delivery-detail-item">
+          <span class="delivery-label">Delivery method:</span> {{deliveryDetails.type}}
+        </div>
 
-        {{#if notesClient}}
-        <div>
-          <h4>Notes:</h4>
-          <p>{{notesClient}}</p>
+        {{#if deliveryDetails.date}}
+        <div class="delivery-detail-item">
+          <span class="delivery-label">Delivery date:</span> {{deliveryDetails.date}}
         </div>
         {{/if}}
+
+        {{#if deliveryDetails.timeSlot}}
+        <div class="delivery-detail-item">
+          <span class="delivery-label">Time slot:</span> {{deliveryDetails.timeSlot}}
+        </div>
+        {{/if}}
+
+        {{#if deliveryDetails.address}}
+        <div class="delivery-detail-item">
+          <span class="delivery-label">Delivery address:</span> {{deliveryDetails.address}}
+        </div>
+        {{/if}}
+
+        {{#if deliveryDetails.station}}
+        <div class="delivery-detail-item">
+          <span class="delivery-label">Train station:</span> {{deliveryDetails.station}}
+        </div>
+        {{/if}}
+
+        {{#if deliveryDetails.meetingPoint}}
+        <div class="delivery-detail-item">
+          <span class="delivery-label">Meeting point:</span> {{deliveryDetails.meetingPoint}}
+        </div>
+        {{/if}}
+
+        {{#if deliveryDetails.stationMeetingTime}}
+        <div class="delivery-detail-item">
+          <span class="delivery-label">Station meeting time:</span> {{deliveryDetails.stationMeetingTime}}
+        </div>
+        {{/if}}
+
+        <!-- Show store details for pickup -->
+        {{#if deliveryDetails.details}}
+        {{#unless deliveryDetails.address}}
+        {{#unless deliveryDetails.station}}
+        <div class="delivery-detail-item">
+          <span class="delivery-label">Details:</span> {{deliveryDetails.details}}
+        </div>
+        {{/unless}}
+        {{/unless}}
+        {{/if}}
       </div>
+
+      <h4>💳 Payment method:</h4>
+      <p>{{paymentMethod}}</p>
+
+      {{#if notesClient}}
+      <div class="notes">
+        <h4>📝 Your notes:</h4>
+        <p>{{notesClient}}</p>
+      </div>
+      {{/if}}
     </div>
 
     <div class="footer">
-      <p>We will notify you about your order status.</p>
-      <p>If you have any questions, please feel free to contact us.</p>
-      <p>Best regards,<br>Your SYRNYK Team</p>
+      <p>We will notify you about the status of your order.</p>
+      <p>If you have any questions, please contact us.</p>
+      <p>Best regards,<br>Your SYRNYK team</p>
     </div>
   </div>
 </body>
+
 </html>

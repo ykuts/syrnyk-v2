@@ -1,50 +1,179 @@
 <!DOCTYPE html>
 <html>
 <head>
+  <meta charset="UTF-8">
   <style>
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      font-family: Arial, sans-serif;
+      color: #333;
+    }
+    .header {
+      background-color: #f8f9fa;
+      padding: 20px;
+      text-align: center;
+      border-bottom: 3px solid #0056b3;
+    }
     .order-details {
       margin: 20px 0;
       padding: 15px;
-      border: 1px solid #ddd;
+      border: 1px solid #dee2e6;
       border-radius: 5px;
+    }
+    .status-update {
+      background: #d4edda;
+      padding: 15px;
+      margin: 15px 0;
+      border-radius: 4px;
+      border-left: 4px solid #28a745;
+    }
+    .custom-message {
+      background: #fff3cd;
+      padding: 15px;
+      margin: 15px 0;
+      border-radius: 4px;
+      border-left: 4px solid #ffc107;
     }
     .item {
       margin: 10px 0;
       padding: 10px;
-      background: #f9f9f9;
+      background: #f8f9fa;
+      border-radius: 4px;
+    }
+    .delivery-info {
+      background: #e9ecef;
+      padding: 15px;
+      border-radius: 4px;
+      margin: 15px 0;
+    }
+    .delivery-detail-item {
+      margin: 8px 0;
+      padding: 5px 0;
+    }
+    .delivery-label {
+      font-weight: bold;
+      color: #0056b3;
+    }
+    .footer {
+      margin-top: 30px;
+      padding: 20px;
+      text-align: center;
+      font-size: 14px;
+      color: #666;
+      border-top: 1px solid #dee2e6;
     }
   </style>
 </head>
 <body>
-  <h2>Оновлення вашого замовлення #{{orderId}}</h2>
-  <p>Доброго дня, {{firstName}}!</p>
-
-  {{#if customMessage}}
-    <div class="message">
-      <p><strong>Повідомлення про зміни:</strong></p>
-      <p>{{customMessage}}</p>
-    </div>
-  {{/if}}
-
-  <div class="order-details">
-    <h3>Деталі замовлення:</h3>
-    <p><strong>Статус замовлення:</strong> {{status}}</p>
-    <p><strong>Загальна сума:</strong> {{totalAmount}} CHF</p>
-
-    <h4>Товари:</h4>
-    {{#each items}}
-      <div class="item">
-        <p><strong>{{product.name}}</strong></p>
-        <p>Кількість: {{quantity}}</p>
-        <p>Ціна: {{price}} CHF</p>
+  <div class="container">
+    <div class="header">
+      <!-- Logo section with fallback -->
+      <div style="margin-bottom: 20px; text-align: center;">
+        <img src="{{frontendUrl}}/assets/logo2.png" alt="SYRNYK"
+          style="max-width: 150px; height: auto; display: block; margin: 0 auto;"
+          onerror="this.style.display='none'; this.nextElementSibling.style.display='block';" />
+        <div style="display: none; font-size: 24px; font-weight: bold; color: #0056b3; padding: 10px;">
+          🧀 SYRNYK
+        </div>
       </div>
-    {{/each}}
+      <h2>📋 Оновлення вашого замовлення #{{orderId}}</h2>
+      <p>Доброго дня, {{firstName}}!</p>
+    </div>
 
-    <h4>Інформація про доставку:</h4>
-    <p><strong>Спосіб доставки:</strong> {{deliveryDetails.type}}</p>
-    <p>{{deliveryDetails.details}}</p>
+    {{#if customMessage}}
+      <div class="custom-message">
+        <p><strong>💬 Повідомлення про зміни:</strong></p>
+        <p>{{customMessage}}</p>
+      </div>
+    {{/if}}
+
+    <div class="status-update">
+      <h3>📊 Статус замовлення:</h3>
+      <p style="font-size: 18px; font-weight: bold; color: #28a745;">{{status}}</p>
+    </div>
+
+    <div class="order-details">
+      <h3>📝 Деталі замовлення:</h3>
+      <p><strong>Загальна сума:</strong> {{totalAmount}} CHF</p>
+
+      <h4>🛒 Товари:</h4>
+      {{#each items}}
+        <div class="item">
+          <p><strong>{{product.name}}</strong></p>
+          <p>Кількість: {{quantity}}</p>
+          <p>Ціна: {{price}} CHF</p>
+        </div>
+      {{/each}}
+
+      <div class="delivery-info">
+        <h4>📦 Інформація про доставку:</h4>
+        
+        <div class="delivery-detail-item">
+          <span class="delivery-label">Спосіб доставки:</span> {{deliveryDetails.type}}
+        </div>
+
+        {{#if deliveryDetails.date}}
+          <div class="delivery-detail-item">
+            <span class="delivery-label">Дата доставки:</span> {{deliveryDetails.date}}
+          </div>
+        {{/if}}
+
+        {{#if deliveryDetails.timeSlot}}
+          <div class="delivery-detail-item">
+            <span class="delivery-label">Часовий проміжок:</span> {{deliveryDetails.timeSlot}}
+          </div>
+        {{/if}}
+
+        {{#if deliveryDetails.address}}
+          <div class="delivery-detail-item">
+            <span class="delivery-label">Адреса доставки:</span> {{deliveryDetails.address}}
+          </div>
+        {{/if}}
+
+        {{#if deliveryDetails.station}}
+          <div class="delivery-detail-item">
+            <span class="delivery-label">Залізнична станція:</span> {{deliveryDetails.station}}
+          </div>
+        {{/if}}
+
+        {{#if deliveryDetails.meetingPoint}}
+          <div class="delivery-detail-item">
+            <span class="delivery-label">Місце зустрічі:</span> {{deliveryDetails.meetingPoint}}
+          </div>
+        {{/if}}
+
+        {{#if deliveryDetails.stationMeetingTime}}
+          <div class="delivery-detail-item">
+            <span class="delivery-label">Час зустрічі на станції:</span> {{deliveryDetails.stationMeetingTime}}
+          </div>
+        {{/if}}
+
+        <!-- Show store details for pickup -->
+        {{#if deliveryDetails.details}}
+          {{#unless deliveryDetails.address}}
+            {{#unless deliveryDetails.station}}
+              <div class="delivery-detail-item">
+                <span class="delivery-label">Деталі:</span> {{deliveryDetails.details}}
+              </div>
+            {{/unless}}
+          {{/unless}}
+        {{/if}}
+
+        <!-- Show full details as backup if needed -->
+        {{#if deliveryDetails.fullDetails}}
+          <div class="delivery-detail-item" style="margin-top: 15px; padding-top: 10px; border-top: 1px solid #dee2e6;">
+            <span class="delivery-label">Повна інформація:</span>
+            <pre style="white-space: pre-line; font-family: Arial, sans-serif; margin: 5px 0; background: #f8f9fa; padding: 8px; border-radius: 4px; font-size: 14px;">{{deliveryDetails.fullDetails}}</pre>
+          </div>
+        {{/if}}
+      </div>
+    </div>
+
+    <div class="footer">
+      <p>Якщо у вас виникли питання, будь ласка, зв'яжіться з нами.</p>
+      <p>З найкращими побажаннями,<br>Ваша команда SYRNYK</p>
+    </div>
   </div>
-
-  <p>Якщо у вас виникли питання, будь ласка, зв'яжіться з нами.</p>
 </body>
 </html>

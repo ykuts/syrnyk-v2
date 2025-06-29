@@ -18,20 +18,42 @@
     .order-details {
       margin: 20px 0;
       padding: 15px;
-      border: 1px solid #ddd;
+      border: 1px solid #dee2e6;
       border-radius: 5px;
+    }
+    .status-update {
+      background: #d4edda;
+      padding: 15px;
+      margin: 15px 0;
+      border-radius: 4px;
+      border-left: 4px solid #28a745;
+    }
+    .custom-message {
+      background: #fff3cd;
+      padding: 15px;
+      margin: 15px 0;
+      border-radius: 4px;
+      border-left: 4px solid #ffc107;
     }
     .item {
       margin: 10px 0;
       padding: 10px;
-      background: #f9f9f9;
+      background: #f8f9fa;
+      border-radius: 4px;
     }
-    .message {
-      background: #fff3cd;
+    .delivery-info {
+      background: #e9ecef;
       padding: 15px;
-      border-radius: 5px;
+      border-radius: 4px;
       margin: 15px 0;
-      border-left: 4px solid #ffc107;
+    }
+    .delivery-detail-item {
+      margin: 8px 0;
+      padding: 5px 0;
+    }
+    .delivery-label {
+      font-weight: bold;
+      color: #0056b3;
     }
     .footer {
       margin-top: 30px;
@@ -39,29 +61,43 @@
       text-align: center;
       font-size: 14px;
       color: #666;
+      border-top: 1px solid #dee2e6;
     }
   </style>
 </head>
 <body>
   <div class="container">
     <div class="header">
-      <h2>Your Order #{{orderId}} Update</h2>
-      <p>Hello {{firstName}}!</p>
+      <!-- Logo section with fallback -->
+      <div style="margin-bottom: 20px; text-align: center;">
+        <img src="{{frontendUrl}}/assets/logo2.png" alt="SYRNYK"
+          style="max-width: 150px; height: auto; display: block; margin: 0 auto;"
+          onerror="this.style.display='none'; this.nextElementSibling.style.display='block';" />
+        <div style="display: none; font-size: 24px; font-weight: bold; color: #0056b3; padding: 10px;">
+          🧀 SYRNYK
+        </div>
+      </div>
+      <h2>📋 Update for your order #{{orderId}}</h2>
+      <p>Hello, {{firstName}}!</p>
     </div>
 
     {{#if customMessage}}
-      <div class="message">
-        <p><strong>Update Message:</strong></p>
+      <div class="custom-message">
+        <p><strong>💬 Update message:</strong></p>
         <p>{{customMessage}}</p>
       </div>
     {{/if}}
 
-    <div class="order-details">
-      <h3>Order Details:</h3>
-      <p><strong>Order Status:</strong> {{status}}</p>
-      <p><strong>Total Amount:</strong> {{totalAmount}} CHF</p>
+    <div class="status-update">
+      <h3>📊 Order status:</h3>
+      <p style="font-size: 18px; font-weight: bold; color: #28a745;">{{status}}</p>
+    </div>
 
-      <h4>Items:</h4>
+    <div class="order-details">
+      <h3>📝 Order details:</h3>
+      <p><strong>Total amount:</strong> {{totalAmount}} CHF</p>
+
+      <h4>🛒 Items:</h4>
       {{#each items}}
         <div class="item">
           <p><strong>{{product.name}}</strong></p>
@@ -70,14 +106,73 @@
         </div>
       {{/each}}
 
-      <h4>Delivery Information:</h4>
-      <p><strong>Delivery Method:</strong> {{deliveryDetails.type}}</p>
-      <p>{{deliveryDetails.details}}</p>
+      <div class="delivery-info">
+        <h4>📦 Delivery information:</h4>
+        
+        <div class="delivery-detail-item">
+          <span class="delivery-label">Delivery method:</span> {{deliveryDetails.type}}
+        </div>
+
+        {{#if deliveryDetails.date}}
+          <div class="delivery-detail-item">
+            <span class="delivery-label">Delivery date:</span> {{deliveryDetails.date}}
+          </div>
+        {{/if}}
+
+        {{#if deliveryDetails.timeSlot}}
+          <div class="delivery-detail-item">
+            <span class="delivery-label">Time slot:</span> {{deliveryDetails.timeSlot}}
+          </div>
+        {{/if}}
+
+        {{#if deliveryDetails.address}}
+          <div class="delivery-detail-item">
+            <span class="delivery-label">Delivery address:</span> {{deliveryDetails.address}}
+          </div>
+        {{/if}}
+
+        {{#if deliveryDetails.station}}
+          <div class="delivery-detail-item">
+            <span class="delivery-label">Train station:</span> {{deliveryDetails.station}}
+          </div>
+        {{/if}}
+
+        {{#if deliveryDetails.meetingPoint}}
+          <div class="delivery-detail-item">
+            <span class="delivery-label">Meeting point:</span> {{deliveryDetails.meetingPoint}}
+          </div>
+        {{/if}}
+
+        {{#if deliveryDetails.stationMeetingTime}}
+          <div class="delivery-detail-item">
+            <span class="delivery-label">Station meeting time:</span> {{deliveryDetails.stationMeetingTime}}
+          </div>
+        {{/if}}
+
+        <!-- Show store details for pickup -->
+        {{#if deliveryDetails.details}}
+          {{#unless deliveryDetails.address}}
+            {{#unless deliveryDetails.station}}
+              <div class="delivery-detail-item">
+                <span class="delivery-label">Details:</span> {{deliveryDetails.details}}
+              </div>
+            {{/unless}}
+          {{/unless}}
+        {{/if}}
+
+        <!-- Show full details as backup if needed -->
+        {{#if deliveryDetails.fullDetails}}
+          <div class="delivery-detail-item" style="margin-top: 15px; padding-top: 10px; border-top: 1px solid #dee2e6;">
+            <span class="delivery-label">Full information:</span>
+            <pre style="white-space: pre-line; font-family: Arial, sans-serif; margin: 5px 0; background: #f8f9fa; padding: 8px; border-radius: 4px; font-size: 14px;">{{deliveryDetails.fullDetails}}</pre>
+          </div>
+        {{/if}}
+      </div>
     </div>
 
     <div class="footer">
-      <p>If you have any questions, please feel free to contact us.</p>
-      <p>Best regards,<br>Your SYRNYK Team</p>
+      <p>If you have any questions, please contact us.</p>
+      <p>Best regards,<br>Your SYRNYK team</p>
     </div>
   </div>
 </body>

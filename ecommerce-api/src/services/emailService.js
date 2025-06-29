@@ -130,6 +130,19 @@ const getDeliveryDetails = (order, language = 'uk') => {
     pickupDelivery: order.pickupDelivery
   });
 
+  // Check if stationDelivery exists and has station data
+  if (order.deliveryType === 'RAILWAY_STATION') {
+    console.log('RAILWAY_STATION order analysis:', {
+      hasStationDelivery: !!order.stationDelivery,
+      stationDeliveryId: order.stationDelivery?.id,
+      stationId: order.stationDelivery?.stationId,
+      hasStationData: !!order.stationDelivery?.station,
+      stationName: order.stationDelivery?.station?.name,
+      meetingPoint: order.stationDelivery?.station?.meetingPoint,
+      meetingTime: order.stationDelivery?.meetingTime
+    });
+  }
+
   // Format delivery date
   const deliveryDate = order.deliveryDate ? 
     formatDateForDisplay(order.deliveryDate, language) : 
@@ -224,6 +237,7 @@ const getDeliveryDetails = (order, language = 'uk') => {
       };
       
     case 'STATION':
+    case 'RAILWAY_STATION': // Add support for RAILWAY_STATION
       // For STATION delivery: show date and time slot
       const station = order.stationDelivery;
       if (!station) {
@@ -239,8 +253,16 @@ const getDeliveryDetails = (order, language = 'uk') => {
       }
       
       const stationName = station.station?.name || getTranslatedText(commonPhrases, language, 'notSpecified');
-      const meetingPoint = station.meetingPoint || getTranslatedText(commonPhrases, language, 'notSpecified');
-      const stationMeetingTime = station.stationMeetingTime || getTranslatedText(commonPhrases, language, 'notSpecified');
+      const meetingPoint = station.station?.meetingPoint || getTranslatedText(commonPhrases, language, 'notSpecified'); // Fixed: use station.station.meetingPoint
+      const stationMeetingTime = station.meetingTime ? formatDateForDisplay(station.meetingTime, language) : getTranslatedText(commonPhrases, language, 'notSpecified'); // Fixed: use station.meetingTime
+      
+      console.log('Station data extraction:', {
+        stationName: station.station?.name,
+        meetingPointFromStation: station.station?.meetingPoint,
+        meetingTimeFromStationDelivery: station.meetingTime,
+        finalMeetingPoint: meetingPoint,
+        finalStationMeetingTime: stationMeetingTime
+      });
       
       // Build station details string
       const stationTexts = {
@@ -249,6 +271,15 @@ const getDeliveryDetails = (order, language = 'uk') => {
         fr: { station: 'Gare', meetingPoint: 'Point de rencontre', meetingTime: 'Heure de rendez-vous' }
       };
       const stTexts = stationTexts[language] || stationTexts.uk;
+      
+      console.log('STATION/RAILWAY_STATION delivery details:', {
+        type: deliveryTypeText,
+        station: stationName,
+        meetingPoint: meetingPoint,
+        stationMeetingTime: stationMeetingTime,
+        date: deliveryDate,
+        timeSlot: timeSlotFormatted
+      });
       
       return {
         type: deliveryTypeText,

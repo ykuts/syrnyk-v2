@@ -33,16 +33,19 @@ export const deliveryTypes = {
   uk: {
     ADDRESS: 'Доставка за адресою',
     STATION: 'Зустріч на станції',
+    RAILWAY_STATION: 'Зустріч на залізничній станції',
     PICKUP: 'Самовивіз'
   },
   en: {
     ADDRESS: 'Address delivery',
     STATION: 'Station pickup',
+    RAILWAY_STATION: 'Railway station pickup',
     PICKUP: 'Store pickup'
   },
   fr: {
     ADDRESS: 'Livraison à domicile',
     STATION: 'Rendez-vous à la gare',
+    RAILWAY_STATION: 'Rendez-vous à la gare',
     PICKUP: 'Retrait en magasin'
   }
 };
@@ -99,7 +102,12 @@ export const commonPhrases = {
     timeSlot: 'Часовий слот',
     apartment: 'кв.',
     store: 'Магазин',
-    address: 'Адреса'
+    address: 'Адреса',
+    deliveryDate: 'Дата доставки',
+    station: 'Станція',
+    meetingPoint: 'Місце зустрічі',
+    meetingTime: 'Час зустрічі',
+    pickupTime: 'Час отримання'
   },
   en: {
     notSpecified: 'Not specified',
@@ -110,7 +118,12 @@ export const commonPhrases = {
     timeSlot: 'Time slot',
     apartment: 'apt.',
     store: 'Store',
-    address: 'Address'
+    address: 'Address',
+    deliveryDate: 'Delivery date',
+    station: 'Station',
+    meetingPoint: 'Meeting point',
+    meetingTime: 'Meeting time',
+    pickupTime: 'Pickup time'
   },
   fr: {
     notSpecified: 'Non spécifié',
@@ -119,9 +132,14 @@ export const commonPhrases = {
     addressNotSpecified: 'Adresse non spécifiée',
     unknownDeliveryType: 'Type de livraison inconnu',
     timeSlot: 'Créneau horaire',
-    apartment: 'apt.',
+    apartment: 'app.',
     store: 'Magasin',
-    address: 'Adresse'
+    address: 'Adresse',
+    deliveryDate: 'Date de livraison',
+    station: 'Gare',
+    meetingPoint: 'Point de rencontre',
+    meetingTime: 'Heure de rendez-vous',
+    pickupTime: 'Heure de retrait'
   }
 };
 

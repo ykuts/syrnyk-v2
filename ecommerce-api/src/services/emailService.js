@@ -137,9 +137,9 @@ const getDeliveryDetails = (order, language = 'uk') => {
       stationDeliveryId: order.stationDelivery?.id,
       stationId: order.stationDelivery?.stationId,
       hasStationData: !!order.stationDelivery?.station,
-      stationName: order.stationDelivery?.station?.name,
+      stationName: order.stationDelivery?.station?.city,
       meetingPoint: order.stationDelivery?.station?.meetingPoint,
-      meetingTime: order.stationDelivery?.meetingTime
+      meetingTime: order.stationDelivery?.station?.name
     });
   }
 
@@ -252,12 +252,13 @@ const getDeliveryDetails = (order, language = 'uk') => {
         };
       }
       
-      const stationName = station.station?.name || getTranslatedText(commonPhrases, language, 'notSpecified');
+      const stationName = station.station?.city || getTranslatedText(commonPhrases, language, 'notSpecified');
       const meetingPoint = station.station?.meetingPoint || getTranslatedText(commonPhrases, language, 'notSpecified'); // Fixed: use station.station.meetingPoint
-      const stationMeetingTime = station.meetingTime ? formatDateForDisplay(station.meetingTime, language) : getTranslatedText(commonPhrases, language, 'notSpecified'); // Fixed: use station.meetingTime
+      const stationMeetingTime = station.station?.name; // Fixed: use station.station.name for meeting time
+      //station.meetingTime ? formatDateForDisplay(station.meetingTime, language) : getTranslatedText(commonPhrases, language, 'notSpecified'); // Fixed: use station.meetingTime
       
       console.log('Station data extraction:', {
-        stationName: station.station?.name,
+        stationName: station.station?.city,
         meetingPointFromStation: station.station?.meetingPoint,
         meetingTimeFromStationDelivery: station.meetingTime,
         finalMeetingPoint: meetingPoint,

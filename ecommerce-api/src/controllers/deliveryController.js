@@ -179,8 +179,8 @@ export const calculateDeliveryCost = async (req, res) => {
     // Delivery minimums for each method
     const DELIVERY_MINIMUMS = {
       PICKUP: 0,           // No minimum for pickup
-      RAILWAY_STATION: 20, // 20 CHF minimum for railway delivery
-      ADDRESS: 100         // 100 CHF minimum for address delivery
+      RAILWAY_STATION: 0, // 0 CHF minimum for railway delivery
+      ADDRESS: 0         // Will be determined by region for address delivery
     };
     
     let deliveryCost = 0;
@@ -194,25 +194,83 @@ export const calculateDeliveryCost = async (req, res) => {
         // Pickup is always free with no minimum
         deliveryCost = 0;
         isValid = true;
+        minimumOrderAmount = 0;
         message = 'Free pickup - no minimum order required';
         break;
         
       case 'RAILWAY_STATION':
-        // Railway delivery: minimum 20 CHF, always free delivery
+        // Railway delivery: always free, no minimum
         deliveryCost = 0; // Always free
+        isValid = true;
+        minimumOrderAmount = 0;
+        message = 'Free railway station delivery';
         
-        if (cartTotalNum < minimumOrderAmount) {
+        /* if (cartTotalNum < minimumOrderAmount) {
           isValid = false;
           const needed = minimumOrderAmount - cartTotalNum;
           message = `Minimum order for railway delivery is ${minimumOrderAmount} CHF. Add ${needed.toFixed(2)} CHF more to your cart.`;
         } else {
           isValid = true;
           message = 'Free railway station delivery';
-        }
+        } */
         break;
         
       case 'ADDRESS':
-        // Address delivery logic
+        deliveryCost = 0; // Always free delivery
+
+        // Check if postal code is in Coppet-Lausanne region
+        if (postalCode) {
+          try {
+            const city = await prisma.deliveryCity.findFirst({
+              where: { postalCode },
+            });
+            
+            if (city) {
+              // Postal code found in database - this is Coppet-Lausanne region
+              // NO minimum order required
+              minimumOrderAmount = 0;
+              isValid = true;
+              message = 'Free delivery - no minimum order required for Coppet-Lausanne region';
+            } else {
+              // Postal code not in database - other Vaud regions or Geneva
+              // 200 CHF minimum required
+              minimumOrderAmount = 200;
+              if (cartTotalNum >= 200) {
+                isValid = true;
+                message = 'Free delivery for orders over 200 CHF';
+              } else {
+                isValid = false;
+                const needed = 200 - cartTotalNum;
+                message = `Minimum order for address delivery is 200 CHF. Add ${needed.toFixed(2)} CHF more to your cart.`;
+              }
+            }
+          } catch (dbError) {
+            console.error('Database error checking postal code:', dbError);
+            // Fallback: assume 200 CHF minimum
+            minimumOrderAmount = 200;
+            if (cartTotalNum >= 200) {
+              isValid = true;
+              message = 'Free delivery for orders over 200 CHF';
+            } else {
+              isValid = false;
+              const needed = 200 - cartTotalNum;
+              message = `Minimum order for address delivery is 200 CHF. Add ${needed.toFixed(2)} CHF more to your cart.`;
+            }
+          }
+        } else {
+          // No postal code provided - assume 200 CHF minimum
+          minimumOrderAmount = 200;
+          if (cartTotalNum >= 200) {
+            isValid = true;
+            message = 'Free delivery for orders over 200 CHF';
+          } else {
+            isValid = false;
+            const needed = 200 - cartTotalNum;
+            message = `Minimum order for address delivery is 200 CHF. Add ${needed.toFixed(2)} CHF more to your cart.`;
+          }
+        }
+
+        /* // Address delivery logic
         if (cartTotalNum < minimumOrderAmount) {
           // Below minimum order
           isValid = false;
@@ -252,7 +310,7 @@ export const calculateDeliveryCost = async (req, res) => {
             message = 'Delivery fee: 10 CHF';
           }
           isValid = true;
-        }
+        } */
         break;
         
       default:
@@ -273,7 +331,9 @@ export const calculateDeliveryCost = async (req, res) => {
         canton,
         meetsMinimumOrder: cartTotalNum >= minimumOrderAmount,
         qualifiesForFreeDelivery: deliveryCost === 0,
-        standardFeeApplied: deliveryCost === 10
+        minimumOrderRequired: minimumOrderAmount,
+        isCoppetLausanneRegion: postalCode ? (minimumOrderAmount === 0) : false
+        /* standardFeeApplied: deliveryCost === 10 */
       }
     });
   } catch (error) {

@@ -13,7 +13,7 @@ import './DeliveryOptions.css';
  * DeliveryOptions component for selecting delivery method and details
  * Fixed to improve handling of delivery cost calculation
  */
-const DeliveryOptions = ({ formData, handleChange }) => {
+const DeliveryOptions = ({ formData, handleChange, onAddressValidation }) => {
   const { t } = useTranslation(['checkout', 'common']);
   const { totalPrice } = useContext(CartContext);
   
@@ -62,6 +62,19 @@ const DeliveryOptions = ({ formData, handleChange }) => {
           value: 0
         }
       });
+      // For non-address methods, notify parent that delivery is valid
+      if (onAddressValidation) {
+        const message = value === 'PICKUP' 
+          ? 'Free pickup - no minimum order required'
+          : 'Free railway station delivery';
+          
+        onAddressValidation({
+          isValid: true,
+          minimumOrderAmount: 0,
+          message,
+          deliveryType: value
+        });
+      }
     }
   };
   
@@ -88,6 +101,16 @@ const DeliveryOptions = ({ formData, handleChange }) => {
     }
   };
 
+  // Handle address delivery validation
+  const handleAddressValidation = (validationResult) => {
+    console.log('Address validation result:', validationResult);
+    
+    // Pass validation result to parent (CheckoutPage)
+    if (onAddressValidation) {
+      onAddressValidation(validationResult);
+    }
+  };
+
   // Render different delivery forms based on selected method
   const renderDeliveryForm = () => {
     switch (formData.deliveryType) {
@@ -96,6 +119,7 @@ const DeliveryOptions = ({ formData, handleChange }) => {
           <AddressDeliveryCheckout
             formData={formData}
             handleChange={handleChange}
+            onValidationChange={handleAddressValidation}
           />
         );
       case 'RAILWAY_STATION':

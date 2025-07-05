@@ -702,15 +702,29 @@ export const updateDeliveryPreferences = async (req, res) => {
       });
     }
 
+    // Additional validation for address delivery to ensure canton is included
+    if (type === 'ADDRESS' && address) {
+      if (!address.canton || !['VD', 'GE'].includes(address.canton)) {
+        return res.status(400).json({
+          message: 'Canton is required for address delivery and must be either VD (Vaud) or GE (Geneva)'
+        });
+      }
+    }
+
     // Prepare update data based on delivery type
     const updateData = {
       preferredDeliveryType: type,
-      deliveryAddress: type === 'ADDRESS' ? address : null,
+      deliveryAddress: type === 'ADDRESS' ? {
+        ...address,
+        canton: address.canton || 'VD' // Ensure canton is always set for address delivery
+      } : null,
       preferredStation: type === 'RAILWAY_STATION' && stationId ?
         { id: parseInt(stationId) } : null,
       preferredStore: type === 'PICKUP' && storeId ?
         { id: parseInt(storeId) } : null
     };
+
+    console.log('Updating user delivery preferences:', updateData);
 
     // Update user
     const updatedUser = await prisma.user.update({
@@ -738,6 +752,54 @@ export const updateDeliveryPreferences = async (req, res) => {
     console.error('Error updating delivery preferences:', error);
     res.status(500).json({
       message: 'Error updating delivery preferences',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+};
+
+// Get user's delivery preferences
+export const getDeliveryPreferences = async (req, res) => {
+  try {
+    const { userId } = req.user;
+
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        preferredDeliveryType: true,
+        deliveryAddress: true,
+        preferredStation: true,
+        preferredStore: true
+      }
+    });
+
+    if (!user) {
+      return res.status(404).json({
+        message: 'User not found'
+      });
+    }
+
+    // Ensure canton is included in address if it exists
+    let address = user.deliveryAddress;
+    if (address && typeof address === 'object' && !address.canton) {
+      // Add default canton if missing from existing address
+      address = {
+        ...address,
+        canton: 'VD' // Default to Vaud
+      };
+    }
+
+    res.json({
+      preferences: {
+        type: user.preferredDeliveryType || 'PICKUP',
+        address: address,
+        stationId: user.preferredStation?.id,
+        storeId: user.preferredStore?.id
+      }
+    });
+  } catch (error) {
+    console.error('Error getting delivery preferences:', error);
+    res.status(500).json({
+      message: 'Error retrieving delivery preferences',
       error: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }

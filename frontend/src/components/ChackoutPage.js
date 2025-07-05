@@ -283,6 +283,21 @@ const CheckoutPage = () => {
     }
   };
 
+  
+  // Handle address delivery validation
+  const handleAddressDeliveryValidation = (validationResult) => {
+  console.log('Address delivery validation result:', validationResult);
+  
+  // Update delivery calculation with address-specific validation
+  setDeliveryCalculation(prev => ({
+    ...prev,
+    isValid: validationResult.isValid,
+    message: validationResult.message,
+    minimumOrderAmount: validationResult.minimumOrderAmount || 0,
+    deliveryType: validationResult.deliveryType
+  }));
+};
+
   // User makes auth choice (guest checkout, login, or register)
   const handleAuthChoice = (choice) => {
     if (choice === 'guest') {
@@ -854,58 +869,57 @@ const CheckoutPage = () => {
     // Force recalculation when total price changes
     console.log('🔄 Total price changed, forcing delivery calculation...');
 
-    // Принудительно пересчитать стоимость доставки
-    const DELIVERY_MINIMUMS = {
-      PICKUP: 0,
-      RAILWAY_STATION: 20,
-      ADDRESS: 100
-    };
-
-    const minimumOrder = DELIVERY_MINIMUMS[formData.deliveryType] || 0;
     let cost = 0;
-    let isValid = true;
-    let message = '';
+  let isValid = true;
+  let message = '';
+  let minimumOrder = 0;
 
-    switch (formData.deliveryType) {
-      case 'PICKUP':
-        cost = 0;
+  switch (formData.deliveryType) {
+    case 'PICKUP':
+      cost = 0;
+      isValid = true;
+      minimumOrder = 0;
+      message = 'Free pickup - no minimum order required';
+      break;
+
+    case 'RAILWAY_STATION':
+      cost = 0;
+      isValid = true;
+      minimumOrder = 0;
+      message = 'Free railway station delivery';
+      break;
+
+    case 'ADDRESS':
+      cost = 0; // Always free delivery
+      
+      // For ADDRESS delivery, the actual validation will come from AddressDeliveryCheckout
+      // This is just a fallback calculation
+      // Don't override the validation from AddressDeliveryCheckout component
+      
+      // Skip manual calculation for ADDRESS if we already have validation from component
+      if (deliveryCalculation.deliveryType === 'ADDRESS' && deliveryCalculation.message) {
+        // Keep existing validation from AddressDeliveryCheckout
+        return;
+      }
+      
+      // Fallback calculation only
+      if (totalPrice >= 200) {
         isValid = true;
-        message = 'Безкоштовний самовивіз';
-        break;
-
-      case 'RAILWAY_STATION':
-        cost = 0;
-        if (totalPrice < minimumOrder) {
-          isValid = false;
-          const needed = minimumOrder - totalPrice;
-          message = `Мінімальне замовлення для доставки на ЖД станцію - ${minimumOrder} CHF. Додайте ще продукції на ${needed.toFixed(2)} CHF.`;
-        } else {
-          isValid = true;
-          message = 'Безкоштовна доставка на ЖД станцію';
-        }
-        break;
-
-      case 'ADDRESS':
-        if (totalPrice < minimumOrder) {
-          isValid = false;
-          const needed = minimumOrder - totalPrice;
-          message = `Мінімальне замовлення для адресної доставки - ${minimumOrder} CHF. Додайте ще продукції на ${needed.toFixed(2)} CHF.`;
-          cost = 0;
-        } else if (totalPrice >= 200) {
-          cost = 0;
-          isValid = true;
-          message = 'Безкоштовна доставка для замовлень від 200 CHF';
-        } else {
-          cost = 10;
-          isValid = true;
-          message = `Вартість доставки: ${cost} CHF`;
-        }
-        break;
-    }
+        minimumOrder = 200;
+        message = 'Free delivery for orders over 200 CHF';
+      } else {
+        isValid = false;
+        minimumOrder = 200;
+        const needed = 200 - totalPrice;
+        message = `Minimum order for address delivery is 200 CHF. Add ${needed.toFixed(2)} CHF more to your cart.`;
+      }
+      break;
+  }
 
     console.log('🎯 Manual calculation result:', { cost, isValid, message, deliveryType: formData.deliveryType, totalPrice });
 
-    // Обновить состояние
+    // Only update if this is not ADDRESS delivery or if we don't have existing validation
+  if (formData.deliveryType !== 'ADDRESS' || !deliveryCalculation.message) {
     setDeliveryCalculation({
       cost,
       isValid,
@@ -913,6 +927,7 @@ const CheckoutPage = () => {
       minimumOrderAmount: minimumOrder,
       deliveryType: formData.deliveryType
     });
+  }
 
     setFormData(prev => ({
       ...prev,
@@ -1174,6 +1189,7 @@ const CheckoutPage = () => {
               formData={formData}
               handleChange={handleChange}
               railwayStations={railwayStations}
+              onAddressValidation={handleAddressDeliveryValidation}
             />
 
             {/* Payment Method */}

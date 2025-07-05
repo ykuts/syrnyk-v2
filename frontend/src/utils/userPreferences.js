@@ -12,12 +12,13 @@ export const loadUserPreferences = async (token) => {
 
     return {
       deliveryType: preferences.type || 'PICKUP',
-      // Address delivery fields
+      // Address delivery fields (now including canton)
       street: preferences.address?.street || '',
       house: preferences.address?.house || '',
       apartment: preferences.address?.apartment || '',
       city: preferences.address?.city || '',
       postalCode: preferences.address?.postalCode || '',
+      canton: preferences.address?.canton || 'VD', // Default to Vaud if not specified
       // Station delivery field
       stationId: preferences.stationId?.toString() || '',
       // Store delivery field (assuming we have a default store)

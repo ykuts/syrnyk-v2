@@ -6,7 +6,7 @@ import { Form, Button, Alert, Container, Card, Row, Col } from 'react-bootstrap'
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { apiClient } from '../utils/api';
-import { loadUserPreferences } from '../utils/userPreferences';
+import { loadUserPreferences, applyUserPreferencesToCheckout  } from '../utils/userPreferences';
 import { cleanPhoneNumber } from '../components/common/SimplePhoneInput';
 
 
@@ -73,7 +73,7 @@ const CheckoutPage = () => {
   const [railwayStations, setRailwayStations] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Initialize form data with defaults
+  /* // Initialize form data with defaults
   const [formData, setFormData] = useState({
     // Customer info
     firstName: '',
@@ -117,6 +117,58 @@ const CheckoutPage = () => {
     deliveryTimeSlot: '',
     deliveryCost: 0,
     zoneId: ''
+  }); */
+
+  // Initialize form data with defaults
+  const [formData, setFormData] = useState({
+    // Customer info
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: '',
+
+    // Account creation
+    password: '',
+    confirmPassword: '',
+
+    // Delivery info
+    preferredDeliveryType: 'PICKUP',
+    deliveryType: 'PICKUP',
+    canton: 'VD', // Default canton
+    street: '',
+    house: '',
+    apartment: '',
+    city: '',
+    postalCode: '',
+
+    // Station delivery
+    stationId: '',
+    deliveryDate: '',
+
+    // Pickup delivery
+    storeId: '1',
+    pickupTime: '',
+
+    // Payment and other info
+    paymentMethod: '',
+    notesClient: '',
+    language: i18n.language,
+
+    // Consent fields for account creation
+    dataConsentAccepted: false,
+    marketingConsent: false,
+
+    // Calculated fields
+    deliveryCost: 0
+  });
+
+  // Other state variables...
+  const [deliveryCalculation, setDeliveryCalculation] = useState({
+    isValid: true,
+    cost: 0,
+    message: '',
+    minimumOrderAmount: 0,
+    deliveryType: 'PICKUP'
   });
 
   // UI states
@@ -124,11 +176,11 @@ const CheckoutPage = () => {
   const [submitError, setSubmitError] = useState(null);
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [formValidationError, setFormValidationError] = useState(null);
-  const [deliveryCalculation, setDeliveryCalculation] = useState({
+  /* const [deliveryCalculation, setDeliveryCalculation] = useState({
     cost: 0,
     isValid: true,
     message: ''
-  });
+  }); */
 
   // TWINT payment confirmation
   const [twintPaymentConfirmed, setTwintPaymentConfirmed] = useState(false);
@@ -177,9 +229,9 @@ const CheckoutPage = () => {
     // Combine client comment and TWINT status for admin
     const adminNotes = [];
 
-    if (clientComment) {
+    /* if (clientComment) {
       adminNotes.push(`Коментар клієнта: ${clientComment}`);
-    }
+    } */
 
     if (twintComment) {
       adminNotes.push(`TWINT статус: ${twintComment}`);
@@ -217,10 +269,14 @@ const CheckoutPage = () => {
               if (userPrefs) {
                 console.log('Loaded user preferences:', userPrefs);
 
-                setFormData(prev => ({
-                  ...prev,
-                  ...userPrefs
-                }));
+                // Apply user preferences to form data using the utility function
+                setFormData(prev => {
+                  const updatedFormData = applyUserPreferencesToCheckout(prev, userPrefs);
+                  console.log('Applied user preferences to form:', updatedFormData);
+                  return updatedFormData;
+                });
+              } else {
+                console.log('No user preferences found, using defaults');
               }
             } catch (error) {
               console.error('Error loading user preferences:', error);
@@ -258,6 +314,32 @@ const CheckoutPage = () => {
     console.log('Submit button disabled:', isSubmitDisabled());
     console.log('==========================');
   }, [formData.deliveryType, totalPrice, deliveryCalculation]);
+
+  // Add this useEffect after the existing ones to trigger validation when address is loaded from preferences
+useEffect(() => {
+  // Trigger postal code validation when address delivery preferences are loaded
+  if (formData.deliveryType === 'ADDRESS' && 
+      formData.postalCode && 
+      formData.canton && 
+      !loading) {
+    
+    console.log('🔍 Triggering postal code validation for loaded preferences:', {
+      postalCode: formData.postalCode,
+      canton: formData.canton,
+      deliveryType: formData.deliveryType
+    });
+
+    // Simulate a delivery cost calculation to trigger validation
+    // This will cause the AddressDeliveryCheckout component to validate the postal code
+    setDeliveryCalculation(prev => ({
+      ...prev,
+      // Reset validation to trigger re-calculation
+      isValid: true,
+      message: 'Checking postal code...',
+      deliveryType: 'ADDRESS'
+    }));
+  }
+}, [formData.deliveryType, formData.postalCode, formData.canton, loading]);
 
   // Handle delivery cost calculation
   const handleDeliveryCostCalculated = (calculationResult) => {
@@ -897,8 +979,21 @@ const CheckoutPage = () => {
       // Don't override the validation from AddressDeliveryCheckout component
       
       // Skip manual calculation for ADDRESS if we already have validation from component
-      if (deliveryCalculation.deliveryType === 'ADDRESS' && deliveryCalculation.message) {
-        // Keep existing validation from AddressDeliveryCheckout
+       if (formData.postalCode && formData.canton) {
+        // Don't override validation from AddressDeliveryCheckout component
+        // Just ensure we have the correct delivery type set
+        setDeliveryCalculation(prev => ({
+          ...prev,
+          deliveryType: 'ADDRESS',
+          cost: 0
+        }));
+        
+        setFormData(prev => ({
+          ...prev,
+          deliveryCost: 0
+        }));
+        
+        // Exit early to let AddressDeliveryCheckout handle the rest
         return;
       }
       
@@ -934,7 +1029,7 @@ const CheckoutPage = () => {
       deliveryCost: cost
     }));
 
-  }, [totalPrice, formData.deliveryType]);
+  }, [totalPrice, formData.deliveryType, formData.postalCode, formData.canton]);
 
   // Handle form submission
   const handleSubmit = async (e) => {

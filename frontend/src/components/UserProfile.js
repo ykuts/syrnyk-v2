@@ -42,6 +42,7 @@ const UserProfile = () => {
     apartment: user?.deliveryAddress?.apartment || '',
     city: user?.deliveryAddress?.city || '',
     postalCode: user?.deliveryAddress?.postalCode || '',
+    canton: user?.deliveryAddress?.canton || 'VD',
     stationId: user?.preferredStation?.id?.toString() || '',
     storeId: '1'
   });
@@ -69,6 +70,7 @@ const UserProfile = () => {
             apartment: prefsResponse.preferences.address?.apartment || '',
             city: prefsResponse.preferences.address?.city || '',
             postalCode: prefsResponse.preferences.address?.postalCode || '',
+            canton: prefsResponse.preferences.address?.canton || 'VD',
             stationId: prefsResponse.preferences.stationId?.toString() || '',
           }));
         }
@@ -110,6 +112,7 @@ const UserProfile = () => {
           apartment: '',
           city: '',
           postalCode: '',
+          canton: 'VD',
           storeId: '',
         }),
         ...(value === 'PICKUP' && {
@@ -118,6 +121,7 @@ const UserProfile = () => {
           apartment: '',
           city: '',
           postalCode: '',
+          canton: 'VD',
           stationId: '',
         })
       }));
@@ -131,6 +135,17 @@ const UserProfile = () => {
         return newState;
       });
     }
+  };
+
+  // Handle canton change specifically
+  const handleCantonChange = (canton) => {
+    setFormData(prev => ({
+      ...prev,
+      canton: canton,
+      // Clear postal code when changing canton as validation logic differs
+      postalCode: '',
+      city: ''
+    }));
   };
 
   // Handle form submission
@@ -168,9 +183,9 @@ const UserProfile = () => {
         return;
       }
 
-       // Clean phone number before sending (only if phone is provided and not empty)
-    const cleanedPhone = (formData.phone && formData.phone !== '+') ? 
-      cleanPhoneNumber(formData.phone) : '';
+      // Clean phone number before sending (only if phone is provided and not empty)
+      const cleanedPhone = (formData.phone && formData.phone !== '+') ?
+        cleanPhoneNumber(formData.phone) : '';
 
       // Prepare delivery preferences based on type
       const deliveryPreferences = {
@@ -181,6 +196,7 @@ const UserProfile = () => {
           apartment: formData.apartment,
           city: formData.city,
           postalCode: formData.postalCode,
+          canton: formData.canton || 'VD',
         } : null,
         stationId: formData.preferredDeliveryType === 'RAILWAY_STATION' ?
           parseInt(formData.stationId) : null,
@@ -219,6 +235,7 @@ const UserProfile = () => {
               apartment: prefsResponse.preferences.address?.apartment || '',
               city: prefsResponse.preferences.address?.city || '',
               postalCode: prefsResponse.preferences.address?.postalCode || '',
+              canton: prefsResponse.preferences.address?.canton || 'VD',
             }));
           }
         } catch (error) {
@@ -246,6 +263,44 @@ const UserProfile = () => {
         return (
           <Card className="mt-3">
             <Card.Body>
+
+              {/* Canton Selection */}
+              <Form.Group className="mb-3">
+                <Form.Label>Canton</Form.Label>
+                <Row className="g-2">
+                  <Col md={6}>
+                    <Button
+                      variant={formData.canton === 'VD' ? 'primary' : 'outline-primary'}
+                      onClick={() => handleCantonChange('VD')}
+                      className="w-100 text-center p-3"
+                    >
+                      Vaud (VD)
+                    </Button>
+                  </Col>
+                  <Col md={6}>
+                    <Button
+                      variant={formData.canton === 'GE' ? 'primary' : 'outline-primary'}
+                      onClick={() => handleCantonChange('GE')}
+                      className="w-100 text-center p-3"
+                    >
+                      Geneva (GE)
+                    </Button>
+                  </Col>
+                </Row>
+                {/* Delivery info based on canton */}
+                {formData.canton === 'VD' && (
+                  <Alert variant="info" className="mt-2 mb-0 small">
+                    <strong>Vaud:</strong> Delivery on Saturdays. Coppet-Lausanne region: free delivery with no minimum. Other regions: 200 CHF minimum.
+                  </Alert>
+                )}
+                {formData.canton === 'GE' && (
+                  <Alert variant="info" className="mt-2 mb-0 small">
+                    <strong>Geneva:</strong> Delivery on Mondays. 200 CHF minimum order for free delivery.
+                  </Alert>
+                )}
+              </Form.Group>
+
+              {/* Address Fields */}
               <Form.Group className="mb-3">
                 <Form.Label>{t('profile.delivery.address.street')}</Form.Label>
                 <Form.Control
@@ -302,8 +357,14 @@ const UserProfile = () => {
                       name="postalCode"
                       value={formData.postalCode}
                       onChange={handleChange}
+                      maxLength={4}
                       required
                     />
+                    <Form.Text className="text-muted">
+                      {formData.canton === 'VD' ? 
+                        'Required for Vaud to determine delivery region and minimum order' : 
+                        'Swiss 4-digit postal code'}
+                    </Form.Text>
                   </Form.Group>
                 </Col>
               </Row>
@@ -332,9 +393,9 @@ const UserProfile = () => {
               <div className="bg-light p-3 rounded">
                 <h6 className="mb-2">{t('profile.delivery.store.name')}</h6>
                 <p className="mb-2">{STORE_ADDRESS.address}, {STORE_ADDRESS.city}</p>
-                <p className="mb-0">
+                {/* <p className="mb-0">
                   <strong>{t('profile.delivery.store.workingHours')}:</strong> {STORE_ADDRESS.workingHours}
-                </p>
+                </p> */}
               </div>
             </Card.Body>
           </Card>
@@ -350,6 +411,8 @@ const UserProfile = () => {
     <Container className="py-5">
       <Tab.Container activeKey={activeTab} onSelect={(k) => setActiveTab(k)}>
         <Row>
+          {error && <Alert variant="danger">{error}</Alert>}
+          {success && <Alert variant="success">{success}</Alert>}
           <Col md={3}>
             <Nav className="flex-column custom-nav">
               <Nav.Item>
@@ -413,6 +476,9 @@ const UserProfile = () => {
                       value={formData.email}
                       disabled
                     />
+                    <Form.Text className="text-muted">
+                          Для зміни електронної пошти зв'яжіться з підтримкою.
+                        </Form.Text>
                   </Form.Group>
 
                   <Form.Group className="mb-3">

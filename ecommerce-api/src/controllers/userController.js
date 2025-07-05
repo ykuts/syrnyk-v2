@@ -365,9 +365,18 @@ export const getUserProfile = async (req, res) => {
         lastName: true,
         email: true,
         phone: true,
-        createdAt: true,
         password: false,
         role: true,
+        preferredLanguage: true,
+        preferredDeliveryType: true,
+        deliveryAddress: true,
+        preferredStation: true,
+        preferredStore: true,
+        dataConsentAccepted: true,
+        dataConsentDate: true,
+        marketingConsent: true,
+        createdAt: true,
+        updatedAt: true
       },
     });
 
@@ -391,7 +400,7 @@ export const getUserProfile = async (req, res) => {
   }
 };
 
-// Update user profile
+// Update user profile with proper canton validation
 export const updateUserProfile = async (req, res) => {
   try {
     const { userId } = req.user;
@@ -415,9 +424,43 @@ export const updateUserProfile = async (req, res) => {
     if (deliveryPreferences) {
       updateData.preferredDeliveryType = deliveryPreferences.type;
 
-      // Handle address delivery - store as JSON
+      // Handle address delivery - store as JSON with canton validation
       if (deliveryPreferences.type === 'ADDRESS' && deliveryPreferences.address) {
-        updateData.deliveryAddress = deliveryPreferences.address;
+        
+        // Validate canton for address delivery
+        const canton = deliveryPreferences.address.canton;
+        if (!canton || !['VD', 'GE'].includes(canton)) {
+          return res.status(400).json({
+            message: 'Canton is required for address delivery and must be either VD (Vaud) or GE (Geneva)',
+            error: 'INVALID_CANTON'
+          });
+        }
+
+        // Validate required address fields
+        const { street, house, city } = deliveryPreferences.address;
+        if (!street || !house || !city) {
+          return res.status(400).json({
+            message: 'Street, house, and city are required for address delivery',
+            error: 'MISSING_ADDRESS_FIELDS'
+          });
+        }
+
+        // For Vaud canton, postal code is highly recommended for proper region detection
+        if (canton === 'VD' && !deliveryPreferences.address.postalCode) {
+          console.warn('Postal code missing for Vaud canton - this may affect delivery cost calculation');
+        }
+
+        // Store complete address with validated canton
+        updateData.deliveryAddress = {
+          street: street.trim(),
+          house: house.trim(),
+          apartment: deliveryPreferences.address.apartment?.trim() || '',
+          city: city.trim(),
+          postalCode: deliveryPreferences.address.postalCode?.trim() || '',
+          canton: canton // Validated canton
+        };
+
+
       } else {
         // Clear address if not ADDRESS delivery type
         updateData.deliveryAddress = null;
@@ -698,7 +741,8 @@ export const updateDeliveryPreferences = async (req, res) => {
     // Validate input based on delivery type
     if (!type || !['PICKUP', 'ADDRESS', 'RAILWAY_STATION'].includes(type)) {
       return res.status(400).json({
-        message: 'Invalid delivery type'
+        message: 'Invalid delivery type',
+        error: 'INVALID_DELIVERY_TYPE'
       });
     }
 
@@ -706,7 +750,16 @@ export const updateDeliveryPreferences = async (req, res) => {
     if (type === 'ADDRESS' && address) {
       if (!address.canton || !['VD', 'GE'].includes(address.canton)) {
         return res.status(400).json({
-          message: 'Canton is required for address delivery and must be either VD (Vaud) or GE (Geneva)'
+          message: 'Canton is required for address delivery and must be either VD (Vaud) or GE (Geneva)',
+          error: 'INVALID_CANTON'
+        });
+      }
+
+      // Validate required address fields
+      if (!address.street || !address.house || !address.city) {
+        return res.status(400).json({
+          message: 'Street, house, and city are required for address delivery',
+          error: 'MISSING_ADDRESS_FIELDS'
         });
       }
     }
@@ -778,14 +831,29 @@ export const getDeliveryPreferences = async (req, res) => {
       });
     }
 
-    // Ensure canton is included in address if it exists
+    // Process and validate delivery address
     let address = user.deliveryAddress;
-    if (address && typeof address === 'object' && !address.canton) {
-      // Add default canton if missing from existing address
-      address = {
-        ...address,
-        canton: 'VD' // Default to Vaud
-      };
+    if (address && typeof address === 'object') {
+      // Ensure canton is properly set and valid
+      if (!address.canton || !['VD', 'GE'].includes(address.canton)) {
+        console.warn('Invalid or missing canton in user delivery address:', address.canton);
+        // Add default canton for backward compatibility
+        address = {
+          ...address,
+          canton: 'VD' // Default to Vaud
+        };
+        
+        // Optionally update the database to fix the data
+        try {
+          await prisma.user.update({
+            where: { id: userId },
+            data: { deliveryAddress: address }
+          });
+          console.log('Updated user delivery address with default canton');
+        } catch (updateError) {
+          console.error('Error updating address with default canton:', updateError);
+        }
+      }
     }
 
     res.json({

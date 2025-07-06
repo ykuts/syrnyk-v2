@@ -174,8 +174,8 @@
     "afternoon": "Afternoon",
     "evening": "Evening",
     "no_dates_available": "No pickup dates available for the next two weeks",
-    "note": "Pickup is available on Saturday, Sunday, Monday only. Please select a date and time slot.",
-    "available_days": "Pickup is available on Saturday, Sunday, Monday",
+    "note": "Pickup is available on Saturday and Monday only. Please select a date and time slot.",
+    "available_days": "Pickup is available on Saturday and Monday",
     "errors": {
       "locations_fetch_error": "Error loading pickup locations"
     },

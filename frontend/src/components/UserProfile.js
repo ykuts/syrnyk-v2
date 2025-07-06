@@ -288,19 +288,19 @@ const UserProfile = () => {
                   </Col>
                 </Row>
                 {/* Delivery info based on canton */}
-                {formData.canton === 'VD' && (
-                  <Alert variant="info" className="mt-2 mb-0 small">
-                    <strong>Vaud:</strong> Delivery on Saturdays. Coppet-Lausanne region: free delivery with no minimum. Other regions: 200 CHF minimum.
-                  </Alert>
-                )}
-                {formData.canton === 'GE' && (
-                  <Alert variant="info" className="mt-2 mb-0 small">
-                    <strong>Geneva:</strong> Delivery on Mondays. 200 CHF minimum order for free delivery.
-                  </Alert>
-                )}
-              </Form.Group>
+                        {formData.canton === 'VD' && (
+                          <Alert variant="info" className="mt-2 mb-0 small">
+                          <strong>Vaud:</strong> Доставка по суботах. Регіон Коппе-Лозанна: безкоштовна доставка без мінімального замовлення. Інші регіони: мінімальне замовлення 200 CHF.
+                          </Alert>
+                        )}
+                        {formData.canton === 'GE' && (
+                          <Alert variant="info" className="mt-2 mb-0 small">
+                          <strong>Geneva:</strong> Доставка по понеділках. Мінімальне замовлення 200 CHF для безкоштовної доставки.
+                          </Alert>
+                        )}
+                        </Form.Group>
 
-              {/* Address Fields */}
+                        {/* Address Fields */}
               <Form.Group className="mb-3">
                 <Form.Label>{t('profile.delivery.address.street')}</Form.Label>
                 <Form.Control
@@ -362,8 +362,8 @@ const UserProfile = () => {
                     />
                     <Form.Text className="text-muted">
                       {formData.canton === 'VD' ? 
-                        'Required for Vaud to determine delivery region and minimum order' : 
-                        'Swiss 4-digit postal code'}
+                        'Обовʼязково для кантону Во для визначення регіону доставки та мінімального замовлення' :
+            'Швейцарський 4-значний поштовий індекс'}
                     </Form.Text>
                   </Form.Group>
                 </Col>

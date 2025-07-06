@@ -129,8 +129,8 @@
     "afternoon": "Après-midi",
     "evening": "Soir",
     "no_dates_available": "Aucune date de retrait disponible pour les deux prochaines semaines",
-    "note": "Le retrait est disponible uniquement le samedi, dimanche, lundi et mardi. Veuillez sélectionner une date et un créneau horaire.",
-    "available_days": "Le retrait est disponible le samedi, dimanche, lundi et mardi",
+    "note": "Le retrait est disponible uniquement le samedi, dimanche, lundi. Veuillez sélectionner une date et un créneau horaire.",
+    "available_days": "Le retrait est disponible le samedi, dimanche, lundi",
       "errors": {
         "locations_fetch_error": "Erreur de chargement des lieux de retrait"
       },

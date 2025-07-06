@@ -92,7 +92,7 @@ const CartDropdown = () => {
                     <div>
                       <h6 className="mb-0">{item.name}</h6>
                       <small className="text-muted">
-                        {item.price} CHF x {item.quantity}
+                        {item.weight} x {item.quantity}
                       </small>
                     </div>
                     <div className="d-flex align-items-center gap-2">

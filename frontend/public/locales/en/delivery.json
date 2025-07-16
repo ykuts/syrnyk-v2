@@ -34,7 +34,7 @@
       "meeting_point": "Meeting Point"
     },
     "nyon": {
-      "day_time": "Self-pickup: any day and time convenient for you, to be agreed by phone",
+      "day_time": "Self-pickup: every Saturday and Monday at a time convenient for you",
       "meeting_point": "chemin de Pré-Fleuri 5, Nyon"
     },
     "aigle": {
@@ -63,7 +63,7 @@
     },
     "geneve": {
       "day_time": "18:20-18:30",
-      "meeting_point": "Platform 3, sector B-C on the bench"
+      "meeting_point": "Platform 3, sector C on the bench"
     }
   },
   "address_delivery": {

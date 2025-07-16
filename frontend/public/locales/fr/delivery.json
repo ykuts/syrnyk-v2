@@ -34,7 +34,7 @@
       "meeting_point": "Point de rencontre"
     },
     "nyon": {
-      "day_time": "Auto-collecte: n'importe quel jour et heure qui vous convient, à convenir par téléphone",
+      "day_time": "Retrait sur place : chaque samedi et lundi à l'heure qui vous convient",
       "meeting_point": "chemin de Pré-Fleuri 5, Nyon"
     },
     "aigle": {
@@ -63,7 +63,7 @@
     },
     "geneve": {
       "day_time": "18h20-18h30",
-      "meeting_point": "Quai 3, secteur B-C sur le banc"
+      "meeting_point": "Quai 3, secteur C sur le banc"
     }
   },
   "address_delivery": {

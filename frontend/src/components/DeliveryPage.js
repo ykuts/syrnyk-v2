@@ -159,11 +159,11 @@ const DeliveryPage = () => {
                     <strong>{t('address_delivery.schedule.label', { ns: 'delivery' })}</strong>: 
                     {t('address_delivery.schedule.value', { ns: 'delivery' })}
                   </p>
-                  <p>
+                  {/* <p>
                     <ReactMarkdown>{t('address_delivery.paid.intro', { ns: 'delivery' })}</ReactMarkdown> 
                     <ReactMarkdown>{t('address_delivery.paid.min_order.value', { ns: 'delivery' })}</ReactMarkdown>
                     <ReactMarkdown>{t('address_delivery.paid.cost.description', { ns: 'delivery' })}</ReactMarkdown>
-                  </p>
+                  </p> */}
                 </>
               }
 

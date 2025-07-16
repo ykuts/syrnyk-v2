@@ -32,10 +32,10 @@ const ResetPassword = () => {
       return;
     }
 
-    if (formData.newPassword.length < 8) {
+    /* if (formData.newPassword.length < 8) {
       setError('Пароль повинен містити щонайменше 8 символів');
       return;
-    }
+    } */
 
     setLoading(true);
     setError('');
@@ -94,7 +94,7 @@ const ResetPassword = () => {
               onChange={handleChange}
               placeholder={t('password_reset.reset.new_password')}
               required
-              minLength={8}
+              /* minLength={8} */
               disabled={loading}
             />
           </Form.Group>
@@ -108,7 +108,7 @@ const ResetPassword = () => {
             onChange={handleChange}
             placeholder={t('password_reset.reset.confirm_password')}
             required
-            minLength={8}
+            /* minLength={8} */
             disabled={loading}
           />
         </Form.Group>

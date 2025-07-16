@@ -46,10 +46,10 @@ const ChangePassword = () => {
       }
 
       // Validate password length
-      if (formData.newPassword.length < 8) {
+      /* if (formData.newPassword.length < 8) {
         setError(t('validation.password_min_length', { ns: 'auth' }));
         return;
-      }
+      } */
 
       // Send request to change password
       await apiClient.put(

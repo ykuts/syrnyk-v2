@@ -1,86 +1,245 @@
-/* Main carousel container styles */
-.about-carousel {
-    min-height: 600px;
-    background-color: #f8f9fa;
-    position: relative;
-  }
-  
-  /* Slide content styles */
-  .slide-content {
-    min-height: 600px;
-    padding: 2rem;
-  }
-  
-  /* Navigation button base styles */
-  .carousel-nav-btn {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    z-index: 2;
-    background: white;
-    border: none;
-    border-radius: 50%;
-    width: 40px;
-    height: 40px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-    cursor: pointer;
-    font-size: 24px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: background-color 0.3s, box-shadow 0.3s;
-  }
-  
-  /* Hover state for navigation buttons */
-  .carousel-nav-btn:hover {
-    background-color: #f8f9fa;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
-  }
-  
-  /* Previous button positioning */
-  .carousel-nav-btn.prev {
-    left: 20px;
-  }
-  
-  /* Next button positioning */
-  .carousel-nav-btn.next {
-    right: 20px;
-  }
-  
-  /* Content section spacing */
-  .content-section {
+/* Page title styling */
+/* .page-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #0d6efd;
+  margin-bottom: 3rem;
+  position: relative;
+}
+
+.page-title::after {
+  content: '';
+  display: block;
+  width: 80px;
+  height: 4px;
+  background: linear-gradient(90deg, #0d6efd, #95c2d7);
+  margin: 1rem auto;
+  border-radius: 2px;
+} */
+
+/* Section title styling */
+/* .section-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+  line-height: 1.3;
+} */
+
+/* Content section spacing */
+/* .content-section {
+  padding: 1rem 0;
+} */
+
+/* Image container styling */
+.image-container {
+  border-radius: 15px;
+  overflow: hidden;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+  transition: all 0.3s ease;
+}
+
+.image-container:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+}
+
+.about-image {
+  width: 100%;
+  height: 500px;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.about-image:hover {
+  transform: scale(1.05);
+}
+
+/* Content cards styling */
+.content-card {
+  background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+  border: none;
+  border-radius: 15px;
+  box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+  transition: all 0.3s ease;
+}
+
+.content-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+}
+
+/* Product logo styling */
+.product-logo {
+  height: 100px;
+  width: auto;
+  margin-bottom: 1rem;
+}
+
+/* Product features card */
+.product-features-card {
+  background-color: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 12px;
+  box-shadow: 0 3px 15px rgba(0,0,0,0.08);
+  transition: all 0.3s ease;
+  margin-top: 1.5rem;
+}
+
+.product-features-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+}
+
+/* Order card styling */
+.order-card {
+  background: linear-gradient(135deg, #95c2d7 0%, #7fb8d3 100%);
+  border: none;
+  border-radius: 15px;
+  box-shadow: 0 8px 25px rgba(149, 194, 215, 0.3);
+  transition: all 0.3s ease;
+}
+
+.order-card:hover {
+  /* transform: translateY(-3px); */
+  box-shadow: 0 12px 35px rgba(149, 194, 215, 0.4);
+}
+
+.order-button {
+  background-color: #ff961c;
+  color: #000000;
+  border: 2px solid #ff961c;
+  border-radius: 25px;
+  font-weight: 400;
+  font-size: 1.1rem;
+  transition: all 0.3s ease;
+  min-width: 200px;
+}
+
+.order-button:hover {
+  background-color: #eb8329;
+  color: #000000;
+  border-color:#eb8329;
+  /* transform: translateY(-2px); */
+}
+
+
+/* Text styling */
+.text-justify {
+  text-align: justify;
+  line-height: 1.7;
+  color: #333;
+}
+
+.lead {
+  font-size: 1.1rem;
+  font-weight: 400;
+}
+
+/* Feature badges styling */
+.features-badges {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.feature-badge {
+  background-color: #e9ecef;
+  color: #333;
+  border: 1px solid #dee2e6;
+  padding: 0.5rem 1rem;
+  border-radius: 25px;
+  font-size: 0.9rem;
+  display: inline-block;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+
+.feature-badge:hover {
+  background-color: #95c2d7;
+  color: white;
+  border-color: #95c2d7;
+  transform: translateY(-2px);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .page-title {
+    font-size: 2rem;
     margin-bottom: 2rem;
   }
   
-  /* Card hover effects */
-  .about-card {
-    transition: transform 0.3s, box-shadow 0.3s;
+  .section-title {
+    font-size: 1.3rem;
   }
   
-  .about-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+  .about-image {
+    height: 250px;
   }
   
-  /* List group item styling */
-  .about-list-item {
-    transition: background-color 0.3s;
-    padding: 1rem;
+  .content-section {
+    padding: 0.5rem 0;
   }
   
-  .about-list-item:hover {
-    background-color: #f8f9fa;
+  .feature-badge {
+    font-size: 0.8rem;
+    padding: 0.4rem 0.8rem;
+    margin: 0.2rem;
   }
   
-  /* Responsive adjustments */
-  @media (max-width: 768px) {
-    .carousel-nav-btn {
-      width: 32px;
-      height: 32px;
-      font-size: 20px;
-    }
-  
-    .slide-content {
-      padding: 1rem;
-    }
+  .features-badges {
+    flex-direction: column;
+    align-items: center;
   }
+}
+
+@media (max-width: 576px) {
+  .page-title {
+    font-size: 1.8rem;
+  }
+  
+  .about-image {
+    height: 200px;
+  }
+  
+  .image-container {
+    margin-bottom: 2rem;
+  }
+}
+
+/* Animation for page load */
+.content-section {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+.image-container {
+  animation: fadeInScale 0.8s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Hover effects for sections */
+.content-section:hover .section-title {
+  color: #0a58ca;
+  transition: color 0.3s ease;
+}

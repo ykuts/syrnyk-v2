@@ -128,9 +128,9 @@ const ChangePassword = () => {
           /* minLength={8} */
           placeholder={t('change_password.new_password')}
         />
-        <Form.Text className="text-muted">
+        {/* <Form.Text className="text-muted">
           {t('validation.password_requirements', { ns: 'auth' })}
-        </Form.Text>
+        </Form.Text> */}
       </Form.Group>
 
       {/* Confirm New Password Field */}

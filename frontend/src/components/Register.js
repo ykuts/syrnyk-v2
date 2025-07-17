@@ -245,6 +245,7 @@ const Register = () => {
 
     if (!validateForm()) {
       setError(t('register.validation.fix_errors'));
+      window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
     }
 
@@ -282,7 +283,7 @@ const Register = () => {
         if (result.requiresVerification) {
           setRegisteredEmail(formData.email);
           // СОХРАНЯЕМ ВСЕ данные формы (кроме паролей для безопасности)
-          
+
           setSavedFormData({
             firstName: formData.firstName,
             lastName: formData.lastName,
@@ -295,6 +296,10 @@ const Register = () => {
 
           setSuccess(t('register.verification.emailSent'));
           setShowVerificationMessage(true);
+
+          setTimeout(() => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }, 100);
 
           setIsCountingDown(true);
           setShowResendOption(false);
@@ -315,18 +320,28 @@ const Register = () => {
           //setTimeout(() => setShowResendOption(true), 30000); // 30 seconds
         } else {
           // Old flow - direct login (if email verification is disabled)
+          window.scrollTo({ top: 0, behavior: 'smooth' });
           navigate('/client');
         }
       } else {
         setError(result.error || t('register.error'));
+        window.scrollTo({ top: 0, behavior: 'smooth' });
       }
     } catch (error) {
       console.error('Помилка реєстрації:', error);
       setError(error.message || t('register.error_generic'));
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     } finally {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (showVerificationMessage) {
+      // Прокрутка к верху при показе сообщения верификации
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }, [showVerificationMessage]);
 
   // Handle resend verification email
   const handleResendVerification = async () => {
@@ -408,100 +423,100 @@ const Register = () => {
             </div>
 
             {/* Секция повторной отправки с таймером */}
-          <div className="mb-4">
-            {isCountingDown ? (
-              <div className="text-center">
-                <p className="text-muted mb-2">
-                  {t('register.verification.canResendIn')}
-                </p>
-                <div className="d-flex align-items-center justify-content-center mb-3">
-                  <div className="bg-light border rounded px-3 py-2" style={{fontFamily: 'monospace'}}>
-                    <strong className="text-primary fs-5">
-                      {formatTime(countdown)}
-                    </strong>
+            <div className="mb-4">
+              {isCountingDown ? (
+                <div className="text-center">
+                  <p className="text-muted mb-2">
+                    {t('register.verification.canResendIn')}
+                  </p>
+                  <div className="d-flex align-items-center justify-content-center mb-3">
+                    <div className="bg-light border rounded px-3 py-2" style={{ fontFamily: 'monospace' }}>
+                      <strong className="text-primary fs-5">
+                        {formatTime(countdown)}
+                      </strong>
+                    </div>
                   </div>
+                  <small className="text-muted">
+                    {t('register.verification.waitingMessage')}
+                  </small>
                 </div>
-                <small className="text-muted">
-                  {t('register.verification.waitingMessage')}
-                </small>
-              </div>
-            ) : showResendOption ? (
-              <div>
-                <p className="text-muted mb-3">
-                  {t('register.verification.notReceived')}
-                </p>
-                <Button
-                  variant="primary"
-                  onClick={handleResendVerification}
-                  disabled={loading}
-                  className="px-4"
-                >
-                  {loading ? (
-                    <>
-                      <Spinner size="sm" className="me-2" />
-                      {t('register.loading')}
-                    </>
-                  ) : (
-                    <>
-                      {t('register.verification.resendButton')}
-                    </>
-                  )}
-                </Button>
-              </div>
-            ) : null}
-          </div>
+              ) : showResendOption ? (
+                <div>
+                  <p className="text-muted mb-3">
+                    {t('register.verification.notReceived')}
+                  </p>
+                  <Button
+                    variant="primary"
+                    onClick={handleResendVerification}
+                    disabled={loading}
+                    className="px-4"
+                  >
+                    {loading ? (
+                      <>
+                        <Spinner size="sm" className="me-2" />
+                        {t('register.loading')}
+                      </>
+                    ) : (
+                      <>
+                        {t('register.verification.resendButton')}
+                      </>
+                    )}
+                  </Button>
+                </div>
+              ) : null}
+            </div>
 
-          {/* Уведомление о сохранении данных */}
-          {/* <Alert variant="warning" className="small mb-4">
+            {/* Уведомление о сохранении данных */}
+            {/* <Alert variant="warning" className="small mb-4">
             💡 <strong>Совет:</strong> Если нужно исправить email, нажмите "Исправить email" - 
             все ваши данные сохранены и будут восстановлены (кроме пароля).
           </Alert> */}
 
-          {/* Секция с возможностью исправить email */}
-          <hr className="my-4" />
-          
-          <div className="mb-3">
-            <p className="text-muted small mb-3">
-              {t('register.verification.wrongEmail')}
-            </p>
-            
-            <Button
-              variant="danger"
-              onClick={() => {
-                // Очищаем состояния верификации
-                setShowVerificationMessage(false);
-                setShowResendOption(false);
-                setIsCountingDown(false);
-                setCountdown(30);
-                setError('');
-                setSuccess('');
-                
-                // Восстанавливаем ВСЕ сохраненные данные
-                if (savedFormData) {
-                  setFormData({
-                    ...savedFormData,
-                    password: '', // Пароли не восстанавливаем для безопасности
-                    confirmPassword: ''
-                  });
-                }
-                
-                // Сбрасываем сохраненные данные
-                setSavedFormData(null);
-                setRegisteredEmail('');
-              }}
-              className="me-2"
-            >
-              {t('register.verification.editEmail')}
-            </Button>
-            
-            {/* <Button
+            {/* Секция с возможностью исправить email */}
+            <hr className="my-4" />
+
+            <div className="mb-3">
+              <p className="text-muted small mb-3">
+                {t('register.verification.wrongEmail')}
+              </p>
+
+              <Button
+                variant="danger"
+                onClick={() => {
+                  // Очищаем состояния верификации
+                  setShowVerificationMessage(false);
+                  setShowResendOption(false);
+                  setIsCountingDown(false);
+                  setCountdown(30);
+                  setError('');
+                  setSuccess('');
+
+                  // Восстанавливаем ВСЕ сохраненные данные
+                  if (savedFormData) {
+                    setFormData({
+                      ...savedFormData,
+                      password: '', // Пароли не восстанавливаем для безопасности
+                      confirmPassword: ''
+                    });
+                  }
+
+                  // Сбрасываем сохраненные данные
+                  setSavedFormData(null);
+                  setRegisteredEmail('');
+                }}
+                className="me-2"
+              >
+                {t('register.verification.editEmail')}
+              </Button>
+
+              {/* <Button
               variant="outline-secondary"
               onClick={() => navigate('/login')}
               className="text-decoration-none"
             >
               {t('register.verification.goToLogin')}
             </Button> */}
-          </div>
+            </div>
           </Card.Body>
         </Card>
       </Container>

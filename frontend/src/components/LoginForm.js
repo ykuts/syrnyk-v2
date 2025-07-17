@@ -3,9 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import { Form, Button, InputGroup, Alert } from 'react-bootstrap';
 import { Eye, EyeOff, Mail } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { apiClient } from '../utils/api';
 import './LoginForm.css';
 import { useTranslation } from 'react-i18next';
-
 
 function LoginForm({ closeModal, onLoginSuccess, returnUrl }) {
   const { t } = useTranslation('auth');
@@ -30,7 +30,9 @@ function LoginForm({ closeModal, onLoginSuccess, returnUrl }) {
       
       if (result.success) {
         // Close modal first
-        closeModal();
+        if (closeModal) {
+          closeModal();
+        }
 
         // Handle successful login with different scenarios
         if (onLoginSuccess) {
@@ -59,6 +61,7 @@ function LoginForm({ closeModal, onLoginSuccess, returnUrl }) {
         }
       }
     } catch (error) {
+      console.error('Login error:', error);
       setError(t('errors.general', { ns: 'common' }));
     } finally {
       setLoading(false);
@@ -76,27 +79,19 @@ function LoginForm({ closeModal, onLoginSuccess, returnUrl }) {
       setError('');
       setLoading(true);
 
-      const response = await fetch('/api/users/resend-verification', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email: unverifiedEmail }),
+      // Use apiClient instead of direct fetch
+      await apiClient.post('/users/resend-verification', { 
+        email: unverifiedEmail 
       });
 
-      const data = await response.json();
+      setError(''); // Clear error
+      // Show success message - since we don't have success state, use alert
+      alert(t('login.verification.resendSuccess'));
+      setShowResendOption(false);
 
-      if (response.ok) {
-        setError(''); // Clear error
-        // Show success message in a different way since we don't have success state
-        alert(t('login.verification.resendSuccess'));
-        setShowResendOption(false);
-      } else {
-        setError(data.message || t('login.verification.resendError'));
-      }
     } catch (error) {
       console.error('Resend verification error:', error);
-      setError(t('errors.general', { ns: 'common' }));
+      setError(error.message || t('login.verification.resendError'));
     } finally {
       setLoading(false);
     }
@@ -104,13 +99,17 @@ function LoginForm({ closeModal, onLoginSuccess, returnUrl }) {
 
   const handleRegisterClick = (e) => {
     e.preventDefault();
-    closeModal();
+    if (closeModal) {
+      closeModal();
+    }
     navigate('/register');
   };
 
   const handleForgotPassword = (e) => {
     e.preventDefault();
-    closeModal();
+    if (closeModal) {
+      closeModal();
+    }
     navigate('/forgot-password');
   };
 
@@ -149,6 +148,7 @@ function LoginForm({ closeModal, onLoginSuccess, returnUrl }) {
             variant="outline-secondary"
             onClick={() => setShowPassword(!showPassword)}
             disabled={loading}
+            type="button"
           >
             {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
           </Button>
@@ -170,6 +170,7 @@ function LoginForm({ closeModal, onLoginSuccess, returnUrl }) {
             onClick={handleResendVerification}
             disabled={loading}
             className="w-100"
+            type="button"
           >
             {loading ? t('login.loading') : t('login.verification.resendButton')}
           </Button>
@@ -178,7 +179,7 @@ function LoginForm({ closeModal, onLoginSuccess, returnUrl }) {
 
       <div className="d-flex justify-content-between align-items-center mb-4">
         <a 
-          href="/" 
+          href="#" 
           className="text-decoration-none"
           onClick={handleForgotPassword}
         >
@@ -198,7 +199,7 @@ function LoginForm({ closeModal, onLoginSuccess, returnUrl }) {
       <div className="text-center">
         <span className="text-muted">{t('login.no_account')} </span>
         <a 
-          href="/" 
+          href="#" 
           className="text-decoration-none"
           onClick={handleRegisterClick}
         >

@@ -501,6 +501,13 @@ useEffect(() => {
     return baseDisabled || twintDisabled;
   };
 
+  useEffect(() => {
+  if (submitSuccess) {
+    // Прокрутка к верху при успешном заказе
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+}, [submitSuccess]);
+
   // Validate the form before submission
   /* const validateForm = () => {
     let isValid = true;
@@ -1181,13 +1188,14 @@ useEffect(() => {
       }
 
       // Show success message and clear cart
+      window.scrollTo({ top: 0, behavior: 'smooth' });
       setSubmitSuccess(true);
       clearCart();
-      window.scrollTo(0, 0); // Scroll to top to show success message
+      
     } catch (error) {
       console.error('Order submission error:', error);
       setSubmitError(error.message || 'Failed to create order');
-      window.scrollTo(0, 0); // Scroll to top to show error message
+      window.scrollTo({ top: 0, behavior: 'smooth' }); // Scroll to top to show error message
     } finally {
       setIsSubmitting(false);
     }

@@ -9,6 +9,8 @@ import ChangePassword from './ChangePassword';
 import { useTranslation } from 'react-i18next';
 import './UserProfile.css';
 import SimplePhoneInput, { useSimplePhoneValidation, cleanPhoneNumber } from './common/SimplePhoneInput';
+import { useScrollToTop } from '../hooks/useScrollToTop';
+
 
 // Store address constant - will be translated dynamically
 const STORE_ADDRESS = {
@@ -26,6 +28,9 @@ const UserProfile = () => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [railwayStations, setRailwayStations] = useState([]);
+
+  useScrollToTop(success);
+  useScrollToTop(!!error);
 
   // Use phone validation hook
   const { isValid: isPhoneValid, message: phoneMessage, handleValidationChange } = useSimplePhoneValidation();
@@ -412,7 +417,7 @@ const UserProfile = () => {
       <Tab.Container activeKey={activeTab} onSelect={(k) => setActiveTab(k)}>
         <Row>
           {error && <Alert variant="danger">{error}</Alert>}
-          {success && <Alert variant="success">{success}</Alert>}
+          {success && <Alert variant="primary">{success}</Alert>}
           <Col md={3}>
             <Nav className="flex-column custom-nav">
               <Nav.Item>
@@ -432,8 +437,8 @@ const UserProfile = () => {
 
           <Col md={9}>
             {loading && <Alert variant="info">{t('profile.loading')}</Alert>}
-            {error && <Alert variant="danger" onClose={() => setError('')} dismissible>{error}</Alert>}
-            {success && <Alert variant="success" onClose={() => setSuccess('')} dismissible>{success}</Alert>}
+            {/* {error && <Alert variant="danger" onClose={() => setError('')} dismissible>{error}</Alert>}
+            {success && <Alert variant="success" onClose={() => setSuccess('')} dismissible>{success}</Alert>} */}
 
             <Tab.Content>
               {/* Profile Tab */}

@@ -2,11 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { Form, Button, Container, Alert, Card, InputGroup, Row, Col, Modal, Spinner } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Phone, Mail, Lock, User, AlertCircle, FileText, Check } from 'lucide-react';
+import { Mail, Lock, User, FileText, Check, CheckCircle } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { useTranslation } from 'react-i18next';
 import SimplePhoneInput, { useSimplePhoneValidation, cleanPhoneNumber } from './common/SimplePhoneInput';
-import './Register.css'; 
+import './Register.css';
+import { apiClient } from '../utils/api';
+import { useScrollToTop } from '../hooks/useScrollToTop';
+
 
 // Импортируем шаблоны из отдельного файла
 import {
@@ -30,8 +33,15 @@ const Register = () => {
     password: '',
     confirmPassword: '',
     dataConsentAccepted: false,
-    marketingConsent: false
+    marketingConsent: false,
+    preferredLanguage: i18n.language || 'uk'
   });
+
+  const [registeredEmail, setRegisteredEmail] = useState('');
+
+  const [countdown, setCountdown] = useState(30); // Начальный отсчет 30 секунд
+  const [isCountingDown, setIsCountingDown] = useState(false);
+  const [savedFormData, setSavedFormData] = useState(null);
 
   // Use phone validation hook
   const { isValid: isPhoneValid, message: phoneMessage, handleValidationChange } = useSimplePhoneValidation();
@@ -48,9 +58,16 @@ const Register = () => {
   });
 
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showVerificationMessage, setShowVerificationMessage] = useState(false);
+  const [showResendOption, setShowResendOption] = useState(false);
   const navigate = useNavigate();
   const { register } = useAuth();
+
+  // Автопрокрутка при показе верификации или ошибок
+  useScrollToTop(showVerificationMessage);
+  useScrollToTop(!!error);
 
   // Password strength state
   const [passwordStrength, setPasswordStrength] = useState({
@@ -204,6 +221,24 @@ const Register = () => {
     return isFormValid;
   };
 
+  useEffect(() => {
+    let interval = null;
+
+    if (isCountingDown && countdown > 0) {
+      interval = setInterval(() => {
+        setCountdown(countdown => countdown - 1);
+      }, 1000);
+    } else if (countdown === 0) {
+      setIsCountingDown(false);
+      setShowResendOption(true);
+      setCountdown(30); // Сброс на 30 секунд для следующего раза
+    }
+
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [isCountingDown, countdown]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (loading) return;
@@ -215,6 +250,7 @@ const Register = () => {
 
     try {
       setError('');
+      setSuccess('');
       setLoading(true);
 
       // Clean phone number before sending - remove spaces and formatting
@@ -242,13 +278,81 @@ const Register = () => {
       const result = await register(registrationDataWithLanguage);
 
       if (result.success) {
-        navigate('/client');
+        // Check if email verification is required
+        if (result.requiresVerification) {
+          setRegisteredEmail(formData.email);
+          // СОХРАНЯЕМ ВСЕ данные формы (кроме паролей для безопасности)
+          
+          setSavedFormData({
+            firstName: formData.firstName,
+            lastName: formData.lastName,
+            email: formData.email,
+            phone: formData.phone,
+            dataConsentAccepted: formData.dataConsentAccepted,
+            marketingConsent: formData.marketingConsent,
+            preferredLanguage: formData.preferredLanguage
+          });
+
+          setSuccess(t('register.verification.emailSent'));
+          setShowVerificationMessage(true);
+
+          setIsCountingDown(true);
+          setShowResendOption(false);
+
+          // Clear form after successful registration
+          setFormData({
+            firstName: '',
+            lastName: '',
+            email: '',
+            phone: '',
+            password: '',
+            confirmPassword: '',
+            dataConsentAccepted: false,
+            marketingConsent: false,
+            preferredLanguage: i18n.language || 'uk'
+          });
+          // Show resend option after some time
+          //setTimeout(() => setShowResendOption(true), 30000); // 30 seconds
+        } else {
+          // Old flow - direct login (if email verification is disabled)
+          navigate('/client');
+        }
       } else {
         setError(result.error || t('register.error'));
       }
     } catch (error) {
-      console.error('Ошибка регистрации:', error);
+      console.error('Помилка реєстрації:', error);
       setError(error.message || t('register.error_generic'));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Handle resend verification email
+  const handleResendVerification = async () => {
+    if (!registeredEmail) { // ← ИСПОЛЬЗУЕМ registeredEmail
+      setError(t('register.verification.emailRequired'));
+      return;
+    }
+
+    try {
+      setError('');
+      setLoading(true);
+
+      // Используем apiClient вместо fetch
+      const data = await apiClient.post('/users/resend-verification', {
+        email: registeredEmail
+      });
+
+      setSuccess(data.message || t('register.verification.resendSuccess'));
+      // Перезапускаем таймер после успешной отправки
+      setShowResendOption(false);
+      setCountdown(120); // 2 минуты для следующей отправки
+      setIsCountingDown(true);
+
+    } catch (error) {
+      console.error('Resend verification error:', error);
+      setError(error.message || t('register.verification.resendError'));
     } finally {
       setLoading(false);
     }
@@ -258,14 +362,154 @@ const Register = () => {
     setShowTerms(true);
   };
 
+  const formatTime = (seconds) => {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return minutes > 0
+      ? `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`
+      : `${remainingSeconds}`;
+  };
+
   // Handle language change in the modal
   const handleTermsLanguageChange = (e) => {
     const newLang = e.target.value;
     setTermsLanguage(newLang);
   };
 
+  // Show verification success message
+  if (showVerificationMessage) {
+    return (
+      <Container className="py-5">
+        <Card className="mx-auto shadow-sm" style={{ maxWidth: '600px' }}>
+          <Card.Body className="p-5 text-center">
+            <CheckCircle size={64} className="text-success mb-4" />
+            <h3 className="text-success mb-3">
+              {t('register.verification.title')}
+            </h3>
+
+            {success && <Alert variant="success">{success}</Alert>}
+            {error && <Alert variant="danger">{error}</Alert>}
+
+            <div className="mb-4">
+              <p className="mb-3">
+                {t('register.verification.checkEmail')}
+              </p>
+
+              {/* Показываем email, на который отправлено письмо */}
+              {registeredEmail && (
+                <Alert variant="info" className="small mb-3">
+                  <strong>{registeredEmail}</strong>
+                </Alert>
+              )}
+
+              <p className="text-muted small">
+                {t('register.verification.emailInstructions')}
+              </p>
+            </div>
+
+            {/* Секция повторной отправки с таймером */}
+          <div className="mb-4">
+            {isCountingDown ? (
+              <div className="text-center">
+                <p className="text-muted mb-2">
+                  {t('register.verification.canResendIn')}
+                </p>
+                <div className="d-flex align-items-center justify-content-center mb-3">
+                  <div className="bg-light border rounded px-3 py-2" style={{fontFamily: 'monospace'}}>
+                    <strong className="text-primary fs-5">
+                      {formatTime(countdown)}
+                    </strong>
+                  </div>
+                </div>
+                <small className="text-muted">
+                  {t('register.verification.waitingMessage')}
+                </small>
+              </div>
+            ) : showResendOption ? (
+              <div>
+                <p className="text-muted mb-3">
+                  {t('register.verification.notReceived')}
+                </p>
+                <Button
+                  variant="primary"
+                  onClick={handleResendVerification}
+                  disabled={loading}
+                  className="px-4"
+                >
+                  {loading ? (
+                    <>
+                      <Spinner size="sm" className="me-2" />
+                      {t('register.loading')}
+                    </>
+                  ) : (
+                    <>
+                      {t('register.verification.resendButton')}
+                    </>
+                  )}
+                </Button>
+              </div>
+            ) : null}
+          </div>
+
+          {/* Уведомление о сохранении данных */}
+          {/* <Alert variant="warning" className="small mb-4">
+            💡 <strong>Совет:</strong> Если нужно исправить email, нажмите "Исправить email" - 
+            все ваши данные сохранены и будут восстановлены (кроме пароля).
+          </Alert> */}
+
+          {/* Секция с возможностью исправить email */}
+          <hr className="my-4" />
+          
+          <div className="mb-3">
+            <p className="text-muted small mb-3">
+              {t('register.verification.wrongEmail')}
+            </p>
+            
+            <Button
+              variant="danger"
+              onClick={() => {
+                // Очищаем состояния верификации
+                setShowVerificationMessage(false);
+                setShowResendOption(false);
+                setIsCountingDown(false);
+                setCountdown(30);
+                setError('');
+                setSuccess('');
+                
+                // Восстанавливаем ВСЕ сохраненные данные
+                if (savedFormData) {
+                  setFormData({
+                    ...savedFormData,
+                    password: '', // Пароли не восстанавливаем для безопасности
+                    confirmPassword: ''
+                  });
+                }
+                
+                // Сбрасываем сохраненные данные
+                setSavedFormData(null);
+                setRegisteredEmail('');
+              }}
+              className="me-2"
+            >
+              {t('register.verification.editEmail')}
+            </Button>
+            
+            {/* <Button
+              variant="outline-secondary"
+              onClick={() => navigate('/login')}
+              className="text-decoration-none"
+            >
+              {t('register.verification.goToLogin')}
+            </Button> */}
+          </div>
+          </Card.Body>
+        </Card>
+      </Container>
+    );
+  }
+
   // Password strength indicator component
-  const PasswordStrengthIndicator = () => (
+  /* const PasswordStrengthIndicator = () => (
     <div className="mt-2">
       <div className="d-flex gap-2 align-items-center small">
         <AlertCircle size={14} />
@@ -283,7 +527,7 @@ const Register = () => {
         </li>
       </ul>
     </div>
-  );
+  ); */
 
   return (
     <Container className="py-5">
@@ -292,6 +536,7 @@ const Register = () => {
           <h2 className="text-center mb-4">{t('register.title')}</h2>
 
           {error && <Alert variant="danger">{error}</Alert>}
+          {success && <Alert variant="success">{success}</Alert>}
 
           <Form onSubmit={handleSubmit} noValidate>
             <Row className="mb-3">
@@ -310,7 +555,7 @@ const Register = () => {
                       name="firstName"
                       value={formData.firstName}
                       onChange={handleChange}
-                      placeholder={t('register.input_first_name')} 
+                      placeholder={t('register.input_first_name')}
                       isInvalid={!validation.firstName.isValid}
                       required
                     />
@@ -324,9 +569,9 @@ const Register = () => {
               <Col sm={6}>
                 <Form.Group>
                   <Form.Label>
-                {t('register.last_name')}
-                <span className="required-asterisk">*</span>
-              </Form.Label>
+                    {t('register.last_name')}
+                    <span className="required-asterisk">*</span>
+                  </Form.Label>
                   <InputGroup>
                     <InputGroup.Text>
                       <User size={18} />
@@ -447,61 +692,6 @@ const Register = () => {
             </Form.Group>
 
             {/* Consent section */}
-            {/* <Card className="mb-4 bg-light border">
-              <Card.Body className="py-3">
-                <h6 className="d-flex align-items-center mb-3">
-                  <FileText size={18} className="me-2" />
-                  {getUIText('privacyTitle')}
-                </h6>
-
-                <Form.Group className="mb-3 text-start">
-                  <Form.Check
-                    type="checkbox"
-                    id="dataConsentAccepted"
-                    name="dataConsentAccepted"
-                    checked={formData.dataConsentAccepted}
-                    onChange={handleChange}
-                    isInvalid={!validation.dataConsentAccepted.isValid}
-                    label={
-                      <>
-                        {consentCheckboxText[termsLanguage] || consentCheckboxText.uk}{' '}
-                        <Button
-                          variant="link"
-                          className="p-0 align-baseline text-decoration-underline"
-                          onClick={handleViewTerms}
-                        >
-                          {getUIText('termsLinkText')}
-                        </Button>*
-                      </>
-                    }
-                  />
-                  {!validation.dataConsentAccepted.isValid && (
-                    <div className="text-danger small mt-1">
-                      {validation.dataConsentAccepted.message}
-                    </div>
-                  )}
-                </Form.Group>
-
-                <Form.Group className="mb-2 text-start">
-                  <Form.Check
-                    type="checkbox"
-                    id="marketingConsent"
-                    name="marketingConsent"
-                    checked={formData.marketingConsent}
-                    onChange={handleChange}
-                    label={marketingConsentText[termsLanguage] || marketingConsentText.uk}
-                  />
-                </Form.Group>
-
-                <div className="text-muted small">
-                  <p className="mb-0">
-                    {getUIText('privacyNote')}
-                  </p>
-                </div>
-              </Card.Body>
-            </Card> */}
-
-            {/* Consent section */}
             <Card className="mb-4 consent-section border-0">
               <Card.Body className="py-3">
                 <h6 className="d-flex align-items-center mb-3">
@@ -576,9 +766,9 @@ const Register = () => {
         </Card.Body>
       </Card>
 
-      
-      
-      
+
+
+
       {/* Data Processing Terms Modal */}
       <Modal
         show={showTerms}

@@ -27,6 +27,8 @@ import AboutUs from './components/aboutus/AboutUs';
 import ForgotPassword from './components/ForgotPassword';
 import ResetPassword from './components/ResetPassword';
 import CartLanguageSync from './components/CartLanguageSync';
+import EmailVerification from './components/EmailVerification';
+import ResendVerification from './components/ResendVerification';
 // Import i18n configuration
 import './i18n';
 import { Suspense } from 'react';
@@ -108,6 +110,8 @@ function App() {
                 <Route path="/checkout" element={<CheckoutPage />} />
                 <Route path="/forgot-password" element={<ForgotPassword />} />
                 <Route path="/reset-password" element={<ResetPassword />} />
+                <Route path="/verify-email" element={<EmailVerification />} />
+                <Route path="/resend-verification" element={<ResendVerification />} />  
                 <Route path="*" element={<NotFound />} />
               </Routes>
               <Footer />

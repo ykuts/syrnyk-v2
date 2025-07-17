@@ -26,6 +26,16 @@ export const emailSubjects = {
     uk: 'Замовлення #{{orderId}} змінено та підтверджено',
     en: 'Order #{{orderId}} Modified and Confirmed',
     fr: 'Commande #{{orderId}} modifiée et confirmée'
+  },
+  emailVerification: {
+    uk: 'Підтвердження електронної пошти',
+    en: 'Email Verification', 
+    fr: 'Vérification de l\'e-mail'
+  },
+  emailVerificationResend: {
+    uk: 'Повторне підтвердження електронної пошти',
+    en: 'Email Verification - Resent',
+    fr: 'Vérification de l\'e-mail - Renvoyé'
   }
 };
 

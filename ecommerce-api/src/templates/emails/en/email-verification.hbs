@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Verification - SYRNYK</title>
+    <style>
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            font-family: Arial, sans-serif;
+            color: #333;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background-color: #f8f9fa;
+            padding: 30px 20px;
+            text-align: center;
+            border-bottom: 3px solid #0056b3;
+        }
+
+        .logo-section {
+            margin-bottom: 20px;
+        }
+
+        .logo-section img {
+            max-width: 150px;
+            height: auto;
+            display: block;
+            margin: 0 auto;
+        }
+
+        .logo-fallback {
+            display: none;
+            font-size: 24px;
+            font-weight: bold;
+            color: #0056b3;
+            padding: 10px;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+            color: #0056b3;
+            font-weight: 600;
+        }
+
+        .content {
+            padding: 30px 20px;
+            line-height: 1.6;
+        }
+
+        .greeting {
+            font-size: 18px;
+            color: #333;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+
+        .message {
+            font-size: 16px;
+            color: #666;
+            margin-bottom: 25px;
+            line-height: 1.7;
+        }
+
+        .verification-section {
+            background: #e9ecef;
+            padding: 25px;
+            margin: 25px 0;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .btn {
+            display: inline-block;
+            background: linear-gradient(135deg, #0056b3 0%, #004494 100%);
+            color: white;
+            padding: 16px 32px;
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: 600;
+            box-shadow: 0 4px 12px rgba(0, 86, 179, 0.3);
+            transition: all 0.3s ease;
+            margin: 10px 0;
+        }
+
+        .btn:hover {
+            box-shadow: 0 6px 20px rgba(0, 86, 179, 0.4);
+            transform: translateY(-2px);
+            color: white;
+            text-decoration: none;
+        }
+
+        .alternative-link {
+            background-color: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 25px 0;
+        }
+
+        .alternative-link p {
+            margin: 0 0 10px 0;
+            font-size: 14px;
+            color: #856404;
+            font-weight: 500;
+        }
+
+        .alternative-link a {
+            color: #0056b3;
+            word-break: break-all;
+            font-size: 14px;
+            text-decoration: none;
+        }
+
+        .info-box {
+            border-left: 4px solid #0056b3;
+            background-color: #e8f4fd;
+            padding: 15px 20px;
+            margin: 20px 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .info-box p {
+            margin: 0;
+            color: #004085;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .info-box strong {
+            color: #0056b3;
+        }
+
+        .expiry-info {
+            border-left-color: #ffc107;
+            background-color: #fff3cd;
+        }
+
+        .expiry-info p {
+            color: #856404;
+        }
+
+        .expiry-info strong {
+            color: #b45309;
+        }
+
+        .footer {
+            background-color: #f8f9fa;
+            padding: 30px 20px;
+            text-align: center;
+            border-top: 1px solid #dee2e6;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .footer p {
+            margin: 5px 0;
+            line-height: 1.5;
+        }
+
+        .footer a {
+            color: #0056b3;
+            text-decoration: none;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+
+        .brand-signature {
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid #dee2e6;
+            color: #0056b3;
+            font-weight: 600;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                margin: 0;
+                border-radius: 0;
+            }
+            .content, .header, .footer {
+                padding: 20px 15px;
+            }
+            .btn {
+                padding: 14px 24px;
+                font-size: 16px;
+            }
+            .verification-section {
+                padding: 20px 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <!-- Logo section with fallback -->
+            <div class="logo-section">
+                <img src="{{frontendUrl}}/assets/logo2.png" alt="SYRNYK"
+                     onerror="this.style.display='none'; this.nextElementSibling.style.display='block';" />
+                <div class="logo-fallback">🧀 SYRNYK</div>
+            </div>
+            <h1>Email Verification</h1>
+        </div>
+        
+        <div class="content">
+            <div class="greeting">
+                Welcome, {{firstName}}! 👋
+            </div>
+            
+            <div class="message">
+                <p>Thank you for registering with SYRNYK! To complete your registration and gain access to all benefits, please verify your email address.</p>
+            </div>
+            
+            <div class="verification-section">
+                <p style="margin-bottom: 20px; color: #0056b3; font-weight: 500;">
+                    Click the button below to activate your account:
+                </p>
+                <a href="{{verificationUrl}}" class="btn">
+                    🔓 Verify Email Address
+                </a>
+            </div>
+            
+            <div class="alternative-link">
+                <p><strong>Button not working?</strong> Copy and paste this link into your browser:</p>
+                <a href="{{verificationUrl}}">{{verificationUrl}}</a>
+            </div>
+            
+            <div class="info-box expiry-info">
+                <p><strong>⏰ Important:</strong> This link will expire in 24 hours from when you received this email.</p>
+            </div>
+            
+            <div class="info-box">
+                <p><strong>🔒 Security:</strong> If you didn't register on our website, please ignore this email. Your data will remain safe.</p>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>After verification, you'll be able to:</p>
+            <p>• Easily track your orders</p>
+            <p>• Save delivery preferences</p>
+            <p>• Receive exclusive offers</p>
+            
+            <div class="brand-signature">
+                <p>Best regards,<br>SYRNYK Team 🧀</p>
+            </div>
+            
+            <p style="margin-top: 15px;">
+                <a href="{{frontendUrl}}">Visit our website</a>
+            </p>
+        </div>
+    </div>
+</body>
+</html>

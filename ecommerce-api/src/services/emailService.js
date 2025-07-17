@@ -16,6 +16,7 @@ import {
   getTranslatedText,
   formatSubject
 } from '../constants/emailTranslations.js';
+import crypto from 'crypto';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -476,5 +477,62 @@ export const sendNewOrderAdminEmail = async (order, customer) => {
       frontendUrl: process.env.CLIENT_URL || 'http://localhost:3000'
     },
     'uk' // Admin emails always in Ukrainian
+  );
+};
+
+/**
+ * Send email verification email
+ * @param {Object} user - User object with email, firstName, etc.
+ * @param {string} verificationToken - Generated verification token
+ * @param {string} language - User's preferred language (uk, en, fr)
+ */
+export const sendEmailVerification = async (user, verificationToken, language = 'uk') => {
+  const verificationUrl = `${process.env.CLIENT_URL}/verify-email?token=${verificationToken}`;
+  
+  // Use existing email subjects structure
+  const subjectTemplate = emailSubjects.emailVerification?.[language] || 
+                         emailSubjects.emailVerification?.uk || 
+                         'Підтвердження електронної пошти';
+  
+  const subject = formatSubject(subjectTemplate, { email: user.email });
+
+  return sendTemplatedEmail(
+    user.email,
+    subject,
+    'email-verification',
+    {
+      firstName: user.firstName,
+      verificationUrl,
+      frontendUrl: process.env.CLIENT_URL || 'http://localhost:3000'
+    },
+    language
+  );
+};
+
+/**
+ * Send email verification resend
+ * @param {Object} user - User object
+ * @param {string} verificationToken - New verification token
+ * @param {string} language - User's preferred language
+ */
+export const sendEmailVerificationResend = async (user, verificationToken, language = 'uk') => {
+  const verificationUrl = `${process.env.CLIENT_URL}/verify-email?token=${verificationToken}`;
+  
+  const subjectTemplate = emailSubjects.emailVerificationResend?.[language] || 
+                         emailSubjects.emailVerificationResend?.uk || 
+                         'Повторне підтвердження електронної пошти';
+  
+  const subject = formatSubject(subjectTemplate, { email: user.email });
+
+  return sendTemplatedEmail(
+    user.email,
+    subject,
+    'email-verification-resend',
+    {
+      firstName: user.firstName,
+      verificationUrl,
+      frontendUrl: process.env.CLIENT_URL || 'http://localhost:3002'
+    },
+    language
   );
 };

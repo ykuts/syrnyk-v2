@@ -4,7 +4,9 @@ import jwt from 'jsonwebtoken';
 import { PrismaClient } from '@prisma/client';
 import {
   sendWelcomeEmail,
-  sendPasswordResetEmail
+  sendPasswordResetEmail,
+  sendEmailVerification,
+  sendEmailVerificationResend,
 } from '../services/emailService.js';
 import crypto from 'crypto';
 import dataProcessingTermsTemplates from '../templates/dataProcessingTermsTemplates.js'; // Centralized storage for templates
@@ -24,7 +26,8 @@ const validatePassword = (password) => {
 // Register a new user
 export const registerUser = async (req, res) => {
   try {
-    const { firstName,
+    const { 
+      firstName,
       lastName,
       email,
       password,
@@ -74,10 +77,15 @@ export const registerUser = async (req, res) => {
     // Hash the password
     const hashedPassword = await bcrypt.hash(password, 12);
 
+    // Generate email verification token
+    const verificationToken = crypto.randomBytes(32).toString('hex');
+    const verificationExpires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+
     // Current version of the data processing agreement
     const currentConsentVersion = 'v1.0'; // Should be managed by configuration
 
     // Create user
+    // Create user (unverified)
     const user = await prisma.user.create({
       data: {
         firstName,
@@ -89,7 +97,11 @@ export const registerUser = async (req, res) => {
         dataConsentDate: new Date(),
         dataConsentVersion: currentConsentVersion,
         marketingConsent: marketingConsent || false,
-        preferredLanguage: preferredLanguage || 'uk'
+        preferredLanguage: preferredLanguage || 'uk',
+        // Add email verification fields
+        emailVerified: false,
+        emailVerificationToken: verificationToken,
+        verificationExpires: verificationExpires
       },
       select: {
         id: true,
@@ -101,12 +113,27 @@ export const registerUser = async (req, res) => {
         role: true,
         dataConsentAccepted: true,
         dataConsentDate: true,
-        marketingConsent: true, 
-        preferredLanguage: true
+        marketingConsent: true,
+        preferredLanguage: true,
+        emailVerified: true
       },
     });
 
-    // Generate JWT
+    // Send email verification instead of welcome email
+    await sendEmailVerification(user, verificationToken, user.preferredLanguage || 'uk');
+
+    // Don't generate JWT yet - user needs to verify email first
+    res.status(201).json({
+      message: 'Registration successful! Please check your email to verify your account.',
+      user: {
+        ...user,
+        requiresVerification: true
+      }
+      // No token here - user must verify email first
+    });
+
+
+    /* // Generate JWT
     const token = jwt.sign(
       { userId: user.id },
       process.env.JWT_SECRET,
@@ -120,7 +147,7 @@ export const registerUser = async (req, res) => {
       message: 'User registered successfully',
       user,
       token
-    });
+    }); */
 
   } catch (error) {
     console.error('Registration error:', error);
@@ -147,6 +174,208 @@ export const getDataProcessingTerms = async (req, res) => {
     console.error('Error fetching data processing terms:', error);
     res.status(500).json({
       message: 'Error retrieving data processing terms',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+};
+
+// Add new controller functions for email verification
+
+/**
+ * Verify email with token
+ */
+export const verifyEmail = async (req, res) => {
+  console.log('🚀 VERIFY EMAIL FUNCTION CALLED');
+  console.log('Request URL:', req.originalUrl);
+  console.log('Request query:', req.query);
+
+  try {
+    const { token } = req.query;
+
+    if (!token) {
+      console.log('❌ No token provided');
+      return res.status(400).json({ 
+        message: 'Verification token is required' 
+      });
+    }
+
+    console.log('🔍 Looking for user with token:', token);
+
+     // СНАЧАЛА ищем неподтвержденного пользователя с этим токеном
+    const user = await prisma.user.findFirst({
+      where: {
+        emailVerificationToken: token,
+        verificationExpires: {
+          gt: new Date() // Token not expired
+        },
+        emailVerified: false // Not already verified
+      }
+    });
+
+    console.log('👤 Found unverified user:', user ? 'YES' : 'NO');
+
+    if (user) {
+      // Пользователь найден и ещё не подтвержден - подтверждаем
+      console.log('✅ Updating user as verified');
+
+      const verifiedUser = await prisma.user.update({
+        where: { id: user.id },
+        data: {
+          emailVerified: true,
+          emailVerificationToken: null, // Очищаем токен
+          verificationExpires: null
+        },
+        select: {
+          id: true,
+          firstName: true,
+          lastName: true,
+          email: true,
+          phone: true,
+          role: true,
+          preferredLanguage: true,
+          emailVerified: true
+        }
+      });
+
+      // Send welcome email
+      try {
+        await sendWelcomeEmail(verifiedUser, verifiedUser.preferredLanguage || 'uk');
+        console.log('📧 Welcome email sent');
+      } catch (emailError) {
+        console.error('Email sending error:', emailError);
+      }
+
+      // Generate JWT token
+      const jwtToken = jwt.sign(
+        { userId: verifiedUser.id },
+        process.env.JWT_SECRET,
+        { expiresIn: '24h' }
+      );
+
+      console.log('✅ Verification successful');
+
+      return res.status(200).json({ 
+        message: 'Email verified successfully!',
+        user: verifiedUser,
+        token: jwtToken
+      });
+    }
+
+    // Если не нашли неподтвержденного пользователя, 
+    // проверяем, может пользователь уже подтвержден
+    console.log('🔍 Checking if user is already verified...');
+    
+    // Ищем пользователя, который мог быть подтвержден недавно
+    // Проверяем по email, если токен недавно очищен
+    const recentlyVerifiedUser = await prisma.user.findFirst({
+      where: {
+        emailVerified: true,
+        // Ищем пользователей, подтвержденных в последние 5 минут
+        updatedAt: {
+          gte: new Date(Date.now() - 5 * 60 * 1000) // 5 минут назад
+        }
+      },
+      orderBy: {
+        updatedAt: 'desc'
+      }
+    });
+
+    if (recentlyVerifiedUser) {
+      console.log('✅ Found recently verified user, assuming it was verified by this token');
+      
+      // Генерируем новый JWT токен
+      const jwtToken = jwt.sign(
+        { userId: recentlyVerifiedUser.id },
+        process.env.JWT_SECRET,
+        { expiresIn: '24h' }
+      );
+
+      return res.status(200).json({ 
+        message: 'Email is already verified!',
+        user: {
+          id: recentlyVerifiedUser.id,
+          firstName: recentlyVerifiedUser.firstName,
+          lastName: recentlyVerifiedUser.lastName,
+          email: recentlyVerifiedUser.email,
+          phone: recentlyVerifiedUser.phone,
+          role: recentlyVerifiedUser.role,
+          preferredLanguage: recentlyVerifiedUser.preferredLanguage,
+          emailVerified: true
+        },
+        token: jwtToken
+      });
+    }
+
+    console.log('❌ Invalid or expired token');
+    return res.status(400).json({ 
+      message: 'Invalid or expired verification token' 
+    });
+
+  } catch (error) {
+    console.error('❌ Email verification error:', error);
+    return res.status(500).json({ 
+      message: 'Error verifying email',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+};
+
+/**
+ * Resend email verification
+ */
+export const resendEmailVerification = async (req, res) => {
+  console.log('🔄 RESEND EMAIL VERIFICATION CALLED');
+
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({ 
+        message: 'Email is required' 
+      });
+    }
+
+    // Find unverified user
+    const user = await prisma.user.findUnique({
+      where: { email }
+    });
+
+    if (!user) {
+      return res.status(404).json({ 
+        message: 'User not found' 
+      });
+    }
+
+    if (user.emailVerified) {
+      return res.status(400).json({ 
+        message: 'Email is already verified' 
+      });
+    }
+
+    // Generate new verification token
+    const verificationToken = crypto.randomBytes(32).toString('hex');
+    const verificationExpires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+
+    // Update user with new token
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        emailVerificationToken: verificationToken,
+        verificationExpires: verificationExpires
+      }
+    });
+
+    // Send new verification email
+    await sendEmailVerificationResend(user, verificationToken, user.preferredLanguage || 'uk');
+
+    res.json({ 
+      message: 'Verification email sent successfully!' 
+    });
+
+  } catch (error) {
+    console.error('Resend verification error:', error);
+    res.status(500).json({ 
+      message: 'Error resending verification email',
       error: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
@@ -320,11 +549,22 @@ export const loginUser = async (req, res) => {
         password: true,
         role: true,
         phone: true,
+        emailVerified: true,
+        preferredLanguage: true
       },
     });
 
     if (!user || !(await bcrypt.compare(password, user.password))) {
-      return res.status(401).json({ message: 'Invalid credentials' });
+      return res.status(401).json({ message: 'Не вірні облікові дані' });
+    }
+
+    // Check if email is verified
+    if (!user.emailVerified) {
+      return res.status(401).json({ 
+        message: 'Please verify your email before logging in',
+        needsVerification: true,
+        email: user.email
+      });
     }
 
     // Генерируем JWT

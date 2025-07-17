@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Form, Button, InputGroup, Alert } from 'react-bootstrap';
-import { Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff, Mail } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import './LoginForm.css';
 import { useTranslation } from 'react-i18next';
@@ -14,6 +14,8 @@ function LoginForm({ closeModal, onLoginSuccess, returnUrl }) {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [showResendOption, setShowResendOption] = useState(false);
+  const [unverifiedEmail, setUnverifiedEmail] = useState('');
   const navigate = useNavigate();
   const { login } = useAuth();
 
@@ -22,6 +24,7 @@ function LoginForm({ closeModal, onLoginSuccess, returnUrl }) {
     try {
       setError('');
       setLoading(true);
+      setShowResendOption(false);
       
       const result = await login(email, password);
       
@@ -46,9 +49,53 @@ function LoginForm({ closeModal, onLoginSuccess, returnUrl }) {
           }
         }
       } else {
-        setError(result.error || t('login.error'));
+        // Handle email verification needed
+        if (result.needsVerification) {
+          setError(result.error || t('login.verification.required'));
+          setShowResendOption(true);
+          setUnverifiedEmail(result.email || email);
+        } else {
+          setError(result.error || t('login.error'));
+        }
       }
     } catch (error) {
+      setError(t('errors.general', { ns: 'common' }));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Handle resend verification email
+  const handleResendVerification = async () => {
+    if (!unverifiedEmail) {
+      setError(t('login.verification.emailRequired'));
+      return;
+    }
+
+    try {
+      setError('');
+      setLoading(true);
+
+      const response = await fetch('/api/users/resend-verification', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email: unverifiedEmail }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setError(''); // Clear error
+        // Show success message in a different way since we don't have success state
+        alert(t('login.verification.resendSuccess'));
+        setShowResendOption(false);
+      } else {
+        setError(data.message || t('login.verification.resendError'));
+      }
+    } catch (error) {
+      console.error('Resend verification error:', error);
       setError(t('errors.general', { ns: 'common' }));
     } finally {
       setLoading(false);
@@ -107,6 +154,27 @@ function LoginForm({ closeModal, onLoginSuccess, returnUrl }) {
           </Button>
         </InputGroup>
       </Form.Group>
+
+      {/* Email verification section */}
+      {showResendOption && (
+        <div className="mb-4 p-3 bg-light rounded">
+          <div className="d-flex align-items-center mb-2">
+            <Mail size={16} className="me-2 text-warning" />
+            <small className="text-muted">
+              {t('login.verification.instruction')}
+            </small>
+          </div>
+          <Button 
+            variant="outline-primary" 
+            size="sm"
+            onClick={handleResendVerification}
+            disabled={loading}
+            className="w-100"
+          >
+            {loading ? t('login.loading') : t('login.verification.resendButton')}
+          </Button>
+        </div>
+      )}
 
       <div className="d-flex justify-content-between align-items-center mb-4">
         <a 

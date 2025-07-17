@@ -1,7 +1,6 @@
 // contexts/AuthContext.js
-import React, { createContext, useState, useContext, useEffect } from 'react';
-//import { apiClient } from '../utils/api';
-import { getApiUrl } from '../config';
+import { createContext, useState, useContext, useEffect } from 'react';
+import { apiClient } from '../utils/api';
 
 const AuthContext = createContext(null);
 
@@ -9,25 +8,14 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Fetch user profile using token
-  const fetchUserProfile = async (token) => {
+  // Fetch user profile using token (теперь очень просто!)
+  const fetchUserProfile = async () => {
     try {
-      const response = await fetch(getApiUrl('/api/users/profile'), {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        setUser(data.user);
-      } else {
-        // Clear token and user if request fails
-        localStorage.removeItem('token');
-        setUser(null);
-      }
+      const data = await apiClient.get('/users/profile');
+      setUser(data.user);
     } catch (error) {
       console.error('Error fetching user profile:', error);
+      // Clear token and user if request fails
       localStorage.removeItem('token');
       setUser(null);
     } finally {
@@ -39,42 +27,44 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (token) {
-      fetchUserProfile(token);
+      fetchUserProfile();
     } else {
       setLoading(false);
     }
   }, []);
 
-  // Handle user login
+  // Handle user login with email verification support
   const login = async (email, password) => {
     try {
-      const response = await fetch(getApiUrl('/api/users/login'), {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password }),
+      const data = await apiClient.post('/users/login', {
+        email,
+        password
       });
 
-      const data = await response.json();
+      const { token, user } = data;
+      localStorage.setItem('token', token);
+      setUser(user);
+      return { success: true, user };
 
-      if (response.ok) {
-        const { token, user } = data;
-        localStorage.setItem('token', token);
-        setUser(user);
-        return { success: true, user };
+    } catch (error) {
+      console.error('Login error:', error);
+      
+      // Проверяем сообщение об ошибке для определения типа
+      const errorMessage = error.message || '';
+      
+      if (errorMessage.includes('verify your email') || errorMessage.includes('needsVerification')) {
+        return { 
+          success: false, 
+          error: errorMessage,
+          needsVerification: true,
+          email: email
+        };
       } else {
         return { 
           success: false, 
-          error: data.message || 'Login failed'
+          error: errorMessage || 'Login failed'
         };
       }
-    } catch (error) {
-      console.error('Login error:', error);
-      return {
-        success: false,
-        error: 'An error occurred during login'
-      };
     }
   };
 
@@ -84,7 +74,7 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
   };
 
-  // Handle user registration with data consent
+  // Handle user registration with email verification support
   const register = async (userData) => {
     try {
       // Проверяем согласие на обработку данных
@@ -102,70 +92,50 @@ export const AuthProvider = ({ children }) => {
         dataConsentDate: userData.dataConsentDate || new Date().toISOString()
       };
 
-      const response = await fetch(getApiUrl('/api/users/register'), {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(registrationData),
-      });
+      const data = await apiClient.post('/users/register', registrationData);
 
-      const data = await response.json();
-
-      if (response.ok) {
-        const { token, user } = data;
-        localStorage.setItem('token', token);
-        setUser(user);
-        return { success: true };
-      } else {
-        return {
-          success: false,
-          error: data.message || 'Registration failed'
+      // Check if email verification is required
+      if (data.user?.requiresVerification) {
+        return { 
+          success: true, 
+          requiresVerification: true,
+          user: data.user,
+          message: data.message
         };
+      } else {
+        // Old flow - direct login if verification not required
+        const { token, user } = data;
+        if (token) {
+          localStorage.setItem('token', token);
+          setUser(user);
+        }
+        return { success: true, user: data.user };
       }
     } catch (error) {
       console.error('Registration error:', error);
       return {
         success: false,
-        error: 'An error occurred during registration'
+        error: error.message || 'Registration failed'
       };
     }
   };
 
-  // Handle profile updates
+  // Handle profile updates (теперь очень просто!)
   const updateProfile = async (profileData) => {
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(getApiUrl('/api/users/profile'), {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(profileData),
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        setUser(data.user);
-        return { success: true };
-      } else {
-        return {
-          success: false,
-          error: data.message || 'Profile update failed'
-        };
-      }
+      const data = await apiClient.put('/users/profile', profileData);
+      setUser(data.user);
+      return { success: true };
     } catch (error) {
       console.error('Profile update error:', error);
       return {
         success: false,
-        error: 'An error occurred while updating profile'
+        error: error.message || 'Profile update failed'
       };
     }
   };
 
-  // Handle consent updates
+  // Handle consent updates (теперь очень просто!)
   const updateConsent = async (consentData) => {
     try {
       const token = localStorage.getItem('token');
@@ -183,61 +153,36 @@ export const AuthProvider = ({ children }) => {
         dataConsentDate: new Date().toISOString()
       };
 
-      const response = await fetch(getApiUrl('/api/users/consent'), {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(updatedConsentData),
-      });
+      const data = await apiClient.put('/users/consent', updatedConsentData);
 
-      const data = await response.json();
-
-      if (response.ok) {
-        // Обновляем только поля, связанные с согласием
-        setUser(prev => ({
-          ...prev,
-          dataConsentAccepted: data.user.dataConsentAccepted,
-          dataConsentDate: data.user.dataConsentDate,
-          dataConsentVersion: data.user.dataConsentVersion,
-          marketingConsent: data.user.marketingConsent
-        }));
-        return { success: true };
-      } else {
-        return {
-          success: false,
-          error: data.message || 'Consent update failed'
-        };
-      }
+      // Обновляем только поля, связанные с согласием
+      setUser(prev => ({
+        ...prev,
+        dataConsentAccepted: data.user.dataConsentAccepted,
+        dataConsentDate: data.user.dataConsentDate,
+        dataConsentVersion: data.user.dataConsentVersion,
+        marketingConsent: data.user.marketingConsent
+      }));
+      return { success: true };
     } catch (error) {
       console.error('Consent update error:', error);
       return {
         success: false,
-        error: 'An error occurred while updating consent settings'
+        error: error.message || 'Consent update failed'
       };
     }
   };
 
-  // Get data processing terms
+  // Get data processing terms (теперь очень просто!)
   const getDataProcessingTerms = async () => {
     try {
-      const response = await fetch(getApiUrl('/api/users/data-processing-terms'));
-      
-      if (response.ok) {
-        const data = await response.json();
-        return { success: true, data };
-      } else {
-        return {
-          success: false,
-          error: 'Failed to fetch data processing terms'
-        };
-      }
+      const data = await apiClient.get('/users/data-processing-terms');
+      return { success: true, data };
     } catch (error) {
       console.error('Error fetching data processing terms:', error);
       return {
         success: false,
-        error: 'An error occurred while fetching data processing terms'
+        error: error.message || 'Failed to fetch data processing terms'
       };
     }
   };
@@ -250,7 +195,8 @@ export const AuthProvider = ({ children }) => {
     register,
     updateProfile,
     updateConsent,
-    getDataProcessingTerms
+    getDataProcessingTerms,
+    setUser // Добавляем setUser для использования в EmailVerification
   };
 
   return (

@@ -30,6 +30,69 @@
       border-radius: 4px;
     }
 
+    .cta-section {
+      text-align: center;
+      margin: 30px 0;
+      padding: 20px;
+      background: #f8f9fa;
+      border-radius: 8px;
+    }
+
+    .order-button {
+      display: inline-block;
+      padding: 15px 30px;
+      background-color: #ff961c;
+      color: white;
+      text-decoration: none;
+      border-radius: 6px;
+      font-weight: bold;
+      font-size: 16px;
+      margin: 10px 0;
+      transition: background-color 0.3s;
+    }
+
+    .order-button:hover {
+      background-color: #e6851a;
+      color: white;
+      text-decoration: none;
+    }
+
+    .contact-section {
+      background: #e8f4fd;
+      padding: 20px;
+      margin: 20px 0;
+      border-radius: 6px;
+      border-left: 4px solid #0056b3;
+    }
+
+    .contact-info {
+      margin: 15px 0;
+    }
+
+    .whatsapp-button {
+      display: inline-block;
+      padding: 10px 20px;
+      background-color: #25d366;
+      color: white;
+      text-decoration: none;
+      border-radius: 25px;
+      font-weight: bold;
+      margin: 10px 0;
+      transition: background-color 0.3s;
+    }
+
+    .whatsapp-button:hover {
+      background-color: #128c7e;
+      color: white;
+      text-decoration: none;
+    }
+
+    .phone-number {
+      font-weight: bold;
+      color: #0056b3;
+      font-size: 16px;
+    }
+
     .footer {
       margin-top: 30px;
       padding: 20px;
@@ -59,17 +122,33 @@
         </ul>
       </div>
 
+      <div class="cta-section">
+        <h3>Prêt à passer votre première commande ?</h3>
+        <p>Découvrez notre gamme de plats traditionnels ukrainiens et de produits laitiers !</p>
+        <a href="{{frontendUrl}}" class="order-button">🧀 Commander</a>
+      </div>
+
       <p>Vous pouvez maintenant vous connecter à votre compte pour :</p>
       <ul>
-        <li>Consulter l’historique de vos commandes</li>
+        <li>Consulter l'historique de vos commandes</li>
         <li>Mettre à jour les informations de votre profil</li>
         <li>Gérer vos adresses de livraison</li>
       </ul>
     </div>
 
+    <div class="contact-section">
+      <p><strong>Si vous avez des questions, n'hésitez pas à nous contacter :</strong></p>
+      <div class="contact-info">
+        <p>📞 Téléphone : <span class="phone-number">+41 79 715 87 74</span></p>
+        <p>💬 Ou envoyez-nous un message sur WhatsApp :</p>
+        <a href="https://41765430815.wa.pulse.is" class="whatsapp-button" target="_blank">
+          📱 WhatsApp
+        </a>
+      </div>
+    </div>
+
     <div class="footer">
-      <p>Si vous avez des questions, n’hésitez pas à nous contacter.</p>
-      <p>Cordialement,<br>L’équipe Syrnyk</p>
+      <p>Cordialement,<br>L'équipe Syrnyk</p>
       
       <!-- Logo section with fallback -->
       <div style="margin-bottom: 20px; text-align: center;">

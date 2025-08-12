@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="uk">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -151,6 +152,69 @@
             color: #b45309;
         }
 
+        .cta-section {
+            text-align: center;
+            margin: 30px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .order-button {
+            display: inline-block;
+            padding: 15px 30px;
+            background-color: #ff961c;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 16px;
+            margin: 10px 0;
+            transition: background-color 0.3s;
+        }
+
+        .order-button:hover {
+            background-color: #e6851a;
+            color: white;
+            text-decoration: none;
+        }
+
+        .contact-section {
+            background: #e8f4fd;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 6px;
+            border-left: 4px solid #0056b3;
+        }
+
+        .contact-info {
+            margin: 15px 0;
+        }
+
+        .whatsapp-button {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #25d366;
+            color: white;
+            text-decoration: none;
+            border-radius: 25px;
+            font-weight: bold;
+            margin: 10px 0;
+            transition: background-color 0.3s;
+        }
+
+        .whatsapp-button:hover {
+            background-color: #128c7e;
+            color: white;
+            text-decoration: none;
+        }
+
+        .phone-number {
+            font-weight: bold;
+            color: #0056b3;
+            font-size: 16px;
+        }
+
         .footer {
             background-color: #f8f9fa;
             padding: 30px 20px;
@@ -187,40 +251,47 @@
                 margin: 0;
                 border-radius: 0;
             }
-            .content, .header, .footer {
+
+            .content,
+            .header,
+            .footer {
                 padding: 20px 15px;
             }
+
             .btn {
                 padding: 14px 24px;
                 font-size: 16px;
             }
+
             .verification-section {
                 padding: 20px 15px;
             }
         }
     </style>
 </head>
+
 <body>
     <div class="container">
         <div class="header">
             <!-- Logo section with fallback -->
             <div class="logo-section">
                 <img src="{{frontendUrl}}/assets/logo2.png" alt="SYRNYK"
-                     onerror="this.style.display='none'; this.nextElementSibling.style.display='block';" />
+                    onerror="this.style.display='none'; this.nextElementSibling.style.display='block';" />
                 <div class="logo-fallback">🧀 SYRNYK</div>
             </div>
             <h1>Підтвердження реєстрації</h1>
         </div>
-        
+
         <div class="content">
             <div class="greeting">
                 Вітаємо, {{firstName}}! 👋
             </div>
-            
+
             <div class="message">
-                <p>Дякуємо за реєстрацію в SYRNYK! Для завершення реєстрації та отримання доступу до всіх переваг, будь ласка, підтвердіть вашу електронну пошту.</p>
+                <p>Дякуємо за реєстрацію в SYRNYK! Для завершення реєстрації та отримання доступу до всіх переваг, будь
+                    ласка, підтвердіть вашу електронну пошту.</p>
             </div>
-            
+
             <div class="verification-section">
                 <p style="margin-bottom: 20px; color: #0056b3; font-weight: 500;">
                     Натисніть кнопку нижче, щоб активувати ваш акаунт:
@@ -229,35 +300,57 @@
                     🔓 Підтвердити електронну пошту
                 </a>
             </div>
-            
+
             <div class="alternative-link">
                 <p><strong>Кнопка не працює?</strong> Скопіюйте та вставте це посилання в ваш браузер:</p>
                 <a href="{{verificationUrl}}">{{verificationUrl}}</a>
             </div>
-            
+
             <div class="info-box expiry-info">
                 <p><strong>⏰ Важливо:</strong> Це посилання дійсне протягом 24 годин з моменту отримання листа.</p>
             </div>
-            
+
             <div class="info-box">
-                <p><strong>🔒 Безпека:</strong> Якщо ви не реєструвалися на нашому сайті, просто проігноруйте цей лист. Ваші дані залишаться в безпеці.</p>
+                <p><strong>🔒 Безпека:</strong> Якщо ви не реєструвалися на нашому сайті, просто проігноруйте цей лист.
+                    Ваші дані залишаться в безпеці.</p>
             </div>
         </div>
-        
+
+
+
         <div class="footer">
             <p>Після підтвердження ви зможете:</p>
             <p>• Легко відстежувати свої замовлення</p>
             <p>• Зберігати налаштування доставки</p>
             <p>• Отримувати ексклюзивні пропозиції</p>
-            
+
+
+            <div class="contact-section">
+                <p><strong>Якщо у вас виникли питання, будь ласка, зв'яжіться з нами:</strong></p>
+                <div class="contact-info">
+                    <p>📞 Телефон: <span class="phone-number">+41 79 715 87 74</span></p>
+                    <p>💬 Або напишіть нам у WhatsApp:</p>
+                    <a href="https://41765430815.wa.pulse.is" class="whatsapp-button" target="_blank">
+                        📱 WhatsApp
+                    </a>
+                </div>
+            </div>
+
             <div class="brand-signature">
                 <p>З найкращими побажаннями,<br>Команда SYRNYK 🧀</p>
+                <!-- Logo section with fallback -->
+                <div style="margin-bottom: 20px; text-align: center;">
+                    <img src="{{frontendUrl}}/assets/logo2.png" alt="SYRNYK"
+                        style="max-width: 150px; height: auto; display: block; margin: 0 auto;"
+                        onerror="this.style.display='none'; this.nextElementSibling.style.display='block';" />
+                    <div style="display: none; font-size: 24px; font-weight: bold; color: #0056b3; padding: 10px;">
+                        🧀 SYRNYK
+                    </div>
+                </div>
             </div>
-            
-            <p style="margin-top: 15px;">
-                <a href="{{frontendUrl}}">Відвідати наш сайт</a>
-            </p>
+
         </div>
     </div>
 </body>
+
 </html>

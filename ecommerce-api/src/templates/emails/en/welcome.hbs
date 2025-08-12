@@ -30,6 +30,69 @@
       border-radius: 4px;
     }
 
+    .cta-section {
+      text-align: center;
+      margin: 30px 0;
+      padding: 20px;
+      background: #f8f9fa;
+      border-radius: 8px;
+    }
+
+    .order-button {
+      display: inline-block;
+      padding: 15px 30px;
+      background-color: #ff961c;
+      color: white;
+      text-decoration: none;
+      border-radius: 6px;
+      font-weight: bold;
+      font-size: 16px;
+      margin: 10px 0;
+      transition: background-color 0.3s;
+    }
+
+    .order-button:hover {
+      background-color: #e6851a;
+      color: white;
+      text-decoration: none;
+    }
+
+    .contact-section {
+      background: #e8f4fd;
+      padding: 20px;
+      margin: 20px 0;
+      border-radius: 6px;
+      border-left: 4px solid #0056b3;
+    }
+
+    .contact-info {
+      margin: 15px 0;
+    }
+
+    .whatsapp-button {
+      display: inline-block;
+      padding: 10px 20px;
+      background-color: #25d366;
+      color: white;
+      text-decoration: none;
+      border-radius: 25px;
+      font-weight: bold;
+      margin: 10px 0;
+      transition: background-color 0.3s;
+    }
+
+    .whatsapp-button:hover {
+      background-color: #128c7e;
+      color: white;
+      text-decoration: none;
+    }
+
+    .phone-number {
+      font-weight: bold;
+      color: #0056b3;
+      font-size: 16px;
+    }
+
     .footer {
       margin-top: 30px;
       padding: 20px;
@@ -59,6 +122,12 @@
         </ul>
       </div>
 
+      <div class="cta-section">
+        <h3>Ready to place your first order?</h3>
+        <p>Discover our range of traditional Ukrainian dishes and dairy products!</p>
+        <a href="{{frontendUrl}}" class="order-button">🧀 Order Now</a>
+      </div>
+
       <p>You can now log in to your account to:</p>
       <ul>
         <li>View your order history</li>
@@ -67,8 +136,18 @@
       </ul>
     </div>
 
+    <div class="contact-section">
+      <p><strong>If you have any questions, please contact us:</strong></p>
+      <div class="contact-info">
+        <p>📞 Phone: <span class="phone-number">+41 79 715 87 74</span></p>
+        <p>💬 Or send us a message on WhatsApp:</p>
+        <a href="https://41765430815.wa.pulse.is" class="whatsapp-button" target="_blank">
+          📱 WhatsApp
+        </a>
+      </div>
+    </div>
+
     <div class="footer">
-      <p>If you have any questions, please contact us.</p>
       <p>Best regards,<br>Your Syrnyk Team</p>
       
       <!-- Logo section with fallback -->

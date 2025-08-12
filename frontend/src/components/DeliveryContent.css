@@ -1,52 +1,70 @@
 .content-sections-container {
-    border: 1px solid #070707;
-    border-radius: 1rem;
-    padding: 2rem;
-    margin-bottom: 2rem;
-  }
-  
+  /* border: 1px solid #070707;
+  border-radius: 1rem; */
+  padding: 1rem;
+  /* margin-bottom: 2rem; */
+}
+
+/* Add equal height for Bootstrap rows */
+.content-sections-container .row {
+  display: flex;
+  align-items: stretch; /* Force all columns to be same height */
+}
+
+.content-sections-container .col {
+  display: flex;
+  flex-direction: column;
+}
+
+.content-section-delivery {
+  border: 1px solid #070707;
+  border-radius: 1rem;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  height: 100%; /* Make blocks fill full height */
+  display: flex; /* Use flexbox for content distribution */
+  flex-direction: column; /* Stack content vertically */
+  flex-grow: 1; /* Grow to fill available space */
+}
+
+/* Ensure content grows to fill space */
+/* .content-section-delivery > div {
+  flex-grow: 1; 
+  display: flex;
+  flex-direction: column;
+} */
+
+.content-section-delivery h2 {
+  text-align: left;
+  color: #0d6efd;
+  margin-bottom: 1rem;
+  font-size: 1.25rem;
+  font-weight: 600;
+  flex-shrink: 0; /* Title should not shrink */
+}
+
+.content-section-delivery p {
+  text-align: justify;
+  line-height: 1.5;
+  color: #212529;
+  margin-bottom: 10px;
+}
+
+.content-section-delivery ol {
+  text-align: justify;
+  line-height: 1.5;
+  color: #212529;
+  margin-bottom: 0px;
+  flex-grow: 1; /* Lists can grow to fill space */
+}
+
+.content-section-delivery li {
+  margin-bottom: 10px;
+}
+
+/* Force minimum height on desktop */
+@media (min-width: 769px) {
   .content-section-delivery {
-    margin-bottom: 1.5rem;
+    min-height: 400px; /* Set minimum height for consistency */
   }
-  
-  .content-section-delivery h2 {
-    text-align: left;
-    color: #0d6efd;
-    margin-bottom: 1rem;
-    font-size: 1.25rem;
-    font-weight: 600;
-  }
-  
-  .content-section-delivery p {
-    text-align: justify;
-    line-height: 1.5;
-    color: #212529;
-    margin-bottom: 10px;
-  }
-
-  .content-section-delivery ol {
-    text-align: justify;
-    line-height: 1.5;
-    color: #212529;
-    margin-bottom: 0px;
-  }
-
-  .content-section-delivery li {
-    margin-bottom: 10px;
-  }
-  
-  /* Медиа-запросы для адаптивности */
-  @media (max-width: 768px) {
-    .content-sections-container {
-      padding: 1rem;
-    }
-    
-    .content-section-delivery h2 {
-      font-size: 1.1rem;
-    }
-  }
-  
-  /* Добавление hover-эффектов */
-  .content-section-delivery:hover h2 {
-    color: #0a58ca;
-  }
+}

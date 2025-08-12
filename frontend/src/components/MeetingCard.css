@@ -1,117 +1,125 @@
-/* Стили для контейнера карточек */
 .meeting-cards {
-    margin-top: 2rem;
+  /* margin-top: 2rem; */
+  padding: 2rem; /* This matches content-sections-container padding */
+}
+
+/* Стили для группы станций одного города */
+.city-group {
+  margin-bottom: 2rem;
+}
+
+.city-title {
+  color: #212529;
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid #dee2e6;
+}
+
+.city-stations {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(600px, 1fr));
+  gap: 1.5rem;
+}
+
+/* Meeting card style */
+.meeting-card {
+  display: flex;
+  border: 1px solid #070707;
+  border-radius: 1rem; /* Same border-radius as content-section-delivery */
+  overflow: hidden;
+  background-color: #fff;
+  /* box-shadow: 0 2px 4px rgba(0,0,0,0.05); */
+  height: 300px; 
+}
+
+.meeting-card .meeting-info {
+  flex: 0 0 66.666%; /* 2/3 width */
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  text-align: left;
+}
+
+.meeting-card .city,
+.meeting-card .station,
+.meeting-card .location {
+  color: #495057;
+}
+
+.meeting-card .day-time {
+  color: #0d6efd;
+  font-weight: 600;
+}
+
+.meeting-card .meeting-image {
+  flex: 0 0 33.333%; /* 1/3 ширины */
+  height: 100%; /* Высота равна высоте карточки */
+}
+
+.meeting-card .meeting-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background-color: #f8f9fa;
+  display: block;
+}
+
+/* Состояния загрузки и ошибок */
+.loading,
+.error,
+.no-stations {
+  text-align: center;
+  padding: 2rem;
+  color: #6c757d;
+  font-size: 1.1rem;
+}
+
+.error {
+  color: #dc3545;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+  /* Remove extra padding on mobile to match content sections */
+  .meeting-cards {
+    padding: 1rem; /* Keep consistent with content-sections-container */
   }
-  
-  /* Стили для группы станций одного города */
-  .city-group {
-    margin-bottom: 2rem;
-  }
-  
-  .city-title {
-    color: #212529;
-    font-size: 1.5rem;
-    font-weight: 600;
-    margin-bottom: 1.5rem;
-    padding-bottom: 0.5rem;
-    border-bottom: 2px solid #dee2e6;
-  }
-  
-  .city-stations {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(600px, 1fr));
-    gap: 1.5rem;
-  }
-  
-  /* Meeting card style */
+
   .meeting-card {
-    display: flex;
-    border: 1px solid #060606;
-    border-radius: 15px;
-    overflow: hidden;
-    background-color: #fff;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-    height: 300px; 
-  }
-  
-  .meeting-card .meeting-info {
-    flex: 0 0 66.666%; /* 2/3 width */
-    padding: 1.5rem;
-    display: flex;
     flex-direction: column;
-    gap: 0.75rem;
-    text-align: left;
+    height: auto; /* Автоматическая высота на мобильных */
+    /* Remove any extra margins that could cause width differences */
+    margin-left: 0;
+    margin-right: 0;
   }
-  
-  .meeting-card .city,
-  .meeting-card .station,
-  .meeting-card .location {
-    color: #495057;
+
+  .meeting-card .meeting-info {
+    flex: auto;
+    order: 1; /* Информация будет снизу */
   }
-  
-  .meeting-card .day-time {
-    color: #0d6efd;
-    font-weight: 600;
-  }
-  
+
   .meeting-card .meeting-image {
-    flex: 0 0 33.333%; /* 1/3 ширины */
-    height: 100%; /* Высота равна высоте карточки */
+    flex: auto;
+    height: 200px;
+    order: 0; /* Изображение будет сверху */
   }
-  
-  .meeting-card .meeting-image img {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-    background-color: #f8f9fa; /* или object-fit: contain; если нужно видеть всё изображение */
-    display: block;
+
+  .city-stations {
+    grid-template-columns: 1fr;
   }
-  
-  /* Состояния загрузки и ошибок */
-  .loading,
-  .error,
-  .no-stations {
-    text-align: center;
-    padding: 2rem;
-    color: #6c757d;
-    font-size: 1.1rem;
+
+  .city-title {
+    font-size: 1.25rem;
+    margin-bottom: 1rem;
   }
-  
-  .error {
-    color: #dc3545;
-  }
-  
-  /* Адаптивность */
-  @media (max-width: 768px) {
-    .meeting-card {
-      flex-direction: column;
-      height: auto; /* Автоматическая высота на мобильных */
-    }
-  
-    .meeting-card .meeting-info {
-      flex: auto;
-      order: 1; /* Информация будет снизу */
-    }
-  
-    .meeting-card .meeting-image {
-      flex: auto;
-      height: 200px;
-      order: 0; /* Изображение будет сверху */
-    }
-  
-    .city-stations {
-      grid-template-columns: 1fr;
-    }
-  
-    .city-title {
-      font-size: 1.25rem;
-      margin-bottom: 1rem;
-    }
-  }
-  
-  /* Эффект при наведении */
-  .meeting-card:hover {
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    transform: translateY(-2px);
-    transition: all 0.3s ease;
-  }
+}
+
+/* Эффект при наведении */
+.meeting-card:hover {
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  transform: translateY(-2px);
+  transition: all 0.3s ease;
+}

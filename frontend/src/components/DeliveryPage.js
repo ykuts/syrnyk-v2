@@ -1,4 +1,4 @@
-import { Container, Row, Col, Table } from 'react-bootstrap';
+import { Container, Row, Col } from 'react-bootstrap';
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { apiClient } from '../utils/api';
@@ -7,7 +7,6 @@ import ReactMarkdown from 'react-markdown';
 import "./DeliveryPayment.css";
 import "./DeliveryContent.css";
 import './MeetingCard.css';
-
 
 const DeliveryPage = () => {
   const { t, i18n } = useTranslation(['delivery', 'common']);
@@ -32,8 +31,8 @@ const DeliveryPage = () => {
     fetchStations();
   }, [t, i18n.language]);
 
-   // Delivery schedule data
-   const deliverySchedule = [
+  // Delivery schedule data
+  const deliverySchedule = [
     {
       city: 'Nyon',
       dayTime: t('schedule.nyon.day_time', { ns: 'delivery' }),
@@ -76,117 +75,113 @@ const DeliveryPage = () => {
     }
   ];
 
-
   return (
     <Container>
       <div className="delivery-payment">
         <h1 className="page-title">{t('title', { ns: 'delivery' })}</h1>
-        <Container style={{padding: "0"}}>
-      <div className="content-sections-container">
-        <Row xs={1} md={2} className="g-5">
-          <Col>
-            <ContentSection
-              title={t('payment.title', { ns: 'delivery' })}
-              content={
-                <>
-                  <p>{t('payment.intro', { ns: 'delivery' })}</p>
-                  <ol>
-                    <li>
-                      {t('payment.cash.title', { ns: 'delivery' })}: 
-                      <ReactMarkdown>{t('payment.cash.description', { ns: 'delivery' })}</ReactMarkdown>
-                    </li>
-                    <li>
-                      {t('payment.transfer.title', { ns: 'delivery' })}: 
-                      <ReactMarkdown>{t('payment.transfer.description', { ns: 'delivery' })}</ReactMarkdown>
-                    </li>
-                  </ol>
-                  <p>{t('payment.prepayment', { ns: 'delivery' })}</p>
-                  <p>{t('payment.conclusion', { ns: 'delivery' })}</p>
-                </>
-              }
-            />
-          </Col>
-          <Col>
-            <ContentSection
-              title={t('station_delivery.title', { ns: 'delivery' })}
-              content={
-                <>
-                  <p>
-                    <ReactMarkdown>{t('station_delivery.intro', { ns: 'delivery' })}</ReactMarkdown>
-                  </p>
-                  <p>
-                    <strong>{t('station_delivery.min_order.label', { ns: 'delivery' })}</strong>: 
-                    {t('station_delivery.min_order.value', { ns: 'delivery' })}
-                  </p>
-                  <p>
-                    <strong>{t('station_delivery.schedule.label', { ns: 'delivery' })}</strong>: 
-                    {t('station_delivery.schedule.value', { ns: 'delivery' })}
-                  </p>
+        <Container style={{ padding: "5px" }}>
+          <div className="content-sections-container">
+            {/* Force large gap with CSS variables */}
+            <Row xs={1} md={2} className="gx-5 gy-4">
+              {/* Payment Section */}
+              <Col className="h-100 d-flex">
+               
+                <ContentSection 
+                  title={t('payment.title', { ns: 'delivery' })}
+                  content={
+                    <>
+                      <p>{t('payment.intro', { ns: 'delivery' })}</p>
+                      <ol>
+                        <li>
+                          {t('payment.cash.title', { ns: 'delivery' })}:
+                          <ReactMarkdown>{t('payment.cash.description', { ns: 'delivery' })}</ReactMarkdown>
+                        </li>
+                        <li>
+                          {t('payment.transfer.title', { ns: 'delivery' })}:
+                          <ReactMarkdown>{t('payment.transfer.description', { ns: 'delivery' })}</ReactMarkdown>
+                        </li>
+                      </ol>
+                      <p>{t('payment.prepayment', { ns: 'delivery' })}</p>
+                      <p>{t('payment.conclusion', { ns: 'delivery' })}</p>
+                    </>
+                  }
+                />
+              
+              </Col>
 
-                  <h4>{t('schedule.title', { ns: 'delivery' })}</h4>
-                  <Table bordered responsive className="my-4">
-                    <thead>
-                      <tr>
-                        <th>{t('schedule.headers.city', { ns: 'delivery' })}</th>
-                        <th>{t('schedule.headers.day_time', { ns: 'delivery' })}</th>
-                        <th>{t('schedule.headers.meeting_point', { ns: 'delivery' })}</th>
-                      </tr>
-                    </thead>
-                    <tbody className='text-start' style={{ fontSize: '0.9rem' }}>
-                      {deliverySchedule.map((item, index) => (
-                        <tr key={index}>
-                          <td>{item.city}</td>
-                          <td>{item.dayTime}</td>
-                          <td>{item.meetingPoint}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </Table>
-                </>
-              }
-            />
-          </Col>
-          <Col>
-            <ContentSection
-              title={t('address_delivery.title', { ns: 'delivery' })}
-              content={
-                <>
-                  <p>
-                    <strong>{t('address_delivery.free.title', { ns: 'delivery' })}</strong> 
-                    {t('address_delivery.free.description', { ns: 'delivery' })}
-                  </p>
-                  <p>
-                    <strong>{t('address_delivery.schedule.label', { ns: 'delivery' })}</strong>: 
-                    {t('address_delivery.schedule.value', { ns: 'delivery' })}
-                  </p>
-                  {/* <p>
-                    <ReactMarkdown>{t('address_delivery.paid.intro', { ns: 'delivery' })}</ReactMarkdown> 
-                    <ReactMarkdown>{t('address_delivery.paid.min_order.value', { ns: 'delivery' })}</ReactMarkdown>
-                    <ReactMarkdown>{t('address_delivery.paid.cost.description', { ns: 'delivery' })}</ReactMarkdown>
-                  </p> */}
-                </>
-              }
+              {/* Station Delivery Section */}
+              <Col >
+              
+                <ContentSection
+                  title={t('station_delivery.title', { ns: 'delivery' })}
+                  content={
+                    <>
+                      <p>
+                        <ReactMarkdown>{t('station_delivery.intro', { ns: 'delivery' })}</ReactMarkdown>
+                      </p>
+                      <p>
+                        <strong>{t('station_delivery.min_order.label', { ns: 'delivery' })}</strong>:
+                        {t('station_delivery.min_order.value', { ns: 'delivery' })}
+                      </p>
+                      <p>
+                        <strong>{t('station_delivery.schedule.label', { ns: 'delivery' })}</strong>:
+                        {t('station_delivery.schedule.value', { ns: 'delivery' })}
+                      </p>
+                    </>
+                  }
+                />
+                
+              </Col>
 
-            />
-          </Col>
-          <Col>
-            <ContentSection
-              title={t('order_process.title', { ns: 'delivery' })}
-              content={
-                <ol>
-                  <li>{t('order_process.step1', { ns: 'delivery' })}</li>
-                  <li>{t('order_process.step2', { ns: 'delivery' })}</li>
-                  <li>{t('order_process.step3', { ns: 'delivery' })}</li>
-                  <li>{t('order_process.step4', { ns: 'delivery' })}</li>
-                </ol>
-              }
-            />
-          </Col>
-        </Row>
-      </div>
-    </Container>
-        
-    <div className="meeting-cards">
+              {/* Address Delivery Section */}
+              <Col >
+                
+                  <ContentSection
+                  title={t('address_delivery.title', { ns: 'delivery' })}
+                  content={
+                    <>
+                      <p>
+                        <strong>{t('address_delivery.free.title', { ns: 'delivery' })}</strong>
+                        {t('address_delivery.free.description', { ns: 'delivery' })}
+                      </p>
+                      <p>
+                        <strong>{t('address_delivery.schedule.label', { ns: 'delivery' })}</strong>:
+                        {t('address_delivery.schedule.value', { ns: 'delivery' })}
+                      </p>
+                      {/* Commented section preserved */}
+                      {/* <p>
+                        <ReactMarkdown>{t('address_delivery.paid.intro', { ns: 'delivery' })}</ReactMarkdown> 
+                        <ReactMarkdown>{t('address_delivery.paid.min_order.value', { ns: 'delivery' })}</ReactMarkdown>
+                        <ReactMarkdown>{t('address_delivery.paid.cost.description', { ns: 'delivery' })}</ReactMarkdown>
+                      </p> */}
+                    </>
+                  }
+                />
+                
+              </Col>
+
+              {/* Order Process Section */}
+              <Col className="h-100 d-flex">
+                
+                  <ContentSection
+                  title={t('order_process.title', { ns: 'delivery' })}
+                  content={
+                    <ol>
+                      <li>{t('order_process.step1', { ns: 'delivery' })}</li>
+                      <li>{t('order_process.step2', { ns: 'delivery' })}</li>
+                      <li>{t('order_process.step3', { ns: 'delivery' })}</li>
+                      <li>{t('order_process.step4', { ns: 'delivery' })}</li>
+                    </ol>
+                  }
+                />
+                
+              </Col>
+            </Row>
+          </div>
+        </Container>
+
+        {/* Meeting Cards Section */}
+        <div className="meeting-cards">
           {loading ? (
             <div className="loading">{t('stations.loading', { ns: 'delivery' })}</div>
           ) : error ? (
@@ -225,7 +220,7 @@ const DeliveryPage = () => {
   );
 };
 
-// Component for displaying content section
+// Component for displaying content sections
 const ContentSection = ({ title, content }) => (
   <div className="content-section-delivery">
     <h2>{title}</h2>
@@ -238,34 +233,32 @@ const MeetingCard = ({ city, station, location, imageSrc }) => {
   const { t } = useTranslation('delivery');
   const [imageError, setImageError] = useState(false);
 
+  // Get URLs with explicit 'station' type
+  const defaultImageUrl = getImageUrl(null, 'station');
+  const imageUrl = imageError ? defaultImageUrl : getImageUrl(imageSrc, 'station');
 
-   // Get URLs with explicit 'station' type
-   const defaultImageUrl = getImageUrl(null, 'station');
-   const imageUrl = imageError ? defaultImageUrl : getImageUrl(imageSrc, 'station');
-     
-   return (
-     <div className="meeting-card">
-       <div className="meeting-info">
-         <div className="city">{`${t('stations.city')}: ${city}`}</div>
-         <div className="day-time">{`${t('stations.day_time')}: ${station}`}</div>
-         <div className="location"><strong>{`${t('stations.meeting_point')}:`}</strong></div>
-         <div className="location">{`${location}`}</div>
-       </div>
-       <div className="meeting-image">
-         <img 
-           src={imageUrl}
-           alt={`${t('stations.alt_text')} ${station}`} 
-           onError={(e) => {
-             console.log('Failed to load image:', e.target.src);
-             if (!imageError) {
-               setImageError(true);
-             }
-           }}
-         />
-       </div>
-     </div>
-   );
- };
-
+  return (
+    <div className="meeting-card">
+      <div className="meeting-info">
+        <div className="city">{`${t('stations.city')}: ${city}`}</div>
+        <div className="day-time">{`${t('stations.day_time')}: ${station}`}</div>
+        <div className="location"><strong>{`${t('stations.meeting_point')}:`}</strong></div>
+        <div className="location">{`${location}`}</div>
+      </div>
+      <div className="meeting-image">
+        <img
+          src={imageUrl}
+          alt={`${t('stations.alt_text')} ${station}`}
+          onError={(e) => {
+            console.log('Failed to load image:', e.target.src);
+            if (!imageError) {
+              setImageError(true);
+            }
+          }}
+        />
+      </div>
+    </div>
+  );
+};
 
 export default DeliveryPage;

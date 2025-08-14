@@ -20,7 +20,9 @@ const StationSelector = ({
     onChange({ 
       target: { 
         name: 'stationId', 
-        value: stationId.toString() } });
+        value: stationId.toString() 
+      } 
+    });
   };
 
   const selectedStationData = stations.find(s => s.id === parseInt(selectedStation));
@@ -36,38 +38,44 @@ const StationSelector = ({
 
   return (
     <>
-      <Row className="g-3 mb-4">
+      {/* Station selection grid - responsive layout */}
+      <Row className="station-selector-row g-2 mb-4">
         {stations.map((station) => (
-          <Col md={3} key={station.id}>
+          <Col xs={6} md={3} key={station.id}> {/* xs=6 for 2 columns on mobile, md=3 for 4 columns on desktop */}
             <button
               type="button"
               onClick={() => handleSelect(station.id)}
               className={`station-option ${selectedStation === station.id.toString() ? 'selected' : ''}`}
             >
-              <MapPin 
-                size={24} 
-                className={selectedStation === station.id.toString() ? 'text-white mb-2' : 'text-primary mb-2'} 
-              />
-              <div className="fw-medium">{station.city}</div>
-              <small>{station.name}</small>
+              <div className="station-icon-wrapper">
+                <MapPin 
+                  size={20} // Reduced from 24 for better mobile scaling
+                  className={selectedStation === station.id.toString() ? 'text-white' : 'text-primary'} 
+                />
+              </div>
+              <div className="station-city fw-medium">{station.city}</div>
+              <small className="station-name">{station.name}</small>
             </button>
           </Col>
         ))}
       </Row>
 
+      {/* Selected station details card */}
       {selectedStation && (
-        <Card className="bg-light">
+        <Card className="station-details-card bg-light">
           <Card.Body>
             <Row>
               <Col md={selectedStationData?.photo ? 8 : 12}>
-                <h5 className="mb-2">{selectedStationData?.city} - {selectedStationData?.name}</h5>
+                <h5 className="station-title mb-2">
+                  {selectedStationData?.city} - {selectedStationData?.name}
+                </h5>
                 <div className="mb-3">
-                  <h6 className="mb-2">Місце зустрічі:</h6>
-                  <p className="mb-3">{selectedStationData?.meetingPoint}</p>
+                  <h6 className="meeting-point-label mb-2">Місце зустрічі:</h6>
+                  <p className="meeting-point-text mb-3">{selectedStationData?.meetingPoint}</p>
                 </div>
 
                 {showMeetingTime && (
-                  <div>
+                  <div className="meeting-time-container">
                     <label className="form-label fw-medium">Оберіть дату та час</label>
                     <input
                       type="datetime-local"
@@ -81,22 +89,24 @@ const StationSelector = ({
                   </div>
                 )}
               </Col>
+              
               {selectedStationData?.photo && (
                 <Col md={4}>
-                  <img
-                    src={getStationImage(selectedStationData.photo)}
-                    alt="Meeting Point"
-                    onError={() => {
-                      setImageError(prev => ({
-                        ...prev,
-                        [selectedStationData.photo]: true
-                      }));
-                    }}
-                    className="img-fluid rounded w-100 mb-3 mb-md-0"
-                  />
+                  <div className="station-photo-container">
+                    <img
+                      src={getStationImage(selectedStationData.photo)}
+                      alt="Meeting Point"
+                      onError={() => {
+                        setImageError(prev => ({
+                          ...prev,
+                          [selectedStationData.photo]: true
+                        }));
+                      }}
+                      className="station-photo img-fluid rounded w-100"
+                    />
+                  </div>
                 </Col>
               )}
-              
             </Row>
           </Card.Body>
         </Card>

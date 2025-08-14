@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Wallet, CreditCard, Banknote, CheckCircle, Clock } from 'lucide-react';
-import { Row, Col, Button, Card, Form, Image } from 'react-bootstrap';
+import { Row, Col, Button, Card, Image } from 'react-bootstrap';
 import { useTranslation } from 'react-i18next';
+import './PaymentMethodSelector.css'; // Importing custom CSS for mobile styles
 
 const PaymentMethodSelector = ({ 
   selectedMethod, 
@@ -54,22 +55,22 @@ const PaymentMethodSelector = ({
   const paymentMethods = [
     {
       id: 'CASH',
-      icon: <Banknote size={24} />,
+      icon: <Banknote size={20} />, // Reduced size for mobile adaptation
       disabled: false,
       title: t('payment.cash.title'),
       description: t('payment.cash.description')
     },
     {
       id: 'TWINT',
-      icon: <Wallet size={24} />,
+      icon: <Wallet size={20} />, // Reduced size for mobile adaptation
       disabled: false, 
       title: t('payment.twint.title'),
       description: t('payment.twint.description')
     },
     {
       id: 'CARD',
-      icon: <CreditCard size={24} />,
-      disabled: true, // Now enabled
+      icon: <CreditCard size={20} />, // Reduced size for mobile adaptation
+      disabled: true,
       title: t('payment.card.title'),
       description: t('payment.card.description')
     }
@@ -79,13 +80,13 @@ const PaymentMethodSelector = ({
   const twintOptions = [
     {
       id: 'paid',
-      icon: <CheckCircle size={20} />,
+      icon: <CheckCircle size={18} />, // Smaller icons for TWINT options
       title: t('payment.twint.confirmation', 'Замовлення мною сплачено'),
       description: t('payment.twint.paid_description', 'Payment completed via TWINT')
     },
     {
       id: 'pay_on_delivery',
-      icon: <Clock size={20} />,
+      icon: <Clock size={18} />, // Smaller icons for TWINT options
       title: t('payment.twint.pay_on_delivery', 'Оплачу по факту отримання замовлення'),
       description: t('payment.twint.later_description', 'Pay when receiving order')
     }
@@ -132,20 +133,21 @@ const PaymentMethodSelector = ({
 
   return (
     <div>
-      <Row className="g-3">
+      {/* Main payment methods selection */}
+      <Row className="payment-methods-row g-2">
         {paymentMethods.map((method) => (
-          <Col md={4} key={method.id}>
+          <Col xs={4} md={4} key={method.id}> {/* xs=4 ensures 3 columns on mobile */}
             <Button
               variant={selectedMethod === method.id ? "primary" : "outline-primary"}
               onClick={() => handleSelect(method.id)}
               disabled={method.disabled}
-              className="w-100 h-100 d-flex flex-column align-items-center p-3 gap-2"
+              className="payment-method-btn w-100 h-100 d-flex flex-column align-items-center justify-content-center"
             >
-              <div className="icon-wrapper">
+              <div className="payment-icon-wrapper mb-1">
                 {method.icon}
               </div>
-              <div className="fw-medium">{method.title}</div>
-              <small className={selectedMethod === method.id ? "text-light" : "text-muted"}>
+              <div className="payment-title fw-medium text-center">{method.title}</div>
+              <small className={`payment-description text-center ${selectedMethod === method.id ? "text-light" : "text-muted"}`}>
                 {method.description}
               </small>
             </Button>
@@ -155,70 +157,47 @@ const PaymentMethodSelector = ({
 
       {/* TWINT QR Code Section */}
       {selectedMethod === 'TWINT' && (
-        <Card className="mt-4">
+        <Card className="mt-4 twint-card">
           <Card.Body className="text-center">
-            <h5 className="mb-3">{t('payment.twint.qr_title', 'TWINT QR Code Payment')}</h5>
+            <h5 className="mb-3 twint-title">{t('payment.twint.qr_title', 'TWINT QR Code Payment')}</h5>
             
-            {/* QR Code Image Placeholder */}
-            <div className="mb-4">
-              <div 
-                className="mx-auto bg-light border rounded d-flex align-items-center justify-content-center"
-                style={{ 
-                  width: '200px', 
-                  height: '200px',
-                  border: '2px solid #dee2e6'
-                }}
-              >
+            {/* QR Code Image */}
+            <div className="mb-4 qr-code-container">
+              <div className="qr-code-wrapper mx-auto bg-light border rounded d-flex align-items-center justify-content-center">
                 <Image
                   src="/assets/images/qr-twint.jpg"
                   alt="TWINT QR Code"
-                  style={{ maxWidth: '100%', maxHeight: '100%' }}
+                  className="qr-code-image"
                 />
               </div>
             </div>
 
             {/* Payment Instructions */}
-            <div className="mb-4">
-              {/* <p className="mb-2">
-                {t('payment.twint.instructions_1', 'Scan the QR code with your TWINT app')}
-              </p> */}
+            <div className="mb-4 payment-instructions">
               <p className="mb-0 small text-muted">
                 {t('payment.twint.instructions_2', 'Complete the payment and confirm below')}
               </p>
             </div>
 
-            {/* Payment Options - Button Style (same as delivery methods/cantons) */}
+            {/* TWINT Payment Options - Responsive Button Style */}
             <div className="mb-3">
-              <Row className="g-2">
+              <Row className="twint-options-row g-2">
                 {twintOptions.map((option) => (
-                  <Col md={6} key={option.id}>
+                  <Col xs={6} md={6} key={option.id}> {/* xs=6 for 2 columns on mobile */}
                     <Button
                       variant={twintPaymentOption === option.id ? "primary" : "outline-primary"}
                       onClick={() => handleTwintOptionChange(option.id)}
-                      className="w-100 h-100 d-flex flex-column align-items-center p-3 gap-2"
+                      className="twint-option-btn w-100 h-100 d-flex flex-column align-items-center justify-content-center"
                     >
-                      <div className="icon-wrapper">
+                      <div className="twint-option-icon-wrapper mb-1">
                         {option.icon}
                       </div>
-                      <div className="fw-medium text-center">{option.title}</div>
-                      {/* <small className={twintPaymentOption === option.id ? "text-light" : "text-muted"}>
-                        {option.description}
-                      </small> */}
+                      <div className="twint-option-title fw-medium text-center">{option.title}</div>
                     </Button>
                   </Col>
                 ))}
               </Row>
             </div>
-
-            {/* Note about payment confirmation */}
-            {/* <div className="small text-muted">
-              <p className="mb-0">
-                {twintPaymentOption === 'paid' 
-                  ? t('payment.twint.note_paid', 'Підтвердіть, що оплата пройшла успішно')
-                  : t('payment.twint.note_later', 'Ви зможете оплатити при отриманні замовлення')
-                }
-              </p>
-            </div> */}
           </Card.Body>
         </Card>
       )}

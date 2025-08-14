@@ -1,0 +1,236 @@
+/* Canton selector buttons */
+.canton-btn {
+  padding: 1rem 0.75rem;
+  min-height: 80px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  border-width: 2px;
+}
+
+.canton-btn:hover:not(.btn-primary) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.canton-btn.btn-primary {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(13, 110, 253, 0.3);
+}
+
+/* Canton title styling */
+.canton-title {
+  font-size: 0.95rem;
+  line-height: 1.2;
+  margin-bottom: 0.25rem;
+}
+
+/* Canton description styling */
+.canton-description {
+  font-size: 0.75rem;
+  line-height: 1.1;
+}
+
+/* Delivery info alert styling */
+.delivery-info-alert {
+  border-radius: 8px;
+  border-left-width: 4px;
+}
+
+/* Desktop and tablet styles (md and up) */
+@media (min-width: 768px) {
+  .canton-btn {
+    padding: 1.25rem 1rem;
+    min-height: 90px;
+  }
+  
+  .canton-title {
+    font-size: 1rem;
+  }
+  
+  .canton-description {
+    font-size: 0.8rem;
+  }
+}
+
+/* Mobile styles (xs to sm) */
+@media (max-width: 767.98px) {
+  .canton-selector-row {
+    margin: 0 -4px; /* Tighter spacing on mobile */
+  }
+  
+  .canton-selector-row > .col {
+    padding: 0 4px;
+  }
+  
+  .canton-btn {
+    padding: 0.75rem 0.5rem;
+    min-height: 75px;
+    gap: 0.2rem;
+  }
+  
+  .canton-title {
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-bottom: 0.2rem;
+  }
+  
+  .canton-description {
+    font-size: 0.7rem;
+  }
+  
+  /* Alert adjustments for mobile */
+  .delivery-info-alert {
+    margin-top: 0.75rem;
+    padding: 0.75rem;
+  }
+  
+  .delivery-info-alert .small {
+    font-size: 0.8rem;
+  }
+}
+
+/* Extra small screens (phones in portrait) */
+@media (max-width: 480px) {
+  .canton-btn {
+    padding: 0.6rem 0.4rem;
+    min-height: 70px;
+  }
+  
+  .canton-title {
+    font-size: 0.8rem;
+  }
+  
+  .canton-description {
+    font-size: 0.65rem;
+  }
+  
+  .delivery-info-alert {
+    padding: 0.6rem;
+  }
+  
+  .delivery-info-alert .small {
+    font-size: 0.75rem;
+  }
+}
+
+/* Visual feedback for mobile */
+@media (max-width: 767.98px) {
+  .canton-btn.btn-primary {
+    box-shadow: 0 3px 10px rgba(13, 110, 253, 0.4);
+  }
+  
+  .canton-btn.btn-outline-primary:active {
+    transform: scale(0.98);
+  }
+}
+
+/* Address form enhancements */
+.address-delivery-checkout .form-label {
+  font-weight: 500;
+  color: #333;
+  margin-bottom: 0.5rem;
+}
+
+.address-delivery-checkout .form-control {
+  border-radius: 6px;
+  border: 1px solid #dee2e6;
+  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.address-delivery-checkout .form-control:focus {
+  border-color: #86b7fe;
+  box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
+}
+
+/* Responsive form adjustments */
+@media (max-width: 767.98px) {
+  .address-delivery-checkout h5 {
+    font-size: 1.15rem;
+    margin-bottom: 1rem;
+  }
+  
+  .address-delivery-checkout .form-group {
+    margin-bottom: 1rem;
+  }
+  
+  .address-delivery-checkout .form-label {
+    font-size: 0.9rem;
+    margin-bottom: 0.4rem;
+  }
+  
+  .address-delivery-checkout .form-control {
+    font-size: 0.9rem;
+    padding: 0.5rem 0.75rem;
+  }
+}
+
+/* Enhanced postal code input styling */
+.address-delivery-checkout .input-group .form-control {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.address-delivery-checkout .input-group-text {
+  background-color: transparent;
+  border-left: 0;
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+/* Loading spinner in postal code field */
+.address-delivery-checkout .input-group-append .input-group-text {
+  padding: 0.5rem;
+}
+
+/* Alert styling improvements */
+.address-delivery-checkout .alert {
+  border-radius: 8px;
+  border: 1px solid;
+}
+
+.address-delivery-checkout .alert-info {
+  border-color: #b6d7ff;
+  background-color: #f0f8ff;
+}
+
+.address-delivery-checkout .alert-danger {
+  border-color: #f5c2c7;
+  background-color: #f8d7da;
+}
+
+/* Delivery message formatting */
+.delivery-message-formatted {
+  text-align: left;
+}
+
+.delivery-message-formatted ul {
+  margin-bottom: 0;
+}
+
+.delivery-message-formatted li {
+  margin-bottom: 0.25rem;
+}
+
+.delivery-message-formatted strong {
+  color: #0d6efd;
+}
+
+/* Accessibility improvements */
+@media (prefers-reduced-motion: reduce) {
+  .canton-btn,
+  .canton-btn:hover {
+    transition: none;
+    transform: none;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .canton-btn {
+    border-width: 3px;
+  }
+  
+  .canton-btn:focus {
+    box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.5);
+  }
+}

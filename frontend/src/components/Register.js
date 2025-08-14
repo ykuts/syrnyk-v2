@@ -422,25 +422,9 @@ const Register = () => {
               </p>
             </div>
 
-            {/* Секция повторной отправки с таймером */}
+            {/* Resend verification email without timer */}
             <div className="mb-4">
-              {isCountingDown ? (
-                <div className="text-center">
-                  <p className="text-muted mb-2">
-                    {t('register.verification.canResendIn')}
-                  </p>
-                  <div className="d-flex align-items-center justify-content-center mb-3">
-                    <div className="bg-light border rounded px-3 py-2" style={{ fontFamily: 'monospace' }}>
-                      <strong className="text-primary fs-5">
-                        {formatTime(countdown)}
-                      </strong>
-                    </div>
-                  </div>
-                  <small className="text-muted">
-                    {t('register.verification.waitingMessage')}
-                  </small>
-                </div>
-              ) : showResendOption ? (
+              
                 <div>
                   <p className="text-muted mb-3">
                     {t('register.verification.notReceived')}
@@ -463,7 +447,7 @@ const Register = () => {
                     )}
                   </Button>
                 </div>
-              ) : null}
+              
             </div>
 
             {/* Уведомление о сохранении данных */}

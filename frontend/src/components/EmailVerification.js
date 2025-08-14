@@ -48,7 +48,7 @@ const EmailVerification = () => {
           
           setTimeout(() => {
             if (!isCancelled) {
-              navigate('/client');
+              navigate('/');
             }
           }, 3000);
         }

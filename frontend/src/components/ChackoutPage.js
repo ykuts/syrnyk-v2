@@ -8,7 +8,6 @@ import { useTranslation } from 'react-i18next';
 import { apiClient } from '../utils/api';
 import { loadUserPreferences, applyUserPreferencesToCheckout  } from '../utils/userPreferences';
 import { cleanPhoneNumber } from '../components/common/SimplePhoneInput';
-import { useScrollToTop } from '../hooks/useScrollToTop';
 
 
 // Components
@@ -179,8 +178,8 @@ const CheckoutPage = () => {
   const [formValidationError, setFormValidationError] = useState(null);
 
   // Автопрокрутка при успехе или ошибке
-  useScrollToTop(submitSuccess);
-  useScrollToTop(!!submitError);
+  /* useScrollToTop(submitSuccess);
+  useScrollToTop(!!submitError); */
   /* const [deliveryCalculation, setDeliveryCalculation] = useState({
     cost: 0,
     isValid: true,
@@ -501,12 +500,12 @@ useEffect(() => {
     return baseDisabled || twintDisabled;
   };
 
-  useEffect(() => {
+  /* useEffect(() => {
   if (submitSuccess) {
     // Прокрутка к верху при успешном заказе
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
-}, [submitSuccess]);
+}, [submitSuccess]); */
 
   // Validate the form before submission
   /* const validateForm = () => {

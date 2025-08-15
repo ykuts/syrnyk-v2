@@ -175,7 +175,7 @@
 /* Very small phones (360px and below) */
 @media (max-width: 360px) {
   .canton-btn {
-    padding: 0.45rem 0.2rem;
+    /* padding: 0.45rem 0.2rem; */
     min-height: 65px;
     gap: 0.1rem;
   }

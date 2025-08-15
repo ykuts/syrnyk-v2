@@ -346,8 +346,8 @@ const AddressDeliveryCheckout = ({ formData, handleChange, onValidationChange })
       {/* Canton Selection - Responsive Buttons */}
       <Form.Group className="mb-3">
         <Form.Label>{t('address.canton')}</Form.Label>
-        <Row className="canton-selector-row g-2">
-          <Col xs={6} md={6}> {/* xs=6 ensures 2 columns on mobile, md=6 keeps it same on desktop */}
+        <Row className="canton-selector-row g-2" >
+          <Col xs={6} md={6} > {/* xs=6 ensures 2 columns on mobile, md=6 keeps it same on desktop */}
             <Button
               variant={formData.canton === 'VD' ? 'primary' : 'outline-primary'}
               onClick={() => handleCantonChange('VD')}

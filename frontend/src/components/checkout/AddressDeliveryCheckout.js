@@ -109,7 +109,7 @@ const AddressDeliveryCheckout = ({ formData, handleChange, onValidationChange })
 
     if (selectedCanton === 'VD') {
       return (
-        <div className="delivery-message-formatted">
+        <div className="delivery-message-formatted" >
           <div className="mb-2" style={{ textAlign: 'left' }}>
             <Trans
               i18nKey="delivery.vaud.coppet_lausanne_free"
@@ -375,8 +375,8 @@ const AddressDeliveryCheckout = ({ formData, handleChange, onValidationChange })
 
         {/* Conditional delivery message based on selected canton */}
         {(formData.canton === 'VD' || formData.canton === 'GE') && (
-          <Alert variant="info" className="delivery-info-alert mt-2 mb-0">
-            <div className="small">
+          <Alert variant="info" className="delivery-info-alert mt-2 mb-0" style={{ backgroundColor: '#e9e6e3', borderColor: '#e9e6e3', color: '#333' }}>
+            <div className="small" >
               {getCantonDeliveryMessage()}
             </div>
           </Alert>

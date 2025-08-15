@@ -34,6 +34,7 @@
 .delivery-info-alert {
   border-radius: 8px;
   border-left-width: 4px;
+  background-color: #e9e6e3;
 }
 
 /* Desktop and tablet styles (md and up) */
@@ -190,7 +191,7 @@
 
 .address-delivery-checkout .alert-info {
   border-color: #b6d7ff;
-  background-color: #f0f8ff;
+  background-color: #e9e6e3;
 }
 
 .address-delivery-checkout .alert-danger {

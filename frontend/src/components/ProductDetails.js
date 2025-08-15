@@ -96,7 +96,7 @@ const ProductDetails = () => {
     // Only process images if product exists and has images
     const mainImage = getImageUrl(product.image);
     const additionalImages = product.images?.map(img => getImageUrl(img)) || [];
-    const allImages = [ ...additionalImages].filter(Boolean);
+    const allImages = [...additionalImages].filter(Boolean);
 
     // Default image URL
     const defaultImageUrl = '/assets/default-product.png';
@@ -105,34 +105,34 @@ const ProductDetails = () => {
         // Get the button element
         const button = buttonRef.current;
         const cartIcon = document.querySelector('.cart-icon-container');
-        
+
         if (cartIcon && button) {
             // Get current positions at the time of the click
             const buttonRect = button.getBoundingClientRect();
             const cartRect = cartIcon.getBoundingClientRect();
-            
+
             // These positions already include scroll position
             const sourcePosition = {
                 top: buttonRect.top + window.scrollY,
                 left: buttonRect.left + window.scrollX
             };
-            
+
             const targetPosition = {
                 top: cartRect.top + window.scrollY,
                 left: cartRect.left + window.scrollX
             };
-            
+
             // IMPORTANT: Make sure we're passing a valid URL for the image
             // Always use main product image for consistency
-            const mainImageUrl = product.image ? 
-                getImageUrl(product.image) : 
+            const mainImageUrl = product.image ?
+                getImageUrl(product.image) :
                 '/assets/default-product.png';
-            
+
             console.log('Animation image URL:', mainImageUrl); // Debug log
-            
+
             // Trigger animation with valid image URL
             triggerAnimation(mainImageUrl, product.id, sourcePosition, targetPosition);
-            
+
             // Add product to cart after a short delay
             setTimeout(() => {
                 addToCart(product);
@@ -300,38 +300,38 @@ const ProductDetails = () => {
 
             {/* Modal with the carousel */}
             <Modal
-  show={showGallery}
-  onHide={() => setShowGallery(false)}
-  size="lg"
-  centered
-  onShow={() => setModalImageIndex(selectedImageIndex)} // Sync initial position
-  className="product-gallery-modal" // Add custom class for styling
->
-  <Modal.Header closeButton>
-    <Modal.Title>{product.name}</Modal.Title>
-  </Modal.Header>
-  <Modal.Body className="fixed-height-modal-body">
-    <Carousel
-      activeIndex={modalImageIndex}
-      onSelect={setModalImageIndex}
-      interval={null}
-      className="gallery-carousel"
-    >
-      {allImages.map((img, index) => (
-        <Carousel.Item key={index}>
-          <div className="fixed-image-container">
-            <img
-              className="gallery-image"
-              src={img}
-              alt={`${product.name} ${index + 1}`}
-              onError={handleImageError}
-            />
-          </div>
-        </Carousel.Item>
-      ))}
-    </Carousel>
-  </Modal.Body>
-</Modal>
+                show={showGallery}
+                onHide={() => setShowGallery(false)}
+                size="lg"
+                centered
+                onShow={() => setModalImageIndex(selectedImageIndex)} // Sync initial position
+                className="product-gallery-modal" // Add custom class for styling
+            >
+                <Modal.Header closeButton>
+                    <Modal.Title>{product.name}</Modal.Title>
+                </Modal.Header>
+                <Modal.Body className="fixed-height-modal-body">
+                    <Carousel
+                        activeIndex={modalImageIndex}
+                        onSelect={setModalImageIndex}
+                        interval={null}
+                        className="gallery-carousel"
+                    >
+                        {allImages.map((img, index) => (
+                            <Carousel.Item key={index}>
+                                <div className="fixed-image-container">
+                                    <img
+                                        className="gallery-image"
+                                        src={img}
+                                        alt={`${product.name} ${index + 1}`}
+                                        onError={handleImageError}
+                                    />
+                                </div>
+                            </Carousel.Item>
+                        ))}
+                    </Carousel>
+                </Modal.Body>
+            </Modal>
 
 
             <Container>

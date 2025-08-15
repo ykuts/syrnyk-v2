@@ -6,7 +6,7 @@ import { Form, Button, Alert, Container, Card, Row, Col } from 'react-bootstrap'
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { apiClient } from '../utils/api';
-import { loadUserPreferences, applyUserPreferencesToCheckout  } from '../utils/userPreferences';
+import { loadUserPreferences, applyUserPreferencesToCheckout } from '../utils/userPreferences';
 import { cleanPhoneNumber } from '../components/common/SimplePhoneInput';
 
 
@@ -320,30 +320,30 @@ const CheckoutPage = () => {
   }, [formData.deliveryType, totalPrice, deliveryCalculation]);
 
   // Add this useEffect after the existing ones to trigger validation when address is loaded from preferences
-useEffect(() => {
-  // Trigger postal code validation when address delivery preferences are loaded
-  if (formData.deliveryType === 'ADDRESS' && 
-      formData.postalCode && 
-      formData.canton && 
+  useEffect(() => {
+    // Trigger postal code validation when address delivery preferences are loaded
+    if (formData.deliveryType === 'ADDRESS' &&
+      formData.postalCode &&
+      formData.canton &&
       !loading) {
-    
-    console.log('🔍 Triggering postal code validation for loaded preferences:', {
-      postalCode: formData.postalCode,
-      canton: formData.canton,
-      deliveryType: formData.deliveryType
-    });
 
-    // Simulate a delivery cost calculation to trigger validation
-    // This will cause the AddressDeliveryCheckout component to validate the postal code
-    setDeliveryCalculation(prev => ({
-      ...prev,
-      // Reset validation to trigger re-calculation
-      isValid: true,
-      message: 'Checking postal code...',
-      deliveryType: 'ADDRESS'
-    }));
-  }
-}, [formData.deliveryType, formData.postalCode, formData.canton, loading]);
+      console.log('🔍 Triggering postal code validation for loaded preferences:', {
+        postalCode: formData.postalCode,
+        canton: formData.canton,
+        deliveryType: formData.deliveryType
+      });
+
+      // Simulate a delivery cost calculation to trigger validation
+      // This will cause the AddressDeliveryCheckout component to validate the postal code
+      setDeliveryCalculation(prev => ({
+        ...prev,
+        // Reset validation to trigger re-calculation
+        isValid: true,
+        message: 'Checking postal code...',
+        deliveryType: 'ADDRESS'
+      }));
+    }
+  }, [formData.deliveryType, formData.postalCode, formData.canton, loading]);
 
   // Handle delivery cost calculation
   const handleDeliveryCostCalculated = (calculationResult) => {
@@ -369,20 +369,20 @@ useEffect(() => {
     }
   };
 
-  
+
   // Handle address delivery validation
   const handleAddressDeliveryValidation = (validationResult) => {
-  console.log('Address delivery validation result:', validationResult);
-  
-  // Update delivery calculation with address-specific validation
-  setDeliveryCalculation(prev => ({
-    ...prev,
-    isValid: validationResult.isValid,
-    message: validationResult.message,
-    minimumOrderAmount: validationResult.minimumOrderAmount || 0,
-    deliveryType: validationResult.deliveryType
-  }));
-};
+    console.log('Address delivery validation result:', validationResult);
+
+    // Update delivery calculation with address-specific validation
+    setDeliveryCalculation(prev => ({
+      ...prev,
+      isValid: validationResult.isValid,
+      message: validationResult.message,
+      minimumOrderAmount: validationResult.minimumOrderAmount || 0,
+      deliveryType: validationResult.deliveryType
+    }));
+  };
 
   // User makes auth choice (guest checkout, login, or register)
   const handleAuthChoice = (choice) => {
@@ -405,6 +405,17 @@ useEffect(() => {
   // Handle form field changes
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
+
+    const isAutomaticChange = e.automatic === true;
+
+    if (isAutomaticChange) {
+      const newValue = type === 'checkbox' ? checked : value;
+      setFormData(prev => ({
+        ...prev,
+        [name]: newValue
+      }));
+      return;
+    }
 
     // Reset TWINT confirmation when switching away from TWINT
     if (name === 'paymentMethod') {
@@ -963,77 +974,77 @@ useEffect(() => {
     console.log('🔄 Total price changed, forcing delivery calculation...');
 
     let cost = 0;
-  let isValid = true;
-  let message = '';
-  let minimumOrder = 0;
+    let isValid = true;
+    let message = '';
+    let minimumOrder = 0;
 
-  switch (formData.deliveryType) {
-    case 'PICKUP':
-      cost = 0;
-      isValid = true;
-      minimumOrder = 0;
-      message = 'Free pickup - no minimum order required';
-      break;
-
-    case 'RAILWAY_STATION':
-      cost = 0;
-      isValid = true;
-      minimumOrder = 0;
-      message = 'Free railway station delivery';
-      break;
-
-    case 'ADDRESS':
-      cost = 0; // Always free delivery
-      
-      // For ADDRESS delivery, the actual validation will come from AddressDeliveryCheckout
-      // This is just a fallback calculation
-      // Don't override the validation from AddressDeliveryCheckout component
-      
-      // Skip manual calculation for ADDRESS if we already have validation from component
-       if (formData.postalCode && formData.canton) {
-        // Don't override validation from AddressDeliveryCheckout component
-        // Just ensure we have the correct delivery type set
-        setDeliveryCalculation(prev => ({
-          ...prev,
-          deliveryType: 'ADDRESS',
-          cost: 0
-        }));
-        
-        setFormData(prev => ({
-          ...prev,
-          deliveryCost: 0
-        }));
-        
-        // Exit early to let AddressDeliveryCheckout handle the rest
-        return;
-      }
-      
-      // Fallback calculation only
-      if (totalPrice >= 200) {
+    switch (formData.deliveryType) {
+      case 'PICKUP':
+        cost = 0;
         isValid = true;
-        minimumOrder = 200;
-        message = 'Free delivery for orders over 200 CHF';
-      } else {
-        isValid = false;
-        minimumOrder = 200;
-        const needed = 200 - totalPrice;
-        message = `Minimum order for address delivery is 200 CHF. Add ${needed.toFixed(2)} CHF more to your cart.`;
-      }
-      break;
-  }
+        minimumOrder = 0;
+        message = 'Free pickup - no minimum order required';
+        break;
+
+      case 'RAILWAY_STATION':
+        cost = 0;
+        isValid = true;
+        minimumOrder = 0;
+        message = 'Free railway station delivery';
+        break;
+
+      case 'ADDRESS':
+        cost = 0; // Always free delivery
+
+        // For ADDRESS delivery, the actual validation will come from AddressDeliveryCheckout
+        // This is just a fallback calculation
+        // Don't override the validation from AddressDeliveryCheckout component
+
+        // Skip manual calculation for ADDRESS if we already have validation from component
+        if (formData.postalCode && formData.canton) {
+          // Don't override validation from AddressDeliveryCheckout component
+          // Just ensure we have the correct delivery type set
+          setDeliveryCalculation(prev => ({
+            ...prev,
+            deliveryType: 'ADDRESS',
+            cost: 0
+          }));
+
+          setFormData(prev => ({
+            ...prev,
+            deliveryCost: 0
+          }));
+
+          // Exit early to let AddressDeliveryCheckout handle the rest
+          return;
+        }
+
+        // Fallback calculation only
+        if (totalPrice >= 200) {
+          isValid = true;
+          minimumOrder = 200;
+          message = 'Free delivery for orders over 200 CHF';
+        } else {
+          isValid = false;
+          minimumOrder = 200;
+          const needed = 200 - totalPrice;
+          message = `Minimum order for address delivery is 200 CHF. Add ${needed.toFixed(2)} CHF more to your cart.`;
+        }
+        break;
+    }
 
     console.log('🎯 Manual calculation result:', { cost, isValid, message, deliveryType: formData.deliveryType, totalPrice });
 
     // Only update if this is not ADDRESS delivery or if we don't have existing validation
-  if (formData.deliveryType !== 'ADDRESS' || !deliveryCalculation.message) {
-    setDeliveryCalculation({
-      cost,
-      isValid,
-      message,
-      minimumOrderAmount: minimumOrder,
-      deliveryType: formData.deliveryType
-    });
-  }
+    if (formData.deliveryType !== 'ADDRESS' || !deliveryCalculation.message) {
+      setDeliveryCalculation({
+        cost,
+        isValid,
+        message,
+        minimumOrderAmount: minimumOrder,
+        deliveryType: formData.deliveryType
+      });
+    }
 
     setFormData(prev => ({
       ...prev,
@@ -1190,7 +1201,7 @@ useEffect(() => {
       window.scrollTo({ top: 0, behavior: 'smooth' });
       setSubmitSuccess(true);
       clearCart();
-      
+
     } catch (error) {
       console.error('Order submission error:', error);
       setSubmitError(error.message || 'Failed to create order');
@@ -1281,15 +1292,17 @@ useEffect(() => {
             {/* Customer & Delivery Information */}
 
             {/* Customer Information */}
-            <CustomerInfoForm
-              formData={formData}
-              handleChange={handleChange}
-              isAuthenticated={!!user}
-              isGuest={isGuest}
-              createAccount={createAccount}
-              onCreateAccountChange={setCreateAccount}
-              fieldValidation={fieldValidation} // Add this
-            />
+            {!user && (
+              <CustomerInfoForm
+                formData={formData}
+                handleChange={handleChange}
+                isAuthenticated={!!user}
+                isGuest={isGuest}
+                createAccount={createAccount}
+                onCreateAccountChange={setCreateAccount}
+                fieldValidation={fieldValidation}
+              />
+            )}
 
             {/* Delivery Options */}
             <DeliveryOptions

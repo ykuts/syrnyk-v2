@@ -70,7 +70,8 @@ const AddressDeliveryCheckout = ({ formData, handleChange, onValidationChange })
       handleChange({
         target: {
           name: 'canton',
-          value: 'VD' // Default to Vaud
+          value: 'VD', // Default to Vaud
+          dataset: { automatic: 'true' }
         }
       });
     }
@@ -82,7 +83,8 @@ const AddressDeliveryCheckout = ({ formData, handleChange, onValidationChange })
     handleChange({
       target: {
         name: 'canton',
-        value: canton
+        value: canton,
+        dataset: { automatic: 'true' }
       }
     });
 
@@ -90,7 +92,8 @@ const AddressDeliveryCheckout = ({ formData, handleChange, onValidationChange })
     handleChange({
       target: {
         name: 'deliveryDate',
-        value: ''
+        value: '',
+        dataset: { automatic: 'true' }
       }
     });
 
@@ -194,7 +197,8 @@ const AddressDeliveryCheckout = ({ formData, handleChange, onValidationChange })
       handleChange({
         target: {
           name: 'deliveryCost',
-          value: 0
+          value: 0,
+          dataset: { automatic: 'true' }
         }
       });
       return;
@@ -218,7 +222,8 @@ const AddressDeliveryCheckout = ({ formData, handleChange, onValidationChange })
       handleChange({
         target: {
           name: 'deliveryCost',
-          value: 0
+          value: 0,
+          dataset: { automatic: 'true' }
         }
       });
       return;
@@ -252,7 +257,8 @@ const AddressDeliveryCheckout = ({ formData, handleChange, onValidationChange })
             handleChange({
               target: {
                 name: 'city',
-                value: response.name
+                value: response.name,
+                dataset: { automatic: 'true' }
               }
             });
 
@@ -268,7 +274,8 @@ const AddressDeliveryCheckout = ({ formData, handleChange, onValidationChange })
             handleChange({
               target: {
                 name: 'deliveryCost',
-                value: 0
+                value: 0,
+                dataset: { automatic: 'true' }
               }
             });
           } else {
@@ -298,7 +305,8 @@ const AddressDeliveryCheckout = ({ formData, handleChange, onValidationChange })
           handleChange({
             target: {
               name: 'deliveryCost',
-              value: 0
+              value: 0,
+              dataset: { automatic: 'true' }
             }
           });
         } finally {

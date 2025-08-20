@@ -54,9 +54,8 @@ const AboutUs = () => {
             <p className="text-justify mb-4">{t('about.gastronomyDescription')}</p>
 
             {/* Product features */}
-            <Card className="product-features-card">
+            {/* <Card className="product-features-card">
               <Card.Body className="text-center">
-                {/* <h5 className="text-primary mb-3">SYRNYK</h5> */}
                 <img 
                   src="./../assets/logo2.png"
                   alt="SYRNYK cheese"
@@ -72,7 +71,7 @@ const AboutUs = () => {
                   <span className="feature-badge">{t('about.product.features.lowFat')}</span>
                 </div>
               </Card.Body>
-            </Card>
+            </Card> */}
           </div>
         </Col>
         <Col lg={6} className="order-lg-1">

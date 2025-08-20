@@ -17,7 +17,9 @@ import {
   verifyEmail,
   resendEmailVerification           
 } from '../controllers/userController.js';
+
 import { protect, isAdmin } from '../middleware/authMiddleware.js';
+import { addUserToSendPulse } from '../middleware/basicCrmMiddleware.js';
 
 
 const router = express.Router();
@@ -41,7 +43,7 @@ router.post('/resend-verification', (req, res, next) => {
 }, resendEmailVerification);
 
 // Public routes
-router.post('/register', registerUser);
+router.post('/register', addUserToSendPulse, registerUser);
 router.post('/login', loginUser);
 router.post('/request-password-reset', requestPasswordReset);  
 router.post('/reset-password', resetPassword); 

@@ -1,0 +1,181 @@
+/* Custom styling for pivot table to match Bootstrap theme */
+.pivot-container {
+  font-family: var(--bs-font-sans-serif);
+}
+
+/* Pivot table UI styling */
+.pivot-container .pvtUi {
+  background: white;
+  border: none;
+}
+
+/* Field list styling */
+.pivot-container .pvtUnused {
+  background: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 0.375rem;
+  padding: 0.5rem;
+  margin: 0.25rem;
+}
+
+/* Drag zones styling */
+.pivot-container .pvtAxisContainer {
+  background: #e3f2fd;
+  border: 2px dashed #1976d2;
+  border-radius: 0.375rem;
+  min-height: 50px;
+  padding: 0.5rem;
+  margin: 0.25rem;
+}
+
+.pivot-container .pvtVals {
+  background: #e8f5e8;
+  border: 2px dashed #388e3c;
+}
+
+.pivot-container .pvtRows {
+  background: #fff3e0;
+  border: 2px dashed #f57c00;
+}
+
+.pivot-container .pvtCols {
+  background: #f3e5f5;
+  border: 2px dashed #7b1fa2;
+}
+
+/* Field tags styling */
+.pivot-container .pvtAttr {
+  background: #0d6efd;
+  color: white;
+  border-radius: 0.25rem;
+  padding: 0.25rem 0.5rem;
+  margin: 0.125rem;
+  font-size: 0.875rem;
+  cursor: move;
+  display: inline-block;
+  border: none;
+}
+
+.pivot-container .pvtAttr:hover {
+  background: #0b5ed7;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Dropdown styling */
+.pivot-container select {
+  border: 1px solid #ced4da;
+  border-radius: 0.375rem;
+  padding: 0.375rem 0.75rem;
+  font-size: 1rem;
+  background: white;
+  margin: 0.25rem;
+}
+
+.pivot-container select:focus {
+  border-color: #86b7fe;
+  outline: 0;
+  box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+/* Table styling */
+.pivot-container table.pvtTable {
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.pivot-container table.pvtTable td,
+.pivot-container table.pvtTable th {
+  border: 1px solid #dee2e6;
+  padding: 0.5rem;
+  text-align: center;
+}
+
+.pivot-container table.pvtTable th {
+  background: #f8f9fa;
+  font-weight: 600;
+}
+
+.pivot-container table.pvtTable .pvtRowLabel,
+.pivot-container table.pvtTable .pvtColLabel {
+  background: #f8f9fa;
+  font-weight: 500;
+}
+
+.pivot-container table.pvtTable .pvtVal {
+  background: white;
+  text-align: right;
+  font-weight: 500;
+}
+
+.pivot-container table.pvtTable .pvtGrandTotal {
+  background: #e3f2fd;
+  font-weight: 700;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .pivot-container {
+    font-size: 0.8rem;
+  }
+  
+  .pivot-container .pvtAttr {
+    font-size: 0.75rem;
+    padding: 0.125rem 0.25rem;
+  }
+  
+  .pivot-container table.pvtTable td,
+  .pivot-container table.pvtTable th {
+    padding: 0.25rem;
+    font-size: 0.75rem;
+  }
+}
+
+/* Loading state */
+.pivot-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 300px;
+  color: #6c757d;
+}
+
+/* Custom aggregator labels in Ukrainian */
+.pivot-container .pvtAggregator option[value="Count"] {
+  /* This doesn't work, but shows intention */
+}
+
+/* Plotly chart container */
+.pivot-container .plotly-graph-div {
+  margin: 1rem 0;
+}
+
+/* Drag and drop feedback */
+.pivot-container .pvtDropZone {
+  min-height: 40px;
+  border: 2px dashed #ccc;
+  border-radius: 0.375rem;
+  background: #f8f9fa;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #6c757d;
+  font-style: italic;
+  transition: all 0.2s ease;
+}
+
+.pivot-container .pvtDropZone.pvtDropTarget {
+  border-color: #0d6efd;
+  background: #e3f2fd;
+  color: #0d6efd;
+}
+
+/* Spin animation for refresh button */
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.spin {
+  animation: spin 1s linear infinite;
+}

@@ -9,6 +9,7 @@ import addressRoutes from './routes/addressRoutes.js';
 import railwayStationsRouter from './routes/railwayStationsRouter.js';
 import deliveryRoutes from './routes/deliveryRoutes.js';
 import uploadRoutes from './routes/uploadRoutes.js'; 
+import reportsRoutes from './routes/reportsRoutes.js';
 import { handleMulterError } from './middleware/upload.js';
 import cors from 'cors';
 import path from 'path';
@@ -91,7 +92,7 @@ app.use('/api/addresses', addressRoutes);
 app.use('/api/railway-stations', railwayStationsRouter);
 app.use('/api/upload', uploadRoutes); // Routes for files upload
 app.use('/api/delivery', deliveryRoutes);
-
+app.use('/api/reports', reportsRoutes);
 
 app.use(handleMulterError);
 

@@ -29,6 +29,7 @@ import ResetPassword from './components/ResetPassword';
 import CartLanguageSync from './components/CartLanguageSync';
 import EmailVerification from './components/EmailVerification';
 import ResendVerification from './components/ResendVerification';
+
 // Import i18n configuration
 import './i18n';
 import { Suspense } from 'react';
@@ -100,6 +101,7 @@ function App() {
                   <Route path="products" element={<ProductsPanel />} />
                   <Route path="reports" element={<ReportsPanel />} />
                   <Route path="delivery" element={<DeliveryPanel />} />
+                  
                   
                 </Route>
 

@@ -1,5 +1,5 @@
 // frontend/src/components/admin/panels/ReportsPanelComponents/PivotTableContainer.js
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, Alert, Button, ButtonGroup, Row, Col } from 'react-bootstrap';
 import { Download, Settings, BarChart3, Save } from 'lucide-react';
 import PivotTableUI from 'react-pivottable/PivotTableUI';
@@ -12,26 +12,86 @@ import createPlotlyRenderers from 'react-pivottable/PlotlyRenderers';
 const PlotlyRenderers = createPlotlyRenderers(Plot);
 
 const PivotTableContainer = ({ data, filters }) => {
+  // Field translations for Ukrainian interface
+  const fieldTranslations = {
+    // Order fields
+    order_id: 'ID замовлення',
+    order_date: 'Дата замовлення',
+    order_status: 'Статус замовлення',
+    order_total: 'Сума замовлення',
+    delivery_date: 'Дата доставки',
+    delivery_time_slot: 'Час доставки',
+    delivery_cost: 'Вартість доставки',
+    
+    // Customer fields
+    customer_name: 'Імя клієнта',
+    customer_type: 'Тип клієнта',
+    customer_phone: 'Телефон клієнта',
+    customer_email: 'Email клієнта',
+    
+    // Delivery fields
+    delivery_type: 'Тип доставки',
+    delivery_location: 'Місце доставки',
+    delivery_city: 'Місто доставки',
+    delivery_canton: 'Кантон',
+    station_name: 'Назва станції',
+    
+    // Product fields
+    product_name: 'Назва продукту',
+    product_category: 'Категорія продукту',
+    product_weight: 'Вага продукту',
+    quantity: 'Кількість',
+    unit_price: 'Ціна за одиницю',
+    item_total: 'Загальна сума товару',
+    
+    // Time periods
+    order_year: 'Рік замовлення',
+    order_month: 'Місяць замовлення',
+    order_week: 'Тиждень замовлення',
+    delivery_year: 'Рік доставки',
+    delivery_month: 'Місяць доставки',
+    delivery_week: 'Тиждень доставки',
+    order_day_of_week: 'День тижня замовлення',
+    delivery_day_of_week: 'День тижня доставки'
+  };
+
+  // Function to translate data field names
+  const translateData = (originalData) => {
+    if (!originalData || originalData.length === 0) return [];
+    
+    return originalData.map(row => {
+      const translatedRow = {};
+      Object.keys(row).forEach(key => {
+        const translatedKey = fieldTranslations[key] || key;
+        translatedRow[translatedKey] = row[key];
+      });
+      return translatedRow;
+    });
+  };
+
+  // Get translated data
+  const translatedData = translateData(data);
+
   // Default pivot configuration for planning reports
   const [pivotState, setPivotState] = useState({
-    data: data,
+    data: translatedData,
     aggregatorName: 'Sum',
-    vals: ['quantity'],
-    rows: ['product_name'],
-    cols: ['delivery_date'],
+    vals: ['Кількість'],
+    rows: ['Назва продукту'],
+    cols: ['Дата доставки'],
     rendererName: 'Table',
     unusedOrientationCutoff: 85
   });
 
-  // Predefined configurations for common reports
+  // Predefined configurations for common reports (using translated field names)
   const presetConfigs = {
     production_planning: {
       name: 'Планування виробництва',
       config: {
         aggregatorName: 'Sum',
-        vals: ['quantity'],
-        rows: ['product_name', 'product_category'],
-        cols: ['delivery_date'],
+        vals: ['Кількість'],
+        rows: ['Назва продукту', 'Категорія продукту'],
+        cols: ['Дата доставки'],
         rendererName: 'Table'
       }
     },
@@ -40,8 +100,8 @@ const PivotTableContainer = ({ data, filters }) => {
       config: {
         aggregatorName: 'Count',
         vals: [],
-        rows: ['station_name', 'delivery_date'],
-        cols: ['product_name'],
+        rows: ['Назва станції', 'Дата доставки'],
+        cols: ['Назва продукту'],
         rendererName: 'Table'
       }
     },
@@ -50,8 +110,8 @@ const PivotTableContainer = ({ data, filters }) => {
       config: {
         aggregatorName: 'Count',
         vals: [],
-        rows: ['delivery_canton', 'delivery_type'],
-        cols: ['delivery_date'],
+        rows: ['Кантон', 'Тип доставки'],
+        cols: ['Дата доставки'],
         rendererName: 'Heatmap'
       }
     },
@@ -59,9 +119,9 @@ const PivotTableContainer = ({ data, filters }) => {
       name: 'Аналіз клієнтів',
       config: {
         aggregatorName: 'Sum',
-        vals: ['item_total'],
-        rows: ['customer_type', 'delivery_type'],
-        cols: ['order_month'],
+        vals: ['Загальна сума товару'],
+        rows: ['Тип клієнта', 'Тип доставки'],
+        cols: ['Місяць замовлення'],
         rendererName: 'Bar Chart'
       }
     },
@@ -69,9 +129,9 @@ const PivotTableContainer = ({ data, filters }) => {
       name: 'Аналіз доходів',
       config: {
         aggregatorName: 'Sum',
-        vals: ['item_total'],
-        rows: ['product_category'],
-        cols: ['order_month', 'delivery_type'],
+        vals: ['Загальна сума товару'],
+        rows: ['Категорія продукту'],
+        cols: ['Місяць замовлення', 'Тип доставки'],
         rendererName: 'Stacked Bar Chart'
       }
     },
@@ -79,9 +139,9 @@ const PivotTableContainer = ({ data, filters }) => {
       name: 'Тижневе планування',
       config: {
         aggregatorName: 'Sum',
-        vals: ['quantity'],
-        rows: ['product_name'],
-        cols: ['delivery_week', 'delivery_type'],
+        vals: ['Кількість'],
+        rows: ['Назва продукту'],
+        cols: ['Тиждень доставки', 'Тип доставки'],
         rendererName: 'Table'
       }
     },
@@ -89,9 +149,9 @@ const PivotTableContainer = ({ data, filters }) => {
       name: 'Ефективність доставки',
       config: {
         aggregatorName: 'Average',
-        vals: ['delivery_cost'],
-        rows: ['delivery_type', 'delivery_canton'],
-        cols: ['order_month'],
+        vals: ['Вартість доставки'],
+        rows: ['Тип доставки', 'Кантон'],
+        cols: ['Місяць замовлення'],
         rendererName: 'Heatmap'
       }
     }
@@ -103,14 +163,14 @@ const PivotTableContainer = ({ data, filters }) => {
       setPivotState(prevState => ({
         ...prevState,
         ...preset.config,
-        data: data // Always ensure we use current data
+        data: translatedData
       }));
     }
   };
 
   const exportToCSV = () => {
     try {
-      // Convert pivot data to CSV
+      // Use original data for export (with English field names)
       const csvData = data.map(row => {
         const csvRow = {};
         Object.keys(row).forEach(key => {
@@ -132,7 +192,6 @@ const PivotTableContainer = ({ data, filters }) => {
         ...csvData.map(row => 
           headers.map(header => {
             const value = row[header] || '';
-            // Escape quotes and wrap in quotes if contains comma or quote
             return `"${String(value).replace(/"/g, '""')}"`;
           }).join(',')
         )
@@ -164,8 +223,6 @@ const PivotTableContainer = ({ data, filters }) => {
       };
       
       localStorage.setItem('pivot_config_last', JSON.stringify(config));
-      
-      // Show success message
       alert('Конфігурацію збережено успішно!');
     } catch (error) {
       console.error('Error saving configuration:', error);
@@ -181,7 +238,7 @@ const PivotTableContainer = ({ data, filters }) => {
         setPivotState(prevState => ({
           ...prevState,
           ...config,
-          data: data // Always use current data
+          data: translatedData
         }));
         alert('Конфігурацію завантажено успішно!');
       } else {
@@ -195,64 +252,24 @@ const PivotTableContainer = ({ data, filters }) => {
 
   const resetToDefault = () => {
     setPivotState({
-      data: data,
+      data: translatedData,
       aggregatorName: 'Sum',
-      vals: ['quantity'],
-      rows: ['product_name'],
-      cols: ['delivery_date'],
+      vals: ['Кількість'],
+      rows: ['Назва продукту'],
+      cols: ['Дата доставки'],
       rendererName: 'Table',
       unusedOrientationCutoff: 85
     });
   };
 
   // Update pivot state when data changes
-  React.useEffect(() => {
+  useEffect(() => {
+    const newTranslatedData = translateData(data);
     setPivotState(prevState => ({
       ...prevState,
-      data: data
+      data: newTranslatedData
     }));
   }, [data]);
-
-  // Field translations for Ukrainian interface
-  const fieldTranslations = {
-    // Order fields
-    order_id: 'ID замовлення',
-    order_date: 'Дата замовлення',
-    order_status: 'Статус замовлення',
-    order_total: 'Сума замовлення',
-    delivery_date: 'Дата доставки',
-    delivery_time_slot: 'Час доставки',
-    delivery_cost: 'Вартість доставки',
-    
-    // Customer fields
-    customer_name: 'Ім\'я клієнта',
-    customer_type: 'Тип клієнта',
-    customer_phone: 'Телефон клієнта',
-    customer_email: 'Email клієнта',
-    
-    // Delivery fields
-    delivery_type: 'Тип доставки',
-    delivery_location: 'Місце доставки',
-    delivery_city: 'Місто доставки',
-    delivery_canton: 'Кантон',
-    station_name: 'Назва станції',
-    
-    // Product fields
-    product_name: 'Назва продукту',
-    product_category: 'Категорія продукту',
-    product_weight: 'Вага продукту',
-    quantity: 'Кількість',
-    unit_price: 'Ціна за одиницю',
-    item_total: 'Загальна сума товару',
-    
-    // Time periods
-    order_year: 'Рік замовлення',
-    order_month: 'Місяць замовлення',
-    order_week: 'Тиждень замовлення',
-    delivery_year: 'Рік доставки',
-    delivery_month: 'Місяць доставки',
-    delivery_week: 'Тиждень доставки'
-  };
 
   return (
     <Card>
@@ -338,13 +355,16 @@ const PivotTableContainer = ({ data, filters }) => {
 
         {/* Pivot Table */}
         <div className="pivot-container" style={{ minHeight: '500px' }}>
-          {data.length > 0 ? (
+          {translatedData.length > 0 ? (
             <PivotTableUI
-              data={data}
+              data={translatedData}
               onChange={s => setPivotState(s)}
               renderers={Object.assign({}, TableRenderers, PlotlyRenderers)}
               {...pivotState}
               unusedOrientationCutoff={85}
+              hiddenAttributes={[]}
+              hiddenFromAggregators={[]}
+              hiddenFromDragDrop={[]}
             />
           ) : (
             <Alert variant="warning" className="m-3">

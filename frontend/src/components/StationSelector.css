@@ -1,36 +1,296 @@
+/* Station option button styling */
 .station-option {
-    min-height: 120px;
-    background-color: white;
-    border: 2px solid #dee2e6;
-    transition: all 0.2s;
-    cursor: pointer;
-    text-decoration: none;
+  min-height: 120px;
+  background-color: white;
+  border: 2px solid #dee2e6;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  text-decoration: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  width: 100%;
+  position: relative;
+}
+
+.station-option:hover:not(.selected) {
+  border-color: var(--bs-primary);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.station-option.selected {
+  background-color: var(--bs-primary) !important;
+  border-color: var(--bs-primary) !important;
+  color: white !important;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(13, 110, 253, 0.3);
+}
+
+.station-option:focus {
+  outline: none;
+  box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+}
+
+/* Station icon wrapper */
+.station-icon-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0.5rem;
+}
+
+/* Station city name */
+.station-city {
+  font-size: 0.9rem;
+  line-height: 1.2;
+  margin-bottom: 0.25rem;
+  text-align: center;
+  word-wrap: break-word;
+}
+
+/* Station name (smaller text) */
+.station-name {
+  color: #6c757d;
+  font-size: 0.75rem;
+  line-height: 1.2;
+  text-align: center;
+  word-wrap: break-word;
+  hyphens: auto;
+}
+
+.station-option.selected .station-name {
+  color: rgba(255, 255, 255, 0.9) !important;
+}
+
+/* Station details card */
+.station-details-card {
+  border: 1px solid #dee2e6;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.station-title {
+  color: #333;
+  font-weight: 600;
+  font-size: 1.25rem;
+}
+
+.meeting-point-label {
+  color: #495057;
+  font-size: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.meeting-point-text {
+  color: #6c757d;
+  line-height: 1.5;
+}
+
+.meeting-time-container {
+  margin-top: 1rem;
+}
+
+/* Station photo container */
+.station-photo-container {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+.station-photo {
+  max-height: 200px;
+  object-fit: cover;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Desktop and tablet styles (md and up) */
+@media (min-width: 768px) {
+  .station-option {
+    min-height: 130px;
+    padding: 1.25rem 1rem;
+  }
+  
+  .station-icon-wrapper svg {
+    width: 24px;
+    height: 24px;
+  }
+  
+  .station-city {
+    font-size: 1rem;
+  }
+  
+  .station-name {
+    font-size: 0.8rem;
+  }
+}
+
+/* Mobile styles (xs to sm) */
+@media (max-width: 767.98px) {
+  .station-selector-row {
+    margin: 0 -4px; /* Tighter spacing on mobile */
+  }
+  
+  .station-selector-row > .col {
+    padding: 0 4px;
+  }
+  
+  .station-option {
+    min-height: 100px;
+    padding: 0.75rem 0.5rem;
+    gap: 0.25rem;
+  }
+  
+  .station-icon-wrapper {
+    margin-bottom: 0.3rem;
+  }
+  
+  .station-icon-wrapper svg {
+    width: 18px;
+    height: 18px;
+  }
+  
+  .station-city {
+    font-size: 0.8rem;
+    font-weight: 600;
+    margin-bottom: 0.2rem;
+  }
+  
+  .station-name {
+    font-size: 0.7rem;
+    line-height: 1.1;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  
+  /* Station details card mobile adjustments */
+  .station-details-card {
+    margin-top: 1rem;
+  }
+  
+  .station-title {
+    font-size: 1.1rem;
+    margin-bottom: 1rem;
+  }
+  
+  .meeting-point-label {
+    font-size: 0.9rem;
+  }
+  
+  .meeting-point-text {
+    font-size: 0.85rem;
+  }
+  
+  .station-photo {
+    max-height: 150px;
+    margin-bottom: 1rem;
+  }
+  
+  .meeting-time-container {
+    margin-top: 0.75rem;
+  }
+}
+
+/* Extra small screens (phones in portrait) */
+@media (max-width: 480px) {
+  .station-option {
+    min-height: 90px;
+    padding: 0.5rem 0.25rem;
+  }
+  
+  .station-city {
+    font-size: 0.75rem;
+    color: black;
+  }
+  
+  .station-name {
+    font-size: 0.65rem;
+  }
+  
+  .station-icon-wrapper svg {
+    width: 16px;
+    height: 16px;
+  }
+  
+  .station-photo {
+    max-height: 120px;
+  }
+}
+
+/* Very small screens - single column layout if needed */
+@media (max-width: 360px) {
+  .station-selector-row > .col {
+    flex: 0 0 100%;
+    max-width: 100%;
+  }
+  
+  .station-option {
+    min-height: 80px;
+    flex-direction: row;
+    text-align: left;
+    justify-content: flex-start;
+    gap: 1rem;
+  }
+  
+  .station-icon-wrapper {
+    margin-bottom: 0;
+    flex-shrink: 0;
+  }
+  
+  .station-info {
     display: flex;
     flex-direction: column;
-    align-items: center;
-    padding: 1rem;
-    width: 100%;
+    text-align: left;
+  }
+}
+
+/* Visual feedback improvements */
+.station-option:active {
+  transform: scale(0.98);
+}
+
+/* Loading state */
+.station-selector-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem;
+}
+
+/* Error state */
+.station-selector-error {
+  text-align: center;
+  padding: 2rem;
+  color: #dc3545;
+}
+
+/* Enhanced accessibility */
+@media (prefers-reduced-motion: reduce) {
+  .station-option {
+    transition: none;
   }
   
   .station-option:hover:not(.selected) {
-    border-color: var(--bs-primary);
+    transform: none;
   }
   
   .station-option.selected {
-    background-color: var(--bs-primary) !important;
-    border-color: var(--bs-primary) !important;
-    color: white !important;
+    transform: none;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .station-option {
+    border-width: 3px;
   }
   
   .station-option:focus {
-    outline: none;
-    box-shadow: none;
+    box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.5);
   }
-  
-  .station-option small {
-    color: #6c757d;
-  }
-  
-  .station-option.selected small {
-    color: rgba(255, 255, 255, 0.9) !important;
-  }
+}

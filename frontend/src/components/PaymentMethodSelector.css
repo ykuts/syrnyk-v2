@@ -1,0 +1,293 @@
+/* Main payment methods styles */
+.payment-method-btn {
+  padding: 1rem 0.5rem;
+  min-height: 120px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.payment-method-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.payment-method-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  background-color: #f8f9fa !important;
+  border-color: #dee2e6 !important;
+  color: #6c757d !important;
+}
+
+/* Payment method icon wrapper */
+.payment-icon-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0.5rem;
+}
+
+/* Payment method title */
+.payment-title {
+  font-size: 0.9rem;
+  line-height: 1.2;
+  margin-bottom: 0.25rem;
+  word-wrap: break-word;
+}
+
+/* Payment method description */
+.payment-description {
+  font-size: 0.75rem;
+  line-height: 1.2;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  word-wrap: break-word;
+  hyphens: auto;
+}
+
+/* TWINT Card Styles */
+.twint-card {
+  border: 1px solid #dee2e6;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.twint-title {
+  color: #333;
+  font-weight: 600;
+}
+
+/* QR Code Container */
+.qr-code-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.qr-code-wrapper {
+  width: 200px;
+  height: 200px;
+  border: 2px solid #dee2e6;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.qr-code-image {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+/* Payment Instructions */
+.payment-instructions {
+  padding: 0 1rem;
+}
+
+/* TWINT Options Styles */
+.twint-option-btn {
+  padding: 1rem 0.5rem;
+  min-height: 90px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.twint-option-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+}
+
+.twint-option-icon-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0.25rem;
+}
+
+.twint-option-title {
+  font-size: 0.8rem;
+  line-height: 1.2;
+  word-wrap: break-word;
+  hyphens: auto;
+}
+
+/* Desktop and tablet styles (md and up) */
+@media (min-width: 768px) {
+  .payment-method-btn {
+    padding: 1.5rem 1rem;
+    min-height: 140px;
+  }
+  
+  .payment-icon-wrapper svg {
+    width: 24px;
+    height: 24px;
+  }
+  
+  .payment-title {
+    font-size: 1rem;
+  }
+  
+  .payment-description {
+    font-size: 0.8rem;
+  }
+  
+  .twint-option-btn {
+    padding: 1.25rem 1rem;
+    min-height: 100px;
+  }
+  
+  .twint-option-title {
+    font-size: 0.9rem;
+  }
+  
+  .twint-option-icon-wrapper svg {
+    width: 20px;
+    height: 20px;
+  }
+}
+
+/* Mobile styles (xs to sm) */
+@media (max-width: 767.98px) {
+  .payment-methods-row {
+    margin: 0 -4px; /* Tighter spacing on mobile */
+  }
+  
+  .payment-methods-row > .col {
+    padding: 0 4px;
+  }
+  
+  .payment-method-btn {
+    padding: 0.75rem 0.25rem;
+    min-height: 100px;
+    gap: 0.25rem;
+  }
+  
+  .payment-icon-wrapper {
+    margin-bottom: 0.25rem;
+  }
+  
+  .payment-icon-wrapper svg {
+    width: 18px;
+    height: 18px;
+  }
+  
+  .payment-title {
+    font-size: 0.8rem;
+    font-weight: 600;
+    margin-bottom: 0.2rem;
+  }
+  
+  .payment-description {
+    font-size: 0.7rem;
+    line-height: 1.1;
+    -webkit-line-clamp: 3; /* Allow more lines on mobile */
+  }
+  
+  /* TWINT section mobile adjustments */
+  .twint-card {
+    margin-top: 1rem;
+  }
+  
+  .twint-title {
+    font-size: 1.1rem;
+    margin-bottom: 1rem;
+  }
+  
+  .qr-code-wrapper {
+    width: 180px;
+    height: 180px;
+  }
+  
+  .payment-instructions {
+    padding: 0 0.5rem;
+    margin-bottom: 1rem;
+  }
+  
+  /* TWINT options mobile styles */
+  .twint-options-row {
+    margin: 0 -4px;
+  }
+  
+  .twint-options-row > .col {
+    padding: 0 4px;
+  }
+  
+  .twint-option-btn {
+    padding: 0.75rem 0.25rem;
+    min-height: 80px;
+  }
+  
+  .twint-option-icon-wrapper {
+    margin-bottom: 0.2rem;
+  }
+  
+  .twint-option-icon-wrapper svg {
+    width: 16px;
+    height: 16px;
+  }
+  
+  .twint-option-title {
+    font-size: 0.75rem;
+    line-height: 1.1;
+  }
+}
+
+/* Extra small screens (phones in portrait) */
+@media (max-width: 480px) {
+  .payment-method-btn {
+    padding: 0.5rem 0.25rem;
+    min-height: 90px;
+  }
+  
+  .payment-title {
+    font-size: 0.75rem;
+  }
+  
+  .payment-description {
+    font-size: 0.65rem;
+  }
+  
+  .qr-code-wrapper {
+    width: 160px;
+    height: 160px;
+  }
+  
+  .twint-option-btn {
+    padding: 0.6rem 0.2rem;
+    min-height: 75px;
+  }
+  
+  .twint-option-title {
+    font-size: 0.7rem;
+  }
+}
+
+/* Visual feedback for selected state on mobile */
+@media (max-width: 767.98px) {
+  .payment-method-btn.btn-primary {
+    box-shadow: 0 2px 8px rgba(13, 110, 253, 0.3);
+  }
+  
+  .twint-option-btn.btn-primary {
+    box-shadow: 0 2px 6px rgba(13, 110, 253, 0.3);
+  }
+  
+  .payment-method-btn.btn-outline-primary:active,
+  .twint-option-btn.btn-outline-primary:active {
+    transform: scale(0.98);
+  }
+}
+
+/* Disabled state improvements for mobile */
+@media (max-width: 767.98px) {
+  .payment-method-btn:disabled {
+    transform: none !important;
+    box-shadow: none !important;
+  }
+  
+  .payment-method-btn:disabled .payment-description {
+    color: #adb5bd !important;
+  }
+}

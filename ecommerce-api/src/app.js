@@ -9,12 +9,17 @@ import addressRoutes from './routes/addressRoutes.js';
 import railwayStationsRouter from './routes/railwayStationsRouter.js';
 import deliveryRoutes from './routes/deliveryRoutes.js';
 import uploadRoutes from './routes/uploadRoutes.js'; 
+import sendpulseTestRoutes from './routes/sendpulseTest.js';
 import reportsRoutes from './routes/reportsRoutes.js';
 import { handleMulterError } from './middleware/upload.js';
 import cors from 'cors';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import fs from 'fs';
+
+console.log('🚀 All routes loaded:');
+console.log('- Users:', !!userRoutes);
+console.log('- SendPulse:', !!sendpulseTestRoutes);
 
 const app = express();
 
@@ -54,7 +59,13 @@ app.use(cors({
     origin: [
         'https://syrnyk-test.up.railway.app', 
         'https://syrnyk-v2-production.up.railway.app', 
-        'http://localhost:3002'
+        'http://localhost:3002',
+        'https://sendpulse.com',
+        'https://api.sendpulse.com',
+        'https://app.sendpulse.com',
+        'https://login.sendpulse.com',
+        'https://chatapi.sendpulse.com',
+        'https://events.sendpulse.com'
     ],
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: [
@@ -92,6 +103,25 @@ app.use('/api/addresses', addressRoutes);
 app.use('/api/railway-stations', railwayStationsRouter);
 app.use('/api/upload', uploadRoutes); // Routes for files upload
 app.use('/api/delivery', deliveryRoutes);
+
+// Простой тест route прямо в app.js
+app.get('/api/test-direct', (req, res) => {
+  console.log('✅ Direct test route hit!');
+  res.json({ 
+    message: 'Direct route in app.js works!',
+    timestamp: new Date().toISOString() 
+  });
+});
+
+// Добавим логирование перед sendpulse routes
+app.use('/api/sendpulse', (req, res, next) => {
+  console.log('🎯 SENDPULSE MIDDLEWARE HIT:', req.method, req.url);
+  console.log('🎯 Full original URL:', req.originalUrl);
+  next();
+});
+
+app.use('/api/sendpulse', sendpulseTestRoutes);
+
 app.use('/api/reports', reportsRoutes);
 
 app.use(handleMulterError);

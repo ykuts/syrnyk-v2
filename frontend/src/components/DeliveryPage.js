@@ -116,9 +116,9 @@ const DeliveryPage = () => {
                   title={t('station_delivery.title', { ns: 'delivery' })}
                   content={
                     <>
-                      <p>
+                      <div>
                         <ReactMarkdown>{t('station_delivery.intro', { ns: 'delivery' })}</ReactMarkdown>
-                      </p>
+                      </div>
                       <p>
                         <strong>{t('station_delivery.min_order.label', { ns: 'delivery' })}</strong>:
                         {t('station_delivery.min_order.value', { ns: 'delivery' })}
@@ -148,12 +148,6 @@ const DeliveryPage = () => {
                         <strong>{t('address_delivery.schedule.label', { ns: 'delivery' })}</strong>:
                         {t('address_delivery.schedule.value', { ns: 'delivery' })}
                       </p>
-                      {/* Commented section preserved */}
-                      {/* <p>
-                        <ReactMarkdown>{t('address_delivery.paid.intro', { ns: 'delivery' })}</ReactMarkdown> 
-                        <ReactMarkdown>{t('address_delivery.paid.min_order.value', { ns: 'delivery' })}</ReactMarkdown>
-                        <ReactMarkdown>{t('address_delivery.paid.cost.description', { ns: 'delivery' })}</ReactMarkdown>
-                      </p> */}
                     </>
                   }
                 />
@@ -223,7 +217,7 @@ const DeliveryPage = () => {
 // Component for displaying content sections
 const ContentSection = ({ title, content }) => (
   <div className="content-section-delivery">
-    <h2>{title}</h2>
+    <h2 className='text-primary'>{title}</h2>
     <div>{content}</div>
   </div>
 );
@@ -241,7 +235,7 @@ const MeetingCard = ({ city, station, location, imageSrc }) => {
     <div className="meeting-card">
       <div className="meeting-info">
         <div className="city">{`${t('stations.city')}: ${city}`}</div>
-        <div className="day-time">{`${t('stations.day_time')}: ${station}`}</div>
+        <div className="day-time text-primary">{`${t('stations.day_time')}: ${station}`}</div>
         <div className="location"><strong>{`${t('stations.meeting_point')}:`}</strong></div>
         <div className="location">{`${location}`}</div>
       </div>

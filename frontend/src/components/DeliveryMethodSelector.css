@@ -1,0 +1,131 @@
+/* Common styles for delivery method buttons */
+.delivery-method-btn {
+  padding: 1rem 0.5rem;
+  min-height: 120px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.delivery-method-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Icon wrapper styling */
+.delivery-icon-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0.5rem;
+}
+
+/* Title styling */
+.delivery-title {
+  font-size: 0.9rem;
+  line-height: 1.2;
+  margin-bottom: 0.25rem;
+}
+
+/* Description styling */
+.delivery-description {
+  font-size: 0.75rem;
+  line-height: 1.2;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Desktop and tablet styles (md and up) */
+@media (min-width: 768px) {
+  .delivery-method-btn {
+    padding: 1.5rem 1rem;
+    min-height: 140px;
+  }
+  
+  .delivery-icon-wrapper svg {
+    width: 24px;
+    height: 24px;
+  }
+  
+  .delivery-title {
+    font-size: 1rem;
+  }
+  
+  .delivery-description {
+    font-size: 0.8rem;
+  }
+}
+
+/* Mobile styles (xs to sm) */
+@media (max-width: 767.98px) {
+  .delivery-methods-row {
+    margin: 0 -4px; /* Tighter spacing on mobile */
+  }
+  
+  .delivery-methods-row > .col {
+    padding: 0 4px;
+  }
+  
+  .delivery-method-btn {
+    padding: 0.75rem 0.25rem;
+    min-height: 100px;
+    gap: 0.25rem;
+  }
+  
+  .delivery-icon-wrapper {
+    margin-bottom: 0.25rem;
+  }
+  
+  .delivery-icon-wrapper svg {
+    width: 18px;
+    height: 18px;
+  }
+  
+  .delivery-title {
+    font-size: 0.8rem;
+    font-weight: 600;
+    margin-bottom: 0.2rem;
+  }
+  
+  .delivery-description {
+    font-size: 0.7rem;
+    line-height: 1.1;
+    -webkit-line-clamp: 3; /* Allow more lines on mobile */
+  }
+}
+
+/* Extra small screens (phones in portrait) */
+@media (max-width: 480px) {
+  .delivery-method-btn {
+    padding: 0.5rem 0.25rem;
+    min-height: 90px;
+  }
+  
+  .delivery-title {
+    font-size: 0.75rem;
+  }
+  
+  .delivery-description {
+    font-size: 0.65rem;
+  }
+}
+
+/* Ensure text wrapping for longer titles/descriptions */
+.delivery-title,
+.delivery-description {
+  word-wrap: break-word;
+  hyphens: auto;
+}
+
+/* Add visual feedback for selected state on mobile */
+@media (max-width: 767.98px) {
+  .delivery-method-btn.btn-primary {
+    box-shadow: 0 2px 8px rgba(13, 110, 253, 0.3);
+  }
+  
+  .delivery-method-btn.btn-outline-primary:active {
+    transform: scale(0.98);
+  }
+}

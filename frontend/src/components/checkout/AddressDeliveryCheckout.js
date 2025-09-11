@@ -42,27 +42,27 @@ const AddressDeliveryCheckout = ({ formData, handleChange, onValidationChange })
   };
 
   // Add this useEffect to the AddressDeliveryCheckout component to validate postal code on initial load
-useEffect(() => {
-  // Validate postal code when component mounts if we have all required data
-  if (formData.postalCode && 
-      formData.canton && 
-      formData.postalCode.length === 4 && 
+  useEffect(() => {
+    // Validate postal code when component mounts if we have all required data
+    if (formData.postalCode &&
+      formData.canton &&
+      formData.postalCode.length === 4 &&
       ['VD', 'GE'].includes(formData.canton)) {
-    
-    console.log('🏠 AddressDeliveryCheckout: Validating initial postal code:', {
-      postalCode: formData.postalCode,
-      canton: formData.canton
-    });
 
-    // Trigger validation for the loaded postal code
-    // This will be handled by the existing useEffect that watches postalCode changes
-    
-    // Mark that we should check this postal code
-    setPostalCodeChecked(false);
-    
-    // The existing useEffect will pick this up and validate
-  }
-}, []); // Run only on mount
+      console.log('🏠 AddressDeliveryCheckout: Validating initial postal code:', {
+        postalCode: formData.postalCode,
+        canton: formData.canton
+      });
+
+      // Trigger validation for the loaded postal code
+      // This will be handled by the existing useEffect that watches postalCode changes
+
+      // Mark that we should check this postal code
+      setPostalCodeChecked(false);
+
+      // The existing useEffect will pick this up and validate
+    }
+  }, []); // Run only on mount
 
   // Set default canton to VD (Vaud) if not already set
   useEffect(() => {
@@ -70,7 +70,8 @@ useEffect(() => {
       handleChange({
         target: {
           name: 'canton',
-          value: 'VD' // Default to Vaud
+          value: 'VD', // Default to Vaud
+          dataset: { automatic: 'true' }
         }
       });
     }
@@ -82,7 +83,8 @@ useEffect(() => {
     handleChange({
       target: {
         name: 'canton',
-        value: canton
+        value: canton,
+        dataset: { automatic: 'true' }
       }
     });
 
@@ -90,7 +92,8 @@ useEffect(() => {
     handleChange({
       target: {
         name: 'deliveryDate',
-        value: ''
+        value: '',
+        dataset: { automatic: 'true' }
       }
     });
 
@@ -106,7 +109,7 @@ useEffect(() => {
 
     if (selectedCanton === 'VD') {
       return (
-        <div className="delivery-message-formatted">
+        <div className="delivery-message-formatted" >
           <div className="mb-2" style={{ textAlign: 'left' }}>
             <Trans
               i18nKey="delivery.vaud.coppet_lausanne_free"
@@ -168,7 +171,7 @@ useEffect(() => {
         </div>
       );
     }
-    return ''; 
+    return '';
   };
 
   // Handle delivery validation and cost calculation based on canton selection
@@ -176,152 +179,157 @@ useEffect(() => {
     const selectedCanton = formData.canton || 'VD';
 
     // Skip validation if no postal code
-  if (!formData.postalCode || formData.postalCode.length < 4) {
-    setLoading(false);
-    // Default logic for missing postal code
-    const minOrder = selectedCanton === 'GE' ? 200 : 200; // Both cantons have 200 CHF minimum by default
-    setMinOrderRequired(minOrder);
-    const orderValid = totalPrice >= minOrder;
-    setIsValidOrder(orderValid);
-    setDeliveryCost(0);
+    if (!formData.postalCode || formData.postalCode.length < 4) {
+      setLoading(false);
+      // Default logic for missing postal code
+      const minOrder = selectedCanton === 'GE' ? 200 : 200; // Both cantons have 200 CHF minimum by default
+      setMinOrderRequired(minOrder);
+      const orderValid = totalPrice >= minOrder;
+      setIsValidOrder(orderValid);
+      setDeliveryCost(0);
 
-    const message = orderValid 
-      ? 'Free delivery for orders over 200 CHF'
-      : `Minimum order is ${minOrder} CHF. Add ${(minOrder - totalPrice).toFixed(2)} CHF more.`;
-    
-    notifyValidationChange(orderValid, minOrder, message);
-    
-    handleChange({
-      target: {
-        name: 'deliveryCost',
-        value: 0
-      }
-    });
-    return;
-  }
+      const message = orderValid
+        ? 'Free delivery for orders over 200 CHF'
+        : `Minimum order is ${minOrder} CHF. Add ${(minOrder - totalPrice).toFixed(2)} CHF more.`;
 
-  // Geneva canton logic (always 200 CHF minimum)
-  if (selectedCanton === 'GE') {
-    setLoading(false);
-    const minOrder = 200;
-    setMinOrderRequired(minOrder);
-    const orderValid = totalPrice >= minOrder;
-    setIsValidOrder(orderValid);
-    setDeliveryCost(0);
+      notifyValidationChange(orderValid, minOrder, message);
 
-    const message = orderValid 
-      ? 'Free delivery for orders over 200 CHF'
-      : `Minimum order for Geneva delivery is 200 CHF. Add ${(minOrder - totalPrice).toFixed(2)} CHF more.`;
-    
-    notifyValidationChange(orderValid, minOrder, message);
-
-    handleChange({
-      target: {
-        name: 'deliveryCost',
-        value: 0
-      }
-    });
-    return;
-  }
-
-  // For Vaud (VD): check postal code to determine if it's Coppet-Lausanne region
-  if (selectedCanton === 'VD') {
-    // Skip if postal code hasn't changed and we already checked it
-    if (formData.postalCode === previousPostalCodeRef.current && postalCodeChecked) {
+      handleChange({
+        target: {
+          name: 'deliveryCost',
+          value: 0,
+          dataset: { automatic: 'true' }
+        }
+      });
       return;
     }
 
-    // Update previous postal code reference
-    previousPostalCodeRef.current = formData.postalCode;
+    // Geneva canton logic (always 200 CHF minimum)
+    if (selectedCanton === 'GE') {
+      setLoading(false);
+      const minOrder = 200;
+      setMinOrderRequired(minOrder);
+      const orderValid = totalPrice >= minOrder;
+      setIsValidOrder(orderValid);
+      setDeliveryCost(0);
 
-    const fetchCityByPostalCode = async () => {
-      setLoading(true);
-      setError(null);
+      const message = orderValid
+        ? 'Free delivery for orders over 200 CHF'
+        : `Minimum order for Geneva delivery is 200 CHF. Add ${(minOrder - totalPrice).toFixed(2)} CHF more.`;
 
-      try {
-        console.log('🔍 Checking postal code:', formData.postalCode);
-        const response = await apiClient.get(`/delivery/cities/${formData.postalCode}`);
+      notifyValidationChange(orderValid, minOrder, message);
 
-        if (response) {
-          // City found in our database - this is Coppet-Lausanne region
-          console.log('✅ Postal code found in Coppet-Lausanne region:', response);
-          setPostalCodeValid(true);
-          setCityInfo(response);
+      handleChange({
+        target: {
+          name: 'deliveryCost',
+          value: 0,
+          dataset: { automatic: 'true' }
+        }
+      });
+      return;
+    }
 
-          // Update city field with the found city name
-          handleChange({
-            target: {
-              name: 'city',
-              value: response.name
-            }
-          });
+    // For Vaud (VD): check postal code to determine if it's Coppet-Lausanne region
+    if (selectedCanton === 'VD') {
+      // Skip if postal code hasn't changed and we already checked it
+      if (formData.postalCode === previousPostalCodeRef.current && postalCodeChecked) {
+        return;
+      }
 
-          // Coppet-Lausanne region: NO minimum order, always free delivery
-          setMinOrderRequired(0);
-          setIsValidOrder(true); // Always valid for this region
+      // Update previous postal code reference
+      previousPostalCodeRef.current = formData.postalCode;
+
+      const fetchCityByPostalCode = async () => {
+        setLoading(true);
+        setError(null);
+
+        try {
+          console.log('🔍 Checking postal code:', formData.postalCode);
+          const response = await apiClient.get(`/delivery/cities/${formData.postalCode}`);
+
+          if (response) {
+            // City found in our database - this is Coppet-Lausanne region
+            console.log('✅ Postal code found in Coppet-Lausanne region:', response);
+            setPostalCodeValid(true);
+            setCityInfo(response);
+
+            // Update city field with the found city name
+            handleChange({
+              target: {
+                name: 'city',
+                value: response.name,
+                dataset: { automatic: 'true' }
+              }
+            });
+
+            // Coppet-Lausanne region: NO minimum order, always free delivery
+            setMinOrderRequired(0);
+            setIsValidOrder(true); // Always valid for this region
+            setDeliveryCost(0);
+
+            // Notify parent: always valid for Coppet-Lausanne region
+            notifyValidationChange(true, 0, 'Free delivery - no minimum order required for Coppet-Lausanne region');
+
+            // Update parent's delivery cost
+            handleChange({
+              target: {
+                name: 'deliveryCost',
+                value: 0,
+                dataset: { automatic: 'true' }
+              }
+            });
+          } else {
+            throw new Error('Postal code not found');
+          }
+        } catch (err) {
+          console.log('❌ Postal code not in Coppet-Lausanne region, applying other Vaud rules');
+
+          // Postal code not in our list - this is "other Vaud regions"
+          setPostalCodeValid(false);
+          setCityInfo(null);
+
+          // Other Vaud regions: 200 CHF minimum order, free delivery
+          const minOrder = 200;
+          setMinOrderRequired(minOrder);
+          const orderValid = totalPrice >= minOrder;
+          setIsValidOrder(orderValid);
           setDeliveryCost(0);
 
-          // Notify parent: always valid for Coppet-Lausanne region
-          notifyValidationChange(true, 0, 'Free delivery - no minimum order required for Coppet-Lausanne region');
+          const message = orderValid
+            ? 'Free delivery for orders over 200 CHF'
+            : `Minimum order for other Vaud regions is 200 CHF. Add ${(minOrder - totalPrice).toFixed(2)} CHF more.`;
+
+          notifyValidationChange(orderValid, minOrder, message);
 
           // Update parent's delivery cost
           handleChange({
             target: {
               name: 'deliveryCost',
-              value: 0
+              value: 0,
+              dataset: { automatic: 'true' }
             }
           });
-        } else {
-          throw new Error('Postal code not found');
+        } finally {
+          setLoading(false);
+          setPostalCodeChecked(true);
         }
-      } catch (err) {
-        console.log('❌ Postal code not in Coppet-Lausanne region, applying other Vaud rules');
-        
-        // Postal code not in our list - this is "other Vaud regions"
-        setPostalCodeValid(false);
-        setCityInfo(null);
+      };
 
-        // Other Vaud regions: 200 CHF minimum order, free delivery
-        const minOrder = 200;
-        setMinOrderRequired(minOrder);
-        const orderValid = totalPrice >= minOrder;
-        setIsValidOrder(orderValid);
-        setDeliveryCost(0);
-
-        const message = orderValid 
-          ? 'Free delivery for orders over 200 CHF'
-          : `Minimum order for other Vaud regions is 200 CHF. Add ${(minOrder - totalPrice).toFixed(2)} CHF more.`;
-        
-        notifyValidationChange(orderValid, minOrder, message);
-
-        // Update parent's delivery cost
-        handleChange({
-          target: {
-            name: 'deliveryCost',
-            value: 0
-          }
-        });
-      } finally {
-        setLoading(false);
-        setPostalCodeChecked(true);
-      }
-    };
-
-    fetchCityByPostalCode();
-  }
-}, [formData.postalCode, formData.canton, totalPrice]); 
+      fetchCityByPostalCode();
+    }
+  }, [formData.postalCode, formData.canton, totalPrice]);
 
   // Recalculate order validity when total price changes
   useEffect(() => {
     if (minOrderRequired > 0) {
       const orderValid = totalPrice >= minOrderRequired;
       setIsValidOrder(orderValid);
-      
+
       // Notify parent about validation status change
-      const message = orderValid 
+      const message = orderValid
         ? 'Free delivery for orders over 200 CHF'
         : `Minimum order is ${minOrderRequired} CHF. Add ${(minOrderRequired - totalPrice).toFixed(2)} CHF more.`;
-      
+
       notifyValidationChange(orderValid, minOrderRequired, message);
     } else {
       // For Coppet-Lausanne region (no minimum)
@@ -335,34 +343,40 @@ useEffect(() => {
     <div className="address-delivery-checkout">
       <h5 className="mb-3">{t('delivery.address.title')}</h5>
 
-      {/* Canton Selection - Separate Buttons */}
+      {/* Canton Selection - Responsive Buttons */}
       <Form.Group className="mb-3">
         <Form.Label>{t('address.canton')}</Form.Label>
-        <Row className="g-2">
-          <Col md={6}>
+        <Row className="canton-selector-row g-2" >
+          <Col xs={6} md={6} > {/* xs=6 ensures 2 columns on mobile, md=6 keeps it same on desktop */}
             <Button
               variant={formData.canton === 'VD' ? 'primary' : 'outline-primary'}
               onClick={() => handleCantonChange('VD')}
-              className="w-100 text-center p-3"
+              className="canton-btn w-100 text-center d-flex flex-column align-items-center justify-content-center"
             >
-              {t('address.canton_VD')}
+              <div className="canton-title fw-medium">{t('address.canton_VD')}</div>
+              <small className={`canton-description ${formData.canton === 'VD' ? 'text-light' : 'text-muted'}`}>
+                Vaud
+              </small>
             </Button>
           </Col>
-          <Col md={6}>
+          <Col xs={6} md={6}>
             <Button
               variant={formData.canton === 'GE' ? 'primary' : 'outline-primary'}
               onClick={() => handleCantonChange('GE')}
-              className="w-100 text-center p-3"
+              className="canton-btn w-100 text-center d-flex flex-column align-items-center justify-content-center"
             >
-              {t('address.canton_GE')}
+              <div className="canton-title fw-medium">{t('address.canton_GE')}</div>
+              <small className={`canton-description ${formData.canton === 'GE' ? 'text-light' : 'text-muted'}`}>
+                Geneva
+              </small>
             </Button>
           </Col>
         </Row>
 
         {/* Conditional delivery message based on selected canton */}
         {(formData.canton === 'VD' || formData.canton === 'GE') && (
-          <Alert variant="info" className="mt-2 mb-0">
-            <div className="small">
+          <Alert variant="info" className="delivery-info-alert mt-2 mb-0" style={{ backgroundColor: '#e9e6e3', borderColor: '#e9e6e3', color: '#333' }}>
+            <div className="small" >
               {getCantonDeliveryMessage()}
             </div>
           </Alert>
@@ -455,7 +469,7 @@ useEffect(() => {
                 {t('address.postal_code_not_found')}
               </Form.Text>
             )}
-            
+
           </Form.Group>
         </Col>
       </Row>
@@ -471,7 +485,7 @@ useEffect(() => {
       {/* Minimum Order Warning - show when order doesn't meet minimum requirements */}
       {!isValidOrder && minOrderRequired > 0 && (
         <Alert variant="danger" className="mt-3">
-          {t('checkout.minimum_order_warning_free', {amount: 200 - totalPrice.toFixed(2)})}
+          {t('checkout.minimum_order_warning_free', { amount: 200 - totalPrice.toFixed(2) })}
         </Alert>
       )}
     </div>

@@ -803,3 +803,253 @@ export const getOrderById = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+/**
+ * Update order with CRM sync data (new endpoint)
+ */
+export const updateOrderSyncData = async (req, res) => {
+  try {
+    const { orderId } = req.params;
+    const { sendpulseDealId, sendpulseContactId, syncStatus, lastSyncAt } = req.body;
+
+    const order = await prisma.order.update({
+      where: { id: parseInt(orderId) },
+      data: {
+        sendpulseDealId,
+        sendpulseContactId,
+        syncStatus,
+        lastSyncAt: lastSyncAt ? new Date(lastSyncAt) : new Date(),
+        updatedAt: new Date()
+      },
+      include: {
+        items: {
+          include: { product: true }
+        },
+        user: true,
+        guestInfo: true
+      }
+    });
+
+    console.log('Order sync data updated:', {
+      orderId: order.id,
+      sendpulseDealId,
+      syncStatus
+    });
+
+    res.json({
+      message: 'Order sync data updated successfully',
+      order
+    });
+
+  } catch (error) {
+    console.error('Error updating order sync data:', error);
+    res.status(500).json({
+      message: 'Error updating order sync data',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+};
+
+/**
+ * Create sync log entry (new endpoint)
+ */
+export const createSyncLog = async (req, res) => {
+  try {
+    const { orderId } = req.params;
+    const { sendpulseDealId, syncType, syncDirection, syncStatus, syncData, errorMessage } = req.body;
+
+    const syncLog = await prisma.orderSyncLog.create({
+      data: {
+        orderId: parseInt(orderId),
+        sendpulseDealId,
+        syncType,
+        syncDirection,
+        syncStatus,
+        syncData: syncData || {},
+        errorMessage
+      }
+    });
+
+    console.log('Sync log created:', {
+      orderId,
+      syncType,
+      syncStatus
+    });
+
+    res.status(201).json({
+      message: 'Sync log created successfully',
+      syncLog
+    });
+
+  } catch (error) {
+    console.error('Error creating sync log:', error);
+    res.status(500).json({
+      message: 'Error creating sync log',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+};
+
+/**
+ * Get order with sync information
+ */
+export const getOrderWithSync = async (req, res) => {
+  try {
+    const { orderId } = req.params;
+
+    const order = await prisma.order.findUnique({
+      where: { id: parseInt(orderId) },
+      include: {
+        items: {
+          include: { product: true }
+        },
+        user: true,
+        guestInfo: true,
+        syncLogs: {
+          orderBy: { createdAt: 'desc' },
+          take: 10 // Get last 10 sync logs
+        }
+      }
+    });
+
+    if (!order) {
+      return res.status(404).json({ message: 'Order not found' });
+    }
+
+    res.json({
+      message: 'Order retrieved successfully',
+      order
+    });
+
+  } catch (error) {
+    console.error('Error getting order with sync data:', error);
+    res.status(500).json({
+      message: 'Error getting order',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+};
+
+/**
+ * Enhanced createOrder function with CRM integration support
+ */
+export const createOrderEnhanced = async (req, res) => {
+  try {
+    const {
+      // Standard order fields
+      deliveryType,
+      deliveryStationId,
+      deliveryDate,
+      deliveryTimeSlot,
+      paymentMethod,
+      totalAmount,
+      items,
+      notesClient,
+      notesAdmin,
+      guestInfo,
+      
+      // New CRM integration fields
+      orderSource = 'WEB',
+      externalOrderId,
+      syncStatus = 'NOT_REQUIRED'
+    } = req.body;
+
+    // Calculate total amount if not provided
+    let calculatedTotal = totalAmount;
+    if (!calculatedTotal && items) {
+      calculatedTotal = items.reduce((sum, item) => 
+        sum + (parseFloat(item.unitPrice) * item.quantity), 0
+      );
+    }
+
+    // Prepare order data
+    const orderData = {
+      deliveryType: deliveryType || 'RAILWAY_STATION',
+      status: 'PENDING',
+      paymentStatus: 'PENDING',
+      totalAmount: calculatedTotal,
+      paymentMethod,
+      deliveryStationId: deliveryStationId ? parseInt(deliveryStationId) : null,
+      deliveryDate: deliveryDate ? new Date(deliveryDate) : null,
+      deliveryTimeSlot,
+      notesClient: notesClient || '',
+      notesAdmin: notesAdmin || '',
+      
+      // CRM integration fields
+      orderSource,
+      externalOrderId,
+      syncStatus,
+      
+      // Set user or guest info
+      ...(req.user?.userId ? { userId: req.user.userId } : {})
+    };
+
+    // Create main order
+    const order = await prisma.order.create({
+      data: orderData,
+      include: {
+        items: {
+          include: { product: true }
+        }
+      }
+    });
+
+    // Create guest info if provided
+    if (guestInfo && !req.user?.userId) {
+      await prisma.guestInfo.create({
+        data: {
+          orderId: order.id,
+          firstName: guestInfo.firstName,
+          lastName: guestInfo.lastName,
+          email: guestInfo.email,
+          phone: guestInfo.phone
+        }
+      });
+    }
+
+    // Create order items
+    if (items && items.length > 0) {
+      const orderItems = items.map(item => ({
+        orderId: order.id,
+        productId: parseInt(item.productId),
+        quantity: item.quantity,
+        price: parseFloat(item.unitPrice)
+      }));
+
+      await prisma.orderItem.createMany({
+        data: orderItems
+      });
+    }
+
+    // Fetch complete order with all relations
+    const completeOrder = await prisma.order.findUnique({
+      where: { id: order.id },
+      include: {
+        items: {
+          include: { product: true }
+        },
+        user: true,
+        guestInfo: true
+      }
+    });
+
+    console.log('Enhanced order created successfully:', {
+      orderId: order.id,
+      orderSource,
+      externalOrderId,
+      totalAmount: calculatedTotal
+    });
+
+    res.status(201).json({
+      message: 'Order created successfully',
+      order: completeOrder
+    });
+
+  } catch (error) {
+    console.error('Error creating enhanced order:', error);
+    res.status(500).json({
+      message: 'Error creating order',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+};

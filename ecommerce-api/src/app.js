@@ -92,6 +92,16 @@ app.options('*', cors()); // Enable pre-flight for all routes
     allowedHeaders: ['Content-Type', 'Authorization']
 })); */
 
+
+app.get('/health', (req, res) => {
+  res.json({
+    status: 'OK',
+    service: 'Ecommerce API',
+    timestamp: new Date().toISOString(),
+    version: '1.0.0'
+  });
+});
+
 // Use routes
 app.use('/api/users', userRoutes);
 app.use('/api/admin', adminRoutes);

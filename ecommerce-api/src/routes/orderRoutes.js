@@ -1,6 +1,22 @@
 import express from 'express';
-import { createOrder, getOrders, updateOrderStatus, getAllOrders, 
-    updatePaymentStatus,  updateOrderItem, removeOrderItem, addOrderItem, updateOrderNotes, getOrderById, notifyOrderChanges} from '../controllers/orderController.js';
+import { 
+  createOrder, 
+  getOrders, 
+  updateOrderStatus, 
+  getAllOrders, 
+  updatePaymentStatus,  
+  updateOrderItem, 
+  removeOrderItem, 
+  addOrderItem, 
+  updateOrderNotes, 
+  getOrderById, 
+  notifyOrderChanges,
+  // NEW FUNCTIONS
+  updateOrderSyncData,
+  createSyncLog,
+  getOrderWithSync,
+  createOrderEnhanced
+} from '../controllers/orderController.js';
 
 const router = express.Router();
 
@@ -20,6 +36,12 @@ router.patch('/:orderId/notes', updateOrderNotes);
 router.put('/:orderId/items/:itemId', updateOrderItem);
 router.delete('/:orderId/items/:itemId', removeOrderItem);
 router.post('/:orderId/items', addOrderItem);
+
+// CRM sync routes (for now without authentication, add internalApiAuth later)
+router.patch('/:orderId/sync-data', updateOrderSyncData);
+router.post('/:orderId/sync-log', createSyncLog);
+router.get('/:orderId/sync', getOrderWithSync);
+router.post('/enhanced', createOrderEnhanced);
 
 export default router;
 

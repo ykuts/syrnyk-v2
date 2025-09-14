@@ -72,11 +72,25 @@ model Order {
   deliveryAddress         Json?      // For address delivery
   deliveryStationId       Int?       // For railway station delivery
   deliveryPickupLocationId Int?      // For pickup
+
+  sendpulseDealId         String?     @map("sendpulseDealId")
+  sendpulseContactId      String?     @map("sendpulseContactId")
+  orderSource             String      @default("WEB") @map("orderSource")
+  externalOrderId         String?     @map("externalOrderId")
+  syncStatus              String      @default("PENDING") @map("syncStatus")
+  lastSyncAt              DateTime?   @map("lastSyncAt")
+
+  syncLogs                OrderSyncLog[]
+
   createdAt               DateTime    @default(now())
   updatedAt               DateTime    @updatedAt
 
   @@index([userId])
   @@index([status])
+  @@index([sendpulseDealId])      // New index
+  @@index([externalOrderId])      // New index
+  @@index([syncStatus])           // New index
+  @@index([orderSource])          // New index
 }
 
 // New model for guest information
@@ -276,6 +290,41 @@ model OrderItem {
   @@index([productId])
 }
 
+// NEW: Order Sync Log model for tracking CRM synchronization
+model OrderSyncLog {
+  id              Int      @id @default(autoincrement())
+  orderId         Int
+  order           Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  sendpulseDealId String?
+  syncType        String   // 'CREATE', 'UPDATE', 'WEBHOOK'
+  syncDirection   String   // 'TO_CRM', 'FROM_CRM'
+  syncStatus      String   // 'SUCCESS', 'FAILED', 'PENDING'
+  syncData        Json?    // Store additional sync data
+  errorMessage    String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([orderId])
+  @@index([syncStatus])
+  @@index([syncType])
+  @@index([createdAt])
+  @@map("OrderSyncLog")
+}
+
+enum OrderSource {
+  WEB
+  TELEGRAM_BOT
+  ADMIN_PANEL
+  API
+}
+
+enum SyncStatus {
+  PENDING
+  SYNCED
+  FAILED
+  NOT_REQUIRED
+}
+
 // Added Product model
 model Product {
   id              Int         @id @default(autoincrement())
@@ -297,12 +346,16 @@ model Product {
   cartItems       CartItem[]
   reviews         Review[]
   displayOrder    Int         @default(9999)
+
+  consumptionIndex Decimal    @default(1.0) @db.Decimal(10, 3) @map("consumptionIndex")
+
   createdAt       DateTime    @default(now())
   updatedAt       DateTime    @updatedAt
   translations    ProductTranslation[]
 
   @@index([categoryId])
   @@index([name])
+  @@index([consumptionIndex])
 }
 
 // Prisma schema extension for product translations
@@ -378,6 +431,7 @@ enum OrderStatus {
   CONFIRMED
   DELIVERED
   CANCELLED
+  REQUIRES_AGREEMENT
 }
 
 enum PaymentStatus {

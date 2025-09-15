@@ -41,15 +41,14 @@ const [stations, setStations] = useState([]);
   }, []);
 
   const fetchStations = async () => {
-    try {
-      const response = await apiClient.get('/api/railway-stations');
-      // API возвращает { data: [...], meta: {...} }
-      setStations(response.data || []);
-    } catch (err) {
-      console.error('Error fetching stations:', err);
-      // Не показывать ошибку пользователю, если станции не загрузились
-    }
-  };
+  try {
+    const response = await apiClient.get('/api/railway-stations');
+    console.log('API response:', response); // Debug log
+    setStations(response.data || []);
+  } catch (err) {
+    console.error('Error fetching stations:', err);
+  }
+};
   
 
   const fetchOrders = async () => {
@@ -220,9 +219,17 @@ const [stations, setStations] = useState([]);
   };
 
   const getStationNameById = (stationId) => {
-    const station = stations.find(s => s.id === stationId);
-    return station ? station.name : `Station ID: ${stationId}`;
-  };
+  console.log('Looking for station ID:', stationId, 'type:', typeof stationId);
+  console.log('Available stations:', stations);
+  
+  const station = stations.find(s => {
+    console.log('Comparing:', s.id, 'with', stationId, 'equal?', s.id == stationId);
+    return s.id == stationId; // Using loose equality to handle type differences
+  });
+  
+  console.log('Found station:', station);
+  return station ? station.name : `Station ID: ${stationId}`;
+};
 
    // Helper function for delivery details
   const getDeliveryDetails = (order) => {

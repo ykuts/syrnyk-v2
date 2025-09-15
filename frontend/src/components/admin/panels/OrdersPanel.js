@@ -28,6 +28,7 @@ const OrdersPanel = () => {
 const [currentOrderId, setCurrentOrderId] = useState(null);
 const [notificationMessage, setNotificationMessage] = useState('');
 const [sendingNotification, setSendingNotification] = useState(false);
+const [stations, setStations] = useState([]);
 
   // Auth headers for all requests
   const getAuthHeaders = () => ({
@@ -36,7 +37,19 @@ const [sendingNotification, setSendingNotification] = useState(false);
 
   useEffect(() => {
     fetchOrders();
+    fetchStations();
   }, []);
+
+  const fetchStations = async () => {
+    try {
+      const response = await apiClient.get('/api/railway-stations');
+      // API возвращает { data: [...], meta: {...} }
+      setStations(response.data || []);
+    } catch (err) {
+      console.error('Error fetching stations:', err);
+      // Не показывать ошибку пользователю, если станции не загрузились
+    }
+  };
   
 
   const fetchOrders = async () => {
@@ -206,6 +219,11 @@ const [sendingNotification, setSendingNotification] = useState(false);
     return variants[status] || 'secondary';
   };
 
+  const getStationNameById = (stationId) => {
+    const station = stations.find(s => s.id === stationId);
+    return station ? station.name : `Station ID: ${stationId}`;
+  };
+
    // Helper function for delivery details
   const getDeliveryDetails = (order) => {
     switch (order.deliveryType) {
@@ -213,14 +231,20 @@ const [sendingNotification, setSendingNotification] = useState(false);
         return order.addressDelivery ? 
           `${order.addressDelivery.city}, ${order.addressDelivery.street} ${order.addressDelivery.house}` :
           'Адресу не зазначено';
+          
       case 'RAILWAY_STATION':
-        return order.stationDelivery ?
-          `Railway Station: ${order.stationDelivery.station?.name}, Time: ${formatDate(order.stationDelivery.meetingTime)}` :
-          'Станцію не обрано';
+        if (order.deliveryStationId) {
+          const stationName = getStationNameById(order.deliveryStationId);
+          const meetingTime = order.deliveryDate ? formatDate(order.deliveryDate) : 'час не вказано';
+          return `${stationName} (${meetingTime})`;
+        }
+        return 'Станцію не обрано';
+        
       case 'PICKUP':
         return order.pickupDelivery ?
           `Pickup: ${order.pickupDelivery.store?.name}, Time: ${formatDate(order.pickupDelivery.pickupTime)}` :
           'Магазин не обрано';
+          
       default:
         return 'Не обрано метод доставки';
     }

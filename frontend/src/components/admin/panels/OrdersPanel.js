@@ -42,7 +42,7 @@ const [stations, setStations] = useState([]);
 
   const fetchStations = async () => {
   try {
-    const response = await apiClient.get('/api/railway-stations');
+    const response = await apiClient.get('/railway-stations');
     console.log('API response:', response); // Debug log
     setStations(response.data || []);
   } catch (err) {

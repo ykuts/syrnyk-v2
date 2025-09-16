@@ -41,14 +41,20 @@ const OrdersPanel = () => {
   }, []);
 
   const fetchStations = async () => {
-    try {
-      const response = await apiClient.get('/railway-stations');
-      console.log('API response:', response); // Debug log
-      setStations(response.data || []);
-    } catch (err) {
-      console.error('Error fetching stations:', err);
+  try {
+    const response = await apiClient.get('/api/railway-stations');
+    console.log('API response:', response);
+    
+    if (response.data && Array.isArray(response.data)) {
+      setStations(response.data);
+      console.log('Stations loaded:', response.data);
+    } else {
+      console.error('Unexpected API response structure:', response);
     }
-  };
+  } catch (err) {
+    console.error('Error fetching stations:', err);
+  }
+};
 
 
   const fetchOrders = async () => {
@@ -220,23 +226,25 @@ const OrdersPanel = () => {
   };
 
   const getStationNameById = (stationId) => {
-    console.log('Looking for station ID:', stationId, 'type:', typeof stationId);
-    console.log('Available stations:', stations);
+  console.log('Looking for station ID:', stationId, 'type:', typeof stationId);
+  console.log('Available stations:', stations);
 
-    const station = stations.find(s => {
-      console.log('Comparing:', s.id, 'with', stationId, 'equal?', s.id == stationId);
-      return s.id == stationId; // Using loose equality to handle type differences
-    });
+  
+  if (!stations.length) {
+    return 'Завантаження станцій...';
+  }
 
-    console.log('Found station:', station);
+  const station = stations.find(s => s.id == stationId);
+  console.log('Found station:', station);
+  
+  
+  if (station) {
     console.log('Found station city:', station.city);
-    if (station) {
-      console.log('Found station city:', station.city);
-      return station.city; // или station.name, если хочешь время показывать
-    }
+    return station.city;
+  }
 
-    return `Station ID: ${stationId}`;
-  };
+  return `Station ID: ${stationId}`;
+};
 
   // Helper function for delivery details
   const getDeliveryDetails = (order) => {
@@ -294,6 +302,14 @@ const OrdersPanel = () => {
   // Render single order
   const renderOrder = (order) => {
     const customerInfo = getCustomerInfo(order);
+
+    if (order.deliveryType === 'RAILWAY_STATION' && !stations.length) {
+    return (
+      <Card key={order.id} className="mb-4">
+        <Card.Body>Завантаження станцій...</Card.Body>
+      </Card>
+    );
+  }
 
     return (
       <Card key={order.id} className="mb-4">

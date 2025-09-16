@@ -23,8 +23,8 @@ const ReportsSummary = ({ summaryData, filters }) => {
   const getStatusColor = (status) => {
     switch (status) {
       case 'pending': return 'warning';
-      case 'confirmed': return 'info';
-      case 'delivered': return 'success';
+      case 'requires_agreement': return 'info';
+      case 'confirmed': return 'success';
       default: return 'primary';
     }
   };
@@ -81,6 +81,16 @@ const ReportsSummary = ({ summaryData, filters }) => {
             title="Нові замовлення"
             value={summaryData.orders.pending}
             subtitle="Очікують підтвердження"
+            icon={Clock}
+            variant="warning"
+          />
+        </Col>
+
+        <Col sm={6} lg={3}>
+          <SummaryCard
+            title="Треба домовитись"
+            value={summaryData.orders.requires_agreement}
+            subtitle="Треба домовитись"
             icon={Clock}
             variant="warning"
           />

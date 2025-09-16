@@ -67,14 +67,14 @@ const ReportsSummary = ({ summaryData, filters }) => {
     <div className="mb-4">
       {/* Main Statistics */}
       <Row className="g-3 mb-4">
-        <Col sm={6} lg={3}>
+        {/* <Col sm={6} lg={3}>
           <SummaryCard
             title="Загальна кількість замовлень"
             value={summaryData.orders.total}
             icon={ShoppingCart}
             variant="primary"
           />
-        </Col>
+        </Col> */}
         
         <Col sm={6} lg={3}>
           <SummaryCard

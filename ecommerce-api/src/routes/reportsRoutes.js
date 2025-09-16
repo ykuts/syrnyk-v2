@@ -25,15 +25,37 @@ router.get('/test', (req, res) => {
   res.json({
     message: 'Reports routes are working!',
     timestamp: new Date().toISOString(),
-    user: req.user?.email
+    user: req.user?.email,
+    available_endpoints: [
+      'GET /orders-data - Get detailed orders data for pivot analysis',
+      'GET /orders-summary - Get summarized statistics',
+      'GET /planning-data - Get planning-optimized data for future deliveries'
+    ]
   });
 });
 
-// Get orders data for pivot table
+// Get orders data for pivot table with planning support
+// Supports both historical analysis and future planning
+// Query parameters:
+// - startDate, endDate: Filter by order creation date (historical)
+// - deliveryStartDate, deliveryEndDate: Filter by delivery date (for planning)
+// - status: Order status filter
+// - deliveryType: Delivery type filter
 router.get('/orders-data', getOrdersReportData);
 
-// Get orders summary statistics
+// Get planning-specific data optimized for future deliveries
+// Query parameters:
+// - planningStartDate, planningEndDate: Planning period (defaults to next 4 weeks)
+// - deliveryType: Filter by delivery type
+router.get('/planning-data', getPlanningReportData);
+
+// Get orders summary statistics with planning insights
+// Query parameters:
+// - period: Number of days for historical analysis (default: 30)
+// - includeUnscheduled: Include orders without delivery dates
 router.get('/orders-summary', getOrdersSummary);
+
+router.get('/orders-data', getOrdersReportData);
 
 // Future endpoints for other report types
 // router.get('/products-data', getProductsReportData);

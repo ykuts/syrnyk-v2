@@ -28,6 +28,7 @@ model User {
   orders              Order[]    
   cart                Cart?      
   reviews             Review[]
+  pivotConfigurations PivotConfiguration[]
   // Data processing consent fields
   dataConsentAccepted Boolean    @default(false)
   dataConsentDate     DateTime?
@@ -424,6 +425,25 @@ model Review {
 
   @@index([userId])
   @@index([productId])
+}
+
+model PivotConfiguration {
+  id            Int      @id @default(autoincrement())
+  userId        Int
+  name          String
+  description   String?
+  configuration String   // JSON string of pivot table configuration
+  filters       String?  // JSON string of applied filters
+  isDefault     Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Relation to User
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Ensure unique configuration names per user
+  @@unique([userId, name])
+  @@map("pivot_configurations")
 }
 
 enum OrderStatus {

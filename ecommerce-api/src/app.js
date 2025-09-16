@@ -11,6 +11,7 @@ import deliveryRoutes from './routes/deliveryRoutes.js';
 import uploadRoutes from './routes/uploadRoutes.js'; 
 import sendpulseTestRoutes from './routes/sendpulseTest.js';
 import reportsRoutes from './routes/reportsRoutes.js';
+import pivotConfigRoutes from './routes/pivotConfigRoutes.js';
 import { handleMulterError } from './middleware/upload.js';
 import cors from 'cors';
 import path from 'path';
@@ -108,6 +109,8 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/cart', cartRoutes);
+app.use('/api/reports', reportsRoutes);
+app.use('/api/pivot-configs', pivotConfigRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/addresses', addressRoutes);
 app.use('/api/railway-stations', railwayStationsRouter);
@@ -131,8 +134,6 @@ app.use('/api/sendpulse', (req, res, next) => {
 });
 
 app.use('/api/sendpulse', sendpulseTestRoutes);
-
-app.use('/api/reports', reportsRoutes);
 
 app.use(handleMulterError);
 

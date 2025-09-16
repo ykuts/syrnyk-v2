@@ -1,215 +1,250 @@
 /* frontend/src/components/admin/panels/ReportsPanelComponents/PivotTable.css */
 
-/* Custom styling for pivot table to match Bootstrap theme */
+/* Base pivot table improvements */
 .pivot-container {
-  font-family: var(--bs-font-sans-serif);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-/* Pivot table UI styling */
 .pivot-container .pvtUi {
-  background: white;
-  border: none;
+  background: #fff;
+  border-radius: 0;
+  box-shadow: none;
 }
 
-/* Field list styling */
+/* Enhanced drag and drop areas */
 .pivot-container .pvtUnused {
-  background: #f8f9fa;
-  border: 1px solid #dee2e6;
-  border-radius: 0.375rem;
-  padding: 0.75rem;
-  margin: 0.5rem;
-  min-height: 200px; /* Ensure enough space to see all fields */
+  background: #f8f9fa !important;
+  border: 1px dashed #dee2e6 !important;
+  border-radius: 4px;
+  min-height: 80px;
 }
 
-.pivot-container .pvtUnused .pvtAttr {
-  display: inline-block;
-  margin: 0.25rem;
-  white-space: nowrap;
-  max-width: 180px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-/* Make field names more readable */
-.pivot-container .pvtAttr {
-  background: #0d6efd;
-  color: white;
-  border-radius: 0.25rem;
-  padding: 0.375rem 0.75rem;
-  margin: 0.25rem;
-  font-size: 0.875rem;
-  font-weight: 500;
-  cursor: move;
-  display: inline-block;
-  border: none;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.12);
-  transition: all 0.2s ease;
-}
-
-/* Different colors for different field types */
-.pivot-container .pvtAttr:nth-child(4n+1) { background: #0d6efd; } /* Blue - Order fields */
-.pivot-container .pvtAttr:nth-child(4n+2) { background: #198754; } /* Green - Customer fields */  
-.pivot-container .pvtAttr:nth-child(4n+3) { background: #fd7e14; } /* Orange - Delivery fields */
-.pivot-container .pvtAttr:nth-child(4n+4) { background: #6f42c1; } /* Purple - Product fields */
-
-/* Drag zones styling */
 .pivot-container .pvtAxisContainer {
-  background: #e3f2fd;
-  border: 2px dashed #1976d2;
-  border-radius: 0.375rem;
-  min-height: 50px;
-  padding: 0.5rem;
-  margin: 0.25rem;
-}
-
-.pivot-container .pvtVals {
-  background: #e8f5e8;
-  border: 2px dashed #388e3c;
+  background: #e9ecef !important;
+  border: 1px solid #dee2e6 !important;
+  border-radius: 4px;
+  min-height: 60px;
+  padding: 8px;
 }
 
 .pivot-container .pvtRows {
-  background: #fff3e0;
-  border: 2px dashed #f57c00;
+  background: #fff3cd !important;
+  border-color: #ffeaa7 !important;
 }
 
 .pivot-container .pvtCols {
-  background: #f3e5f5;
-  border: 2px dashed #7b1fa2;
+  background: #d1ecf1 !important;
+  border-color: #b8daff !important;
 }
 
-/* Field tags styling */
+.pivot-container .pvtVals {
+  background: #d4edda !important;
+  border-color: #c3e6cb !important;
+}
+
+/* Draggable field styling */
 .pivot-container .pvtAttr {
-  background: #0d6efd;
-  color: white;
-  border-radius: 0.25rem;
-  padding: 0.25rem 0.5rem;
-  margin: 0.125rem;
-  font-size: 0.875rem;
+  background: #fff !important;
+  border: 1px solid #dee2e6 !important;
+  border-radius: 20px !important;
+  padding: 4px 12px !important;
+  margin: 2px !important;
   cursor: move;
-  display: inline-block;
-  border: none;
+  font-size: 13px;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
 }
 
 .pivot-container .pvtAttr:hover {
-  background: #0b5ed7;
+  background: #f8f9fa !important;
   transform: translateY(-1px);
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
 }
 
-/* Dropdown styling */
-.pivot-container select {
-  border: 1px solid #ced4da;
-  border-radius: 0.375rem;
-  padding: 0.375rem 0.75rem;
-  font-size: 1rem;
-  background: white;
-  margin: 0.25rem;
+/* Planning-specific field styling */
+.pivot-container .pvtAttr[data-planning="true"] {
+  background: linear-gradient(135deg, #28a745, #20c997) !important;
+  color: white !important;
+  border-color: #1e7e34 !important;
 }
 
-.pivot-container select:focus {
-  border-color: #86b7fe;
-  outline: 0;
-  box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+.pivot-container .pvtAttr[data-planning="true"]:hover {
+  background: linear-gradient(135deg, #1e7e34, #17a2b8) !important;
 }
 
-/* Table styling */
+/* Future delivery indicators */
+.pivot-container .future-delivery {
+  background: rgba(40, 167, 69, 0.1) !important;
+  border-left: 4px solid #28a745 !important;
+}
+
+.pivot-container .historical-delivery {
+  background: rgba(108, 117, 125, 0.1) !important;
+  border-left: 4px solid #6c757d !important;
+}
+
+/* Enhanced table styling */
 .pivot-container table.pvtTable {
-  border-collapse: collapse;
-  font-size: 0.875rem;
+  border-collapse: separate !important;
+  border-spacing: 0 !important;
+  border-radius: 8px !important;
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
 }
 
-.pivot-container table.pvtTable td,
-.pivot-container table.pvtTable th {
-  border: 1px solid #dee2e6;
-  padding: 0.5rem;
-  text-align: center;
-}
-
-.pivot-container table.pvtTable th {
-  background: #f8f9fa;
+.pivot-container table.pvtTable thead th {
+  background: linear-gradient(135deg, #0d6efd, #6610f2) !important;
+  color: white !important;
   font-weight: 600;
+  padding: 12px 8px !important;
+  border: none !important;
+  text-align: center;
+  font-size: 13px;
 }
 
-.pivot-container table.pvtTable .pvtRowLabel,
-.pivot-container table.pvtTable .pvtColLabel {
-  background: #f8f9fa;
-  font-weight: 500;
+.pivot-container table.pvtTable tbody tr:nth-child(even) {
+  background: #f8f9fa !important;
 }
 
-.pivot-container table.pvtTable .pvtVal {
-  background: white;
-  text-align: right;
-  font-weight: 500;
+.pivot-container table.pvtTable tbody tr:hover {
+  background: #e3f2fd !important;
+  cursor: pointer;
 }
 
-.pivot-container table.pvtTable .pvtGrandTotal {
-  background: #e3f2fd;
-  font-weight: 700;
+.pivot-container table.pvtTable tbody th {
+  background: #e9ecef !important;
+  font-weight: 600;
+  padding: 8px !important;
+  border-right: 1px solid #dee2e6 !important;
 }
 
-/* Responsive adjustments */
+.pivot-container table.pvtTable tbody td {
+  padding: 8px !important;
+  text-align: center;
+  border: 1px solid #f1f3f5 !important;
+}
+
+/* Special styling for planning values */
+.pivot-container .planning-value {
+  background: rgba(40, 167, 69, 0.1) !important;
+  color: #155724 !important;
+  font-weight: 600;
+  border-radius: 4px;
+  padding: 2px 6px !important;
+}
+
+.pivot-container .historical-value {
+  background: rgba(108, 117, 125, 0.1) !important;
+  color: #495057 !important;
+}
+
+/* Loading and empty states */
+.pivot-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 300px;
+  flex-direction: column;
+  color: #6c757d;
+}
+
+.pivot-loading .spinner-border {
+  margin-bottom: 16px;
+}
+
+/* Responsive design */
 @media (max-width: 768px) {
-  .pivot-container {
-    font-size: 0.8rem;
+  .pivot-container .pvtUi {
+    font-size: 12px;
   }
   
   .pivot-container .pvtAttr {
-    font-size: 0.75rem;
-    padding: 0.125rem 0.25rem;
+    font-size: 11px !important;
+    padding: 2px 8px !important;
   }
   
-  .pivot-container table.pvtTable td,
-  .pivot-container table.pvtTable th {
-    padding: 0.25rem;
-    font-size: 0.75rem;
+  .pivot-container table.pvtTable {
+    font-size: 11px;
+  }
+  
+  .pivot-container .pvtAxisContainer {
+    min-height: 50px;
+    padding: 6px;
   }
 }
 
-/* Loading state */
-.pivot-loading {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 300px;
-  color: #6c757d;
+/* Configuration buttons styling */
+.config-button-grid .btn {
+  text-align: left !important;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  height: auto;
+  padding: 8px 12px;
 }
 
-/* Custom aggregator labels in Ukrainian */
-.pivot-container .pvtAggregator option[value="Count"] {
-  /* This doesn't work, but shows intention */
+.config-button-grid .btn small {
+  display: block;
+  font-weight: normal;
+  opacity: 0.8;
 }
 
-/* Plotly chart container */
-.pivot-container .plotly-graph-div {
-  margin: 1rem 0;
+.config-button-grid .btn:hover small {
+  opacity: 1;
 }
 
-/* Drag and drop feedback */
-.pivot-container .pvtDropZone {
-  min-height: 40px;
-  border: 2px dashed #ccc;
-  border-radius: 0.375rem;
-  background: #f8f9fa;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #6c757d;
-  font-style: italic;
-  transition: all 0.2s ease;
+/* Planning mode indicators */
+.planning-mode-active {
+  border-left: 4px solid #28a745 !important;
 }
 
-.pivot-container .pvtDropZone.pvtDropTarget {
-  border-color: #0d6efd;
-  background: #e3f2fd;
-  color: #0d6efd;
+.planning-mode-active .card-header {
+  background: linear-gradient(135deg, #28a745, #20c997) !important;
 }
 
-/* Spin animation for refresh button */
-@keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+/* Animation for mode switching */
+.pivot-container {
+  transition: all 0.3s ease;
 }
 
-.spin {
-  animation: spin 1s linear infinite;
+.planning-transition {
+  animation: planningModeActivate 0.5s ease-in-out;
+}
+
+@keyframes planningModeActivate {
+  0% { opacity: 0.8; transform: scale(0.98); }
+  50% { opacity: 0.9; transform: scale(1.01); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+/* Custom scrollbars for better UX */
+.pivot-container::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.pivot-container::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.pivot-container::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 4px;
+}
+
+.pivot-container::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+/* Enhanced dropdown menus */
+.pivot-container .pvtDropdown {
+  background: white !important;
+  border: 1px solid #dee2e6 !important;
+  border-radius: 4px !important;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1) !important;
+}
+
+.pivot-container .pvtDropdown option:hover {
+  background: #f8f9fa !important;
 }

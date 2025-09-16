@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Container, 
-  Card, 
-  Badge, 
-  Spinner, 
+import {
+  Container,
+  Card,
+  Badge,
+  Spinner,
   Alert,
   Button,
   Form,
@@ -25,10 +25,10 @@ const OrdersPanel = () => {
   const [sortBy, setSortBy] = useState('date_desc');
   const [adminNotes, setAdminNotes] = useState({});
   const [showNotificationModal, setShowNotificationModal] = useState(false);
-const [currentOrderId, setCurrentOrderId] = useState(null);
-const [notificationMessage, setNotificationMessage] = useState('');
-const [sendingNotification, setSendingNotification] = useState(false);
-const [stations, setStations] = useState([]);
+  const [currentOrderId, setCurrentOrderId] = useState(null);
+  const [notificationMessage, setNotificationMessage] = useState('');
+  const [sendingNotification, setSendingNotification] = useState(false);
+  const [stations, setStations] = useState([]);
 
   // Auth headers for all requests
   const getAuthHeaders = () => ({
@@ -41,15 +41,15 @@ const [stations, setStations] = useState([]);
   }, []);
 
   const fetchStations = async () => {
-  try {
-    const response = await apiClient.get('/railway-stations');
-    console.log('API response:', response); // Debug log
-    setStations(response.data || []);
-  } catch (err) {
-    console.error('Error fetching stations:', err);
-  }
-};
-  
+    try {
+      const response = await apiClient.get('/railway-stations');
+      console.log('API response:', response); // Debug log
+      setStations(response.data || []);
+    } catch (err) {
+      console.error('Error fetching stations:', err);
+    }
+  };
+
 
   const fetchOrders = async () => {
     setLoading(true);
@@ -77,12 +77,12 @@ const [stations, setStations] = useState([]);
     try {
       await apiClient.post(
         `/orders/${currentOrderId}/notify-changes`,
-        { 
-          message: notificationMessage 
+        {
+          message: notificationMessage
         },
         getAuthHeaders()
       );
-      
+
       // Обновляем заказ в состоянии
       const updatedOrders = orders.map(order => {
         if (order.id === currentOrderId) {
@@ -91,7 +91,7 @@ const [stations, setStations] = useState([]);
         return order;
       });
       setOrders(updatedOrders);
-      
+
       setShowNotificationModal(false);
       setNotificationMessage('');
     } catch (error) {
@@ -102,8 +102,8 @@ const [stations, setStations] = useState([]);
   };
 
 
-   // Handle admin notes change
-   const handleAdminNotesChange = (orderId, value) => {
+  // Handle admin notes change
+  const handleAdminNotesChange = (orderId, value) => {
     setAdminNotes(prev => ({
       ...prev,
       [orderId]: value
@@ -118,13 +118,13 @@ const [stations, setStations] = useState([]);
         { notesAdmin: adminNotes[orderId] },
         getAuthHeaders()
       );
-      
-      setOrders(orders.map(order => 
-        order.id === orderId 
-          ? { ...order, notesAdmin: adminNotes[orderId] } 
+
+      setOrders(orders.map(order =>
+        order.id === orderId
+          ? { ...order, notesAdmin: adminNotes[orderId] }
           : order
       ));
-      
+
       setError(null);
     } catch (err) {
       setError('Failed to save admin notes');
@@ -143,7 +143,7 @@ const [stations, setStations] = useState([]);
         isGuest: false
       };
     }
-    
+
     if (order.guestInfo) {
       return {
         name: `${order.guestInfo.firstName} ${order.guestInfo.lastName}`,
@@ -165,13 +165,14 @@ const [stations, setStations] = useState([]);
     try {
 
       await apiClient.patch(
-        `/orders/${orderId}/status`, 
-        { status: newStatus
-         },
+        `/orders/${orderId}/status`,
+        {
+          status: newStatus
+        },
         getAuthHeaders()
       );
 
-      setOrders(orders.map(order => 
+      setOrders(orders.map(order =>
         order.id === orderId ? { ...order, status: newStatus } : order
       ));
     } catch (err) {
@@ -187,7 +188,7 @@ const [stations, setStations] = useState([]);
         { paymentStatus: newStatus },
         getAuthHeaders()
       );
-      setOrders(orders.map(order => 
+      setOrders(orders.map(order =>
         order.id === orderId ? { ...order, paymentStatus: newStatus } : order
       ));
     } catch (err) {
@@ -219,40 +220,50 @@ const [stations, setStations] = useState([]);
   };
 
   const getStationNameById = (stationId) => {
-  console.log('Looking for station ID:', stationId, 'type:', typeof stationId);
-  console.log('Available stations:', stations);
-  
-  const station = stations.find(s => {
-    console.log('Comparing:', s.id, 'with', stationId, 'equal?', s.id == stationId);
-    return s.id == stationId; // Using loose equality to handle type differences
-  });
+    console.log('Looking for station ID:', stationId, 'type:', typeof stationId);
+    console.log('Available stations:', stations);
 
-  console.log('Found station:', station);
-  console.log('Found station city:', station.city);
-  return station ? station.city : `Station ID: ${stationId}`;
-};
+    const station = stations.find(s => {
+      console.log('Comparing:', s.id, 'with', stationId, 'equal?', s.id == stationId);
+      return s.id == stationId; // Using loose equality to handle type differences
+    });
 
-   // Helper function for delivery details
+    console.log('Found station:', station);
+    console.log('Found station city:', station.city);
+    if (station) {
+      console.log('Found station city:', station.city);
+      return station.city; // или station.name, если хочешь время показывать
+    }
+
+    return `Station ID: ${stationId}`;
+  };
+
+  // Helper function for delivery details
   const getDeliveryDetails = (order) => {
     switch (order.deliveryType) {
       case 'ADDRESS':
-        return order.addressDelivery ? 
+        return order.addressDelivery ?
           `${order.addressDelivery.city}, ${order.addressDelivery.street} ${order.addressDelivery.house}` :
           'Адресу не зазначено';
-          
+
       case 'RAILWAY_STATION':
         if (order.deliveryStationId) {
           const stationName = getStationNameById(order.deliveryStationId);
           const meetingTime = order.deliveryDate ? formatDate(order.deliveryDate) : 'час не вказано';
+
+          if (stationName.startsWith('Station ID:')) {
+            return `Невідома станція (ID: ${order.deliveryStationId}) - ${meetingTime}`;
+          }
+
           return `${stationName} (${meetingTime})`;
         }
         return 'Станцію не обрано';
-        
+
       case 'PICKUP':
         return order.pickupDelivery ?
           `Pickup: ${order.pickupDelivery.store?.name}, Time: ${formatDate(order.pickupDelivery.pickupTime)}` :
           'Магазин не обрано';
-          
+
       default:
         return 'Не обрано метод доставки';
     }
@@ -280,262 +291,262 @@ const [stations, setStations] = useState([]);
       }
     });
 
- // Render single order
- const renderOrder = (order) => {
-  const customerInfo = getCustomerInfo(order);
+  // Render single order
+  const renderOrder = (order) => {
+    const customerInfo = getCustomerInfo(order);
 
-  return (
-    <Card key={order.id} className="mb-4">
-      <Card.Body>
-        <Row>
-          <Col md={8}>
-            <div className="d-flex justify-content-between align-items-center mb-3">
-              <h5>
-                Замовлення #{order.id}
-                {customerInfo.isGuest && (
-                  <Badge bg="info" className="ms-2">Гостьове замовлення</Badge>
-                )}
-              </h5>
-              <Badge bg={getStatusVariant(order.status)}>
-                {order.status}
-              </Badge>
-            </div>
-            
-            <p><strong>Дата:</strong> {formatDate(order.createdAt)}</p>
-            <p><strong>Користувач:</strong> {customerInfo.name}</p>
-            <p><strong>Email:</strong> {customerInfo.email}</p>
-            <p><strong>Телефон:</strong> {customerInfo.phone}</p>
-            <p><strong>Усього:</strong> ${Number(order.totalAmount).toFixed(2)}</p>
-            <p><strong>Доставка:</strong> {getDeliveryDetails(order)}</p>
-  
-
-            <Form.Group className="mb-3">
-              <Form.Label><strong>Коментар адміністратора:</strong></Form.Label>
-              <Form.Control
-                as="textarea"
-                rows={3}
-                value={adminNotes[order.id] || ''}
-                onChange={(e) => handleAdminNotesChange(order.id, e.target.value)}
-                placeholder="Додати коментар адміністратора..."
-              />
-              <div className="mt-2">
-                <Button
-                  variant="outline-primary"
-                  size="sm"
-                  onClick={() => saveAdminNotes(order.id)}
-                >
-                  Зберегти коментар
-                </Button>
+    return (
+      <Card key={order.id} className="mb-4">
+        <Card.Body>
+          <Row>
+            <Col md={8}>
+              <div className="d-flex justify-content-between align-items-center mb-3">
+                <h5>
+                  Замовлення #{order.id}
+                  {customerInfo.isGuest && (
+                    <Badge bg="info" className="ms-2">Гостьове замовлення</Badge>
+                  )}
+                </h5>
+                <Badge bg={getStatusVariant(order.status)}>
+                  {order.status}
+                </Badge>
               </div>
-            </Form.Group>
-          </Col>
 
-          <Col md={4}>
-            <Form.Group className="mb-3">
-              <Form.Label>Статус замовлення</Form.Label>
-              <Form.Select 
-                value={order.status}
-                onChange={(e) => handleStatusChange(order.id, e.target.value)}
+              <p><strong>Дата:</strong> {formatDate(order.createdAt)}</p>
+              <p><strong>Користувач:</strong> {customerInfo.name}</p>
+              <p><strong>Email:</strong> {customerInfo.email}</p>
+              <p><strong>Телефон:</strong> {customerInfo.phone}</p>
+              <p><strong>Усього:</strong> ${Number(order.totalAmount).toFixed(2)}</p>
+              <p><strong>Доставка:</strong> {getDeliveryDetails(order)}</p>
+
+
+              <Form.Group className="mb-3">
+                <Form.Label><strong>Коментар адміністратора:</strong></Form.Label>
+                <Form.Control
+                  as="textarea"
+                  rows={3}
+                  value={adminNotes[order.id] || ''}
+                  onChange={(e) => handleAdminNotesChange(order.id, e.target.value)}
+                  placeholder="Додати коментар адміністратора..."
+                />
+                <div className="mt-2">
+                  <Button
+                    variant="outline-primary"
+                    size="sm"
+                    onClick={() => saveAdminNotes(order.id)}
+                  >
+                    Зберегти коментар
+                  </Button>
+                </div>
+              </Form.Group>
+            </Col>
+
+            <Col md={4}>
+              <Form.Group className="mb-3">
+                <Form.Label>Статус замовлення</Form.Label>
+                <Form.Select
+                  value={order.status}
+                  onChange={(e) => handleStatusChange(order.id, e.target.value)}
+                >
+                  <option value="PENDING">Нове</option>
+                  <option value="CONFIRMED">Підтверджено</option>
+                  <option value="DELIVERED">Доставлено</option>
+                  <option value="CANCELLED">Відмінено</option>
+                </Form.Select>
+              </Form.Group>
+
+              <Form.Group className="mb-3">
+                <Form.Label>Статус оплати</Form.Label>
+                <Form.Select
+                  value={order.paymentStatus}
+                  onChange={(e) => handlePaymentStatusChange(order.id, e.target.value)}
+                >
+                  <option value="PENDING">Нове</option>
+                  <option value="PAID">Сплачено</option>
+                  <option value="REFUNDED">Повернення</option>
+                </Form.Select>
+              </Form.Group>
+
+              <Button
+                variant="outline-primary"
+                onClick={() => setExpandedOrder(expandedOrder === order.id ? null : order.id)}
+                className="w-100"
               >
-                <option value="PENDING">Нове</option>
-                <option value="CONFIRMED">Підтверджено</option>
-                <option value="DELIVERED">Доставлено</option>
-                <option value="CANCELLED">Відмінено</option>
-              </Form.Select>
-            </Form.Group>
+                {expandedOrder === order.id ? 'Приховати деталі' : 'Показати деталі'}
+              </Button>
+            </Col>
+          </Row>
 
-            <Form.Group className="mb-3">
-              <Form.Label>Статус оплати</Form.Label>
-              <Form.Select 
-                value={order.paymentStatus}
-                onChange={(e) => handlePaymentStatusChange(order.id, e.target.value)}
-              >
-                <option value="PENDING">Нове</option>
-                <option value="PAID">Сплачено</option>
-                <option value="REFUNDED">Повернення</option>
-              </Form.Select>
-            </Form.Group>
+          {expandedOrder === order.id && (
+            <div className="mt-4">
+              <Row>
+                <Col>
+                  <h6>Позиції у замовленні:</h6>
+                  <OrderItemsEditor
+                    order={order}
+                    onOrderUpdate={(updatedOrder) => {
+                      setOrders(orders.map(o =>
+                        o.id === updatedOrder.id ? updatedOrder : o
+                      ));
+                    }}
+                    getAuthHeaders={getAuthHeaders}
+                    onOrderChange={() => {
+                      setCurrentOrderId(order.id);
+                    }}
+                  />
 
-            <Button
-              variant="outline-primary"
-              onClick={() => setExpandedOrder(expandedOrder === order.id ? null : order.id)}
-              className="w-100"
-            >
-              {expandedOrder === order.id ? 'Приховати деталі' : 'Показати деталі'}
-            </Button>
-          </Col>
-        </Row>
+                  {order.changes && order.changes.length > 0 && (
+                    <div className="mt-4">
+                      <h6>Історія змін:</h6>
+                      <ListGroup variant="flush">
+                        {order.changes.map((change, index) => (
+                          <ListGroup.Item key={index} className="small text-muted">
+                            {change}
+                          </ListGroup.Item>
+                        ))}
+                      </ListGroup>
+                    </div>
+                  )}
 
-        {expandedOrder === order.id && (
-  <div className="mt-4">
-    <Row>
-      <Col>
-        <h6>Позиції у замовленні:</h6>
-        <OrderItemsEditor
-          order={order}
-          onOrderUpdate={(updatedOrder) => {
-            setOrders(orders.map(o => 
-              o.id === updatedOrder.id ? updatedOrder : o
-            ));
-          }}
-          getAuthHeaders={getAuthHeaders}
-          onOrderChange={() => {
-            setCurrentOrderId(order.id);
-          }}
-        />
 
-        {order.changes && order.changes.length > 0 && (
-          <div className="mt-4">
-            <h6>Історія змін:</h6>
-            <ListGroup variant="flush">
-              {order.changes.map((change, index) => (
-                <ListGroup.Item key={index} className="small text-muted">
-                  {change}
-                </ListGroup.Item>
-              ))}
-            </ListGroup>
-          </div>
-        )}
+                </Col>
+              </Row>
+            </div>
+          )}
+        </Card.Body>
+      </Card>
+    );
+  };
 
-        
-      </Col>
-    </Row>
-          </div>
-        )}
-      </Card.Body>
-    </Card>
-  );
-};
+  if (loading && !orders.length) {
+    return (
+      <Container className="d-flex justify-content-center align-items-center" style={{ minHeight: '200px' }}>
+        <Spinner animation="border" role="status">
+          <span className="visually-hidden">Завантаження...</span>
+        </Spinner>
+      </Container>
+    );
+  }
 
-if (loading && !orders.length) {
   return (
-    <Container className="d-flex justify-content-center align-items-center" style={{ minHeight: '200px' }}>
-      <Spinner animation="border" role="status">
-        <span className="visually-hidden">Завантаження...</span>
-      </Spinner>
+    <Container fluid className="py-4">
+      {error && (
+        <Alert variant="danger" onClose={() => setError(null)} dismissible>
+          {error}
+        </Alert>
+      )}
+
+      <h1 className="mb-4">Замовлення</h1>
+
+      {/* Filters section */}
+      <Row className="mb-4">
+        <Col md={3}>
+          <Form.Group>
+            <Form.Label>Статус замовлення</Form.Label>
+            <Form.Select
+              value={filterStatus}
+              onChange={(e) => setFilterStatus(e.target.value)}
+            >
+              <option value="ALL">Усі статуси</option>
+              <option value="PENDING">Нове</option>
+              <option value="CONFIRMED">Підтверджено</option>
+              <option value="DELIVERED">Доставлено</option>
+              <option value="CANCELLED">Відмінено</option>
+            </Form.Select>
+          </Form.Group>
+        </Col>
+
+        <Col md={3}>
+          <Form.Group>
+            <Form.Label>Статус оплати</Form.Label>
+            <Form.Select
+              value={filterPaymentStatus}
+              onChange={(e) => setFilterPaymentStatus(e.target.value)}
+            >
+              <option value="ALL">Усі статуси</option>
+              <option value="PENDING">Нові</option>
+              <option value="PAID">Оплачені</option>
+              <option value="REFUNDED">Повернення</option>
+            </Form.Select>
+          </Form.Group>
+        </Col>
+
+        <Col md={3}>
+          <Form.Group>
+            <Form.Label>Відсотровано за</Form.Label>
+            <Form.Select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+            >
+              <option value="date_desc">Нові спочатку</option>
+              <option value="date_asc">Старі спочатку</option>
+              <option value="amount_desc">Найбільша вартість</option>
+              <option value="amount_asc">Найменша вартість</option>
+            </Form.Select>
+          </Form.Group>
+        </Col>
+      </Row>
+
+      <div className="mb-3">
+        <p className="text-muted">
+          {filteredOrders.length === orders.length
+            ? `Загальна кількість замовлень: ${orders.length}`
+            : `Показано ${filteredOrders.length} з ${orders.length} замовлень`
+          }
+        </p>
+      </div>
+
+      {/* Orders list */}
+      {filteredOrders.map(renderOrder)}
+
+      {/* Notification Modal */}
+      <Modal
+        show={showNotificationModal}
+        onHide={() => {
+          setShowNotificationModal(false);
+          setNotificationMessage('');
+        }}
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>Відправити повідомлення клієнту</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form.Group>
+            <Form.Label>Текст повідомлення</Form.Label>
+            <Form.Control
+              as="textarea"
+              rows={3}
+              value={notificationMessage}
+              onChange={(e) => setNotificationMessage(e.target.value)}
+              placeholder="Опишіть зміни в замовленні або інформацію для клієнта..."
+            />
+            <Form.Text className="text-muted">
+              Клієнт отримає цей текст разом з оновленими деталями замовлення
+            </Form.Text>
+          </Form.Group>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button
+            variant="secondary"
+            onClick={() => {
+              setShowNotificationModal(false);
+              setNotificationMessage('');
+            }}
+          >
+            Скасувати
+          </Button>
+          <Button
+            variant="primary"
+            onClick={handleSendNotification}
+            disabled={sendingNotification || !notificationMessage.trim()}
+          >
+            {sendingNotification ? 'Відправка...' : 'Відправити'}
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
     </Container>
   );
-}
-
-return (
-  <Container fluid className="py-4">
-    {error && (
-      <Alert variant="danger" onClose={() => setError(null)} dismissible>
-        {error}
-      </Alert>
-    )}
-    
-    <h1 className="mb-4">Замовлення</h1>
-    
-    {/* Filters section */}
-    <Row className="mb-4">
-      <Col md={3}>
-        <Form.Group>
-          <Form.Label>Статус замовлення</Form.Label>
-          <Form.Select 
-            value={filterStatus}
-            onChange={(e) => setFilterStatus(e.target.value)}
-          >
-            <option value="ALL">Усі статуси</option>
-            <option value="PENDING">Нове</option>
-            <option value="CONFIRMED">Підтверджено</option>
-            <option value="DELIVERED">Доставлено</option>
-            <option value="CANCELLED">Відмінено</option>
-          </Form.Select>
-        </Form.Group>
-      </Col>
-      
-      <Col md={3}>
-        <Form.Group>
-          <Form.Label>Статус оплати</Form.Label>
-          <Form.Select
-            value={filterPaymentStatus}
-            onChange={(e) => setFilterPaymentStatus(e.target.value)}
-          >
-            <option value="ALL">Усі статуси</option>
-            <option value="PENDING">Нові</option>
-            <option value="PAID">Оплачені</option>
-            <option value="REFUNDED">Повернення</option>
-          </Form.Select>
-        </Form.Group>
-      </Col>
-      
-      <Col md={3}>
-        <Form.Group>
-          <Form.Label>Відсотровано за</Form.Label>
-          <Form.Select
-            value={sortBy}
-            onChange={(e) => setSortBy(e.target.value)}
-          >
-            <option value="date_desc">Нові спочатку</option>
-            <option value="date_asc">Старі спочатку</option>
-            <option value="amount_desc">Найбільша вартість</option>
-            <option value="amount_asc">Найменша вартість</option>
-          </Form.Select>
-        </Form.Group>
-      </Col>
-    </Row>
-
-    <div className="mb-3">
-      <p className="text-muted">
-        {filteredOrders.length === orders.length 
-          ? `Загальна кількість замовлень: ${orders.length}`
-          : `Показано ${filteredOrders.length} з ${orders.length} замовлень`
-        }
-      </p>
-    </div>
-
-    {/* Orders list */}
-    {filteredOrders.map(renderOrder)}
-
-{/* Notification Modal */}
-<Modal 
-      show={showNotificationModal} 
-      onHide={() => {
-        setShowNotificationModal(false);
-        setNotificationMessage('');
-      }}
-    >
-      <Modal.Header closeButton>
-        <Modal.Title>Відправити повідомлення клієнту</Modal.Title>
-      </Modal.Header>
-      <Modal.Body>
-        <Form.Group>
-          <Form.Label>Текст повідомлення</Form.Label>
-          <Form.Control
-            as="textarea"
-            rows={3}
-            value={notificationMessage}
-            onChange={(e) => setNotificationMessage(e.target.value)}
-            placeholder="Опишіть зміни в замовленні або інформацію для клієнта..."
-          />
-          <Form.Text className="text-muted">
-            Клієнт отримає цей текст разом з оновленими деталями замовлення
-          </Form.Text>
-        </Form.Group>
-      </Modal.Body>
-      <Modal.Footer>
-        <Button 
-          variant="secondary" 
-          onClick={() => {
-            setShowNotificationModal(false);
-            setNotificationMessage('');
-          }}
-        >
-          Скасувати
-        </Button>
-        <Button 
-          variant="primary" 
-          onClick={handleSendNotification}
-          disabled={sendingNotification || !notificationMessage.trim()}
-        >
-          {sendingNotification ? 'Відправка...' : 'Відправити'}
-        </Button>
-      </Modal.Footer>
-    </Modal>
-
-  </Container>
-);
 };
 
 export default OrdersPanel;

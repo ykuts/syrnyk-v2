@@ -278,7 +278,7 @@ const PivotTableContainer = ({ data, filters }) => {
 
   const deleteConfiguration = async (configId, configName) => {
     try {
-      if (!confirm(`Ви впевнені, що хочете видалити конфігурацію "${configName}"?`)) {
+      if (!window.confirm(`Ви впевнені, що хочете видалити конфігурацію "${configName}"?`)) {
         return;
       }
 

@@ -2,7 +2,8 @@
 import express from 'express';
 import {
   getOrdersReportData,
-  getOrdersSummary
+  getOrdersSummary,
+  getPlanningReportData
 } from '../controllers/reportsController.js';
 
 import { protect, isAdmin } from '../middleware/authMiddleware.js';
@@ -54,8 +55,6 @@ router.get('/planning-data', getPlanningReportData);
 // - period: Number of days for historical analysis (default: 30)
 // - includeUnscheduled: Include orders without delivery dates
 router.get('/orders-summary', getOrdersSummary);
-
-router.get('/orders-data', getOrdersReportData);
 
 // Future endpoints for other report types
 // router.get('/products-data', getProductsReportData);

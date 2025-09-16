@@ -251,11 +251,21 @@ export const deletePivotConfiguration = async (req, res) => {
 // Get default configuration for user
 export const getDefaultConfiguration = async (req, res) => {
   try {
-    console.log('📊 Getting default configuration for user:', req.user.id);
+    // Debug logging to understand the req.user structure
+    console.log('📊 Getting default configuration for user...');
+    console.log('📊 req.user structure:', {
+      id: req.user?.id,
+      userId: req.user?.userId,
+      email: req.user?.email,
+      role: req.user?.role
+    });
+    
+    const userId = req.user.id || req.user.userId; // Support both for now
+    console.log('📊 Using userId:', userId);
     
     const defaultConfig = await prisma.pivotConfiguration.findFirst({
       where: {
-        userId: req.user.id,
+        userId: userId,
         isDefault: true
       }
     });

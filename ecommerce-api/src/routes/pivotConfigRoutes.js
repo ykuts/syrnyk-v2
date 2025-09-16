@@ -12,22 +12,28 @@ import { protect, isAdmin } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
-// Add middleware for logging
+// Apply authentication middleware first
+router.use(protect, isAdmin);
+
+// Add logging middleware AFTER authentication (so we have access to req.user)
 router.use((req, res, next) => {
   console.log(`📊 PIVOT CONFIG ROUTE: ${req.method} ${req.originalUrl}`);
-  console.log('User:', req.user?.email || 'Not authenticated');
+  console.log('User:', req.user?.email || req.user?.id || 'Unknown');
+  console.log('User ID:', req.user?.id);
+  console.log('User Role:', req.user?.role);
   next();
 });
-
-// All routes require admin access (only admins can save pivot configurations)
-router.use(protect, isAdmin);
 
 // Test route
 router.get('/test', (req, res) => {
   res.json({
     message: 'Pivot configuration routes are working!',
     timestamp: new Date().toISOString(),
-    user: req.user?.email
+    user: {
+      id: req.user?.id,
+      email: req.user?.email,
+      role: req.user?.role
+    }
   });
 });
 

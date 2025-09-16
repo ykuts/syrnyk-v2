@@ -97,25 +97,84 @@ const PivotTableContainer = ({ data, filters }) => {
   const hasFutureDeliveries = data.some(row => row.is_future_delivery === true);
   const hasHistoricalData = data.some(row => row.is_future_delivery === false);
 
-  // Default pivot configuration - adapt based on data type
+   // Default pivot configuration - adapt based on data type
   const [pivotState, setPivotState] = useState({
-    data: translatedData,
+    data: [],
     aggregatorName: 'Sum',
     vals: ['Кількість'],
     rows: ['Назва продукту'],
-    cols: hasFutureDeliveries ? ['Дата доставки'] : ['Дата замовлення'],
+    cols: [], // Начинаем с пустых колонок!
     rendererName: 'Table',
     unusedOrientationCutoff: 85
   });
 
-  // Update pivot state when data changes
+  // Флаг для отслеживания первоначальной загрузки
+  const [isInitialized, setIsInitialized] = useState(false);
+
+  // Update pivot state when data changes - ТОЛЬКО ОДИН РАЗ при инициализации
   useEffect(() => {
+    if (translatedData.length > 0 && !isInitialized) {
+      setPivotState(prev => ({
+        ...prev,
+        data: translatedData,
+        // Устанавливаем дату только при первой загрузке
+        cols: hasFutureDeliveries ? ['Дата доставки'] : ['Дата замовлення']
+      }));
+      setIsInitialized(true);
+    } else if (translatedData.length > 0 && isInitialized) {
+      // При последующих обновлениях данных - обновляем только данные, НЕ колонки
+      setPivotState(prev => ({
+        ...prev,
+        data: translatedData
+      }));
+    }
+  }, [translatedData, hasFutureDeliveries, isInitialized]);
+
+  // Улучшенный обработчик изменений pivot table
+  const handlePivotChange = (newState) => {
+    console.log('🔄 Pivot state changing:', {
+      oldCols: pivotState.cols,
+      newCols: newState.cols,
+      oldRows: pivotState.rows,
+      newRows: newState.rows
+    });
+    
+    // Полностью принимаем новое состояние от пользователя
+    setPivotState({
+      ...newState,
+      data: translatedData // Всегда используем актуальные данные
+    });
+  };
+
+  // Функция для очистки колонок
+  const clearColumns = () => {
     setPivotState(prev => ({
       ...prev,
-      data: translatedData,
-      cols: hasFutureDeliveries ? ['Дата доставки'] : ['Дата замовлення']
+      cols: []
     }));
-  }, [translatedData, hasFutureDeliveries]);
+  };
+
+  // Функция для очистки строк
+  const clearRows = () => {
+    setPivotState(prev => ({
+      ...prev,
+      rows: []
+    }));
+  };
+
+  // Обновленная функция сброса
+  const resetToDefault = () => {
+    setPivotState({
+      data: translatedData,
+      aggregatorName: 'Sum',
+      vals: ['Кількість'],
+      rows: ['Назва продукту'],
+      cols: [], // Начинаем с пустых колонок!
+      rendererName: 'Table',
+      unusedOrientationCutoff: 85
+    });
+    setIsInitialized(false); // Позволяем повторную инициализацию
+  };
 
   // Load saved configurations on component mount
   useEffect(() => {
@@ -357,17 +416,7 @@ const PivotTableContainer = ({ data, filters }) => {
     }
   };
 
-  const resetToDefault = () => {
-    setPivotState({
-      data: translatedData,
-      aggregatorName: 'Sum',
-      vals: ['Кількість'],
-      rows: ['Назва продукту'],
-      cols: hasFutureDeliveries ? ['Дата доставки'] : ['Дата замовлення'],
-      rendererName: 'Table',
-      unusedOrientationCutoff: 85
-    });
-  };
+  
 
   // Export function
   const exportToCSV = () => {
@@ -414,11 +463,7 @@ const PivotTableContainer = ({ data, filters }) => {
     }
   };
 
-  // Enhanced pivot state change handler
-  const handlePivotChange = (newState) => {
-    console.log('Pivot state changing:', newState);
-    setPivotState(newState);
-  };
+  
 
   const pivotKey = React.useMemo(() => {
     return `pivot-${data.length}-${JSON.stringify(filters)}`;
@@ -431,12 +476,43 @@ const PivotTableContainer = ({ data, filters }) => {
     <>
       <Card className="mt-4">
         <Card.Header className="bg-primary text-white">
+          <div>
+          <h5 className="mb-0">Pivot таблиця аналітики</h5>
+        </div>
+
           <Row className="align-items-center">
             <Col>
               <h5 className="mb-0">
                 <BarChart3 className="me-2" size={20} />
                 Аналітична таблиця {hasFutureDeliveries ? '(Включає планування)' : '(Історичні дані)'}
               </h5>
+              <div className="d-flex gap-2">
+          {/* Добавляем кнопки для очистки */}
+          <Button
+            variant="outline-warning"
+            size="sm"
+            onClick={clearColumns}
+            title="Очистити колонки"
+          >
+            Очистити колонки
+          </Button>
+          <Button
+            variant="outline-info"
+            size="sm"
+            onClick={clearRows}
+            title="Очистити рядки"
+          >
+            Очистити рядки
+          </Button>
+          <Button
+            variant="outline-secondary"
+            size="sm"
+            onClick={resetToDefault}
+            title="Скинути до початкових налаштувань"
+          >
+            Скинути
+          </Button>
+        </div>
             </Col>
             <Col xs="auto">
               <ButtonGroup size="sm">
@@ -477,6 +553,13 @@ const PivotTableContainer = ({ data, filters }) => {
         </Card.Header>
 
         <Card.Body className="p-0">
+          {/* Debug info - временно для отладки */}
+        <div className="mb-2 p-2 bg-light rounded small">
+          <strong>Debug:</strong> 
+          Cols: [{pivotState.cols.join(', ')}] | 
+          Rows: [{pivotState.rows.join(', ')}] | 
+          Vals: [{pivotState.vals.join(', ')}]
+        </div>
           {/* Data Type Indicator */}
           {(hasFutureDeliveries || hasHistoricalData) && (
             <div className="p-2 bg-info bg-opacity-10 border-bottom">
@@ -558,40 +641,27 @@ const PivotTableContainer = ({ data, filters }) => {
           </div>
 
           {/* Pivot Table */}
-          {/* Pivot Table with enhanced configuration */}
-      <div className="pivot-container" style={{ minHeight: '500px' }}>
-        {hasData ? (
-          <div key={pivotKey}>
+        <div className="pivot-container" style={{ minHeight: '500px' }}>
+          {translatedData.length > 0 ? (
             <PivotTableUI
               data={translatedData}
               onChange={handlePivotChange}
               renderers={Object.assign({}, TableRenderers, PlotlyRenderers)}
               {...pivotState}
-              // Enhanced drag & drop configuration
               unusedOrientationCutoff={85}
-              hiddenAttributes={[]} // Don't hide any attributes
-              hiddenFromAggregators={[]} // All fields available for aggregation
-              hiddenFromDragDrop={[]} // All fields draggable
-              // Force drag & drop to be enabled
-              menuLimit={500}
-              // Ensure all field categories are properly configured
-              sorters={{}}
-              derivedAttributes={{}}
-              // Add custom drag handlers
-              onRefresh={(config) => {
-                console.log('Pivot refreshing with config:', config);
-                setPivotState(prev => ({ ...prev, ...config }));
-              }}
+              hiddenAttributes={[]}
+              hiddenFromAggregators={[]}
+              hiddenFromDragDrop={[]}
+              key={`pivot-${isInitialized}-${translatedData.length}`} // Принудительное обновление
             />
-          </div>
-        ) : (
-          <Alert variant="warning" className="m-3">
-            <Alert.Heading>Немає даних для відображення</Alert.Heading>
-            <p>Перевірте фільтри або наявність замовлень в системі.</p>
-          </Alert>
-        )}
-      </div>
-        </Card.Body>
+          ) : (
+            <Alert variant="warning" className="m-3">
+              <Alert.Heading>Немає даних для відображення</Alert.Heading>
+              <p>Перевірте фільтри або наявність замовлень в системі.</p>
+            </Alert>
+          )}
+        </div>
+      </Card.Body>
         
         <Card.Footer className="bg-light">
           <Row>

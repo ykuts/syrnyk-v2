@@ -248,3 +248,131 @@
 .pivot-container .pvtDropdown option:hover {
   background: #f8f9fa !important;
 }
+
+/* Force proper drag and drop zones */
+.pivot-container .pvtAxisContainer {
+  min-height: 60px !important;
+  min-width: 200px !important;
+  padding: 8px !important;
+  background: #f8f9fa !important;
+  border: 2px dashed #dee2e6 !important;
+  border-radius: 6px !important;
+  position: relative !important;
+  transition: all 0.2s ease !important;
+}
+
+/* Make columns (horizontal) area more prominent */
+.pivot-container .pvtCols {
+  background: #e3f2fd !important; /* Light blue background */
+  border-color: #2196f3 !important;
+  min-height: 60px !important;
+  position: relative !important;
+}
+
+/* Add visual feedback for drag over */
+.pivot-container .pvtAxisContainer:hover,
+.pivot-container .pvtAxisContainer.pvt-drag-over {
+  background: #e8f5e8 !important;
+  border-color: #4caf50 !important;
+  border-style: solid !important;
+}
+
+/* Specifically target columns area */
+.pivot-container .pvtCols:hover,
+.pivot-container .pvtCols.pvt-drag-over {
+  background: #bbdefb !important;
+  border-color: #1976d2 !important;
+  transform: scale(1.02);
+}
+
+/* Enhanced draggable attributes */
+.pivot-container .pvtAttr {
+  background: #ffffff !important;
+  border: 1px solid #ccc !important;
+  border-radius: 16px !important;
+  padding: 6px 12px !important;
+  margin: 3px !important;
+  cursor: grab !important;
+  user-select: none !important;
+  display: inline-block !important;
+  position: relative !important;
+  transition: all 0.15s ease !important;
+  font-weight: 500 !important;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+}
+
+.pivot-container .pvtAttr:hover {
+  background: #f0f0f0 !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15) !important;
+  cursor: grab !important;
+}
+
+.pivot-container .pvtAttr:active {
+  cursor: grabbing !important;
+  transform: rotate(2deg) !important;
+  z-index: 1000 !important;
+}
+
+/* Drop zone indicators */
+.pivot-container .pvtAxisContainer::before {
+  content: attr(data-zone-name);
+  position: absolute;
+  top: 4px;
+  left: 8px;
+  font-size: 11px;
+  color: #666;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.pivot-container .pvtCols::before {
+  content: "Перетягніть поля сюди (Колонки)";
+}
+
+.pivot-container .pvtRows::before {
+  content: "Рядки";
+}
+
+.pivot-container .pvtVals::before {
+  content: "Значення";
+}
+
+.pivot-container .pvtUnused::before {
+  content: "Доступні поля";
+}
+
+/* Fix for WebKit browsers drag issues */
+.pivot-container .pvtAttr,
+.pivot-container .pvtAxisContainer {
+  -webkit-user-drag: element !important;
+  -moz-user-select: none !important;
+  -webkit-user-select: none !important;
+  user-select: none !important;
+}
+
+/* Ensure proper z-index for dragging */
+.pivot-container .pvtAttr.pvt-dragging {
+  z-index: 1000 !important;
+  opacity: 0.8 !important;
+  transform: rotate(5deg) scale(1.05) !important;
+}
+
+/* Empty state styling */
+.pivot-container .pvtAxisContainer:empty::after {
+  content: "Перетягніть поля сюди";
+  color: #999;
+  font-style: italic;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+/* Specifically for columns when empty */
+.pivot-container .pvtCols:empty::after {
+  content: "Перетягніть поля для колонок сюди";
+  color: #1976d2;
+  font-weight: 500;
+}

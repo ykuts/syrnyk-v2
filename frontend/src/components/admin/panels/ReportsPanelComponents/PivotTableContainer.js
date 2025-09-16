@@ -7,6 +7,7 @@ import 'react-pivottable/pivottable.css';
 import TableRenderers from 'react-pivottable/TableRenderers';
 import Plot from 'react-plotly.js';
 import createPlotlyRenderers from 'react-pivottable/PlotlyRenderers';
+import './PivotTable.css';
 import { apiClient } from '../../../../utils/api';
 
 // Create the renderers including Plotly charts
@@ -413,6 +414,16 @@ const PivotTableContainer = ({ data, filters }) => {
     }
   };
 
+  // Enhanced pivot state change handler
+  const handlePivotChange = (newState) => {
+    console.log('Pivot state changing:', newState);
+    setPivotState(newState);
+  };
+
+  const pivotKey = React.useMemo(() => {
+    return `pivot-${data.length}-${JSON.stringify(filters)}`;
+  }, [data.length, filters]);
+
   // Check if we have data to display
   const hasData = translatedData && translatedData.length > 0;
 
@@ -547,25 +558,39 @@ const PivotTableContainer = ({ data, filters }) => {
           </div>
 
           {/* Pivot Table */}
-          <div className="pivot-container" style={{ minHeight: '500px' }}>
-            {hasData ? (
-              <PivotTableUI
-                data={translatedData}
-                onChange={s => setPivotState(s)}
-                renderers={Object.assign({}, TableRenderers, PlotlyRenderers)}
-                {...pivotState}
-                unusedOrientationCutoff={85}
-                hiddenAttributes={[]}
-                hiddenFromAggregators={[]}
-                hiddenFromDragDrop={[]}
-              />
-            ) : (
-              <Alert variant="warning" className="m-3">
-                <Alert.Heading>Немає даних для відображення</Alert.Heading>
-                <p>Перевірте фільтри або наявність замовлень в системі.</p>
-              </Alert>
-            )}
+          {/* Pivot Table with enhanced configuration */}
+      <div className="pivot-container" style={{ minHeight: '500px' }}>
+        {hasData ? (
+          <div key={pivotKey}>
+            <PivotTableUI
+              data={translatedData}
+              onChange={handlePivotChange}
+              renderers={Object.assign({}, TableRenderers, PlotlyRenderers)}
+              {...pivotState}
+              // Enhanced drag & drop configuration
+              unusedOrientationCutoff={85}
+              hiddenAttributes={[]} // Don't hide any attributes
+              hiddenFromAggregators={[]} // All fields available for aggregation
+              hiddenFromDragDrop={[]} // All fields draggable
+              // Force drag & drop to be enabled
+              menuLimit={500}
+              // Ensure all field categories are properly configured
+              sorters={{}}
+              derivedAttributes={{}}
+              // Add custom drag handlers
+              onRefresh={(config) => {
+                console.log('Pivot refreshing with config:', config);
+                setPivotState(prev => ({ ...prev, ...config }));
+              }}
+            />
           </div>
+        ) : (
+          <Alert variant="warning" className="m-3">
+            <Alert.Heading>Немає даних для відображення</Alert.Heading>
+            <p>Перевірте фільтри або наявність замовлень в системі.</p>
+          </Alert>
+        )}
+      </div>
         </Card.Body>
         
         <Card.Footer className="bg-light">

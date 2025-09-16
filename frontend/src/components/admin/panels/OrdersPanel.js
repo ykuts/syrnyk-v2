@@ -226,8 +226,9 @@ const [stations, setStations] = useState([]);
     console.log('Comparing:', s.id, 'with', stationId, 'equal?', s.id == stationId);
     return s.id == stationId; // Using loose equality to handle type differences
   });
-  
+
   console.log('Found station:', station);
+  console.log('Found station city:', station.city);
   return station ? station.city : `Station ID: ${stationId}`;
 };
 

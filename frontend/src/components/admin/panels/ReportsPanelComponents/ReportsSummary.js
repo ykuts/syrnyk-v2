@@ -78,7 +78,7 @@ const ReportsSummary = ({ summaryData, filters }) => {
         
         <Col sm={6} lg={3}>
           <SummaryCard
-            title="В обробці"
+            title="Нові замовлення"
             value={summaryData.orders.pending}
             subtitle="Очікують підтвердження"
             icon={Clock}
@@ -96,7 +96,7 @@ const ReportsSummary = ({ summaryData, filters }) => {
           />
         </Col>
         
-        <Col sm={6} lg={3}>
+        {/* <Col sm={6} lg={3}>
           <SummaryCard
             title="Доставлено"
             value={summaryData.orders.delivered}
@@ -104,11 +104,11 @@ const ReportsSummary = ({ summaryData, filters }) => {
             icon={CheckCircle}
             variant="success"
           />
-        </Col>
+        </Col> */}
       </Row>
 
       {/* Revenue and Additional Stats */}
-      <Row className="g-3 mb-4">
+      {/* <Row className="g-3 mb-4">
         <Col md={6} lg={4}>
           <SummaryCard
             title="Загальний дохід"
@@ -162,7 +162,7 @@ const ReportsSummary = ({ summaryData, filters }) => {
             </Card.Body>
           </Card>
         </Col>
-      </Row>
+      </Row> */}
 
       {/* Period Info */}
       {(filters.startDate || filters.endDate) && (

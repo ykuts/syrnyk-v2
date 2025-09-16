@@ -42,7 +42,7 @@ const OrdersPanel = () => {
 
   const fetchStations = async () => {
   try {
-    const response = await apiClient.get('/api/railway-stations');
+    const response = await apiClient.get('/railway-stations');
     console.log('API response:', response);
     
     if (response.data && Array.isArray(response.data)) {

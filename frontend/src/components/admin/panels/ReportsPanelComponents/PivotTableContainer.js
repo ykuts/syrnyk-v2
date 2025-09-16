@@ -123,8 +123,12 @@ const PivotTableContainer = ({ data, filters }) => {
 
   // Load default configuration on mount
   useEffect(() => {
+  
+  if (translatedData && translatedData.length > 0 && !window.defaultConfigLoaded) {
     loadDefaultConfiguration();
-  }, [translatedData]);
+    window.defaultConfigLoaded = true; // Загрузить только один раз
+  }
+}, [translatedData]);
 
   // Predefined configurations for common reports
   const presetConfigs = {
@@ -208,19 +212,41 @@ const PivotTableContainer = ({ data, filters }) => {
   };
 
   const loadDefaultConfiguration = async () => {
-    try {
-      const response = await apiClient.get('/pivot-configs/default');
-      if (response.success && response.data) {
-        setPivotState(prev => ({
-          ...prev,
-          ...response.data.configuration,
-          data: translatedData
-        }));
-      }
-    } catch (error) {
-      console.error('Error loading default configuration:', error);
+  // ДОБАВЬТЕ ЭТУ ПРОВЕРКУ ДЛЯ ОСТАНОВКИ ЦИКЛА
+  if (window.defaultConfigLoading) {
+    console.log('⚠️ Default config loading already in progress, skipping');
+    return;
+  }
+  
+  window.defaultConfigLoading = true;
+  
+  try {
+    console.log('🔍 Loading default configuration...');
+    const response = await apiClient.get('/pivot-configs/default');
+    console.log('📥 Response received:', response);
+    
+    if (response.success && response.data) {
+      console.log('✅ Applying default configuration:', response.data.name);
+      setPivotState(prev => ({
+        ...prev,
+        ...response.data.configuration,
+        data: translatedData
+      }));
+    } else {
+      console.log('ℹ️ No default configuration found');
     }
-  };
+  } catch (error) {
+    console.error('❌ Error loading default configuration:', error);
+    // НЕ ПОКАЗЫВАЙТЕ АЛЕРТ ПРИ ОШИБКЕ - ЭТО МОЖЕТ ВЫЗВАТЬ ЕЩЕ БОЛЬШЕ ЗАПРОСОВ
+  } finally {
+    window.defaultConfigLoading = false;
+    
+    // ДОБАВЬТЕ ЗАДЕРЖКУ ПЕРЕД СЛЕДУЮЩЕЙ ПОПЫТКОЙ
+    setTimeout(() => {
+      window.defaultConfigLoading = false;
+    }, 5000); // 5 секунд задержки
+  }
+};
 
   const saveConfiguration = async () => {
     try {

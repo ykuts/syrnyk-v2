@@ -262,6 +262,16 @@ export const getDefaultConfiguration = async (req, res) => {
     
     const userId = req.user.id || req.user.userId; // Support both for now
     console.log('📊 Using userId:', userId);
+
+    if (!userId) {
+      console.log('❌ No userId found in req.user');
+      return res.status(401).json({
+        success: false,
+        message: 'User ID not found in authentication data'
+      });
+    }
+
+    console.log('📊 Querying database for defaultConfig...');
     
     const defaultConfig = await prisma.pivotConfiguration.findFirst({
       where: {
@@ -270,7 +280,10 @@ export const getDefaultConfiguration = async (req, res) => {
       }
     });
 
+    console.log('📊 Database query completed. Result:', defaultConfig ? 'Found config' : 'No config found');
+
     if (!defaultConfig) {
+      console.log('📊 No default configuration found, returning null');
       return res.json({
         success: true,
         data: null,
@@ -278,23 +291,31 @@ export const getDefaultConfiguration = async (req, res) => {
       });
     }
 
-    res.json({
+    console.log('📊 Parsing configuration data...');
+    
+    const responseData = {
+      id: defaultConfig.id,
+      name: defaultConfig.name,
+      description: defaultConfig.description,
+      configuration: JSON.parse(defaultConfig.configuration),
+      filters: defaultConfig.filters ? JSON.parse(defaultConfig.filters) : null,
+      isDefault: defaultConfig.isDefault,
+      createdAt: defaultConfig.createdAt,
+      updatedAt: defaultConfig.updatedAt
+    };
+
+    console.log('📊 Sending response with configuration:', defaultConfig.name);
+
+    return res.json({
       success: true,
-      data: {
-        id: defaultConfig.id,
-        name: defaultConfig.name,
-        description: defaultConfig.description,
-        configuration: JSON.parse(defaultConfig.configuration),
-        filters: defaultConfig.filters ? JSON.parse(defaultConfig.filters) : null,
-        isDefault: defaultConfig.isDefault,
-        createdAt: defaultConfig.createdAt,
-        updatedAt: defaultConfig.updatedAt
-      }
+      data: responseData
     });
 
   } catch (error) {
-    console.error('Error fetching default configuration:', error);
-    res.status(500).json({
+    console.error('❌ Error fetching default configuration:', error);
+    console.error('❌ Error stack:', error.stack);
+    
+    return res.status(500).json({
       success: false,
       message: 'Failed to fetch default configuration',
       error: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'

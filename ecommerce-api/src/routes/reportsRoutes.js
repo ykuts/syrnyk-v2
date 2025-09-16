@@ -35,6 +35,14 @@ router.get('/test', (req, res) => {
   });
 });
 
+router.get('/pivot-test', (req, res) => {
+  res.json({
+    message: 'Pivot functionality test from reports route',
+    user: req.user?.email,
+    timestamp: new Date().toISOString()
+  });
+});
+
 // Get orders data for pivot table with planning support
 // Supports both historical analysis and future planning
 // Query parameters:

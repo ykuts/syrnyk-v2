@@ -103,6 +103,10 @@ app.get('/health', (req, res) => {
   });
 });
 
+app.get('/api/pivot-test-no-auth', (req, res) => {
+  res.json({ message: 'Pivot routes are mounted!', timestamp: new Date() });
+});
+
 // Use routes
 app.use('/api/users', userRoutes);
 app.use('/api/admin', adminRoutes);

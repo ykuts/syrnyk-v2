@@ -228,7 +228,7 @@ const [stations, setStations] = useState([]);
   });
   
   console.log('Found station:', station);
-  return station ? station.name : `Station ID: ${stationId}`;
+  return station ? station.city : `Station ID: ${stationId}`;
 };
 
    // Helper function for delivery details

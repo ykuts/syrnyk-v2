@@ -19,7 +19,7 @@ const PivotTableContainer = ({ data, filters, onFiltersUpdate }) => {
   const [loading, setLoading] = useState(false);
   const [configLoading, setConfigLoading] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
-  
+
   // Modal states
   const [showSaveModal, setShowSaveModal] = useState(false);
   const [showLoadModal, setShowLoadModal] = useState(false);
@@ -42,20 +42,20 @@ const PivotTableContainer = ({ data, filters, onFiltersUpdate }) => {
     delivery_date: 'Дата доставки',
     delivery_time_slot: 'Час доставки',
     delivery_cost: 'Вартість доставки',
-    
+
     // Customer fields
     customer_name: 'Імя клієнта',
     customer_type: 'Тип клієнта',
     customer_phone: 'Телефон клієнта',
     customer_email: 'Email клієнта',
-    
+
     // Delivery fields
     delivery_type: 'Тип доставки',
     delivery_location: 'Місце доставки',
     delivery_city: 'Місто доставки',
     delivery_canton: 'Кантон',
     station_name: 'Назва станції',
-    
+
     // Product fields
     product_name: 'Назва продукту',
     product_category: 'Категорія продукту',
@@ -63,7 +63,7 @@ const PivotTableContainer = ({ data, filters, onFiltersUpdate }) => {
     quantity: 'Кількість',
     unit_price: 'Ціна за одиницю',
     item_total: 'Загальна сума товару',
-    
+
     // Time periods
     order_year: 'Рік замовлення',
     order_month: 'Місяць замовлення',
@@ -73,7 +73,7 @@ const PivotTableContainer = ({ data, filters, onFiltersUpdate }) => {
     delivery_week: 'Тиждень доставки',
     order_day_of_week: 'День тижня замовлення',
     delivery_day_of_week: 'День тижня доставки',
-    
+
     // Planning fields
     is_future_delivery: 'Майбутня доставка',
     delivery_planning_type: 'Тип планування',
@@ -85,7 +85,7 @@ const PivotTableContainer = ({ data, filters, onFiltersUpdate }) => {
   // Translate data field names
   const translateData = (originalData) => {
     if (!originalData || originalData.length === 0) return [];
-    
+
     return originalData.map(row => {
       const translatedRow = {};
       Object.keys(row).forEach(key => {
@@ -97,13 +97,13 @@ const PivotTableContainer = ({ data, filters, onFiltersUpdate }) => {
   };
 
   const translatedData = useMemo(() => translateData(data), [data]);
-  
+
   // Check data types
-  const hasFutureDeliveries = useMemo(() => 
+  const hasFutureDeliveries = useMemo(() =>
     data.some(row => row.is_future_delivery === true), [data]
   );
-  
-  const hasHistoricalData = useMemo(() => 
+
+  const hasHistoricalData = useMemo(() =>
     data.some(row => row.is_future_delivery === false), [data]
   );
 
@@ -112,11 +112,11 @@ const PivotTableContainer = ({ data, filters, onFiltersUpdate }) => {
   // ===== PIVOT STATE =====
   const [pivotState, setPivotState] = useState({
     data: [],
-    aggregatorName: 'Sum',
-    vals: ['Кількість'],
-    rows: ['Назва продукту'],
-    cols: [],
-    rendererName: 'Table',
+    aggregatorName: 'Count',
+    vals: [],
+    rows: ['Кантон', 'Тип доставки', 'Дата доставки', 'Назва станції', 'Імя клієнта', 'Сума замовлення'],
+    cols: ['Назва продукту'],
+    rendererName: 'Table Heatmap',
     unusedOrientationCutoff: 85
   });
 
@@ -128,7 +128,7 @@ const PivotTableContainer = ({ data, filters, onFiltersUpdate }) => {
       config: {
         aggregatorName: 'Count',
         vals: [],
-        rows: ['Кантон','Тип доставки', 'Дата доставки', 'Назва станції', 'Імя клієнта', 'Сума замовлення'],
+        rows: ['Кантон', 'Тип доставки', 'Дата доставки', 'Назва станції', 'Імя клієнта', 'Сума замовлення'],
         cols: ['Назва продукту'],
         rendererName: 'Table Heatmap'
       },
@@ -228,7 +228,7 @@ const PivotTableContainer = ({ data, filters, onFiltersUpdate }) => {
       oldRows: pivotState.rows,
       newRows: newState.rows
     });
-    
+
     setPivotState({
       ...newState,
       data: translatedData
@@ -274,27 +274,27 @@ const PivotTableContainer = ({ data, filters, onFiltersUpdate }) => {
   const applyConfigurationToPivot = (config) => {
     try {
       console.log('🎯 Applying configuration to pivot table...');
-      
+
       const newState = {
         ...config.configuration,
         data: translatedData,
         _forceUpdate: Date.now()
       };
-      
+
       setPivotState(newState);
       setIsInitialized(true);
-      
+
       setTimeout(() => forceRefreshPivot(), 100);
-      
+
       const configDetails = [
         config.configuration.rows?.length ? `Рядки: ${config.configuration.rows.join(', ')}` : '',
         config.configuration.cols?.length ? `Колонки: ${config.configuration.cols.join(', ')}` : '',
         config.configuration.vals?.length ? `Значення: ${config.configuration.vals.join(', ')}` : '',
         config.configuration.aggregatorName ? `Агрегація: ${config.configuration.aggregatorName}` : ''
       ].filter(Boolean).join('\n');
-      
+
       showSuccessMessage(`✅ Конфігурація "${config.name}" завантажена!\n${configDetails}`);
-      
+
     } catch (error) {
       console.error('❌ Error applying configuration:', error);
       showSuccessMessage('❌ Помилка при застосуванні конфігурації');
@@ -305,23 +305,23 @@ const PivotTableContainer = ({ data, filters, onFiltersUpdate }) => {
     try {
       setConfigLoading(true);
       console.log('🔄 Loading configuration:', config.name);
-      
+
       const shouldRestoreFilters = config.filters && onFiltersUpdate;
-      
+
       if (shouldRestoreFilters) {
         console.log('📅 Restoring filters from configuration...');
         showSuccessMessage('📅 Відновлюємо фільтри...');
         onFiltersUpdate(config.filters);
-        
+
         setTimeout(() => {
           applyConfigurationToPivot(config);
         }, 800);
       } else {
         applyConfigurationToPivot(config);
       }
-      
+
       setShowLoadModal(false);
-      
+
     } catch (error) {
       console.error('❌ Error loading configuration:', error);
       showSuccessMessage('❌ Помилка при завантаженні конфігурації');
@@ -333,7 +333,7 @@ const PivotTableContainer = ({ data, filters, onFiltersUpdate }) => {
   const saveConfiguration = async () => {
     try {
       setLoading(true);
-      
+
       const configToSave = {
         name: saveForm.name,
         description: saveForm.description,
@@ -350,23 +350,23 @@ const PivotTableContainer = ({ data, filters, onFiltersUpdate }) => {
       };
 
       const response = await apiClient.post('/pivot-configs', configToSave);
-      
+
       if (response.success) {
         await loadSavedConfigurations();
         setShowSaveModal(false);
         setSaveForm({ name: '', description: '', isDefault: false });
-        
+
         const filterInfo = Object.entries(filters)
           .filter(([key, value]) => value && value !== 'all')
           .map(([key, value]) => `${key}: ${value}`)
           .join(', ');
-        
+
         const message = `💾 Конфігурацію "${saveForm.name}" збережено!\n\n` +
           `Рядки: ${pivotState.rows?.join(', ') || 'немає'}\n` +
           `Колонки: ${pivotState.cols?.join(', ') || 'немає'}\n` +
           `Значення: ${pivotState.vals?.join(', ') || 'немає'}` +
           (filterInfo ? `\nФільтри: ${filterInfo}` : '');
-        
+
         showSuccessMessage(message);
       }
     } catch (error) {
@@ -388,7 +388,7 @@ const PivotTableContainer = ({ data, filters, onFiltersUpdate }) => {
       }
 
       const response = await apiClient.delete(`/pivot-configs/${configId}`);
-      
+
       if (response.success) {
         await loadSavedConfigurations();
         showSuccessMessage(`✅ Конфігурацію "${configName}" видалено успішно!`);
@@ -404,7 +404,7 @@ const PivotTableContainer = ({ data, filters, onFiltersUpdate }) => {
       const response = await apiClient.put(`/pivot-configs/${configId}`, {
         isDefault: true
       });
-      
+
       if (response.success) {
         await loadSavedConfigurations();
         showSuccessMessage(`⭐ "${configName}" встановлено як конфігурацію за замовчуванням!`);
@@ -419,17 +419,17 @@ const PivotTableContainer = ({ data, filters, onFiltersUpdate }) => {
     const preset = presetConfigs[presetKey];
     if (preset) {
       console.log('🎯 Applying preset:', preset.name);
-      
+
       const newState = {
         ...pivotState,
         ...preset.config,
         data: translatedData,
         _forceUpdate: Date.now()
       };
-      
+
       setPivotState(newState);
       setIsInitialized(true);
-      
+
       setTimeout(() => forceRefreshPivot(), 100);
       showSuccessMessage(`🎯 Пресет "${preset.name}" застосовано!`);
     }
@@ -449,14 +449,14 @@ const PivotTableContainer = ({ data, filters, onFiltersUpdate }) => {
       const csvData = data.map(row => {
         const csvRow = {};
         Object.keys(row).forEach(key => {
-          csvRow[key] = typeof row[key] === 'object' && row[key] !== null 
-            ? JSON.stringify(row[key]) 
+          csvRow[key] = typeof row[key] === 'object' && row[key] !== null
+            ? JSON.stringify(row[key])
             : row[key];
         });
         return csvRow;
       });
 
-      const csvContent = "data:text/csv;charset=utf-8," + 
+      const csvContent = "data:text/csv;charset=utf-8," +
         Object.keys(csvData[0]).join(",") + "\n" +
         csvData.map(row => Object.values(row).join(",")).join("\n");
 
@@ -467,7 +467,7 @@ const PivotTableContainer = ({ data, filters, onFiltersUpdate }) => {
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-      
+
       showSuccessMessage('📊 Дані експортовано в CSV');
     } catch (error) {
       console.error('Error exporting CSV:', error);
@@ -508,7 +508,7 @@ const PivotTableContainer = ({ data, filters, onFiltersUpdate }) => {
         </div>
       );
     }
-    
+
     if (successMessage) {
       return (
         <Alert variant="success" className="mb-2 py-2" dismissible onClose={() => setSuccessMessage('')}>
@@ -516,7 +516,7 @@ const PivotTableContainer = ({ data, filters, onFiltersUpdate }) => {
         </Alert>
       );
     }
-    
+
     return null;
   };
 
@@ -556,7 +556,7 @@ const PivotTableContainer = ({ data, filters, onFiltersUpdate }) => {
           <Button
             variant="outline-success"
             size="sm"
-            onClick={() => onFiltersUpdate && onFiltersUpdate({...filters, _forceRefresh: Date.now()})}
+            onClick={() => onFiltersUpdate && onFiltersUpdate({ ...filters, _forceRefresh: Date.now() })}
             title="Оновити дані"
             disabled={!onFiltersUpdate}
           >
@@ -599,9 +599,9 @@ const PivotTableContainer = ({ data, filters, onFiltersUpdate }) => {
         {/* Data Info */}
         <div className="p-2 bg-info bg-opacity-10 border-bottom">
           <small className="text-muted">
-            <strong>Дані:</strong> {data.length} записів | 
+            <strong>Дані:</strong> {data.length} записів |
             <strong> Період:</strong> {
-              filters.startDate && filters.endDate 
+              filters.startDate && filters.endDate
                 ? `${new Date(filters.startDate).toLocaleDateString('uk-UA')} - ${new Date(filters.endDate).toLocaleDateString('uk-UA')}`
                 : 'Всі дати'
             }
@@ -612,7 +612,7 @@ const PivotTableContainer = ({ data, filters, onFiltersUpdate }) => {
               <span> | <strong>Доставка:</strong> {filters.deliveryType}</span>
             )}
             {hasFutureDeliveries && (
-              <span> | <strong style={{color: '#28a745'}}>Включає майбутні доставки</strong></span>
+              <span> | <strong style={{ color: '#28a745' }}>Включає майбутні доставки</strong></span>
             )}
           </small>
         </div>
@@ -654,7 +654,7 @@ const PivotTableContainer = ({ data, filters, onFiltersUpdate }) => {
               </div>
             ))}
           </div>
-          
+
           {hasFutureDeliveries && (
             <Alert variant="success" className="mt-3 mb-0">
               <TrendingUp size={16} className="me-1" />
@@ -690,7 +690,7 @@ const PivotTableContainer = ({ data, filters, onFiltersUpdate }) => {
         <Row>
           <Col>
             <small className="text-muted">
-              <strong>Порада:</strong> Перетягуйте поля між зонами для створення різних звітів. 
+              <strong>Порада:</strong> Перетягуйте поля між зонами для створення різних звітів.
               {hasFutureDeliveries ? ' Зелені конфігурації призначені для планування майбутніх доставок.' : ''}
               {savedConfigs.length > 0 && ' Збережені конфігурації доступні через кнопку налаштувань.'}
             </small>
@@ -741,8 +741,8 @@ const PivotTableContainer = ({ data, filters, onFiltersUpdate }) => {
           <Button variant="outline-secondary" onClick={() => setShowSaveModal(false)}>
             Скасувати
           </Button>
-          <Button 
-            variant="primary" 
+          <Button
+            variant="primary"
             onClick={saveConfiguration}
             disabled={!saveForm.name.trim() || loading}
           >

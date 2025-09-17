@@ -116,7 +116,7 @@ const PivotTableContainer = ({ data, filters, onFiltersUpdate }) => {
     vals: [],
     rows: ['Кантон', 'Тип доставки', 'Дата доставки', 'Назва станції', 'Імя клієнта', 'Сума замовлення'],
     cols: ['Назва продукту'],
-    rendererName: 'Table Heatmap',
+    rendererName: 'Table',
     unusedOrientationCutoff: 85
   });
 

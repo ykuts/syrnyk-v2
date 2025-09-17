@@ -1,5 +1,6 @@
-// frontend/src/components/admin/panels/ReportsPanel.js
-import React, { useState, useEffect } from 'react';
+// Обновленный ReportsPanel.js с поддержкой восстановления фильтров
+
+import React, { useState, useEffect, useCallback } from 'react';
 import { Container, Alert, Spinner } from 'react-bootstrap';
 import ReportsFilters from './ReportsPanelComponents/ReportsFilters';
 import ReportsSummary from './ReportsPanelComponents/ReportsSummary';
@@ -19,6 +20,16 @@ const ReportsPanel = () => {
     deliveryType: 'all'
   });
 
+  // Callback для обновления фильтров из PivotTableContainer
+  const handleFiltersUpdate = useCallback((newFilters) => {
+    console.log('📅 Updating filters from configuration:', newFilters);
+    setFilters(prev => {
+      const updated = { ...prev, ...newFilters };
+      console.log('📅 Filters updated:', updated);
+      return updated;
+    });
+  }, []);
+
   // Load initial data
   useEffect(() => {
     fetchReportData();
@@ -37,9 +48,12 @@ const ReportsPanel = () => {
       if (filters.status !== 'all') params.append('status', filters.status);
       if (filters.deliveryType !== 'all') params.append('deliveryType', filters.deliveryType);
       
+      console.log('📊 Fetching data with params:', params.toString());
+      
       const response = await apiClient.get(`/reports/orders-data?${params.toString()}`);
       
       if (response.success) {
+        console.log('📊 Data loaded:', response.data.length, 'records');
         setReportData(response.data);
       } else {
         throw new Error(response.message || 'Failed to fetch report data');
@@ -118,11 +132,12 @@ const ReportsPanel = () => {
         />
       )}
 
-      {/* Pivot Table */}
+      {/* Pivot Table with filter update callback */}
       {!loading && !error && reportData.length > 0 && (
         <PivotTableContainer 
           data={reportData}
           filters={filters}
+          onFiltersUpdate={handleFiltersUpdate}
         />
       )}
 

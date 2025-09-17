@@ -1,7 +1,7 @@
 // frontend/src/components/admin/panels/ReportsPanelComponents/PivotTableContainer.js
-import React, { useState, useEffect } from 'react';
-import { Card, Alert, Button, ButtonGroup, Row, Col, Modal, Form, ListGroup, Badge } from 'react-bootstrap';
-import { Download, Settings, BarChart3, Save, TrendingUp, Calendar, Trash2, Star } from 'lucide-react';
+import React, { useState, useEffect, useMemo } from 'react';
+import { Card, Alert, Button, Row, Col, Modal, Form, ListGroup, Badge, Spinner } from 'react-bootstrap';
+import { Download, Settings, BarChart3, Save, TrendingUp, Calendar, Trash2, Star, RotateCcw } from 'lucide-react';
 import PivotTableUI from 'react-pivottable/PivotTableUI';
 import 'react-pivottable/pivottable.css';
 import TableRenderers from 'react-pivottable/TableRenderers';
@@ -13,10 +13,12 @@ import { apiClient } from '../../../../utils/api';
 // Create the renderers including Plotly charts
 const PlotlyRenderers = createPlotlyRenderers(Plot);
 
-const PivotTableContainer = ({ data, filters }) => {
-  // State for saved configurations from API
+const PivotTableContainer = ({ data, filters, onFiltersUpdate }) => {
+  // ===== STATES =====
   const [savedConfigs, setSavedConfigs] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [configLoading, setConfigLoading] = useState(false);
+  const [successMessage, setSuccessMessage] = useState('');
   
   // Modal states
   const [showSaveModal, setShowSaveModal] = useState(false);
@@ -26,8 +28,11 @@ const PivotTableContainer = ({ data, filters }) => {
     description: '',
     isDefault: false
   });
-  
-  // Field translations for Ukrainian interface
+
+  // Initialization flag
+  const [isInitialized, setIsInitialized] = useState(false);
+
+  // ===== FIELD TRANSLATIONS =====
   const fieldTranslations = {
     // Order fields
     order_id: 'ID замовлення',
@@ -76,7 +81,8 @@ const PivotTableContainer = ({ data, filters }) => {
     week_of_year: 'Тиждень року'
   };
 
-  // Function to translate data field names
+  // ===== COMPUTED VALUES =====
+  // Translate data field names
   const translateData = (originalData) => {
     if (!originalData || originalData.length === 0) return [];
     
@@ -90,108 +96,45 @@ const PivotTableContainer = ({ data, filters }) => {
     });
   };
 
-  // Get translated data
-  const translatedData = translateData(data);
+  const translatedData = useMemo(() => translateData(data), [data]);
+  
+  // Check data types
+  const hasFutureDeliveries = useMemo(() => 
+    data.some(row => row.is_future_delivery === true), [data]
+  );
+  
+  const hasHistoricalData = useMemo(() => 
+    data.some(row => row.is_future_delivery === false), [data]
+  );
 
-  // Check if data includes future deliveries for planning
-  const hasFutureDeliveries = data.some(row => row.is_future_delivery === true);
-  const hasHistoricalData = data.some(row => row.is_future_delivery === false);
+  const hasData = translatedData.length > 0;
 
-   // Default pivot configuration - adapt based on data type
+  // ===== PIVOT STATE =====
   const [pivotState, setPivotState] = useState({
     data: [],
     aggregatorName: 'Sum',
     vals: ['Кількість'],
     rows: ['Назва продукту'],
-    cols: [], // Начинаем с пустых колонок!
+    cols: [],
     rendererName: 'Table',
     unusedOrientationCutoff: 85
   });
 
-  // Флаг для отслеживания первоначальной загрузки
-  const [isInitialized, setIsInitialized] = useState(false);
-
-  // Update pivot state when data changes - ТОЛЬКО ОДИН РАЗ при инициализации
-  useEffect(() => {
-    if (translatedData.length > 0 && !isInitialized) {
-      setPivotState(prev => ({
-        ...prev,
-        data: translatedData,
-        // Устанавливаем дату только при первой загрузке
-        cols: hasFutureDeliveries ? ['Дата доставки'] : ['Дата замовлення']
-      }));
-      setIsInitialized(true);
-    } else if (translatedData.length > 0 && isInitialized) {
-      // При последующих обновлениях данных - обновляем только данные, НЕ колонки
-      setPivotState(prev => ({
-        ...prev,
-        data: translatedData
-      }));
-    }
-  }, [translatedData, hasFutureDeliveries, isInitialized]);
-
-  // Улучшенный обработчик изменений pivot table
-  const handlePivotChange = (newState) => {
-    console.log('🔄 Pivot state changing:', {
-      oldCols: pivotState.cols,
-      newCols: newState.cols,
-      oldRows: pivotState.rows,
-      newRows: newState.rows
-    });
-    
-    // Полностью принимаем новое состояние от пользователя
-    setPivotState({
-      ...newState,
-      data: translatedData // Всегда используем актуальные данные
-    });
-  };
-
-  // Функция для очистки колонок
-  const clearColumns = () => {
-    setPivotState(prev => ({
-      ...prev,
-      cols: []
-    }));
-  };
-
-  // Функция для очистки строк
-  const clearRows = () => {
-    setPivotState(prev => ({
-      ...prev,
-      rows: []
-    }));
-  };
-
-  // Обновленная функция сброса
-  const resetToDefault = () => {
-    setPivotState({
-      data: translatedData,
-      aggregatorName: 'Sum',
-      vals: ['Кількість'],
-      rows: ['Назва продукту'],
-      cols: [], // Начинаем с пустых колонок!
-      rendererName: 'Table',
-      unusedOrientationCutoff: 85
-    });
-    setIsInitialized(false); // Позволяем повторную инициализацию
-  };
-
-  // Load saved configurations on component mount
-  useEffect(() => {
-    loadSavedConfigurations();
-  }, []);
-
-  // Load default configuration on mount
-  useEffect(() => {
-  
-  if (translatedData && translatedData.length > 0 && !window.defaultConfigLoaded) {
-    loadDefaultConfiguration();
-    window.defaultConfigLoaded = true; // Загрузить только один раз
-  }
-}, [translatedData]);
-
-  // Predefined configurations for common reports
+  // ===== PRESET CONFIGURATIONS =====
   const presetConfigs = {
+    basic_report: {
+      name: 'Базовий звіт',
+      description: 'Розподіл замовлень за датами та продукцією',
+      config: {
+        aggregatorName: 'Count',
+        vals: [],
+        rows: ['Кантон','Тип доставки', 'Дата доставки', 'Назва станції', 'Імя клієнта', 'Сума замовлення'],
+        cols: ['Назва продукту'],
+        rendererName: 'Table Heatmap'
+      },
+      icon: <TrendingUp size={16} />,
+      requiresFuture: true
+    },
     production_planning: {
       name: 'Планування виробництва',
       description: 'Аналіз потреб у виробництві за продуктами та датами',
@@ -256,7 +199,64 @@ const PivotTableContainer = ({ data, filters }) => {
     }
   };
 
-  // API Functions
+  // ===== UTILITY FUNCTIONS =====
+  const showSuccessMessage = (message) => {
+    setSuccessMessage(message);
+    setTimeout(() => setSuccessMessage(''), 3000);
+  };
+
+  const forceRefreshPivot = () => {
+    const pivotContainer = document.querySelector('.pivot-container');
+    if (pivotContainer) {
+      pivotContainer.classList.add('pivot-refreshing');
+      setTimeout(() => {
+        pivotContainer.classList.remove('pivot-refreshing');
+      }, 300);
+    }
+
+    setPivotState(prev => ({
+      ...prev,
+      _forceUpdate: Date.now()
+    }));
+  };
+
+  // ===== PIVOT CONTROL FUNCTIONS =====
+  const handlePivotChange = (newState) => {
+    console.log('🔄 Pivot state changing:', {
+      oldCols: pivotState.cols,
+      newCols: newState.cols,
+      oldRows: pivotState.rows,
+      newRows: newState.rows
+    });
+    
+    setPivotState({
+      ...newState,
+      data: translatedData
+    });
+  };
+
+  const clearColumns = () => {
+    setPivotState(prev => ({ ...prev, cols: [] }));
+  };
+
+  const clearRows = () => {
+    setPivotState(prev => ({ ...prev, rows: [] }));
+  };
+
+  const resetToDefault = () => {
+    setPivotState({
+      data: translatedData,
+      aggregatorName: 'Sum',
+      vals: ['Кількість'],
+      rows: ['Назва продукту'],
+      cols: [],
+      rendererName: 'Table',
+      unusedOrientationCutoff: 85
+    });
+    setIsInitialized(false);
+  };
+
+  // ===== API FUNCTIONS =====
   const loadSavedConfigurations = async () => {
     try {
       setLoading(true);
@@ -271,42 +271,64 @@ const PivotTableContainer = ({ data, filters }) => {
     }
   };
 
-  const loadDefaultConfiguration = async () => {
-  // ДОБАВЬТЕ ЭТУ ПРОВЕРКУ ДЛЯ ОСТАНОВКИ ЦИКЛА
-  if (window.defaultConfigLoading) {
-    console.log('⚠️ Default config loading already in progress, skipping');
-    return;
-  }
-  
-  window.defaultConfigLoading = true;
-  
-  try {
-    console.log('🔍 Loading default configuration...');
-    const response = await apiClient.get('/pivot-configs/default');
-    console.log('📥 Response received:', response);
-    
-    if (response.success && response.data) {
-      console.log('✅ Applying default configuration:', response.data.name);
-      setPivotState(prev => ({
-        ...prev,
-        ...response.data.configuration,
-        data: translatedData
-      }));
-    } else {
-      console.log('ℹ️ No default configuration found');
+  const applyConfigurationToPivot = (config) => {
+    try {
+      console.log('🎯 Applying configuration to pivot table...');
+      
+      const newState = {
+        ...config.configuration,
+        data: translatedData,
+        _forceUpdate: Date.now()
+      };
+      
+      setPivotState(newState);
+      setIsInitialized(true);
+      
+      setTimeout(() => forceRefreshPivot(), 100);
+      
+      const configDetails = [
+        config.configuration.rows?.length ? `Рядки: ${config.configuration.rows.join(', ')}` : '',
+        config.configuration.cols?.length ? `Колонки: ${config.configuration.cols.join(', ')}` : '',
+        config.configuration.vals?.length ? `Значення: ${config.configuration.vals.join(', ')}` : '',
+        config.configuration.aggregatorName ? `Агрегація: ${config.configuration.aggregatorName}` : ''
+      ].filter(Boolean).join('\n');
+      
+      showSuccessMessage(`✅ Конфігурація "${config.name}" завантажена!\n${configDetails}`);
+      
+    } catch (error) {
+      console.error('❌ Error applying configuration:', error);
+      showSuccessMessage('❌ Помилка при застосуванні конфігурації');
     }
-  } catch (error) {
-    console.error('❌ Error loading default configuration:', error);
-    // НЕ ПОКАЗЫВАЙТЕ АЛЕРТ ПРИ ОШИБКЕ - ЭТО МОЖЕТ ВЫЗВАТЬ ЕЩЕ БОЛЬШЕ ЗАПРОСОВ
-  } finally {
-    window.defaultConfigLoading = false;
-    
-    // ДОБАВЬТЕ ЗАДЕРЖКУ ПЕРЕД СЛЕДУЮЩЕЙ ПОПЫТКОЙ
-    setTimeout(() => {
-      window.defaultConfigLoading = false;
-    }, 5000); // 5 секунд задержки
-  }
-};
+  };
+
+  const loadConfiguration = async (config) => {
+    try {
+      setConfigLoading(true);
+      console.log('🔄 Loading configuration:', config.name);
+      
+      const shouldRestoreFilters = config.filters && onFiltersUpdate;
+      
+      if (shouldRestoreFilters) {
+        console.log('📅 Restoring filters from configuration...');
+        showSuccessMessage('📅 Відновлюємо фільтри...');
+        onFiltersUpdate(config.filters);
+        
+        setTimeout(() => {
+          applyConfigurationToPivot(config);
+        }, 800);
+      } else {
+        applyConfigurationToPivot(config);
+      }
+      
+      setShowLoadModal(false);
+      
+    } catch (error) {
+      console.error('❌ Error loading configuration:', error);
+      showSuccessMessage('❌ Помилка при завантаженні конфігурації');
+    } finally {
+      setTimeout(() => setConfigLoading(false), 1000);
+    }
+  };
 
   const saveConfiguration = async () => {
     try {
@@ -333,32 +355,29 @@ const PivotTableContainer = ({ data, filters }) => {
         await loadSavedConfigurations();
         setShowSaveModal(false);
         setSaveForm({ name: '', description: '', isDefault: false });
-        alert(`Конфігурацію "${saveForm.name}" збережено успішно!`);
+        
+        const filterInfo = Object.entries(filters)
+          .filter(([key, value]) => value && value !== 'all')
+          .map(([key, value]) => `${key}: ${value}`)
+          .join(', ');
+        
+        const message = `💾 Конфігурацію "${saveForm.name}" збережено!\n\n` +
+          `Рядки: ${pivotState.rows?.join(', ') || 'немає'}\n` +
+          `Колонки: ${pivotState.cols?.join(', ') || 'немає'}\n` +
+          `Значення: ${pivotState.vals?.join(', ') || 'немає'}` +
+          (filterInfo ? `\nФільтри: ${filterInfo}` : '');
+        
+        showSuccessMessage(message);
       }
     } catch (error) {
       console.error('Error saving configuration:', error);
       if (error.response?.status === 409) {
-        alert('Конфігурація з такою назвою вже існує');
+        showSuccessMessage('❌ Конфігурація з такою назвою вже існує');
       } else {
-        alert('Помилка при збереженні конфігурації');
+        showSuccessMessage('❌ Помилка при збереженні конфігурації');
       }
     } finally {
       setLoading(false);
-    }
-  };
-
-  const loadConfiguration = async (config) => {
-    try {
-      setPivotState(prev => ({
-        ...prev,
-        ...config.configuration,
-        data: translatedData
-      }));
-      setShowLoadModal(false);
-      alert(`Конфігурацію "${config.name}" завантажено успішно!`);
-    } catch (error) {
-      console.error('Error loading configuration:', error);
-      alert('Помилка при завантаженні конфігурації');
     }
   };
 
@@ -372,11 +391,11 @@ const PivotTableContainer = ({ data, filters }) => {
       
       if (response.success) {
         await loadSavedConfigurations();
-        alert(`Конфігурацію "${configName}" видалено успішно!`);
+        showSuccessMessage(`✅ Конфігурацію "${configName}" видалено успішно!`);
       }
     } catch (error) {
       console.error('Error deleting configuration:', error);
-      alert('Помилка при видаленні конфігурації');
+      showSuccessMessage('❌ Помилка при видаленні конфігурації');
     }
   };
 
@@ -388,15 +407,34 @@ const PivotTableContainer = ({ data, filters }) => {
       
       if (response.success) {
         await loadSavedConfigurations();
-        alert(`"${configName}" встановлено як конфігурацію за замовчуванням!`);
+        showSuccessMessage(`⭐ "${configName}" встановлено як конфігурацію за замовчуванням!`);
       }
     } catch (error) {
       console.error('Error setting default configuration:', error);
-      alert('Помилка при встановленні конфігурації за замовчуванням');
+      showSuccessMessage('❌ Помилка при встановленні конфігурації за замовчуванням');
     }
   };
 
-  // Filter configurations based on available data
+  const applyPreset = (presetKey) => {
+    const preset = presetConfigs[presetKey];
+    if (preset) {
+      console.log('🎯 Applying preset:', preset.name);
+      
+      const newState = {
+        ...pivotState,
+        ...preset.config,
+        data: translatedData,
+        _forceUpdate: Date.now()
+      };
+      
+      setPivotState(newState);
+      setIsInitialized(true);
+      
+      setTimeout(() => forceRefreshPivot(), 100);
+      showSuccessMessage(`🎯 Пресет "${preset.name}" застосовано!`);
+    }
+  };
+
   const getAvailableConfigs = () => {
     return Object.entries(presetConfigs).filter(([key, config]) => {
       if (config.requiresFuture && !hasFutureDeliveries) {
@@ -406,19 +444,6 @@ const PivotTableContainer = ({ data, filters }) => {
     });
   };
 
-  const applyPreset = (presetKey) => {
-    const preset = presetConfigs[presetKey];
-    if (preset) {
-      setPivotState(prevState => ({
-        ...prevState,
-        ...preset.config
-      }));
-    }
-  };
-
-  
-
-  // Export function
   const exportToCSV = () => {
     try {
       const csvData = data.map(row => {
@@ -431,63 +456,78 @@ const PivotTableContainer = ({ data, filters }) => {
         return csvRow;
       });
 
-      if (csvData.length === 0) {
-        alert('Немає даних для експорту');
-        return;
-      }
+      const csvContent = "data:text/csv;charset=utf-8," + 
+        Object.keys(csvData[0]).join(",") + "\n" +
+        csvData.map(row => Object.values(row).join(",")).join("\n");
 
-      const headers = Object.keys(csvData[0] || {});
-      const csvContent = [
-        headers.join(','),
-        ...csvData.map(row => 
-          headers.map(header => {
-            const value = row[header] || '';
-            return `"${String(value).replace(/"/g, '""')}"`;
-          }).join(',')
-        )
-      ].join('\n');
-
-      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-      const link = document.createElement('a');
-      const url = URL.createObjectURL(blob);
-      link.setAttribute('href', url);
-      link.setAttribute('download', `orders_report_${new Date().toISOString().split('T')[0]}.csv`);
-      link.style.visibility = 'hidden';
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      link.setAttribute("download", `pivot_data_${new Date().toISOString().split('T')[0]}.csv`);
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-      URL.revokeObjectURL(url);
+      
+      showSuccessMessage('📊 Дані експортовано в CSV');
     } catch (error) {
       console.error('Error exporting CSV:', error);
-      alert('Помилка при експорті файлу');
+      showSuccessMessage('❌ Помилка при експорті');
     }
   };
 
-  
+  // ===== EFFECTS =====
+  // Initialize data
+  useEffect(() => {
+    if (translatedData.length > 0 && !isInitialized) {
+      setPivotState(prev => ({
+        ...prev,
+        data: translatedData,
+        cols: hasFutureDeliveries ? ['Дата доставки'] : ['Дата замовлення']
+      }));
+      setIsInitialized(true);
+    } else if (translatedData.length > 0 && isInitialized) {
+      setPivotState(prev => ({
+        ...prev,
+        data: translatedData
+      }));
+    }
+  }, [translatedData, hasFutureDeliveries, isInitialized]);
 
-  const pivotKey = React.useMemo(() => {
-    return `pivot-${data.length}-${JSON.stringify(filters)}`;
-  }, [data.length, filters]);
+  // Load saved configurations on mount
+  useEffect(() => {
+    loadSavedConfigurations();
+  }, []);
 
-  // Check if we have data to display
-  const hasData = translatedData && translatedData.length > 0;
+  // ===== STATUS COMPONENT =====
+  const StatusIndicator = () => {
+    if (configLoading) {
+      return (
+        <div className="d-flex align-items-center text-primary mb-2">
+          <Spinner animation="border" size="sm" className="me-2" />
+          Завантажуємо конфігурацію...
+        </div>
+      );
+    }
+    
+    if (successMessage) {
+      return (
+        <Alert variant="success" className="mb-2 py-2" dismissible onClose={() => setSuccessMessage('')}>
+          {successMessage}
+        </Alert>
+      );
+    }
+    
+    return null;
+  };
 
+  // ===== RENDER =====
   return (
-    <>
-      <Card className="mt-4">
-        <Card.Header className="bg-primary text-white">
-          <div>
+    <Card>
+      <Card.Header className="d-flex justify-content-between align-items-center">
+        <div>
           <h5 className="mb-0">Pivot таблиця аналітики</h5>
         </div>
-
-          <Row className="align-items-center">
-            <Col>
-              <h5 className="mb-0">
-                <BarChart3 className="me-2" size={20} />
-                Аналітична таблиця {hasFutureDeliveries ? '(Включає планування)' : '(Історичні дані)'}
-              </h5>
-              <div className="d-flex gap-2">
-          {/* Добавляем кнопки для очистки */}
+        <div className="d-flex gap-2 flex-wrap">
           <Button
             variant="outline-warning"
             size="sm"
@@ -510,139 +550,122 @@ const PivotTableContainer = ({ data, filters }) => {
             onClick={resetToDefault}
             title="Скинути до початкових налаштувань"
           >
+            <RotateCcw size={16} className="me-1" />
             Скинути
           </Button>
+          <Button
+            variant="outline-success"
+            size="sm"
+            onClick={() => onFiltersUpdate && onFiltersUpdate({...filters, _forceRefresh: Date.now()})}
+            title="Оновити дані"
+            disabled={!onFiltersUpdate}
+          >
+            <TrendingUp size={16} className="me-1" />
+            Оновити дані
+          </Button>
+          <Button
+            variant="primary"
+            size="sm"
+            onClick={() => setShowSaveModal(true)}
+            title="Зберегти поточну конфігурацію"
+          >
+            <Save size={16} className="me-1" />
+            Зберегти
+          </Button>
+          <Button
+            variant="outline-primary"
+            size="sm"
+            onClick={() => setShowLoadModal(true)}
+            title="Завантажити збережену конфігурацію"
+          >
+            <Settings size={16} className="me-1" />
+            Завантажити
+          </Button>
+          <Button
+            variant="outline-dark"
+            size="sm"
+            onClick={exportToCSV}
+            title="Експорт в CSV"
+            disabled={!hasData}
+          >
+            <Download size={16} />
+          </Button>
         </div>
-            </Col>
-            <Col xs="auto">
-              <ButtonGroup size="sm">
-                <Button 
-                  variant="light" 
-                  onClick={() => setShowSaveModal(true)}
-                  title="Зберегти конфігурацію"
-                  disabled={!hasData}
-                >
-                  <Save size={16} />
-                </Button>
-                <Button 
-                  variant="light" 
-                  onClick={() => setShowLoadModal(true)}
-                  title="Завантажити конфігурацію"
-                  disabled={savedConfigs.length === 0}
-                >
-                  <Settings size={16} />
-                </Button>
-                <Button 
-                  variant="light" 
-                  onClick={resetToDefault}
-                  title="Скинути до початкових налаштувань"
-                >
-                  Скинути
-                </Button>
-                <Button 
-                  variant="light" 
-                  onClick={exportToCSV}
-                  title="Експорт в CSV"
-                  disabled={!hasData}
-                >
-                  <Download size={16} />
-                </Button>
-              </ButtonGroup>
-            </Col>
-          </Row>
-        </Card.Header>
+      </Card.Header>
 
-        <Card.Body className="p-0">
-          {/* Debug info - временно для отладки */}
-        <div className="mb-2 p-2 bg-light rounded small">
-          <strong>Debug:</strong> 
-          Cols: [{pivotState.cols.join(', ')}] | 
-          Rows: [{pivotState.rows.join(', ')}] | 
-          Vals: [{pivotState.vals.join(', ')}]
-        </div>
-          {/* Data Type Indicator */}
-          {(hasFutureDeliveries || hasHistoricalData) && (
-            <div className="p-2 bg-info bg-opacity-10 border-bottom">
-              <small className="text-muted">
-                <strong>Тип даних:</strong> {' '}
-                {hasFutureDeliveries && hasHistoricalData && 'Історичні + Планування майбутніх доставок'}
-                {hasFutureDeliveries && !hasHistoricalData && 'Тільки планування майбутніх доставок'}
-                {!hasFutureDeliveries && hasHistoricalData && 'Тільки історичні дані'}
-              </small>
-            </div>
-          )}
+      <Card.Body className="p-0">
+        <StatusIndicator />
 
-          {/* Saved Configurations Info */}
-          {savedConfigs.length > 0 && (
-            <div className="p-2 bg-success bg-opacity-10 border-bottom">
-              <small className="text-success">
-                <strong>💾 Збережені конфігурації ({savedConfigs.length}):</strong> {savedConfigs.map(c => c.name).join(', ')}
-                {savedConfigs.some(c => c.isDefault) && (
-                  <span className="ms-2">
-                    <Star size={12} className="text-warning" />
-                    За замовчуванням: {savedConfigs.find(c => c.isDefault)?.name}
-                  </span>
-                )}
-              </small>
-            </div>
-          )}
-
-          {/* Preset Configurations */}
-          <div className="p-3 bg-light border-bottom">
-            <h6 className="mb-2">Готові конфігурації звітів:</h6>
-            <div className="row g-2">
-              {getAvailableConfigs().map(([key, preset]) => (
-                <div key={key} className="col-md-6 col-lg-4">
-                  <Button
-                    variant="outline-primary"
-                    size="sm"
-                    onClick={() => applyPreset(key)}
-                    className="w-100 text-start d-flex align-items-center gap-2"
-                    title={preset.description}
-                  >
-                    {preset.icon}
-                    <div>
-                      <div className="fw-bold">{preset.name}</div>
-                      <small className="text-muted">{preset.description}</small>
-                    </div>
-                  </Button>
-                </div>
-              ))}
-            </div>
-            
-            {/* Planning-specific message */}
-            {hasFutureDeliveries && (
-              <Alert variant="success" className="mt-3 mb-0">
-                <TrendingUp size={16} className="me-1" />
-                <strong>Режим планування активний!</strong> Ви можете аналізувати майбутні доставки та планувати виробництво.
-              </Alert>
+        {/* Data Info */}
+        <div className="p-2 bg-info bg-opacity-10 border-bottom">
+          <small className="text-muted">
+            <strong>Дані:</strong> {data.length} записів | 
+            <strong> Період:</strong> {
+              filters.startDate && filters.endDate 
+                ? `${new Date(filters.startDate).toLocaleDateString('uk-UA')} - ${new Date(filters.endDate).toLocaleDateString('uk-UA')}`
+                : 'Всі дати'
+            }
+            {filters.status !== 'all' && (
+              <span> | <strong>Статус:</strong> {filters.status}</span>
             )}
-          </div>
+            {filters.deliveryType !== 'all' && (
+              <span> | <strong>Доставка:</strong> {filters.deliveryType}</span>
+            )}
+            {hasFutureDeliveries && (
+              <span> | <strong style={{color: '#28a745'}}>Включає майбутні доставки</strong></span>
+            )}
+          </small>
+        </div>
 
-          {/* Data Info */}
-          <div className="p-2 bg-info bg-opacity-10 border-bottom">
-            <small className="text-muted">
-              <strong>Дані:</strong> {data.length} записів | 
-              <strong> Період:</strong> {
-                filters.startDate && filters.endDate 
-                  ? `${new Date(filters.startDate).toLocaleDateString('uk-UA')} - ${new Date(filters.endDate).toLocaleDateString('uk-UA')}`
-                  : 'Всі дати'
-              }
-              {filters.status !== 'all' && (
-                <span> | <strong>Статус:</strong> {filters.status}</span>
-              )}
-              {filters.deliveryType !== 'all' && (
-                <span> | <strong>Доставка:</strong> {filters.deliveryType}</span>
-              )}
-              {hasFutureDeliveries && (
-                <span> | <strong style={{color: '#28a745'}}>Включає майбутні доставки</strong></span>
+        {/* Saved Configurations Info */}
+        {savedConfigs.length > 0 && (
+          <div className="p-2 bg-success bg-opacity-10 border-bottom">
+            <small className="text-success">
+              <strong>💾 Збережені конфігурації ({savedConfigs.length}):</strong> {savedConfigs.map(c => c.name).join(', ')}
+              {savedConfigs.some(c => c.isDefault) && (
+                <span className="ms-2">
+                  <Star size={12} className="text-warning" />
+                  За замовчуванням: {savedConfigs.find(c => c.isDefault)?.name}
+                </span>
               )}
             </small>
           </div>
+        )}
 
-          {/* Pivot Table */}
+        {/* Preset Configurations */}
+        <div className="p-3 bg-light border-bottom">
+          <h6 className="mb-2">Готові конфігурації звітів:</h6>
+          <div className="row g-2">
+            {getAvailableConfigs().map(([key, preset]) => (
+              <div key={key} className="col-md-6 col-lg-4">
+                <Button
+                  variant="outline-primary"
+                  size="sm"
+                  onClick={() => applyPreset(key)}
+                  className="w-100 text-start d-flex align-items-center gap-2"
+                  title={preset.description}
+                >
+                  {preset.icon}
+                  <div>
+                    <div className="fw-bold">{preset.name}</div>
+                    <small className="text-muted">{preset.description}</small>
+                  </div>
+                </Button>
+              </div>
+            ))}
+          </div>
+          
+          {hasFutureDeliveries && (
+            <Alert variant="success" className="mt-3 mb-0">
+              <TrendingUp size={16} className="me-1" />
+              <strong>Режим планування активний!</strong> Ви можете аналізувати майбутні доставки та планувати виробництво.
+            </Alert>
+          )}
+        </div>
+
+        {/* Pivot Table */}
         <div className="pivot-container" style={{ minHeight: '500px' }}>
-          {translatedData.length > 0 ? (
+          {hasData ? (
             <PivotTableUI
               data={translatedData}
               onChange={handlePivotChange}
@@ -652,7 +675,7 @@ const PivotTableContainer = ({ data, filters }) => {
               hiddenAttributes={[]}
               hiddenFromAggregators={[]}
               hiddenFromDragDrop={[]}
-              key={`pivot-${isInitialized}-${translatedData.length}`} // Принудительное обновление
+              key={`pivot-${isInitialized}-${translatedData.length}`}
             />
           ) : (
             <Alert variant="warning" className="m-3">
@@ -662,26 +685,20 @@ const PivotTableContainer = ({ data, filters }) => {
           )}
         </div>
       </Card.Body>
-        
-        <Card.Footer className="bg-light">
-          <Row>
-            <Col>
-              <small className="text-muted">
-                <strong>Порада:</strong> Перетягуйте поля між зонами для створення різних звітів. 
-                {hasFutureDeliveries ? ' Зелені конфігурації призначені для планування майбутніх доставок.' : ''}
-                {savedConfigs.length > 0 && ' Збережені конфігурації доступні через кнопку налаштувань.'}
-              </small>
-            </Col>
-            <Col xs="auto">
-              <small className="text-muted">
-                Останнє оновлення: {new Date().toLocaleTimeString('uk-UA')}
-              </small>
-            </Col>
-          </Row>
-        </Card.Footer>
-      </Card>
 
-      {/* Save Configuration Modal */}
+      <Card.Footer className="bg-light">
+        <Row>
+          <Col>
+            <small className="text-muted">
+              <strong>Порада:</strong> Перетягуйте поля між зонами для створення різних звітів. 
+              {hasFutureDeliveries ? ' Зелені конфігурації призначені для планування майбутніх доставок.' : ''}
+              {savedConfigs.length > 0 && ' Збережені конфігурації доступні через кнопку налаштувань.'}
+            </small>
+          </Col>
+        </Row>
+      </Card.Footer>
+
+      {/* Save Modal */}
       <Modal show={showSaveModal} onHide={() => setShowSaveModal(false)} centered>
         <Modal.Header closeButton>
           <Modal.Title>
@@ -692,42 +709,36 @@ const PivotTableContainer = ({ data, filters }) => {
         <Modal.Body>
           <Form>
             <Form.Group className="mb-3">
-              <Form.Label>Назва конфігурації <span className="text-danger">*</span></Form.Label>
+              <Form.Label>Назва конфігурації *</Form.Label>
               <Form.Control
                 type="text"
-                placeholder="Наприклад: План доставок на тиждень"
                 value={saveForm.name}
                 onChange={(e) => setSaveForm(prev => ({ ...prev, name: e.target.value }))}
+                placeholder="Введіть назву конфігурації"
                 required
               />
             </Form.Group>
-            
             <Form.Group className="mb-3">
               <Form.Label>Опис (необов'язково)</Form.Label>
               <Form.Control
                 as="textarea"
                 rows={2}
-                placeholder="Коротний опис того, для чого використовується ця конфігурація..."
                 value={saveForm.description}
                 onChange={(e) => setSaveForm(prev => ({ ...prev, description: e.target.value }))}
+                placeholder="Короткий опис конфігурації"
               />
             </Form.Group>
-            
-            <Form.Group className="mb-3">
-              <Form.Check
-                type="checkbox"
-                label="Встановити як конфігурацію за замовчуванням"
-                checked={saveForm.isDefault}
-                onChange={(e) => setSaveForm(prev => ({ ...prev, isDefault: e.target.checked }))}
-              />
-              <Form.Text className="text-muted">
-                Конфігурація за замовчуванням завантажується автоматично при відкритті звітів
-              </Form.Text>
-            </Form.Group>
+            <Form.Check
+              type="checkbox"
+              id="default-config"
+              label="Встановити як конфігурацію за замовчуванням"
+              checked={saveForm.isDefault}
+              onChange={(e) => setSaveForm(prev => ({ ...prev, isDefault: e.target.checked }))}
+            />
           </Form>
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="outline-secondary" onClick={() => setShowSaveModal(false)} disabled={loading}>
+          <Button variant="outline-secondary" onClick={() => setShowSaveModal(false)}>
             Скасувати
           </Button>
           <Button 
@@ -740,7 +751,7 @@ const PivotTableContainer = ({ data, filters }) => {
         </Modal.Footer>
       </Modal>
 
-      {/* Load Configuration Modal */}
+      {/* Load Modal */}
       <Modal show={showLoadModal} onHide={() => setShowLoadModal(false)} size="lg" centered>
         <Modal.Header closeButton>
           <Modal.Title>
@@ -785,8 +796,9 @@ const PivotTableContainer = ({ data, filters }) => {
                       size="sm"
                       onClick={() => loadConfiguration(config)}
                       title="Завантажити конфігурацію"
+                      disabled={configLoading}
                     >
-                      Завантажити
+                      {configLoading ? <Spinner animation="border" size="sm" /> : 'Завантажити'}
                     </Button>
                     {!config.isDefault && (
                       <Button
@@ -818,7 +830,7 @@ const PivotTableContainer = ({ data, filters }) => {
           </Button>
         </Modal.Footer>
       </Modal>
-    </>
+    </Card>
   );
 };
 

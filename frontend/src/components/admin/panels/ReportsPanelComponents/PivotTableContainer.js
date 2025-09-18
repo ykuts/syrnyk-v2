@@ -130,7 +130,7 @@ const PivotTableContainer = ({ data, filters, onFiltersUpdate }) => {
         vals: [],
         rows: ['Кантон', 'Тип доставки', 'Дата доставки', 'Назва станції', 'Імя клієнта', 'Сума замовлення'],
         cols: ['Назва продукту'],
-        rendererName: 'Table Heatmap'
+        rendererName: 'Table'
       },
       icon: <TrendingUp size={16} />,
       requiresFuture: true
@@ -160,7 +160,7 @@ const PivotTableContainer = ({ data, filters, onFiltersUpdate }) => {
       icon: <TrendingUp size={16} />,
       requiresFuture: true
     },
-    weekly_production_schedule: {
+    /* weekly_production_schedule: {
       name: 'Тижневий план виробництва',
       description: 'Планування виробництва по тижнях',
       config: {
@@ -184,8 +184,8 @@ const PivotTableContainer = ({ data, filters, onFiltersUpdate }) => {
         rendererName: 'Table'
       },
       icon: <Settings size={16} />
-    },
-    delivery_by_canton: {
+    }, */
+    /* delivery_by_canton: {
       name: 'Доставка по кантонах',
       description: 'Аналіз доставок за кантонами та містами',
       config: {
@@ -196,7 +196,7 @@ const PivotTableContainer = ({ data, filters, onFiltersUpdate }) => {
         rendererName: 'Table'
       },
       icon: <Settings size={16} />
-    }
+    } */
   };
 
   // ===== UTILITY FUNCTIONS =====

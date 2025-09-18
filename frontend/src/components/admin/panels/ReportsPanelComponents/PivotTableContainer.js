@@ -132,8 +132,7 @@ const PivotTableContainer = ({ data, filters, onFiltersUpdate }) => {
         cols: ['Назва продукту'],
         rendererName: 'Table'
       },
-      icon: <TrendingUp size={16} />,
-      requiresFuture: true
+      icon: <TrendingUp size={16} />
     },
     production_planning: {
       name: 'Планування виробництва',
@@ -158,7 +157,7 @@ const PivotTableContainer = ({ data, filters, onFiltersUpdate }) => {
         rendererName: 'Table Heatmap'
       },
       icon: <TrendingUp size={16} />,
-      requiresFuture: true
+      /* requiresFuture: true */
     },
     /* weekly_production_schedule: {
       name: 'Тижневий план виробництва',
@@ -246,10 +245,10 @@ const PivotTableContainer = ({ data, filters, onFiltersUpdate }) => {
   const resetToDefault = () => {
     setPivotState({
       data: translatedData,
-      aggregatorName: 'Sum',
+      aggregatorName: 'Count',
       vals: ['Кількість'],
-      rows: ['Назва продукту'],
-      cols: [],
+      rows: [],
+      cols: ['Назва продукту'],
       rendererName: 'Table',
       unusedOrientationCutoff: 85
     });
@@ -482,7 +481,7 @@ const PivotTableContainer = ({ data, filters, onFiltersUpdate }) => {
       setPivotState(prev => ({
         ...prev,
         data: translatedData,
-        cols: hasFutureDeliveries ? ['Дата доставки'] : ['Дата замовлення']
+        /* cols: hasFutureDeliveries ? ['Дата доставки'] : ['Дата замовлення'] */
       }));
       setIsInitialized(true);
     } else if (translatedData.length > 0 && isInitialized) {

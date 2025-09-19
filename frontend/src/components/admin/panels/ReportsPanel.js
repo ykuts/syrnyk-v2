@@ -100,14 +100,6 @@ const ReportsPanel = () => {
         <h2>Звіти та аналітика</h2>
       </div>
 
-      {/* Filters Section */}
-      <ReportsFilters 
-        filters={filters}
-        onFiltersChange={handleFiltersChange}
-        onRefresh={handleRefresh}
-        loading={loading}
-      />
-
       {/* Error Display */}
       {error && (
         <Alert variant="danger" className="mb-4">
@@ -131,6 +123,14 @@ const ReportsPanel = () => {
           filters={filters}
         />
       )}
+
+      {/* Filters Section */}
+      <ReportsFilters 
+        filters={filters}
+        onFiltersChange={handleFiltersChange}
+        onRefresh={handleRefresh}
+        loading={loading}
+      />
 
       {/* Pivot Table with filter update callback */}
       {!loading && !error && reportData.length > 0 && (

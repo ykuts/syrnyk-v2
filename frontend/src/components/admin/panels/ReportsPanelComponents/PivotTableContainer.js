@@ -112,8 +112,8 @@ const PivotTableContainer = ({ data, filters, onFiltersUpdate }) => {
   // ===== PIVOT STATE =====
   const [pivotState, setPivotState] = useState({
     data: [],
-    aggregatorName: 'Count',
-    vals: [],
+    aggregatorName: 'Sum',
+    vals: ['Кількість'],
     rows: ['Кантон', 'Тип доставки', 'Дата доставки', 'Назва станції', 'Імя клієнта', 'Сума замовлення'],
     cols: ['Назва продукту'],
     rendererName: 'Table',
@@ -126,8 +126,8 @@ const PivotTableContainer = ({ data, filters, onFiltersUpdate }) => {
       name: 'Базовий звіт',
       description: 'Розподіл замовлень за датами та продукцією',
       config: {
-        aggregatorName: 'Count',
-        vals: [],
+        aggregatorName: 'Sum',
+        vals: ['Кількість'],
         rows: ['Кантон', 'Тип доставки', 'Дата доставки', 'Назва станції', 'Імя клієнта', 'Сума замовлення'],
         cols: ['Назва продукту'],
         rendererName: 'Table'

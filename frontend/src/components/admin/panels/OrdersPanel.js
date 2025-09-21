@@ -14,6 +14,7 @@ import {
 } from 'react-bootstrap';
 import { apiClient } from '../../../utils/api';
 import OrderItemsEditor from './OrdersPanelComp/OrderItemsEditor';
+import DeliveryEditor from './OrdersPanelComp/DeliveryEditor';
 
 const OrdersPanel = () => {
   const [orders, setOrders] = useState([]);
@@ -29,6 +30,8 @@ const OrdersPanel = () => {
   const [notificationMessage, setNotificationMessage] = useState('');
   const [sendingNotification, setSendingNotification] = useState(false);
   const [stations, setStations] = useState([]);
+  const [showDeliveryEditor, setShowDeliveryEditor] = useState(false);
+  const [currentEditingOrder, setCurrentEditingOrder] = useState(null);
 
   // Auth headers for all requests
   const getAuthHeaders = () => ({
@@ -41,20 +44,20 @@ const OrdersPanel = () => {
   }, []);
 
   const fetchStations = async () => {
-  try {
-    const response = await apiClient.get('/railway-stations');
-    console.log('API response:', response);
-    
-    if (response.data && Array.isArray(response.data)) {
-      setStations(response.data);
-      console.log('Stations loaded:', response.data);
-    } else {
-      console.error('Unexpected API response structure:', response);
+    try {
+      const response = await apiClient.get('/railway-stations');
+      console.log('API response:', response);
+
+      if (response.data && Array.isArray(response.data)) {
+        setStations(response.data);
+        console.log('Stations loaded:', response.data);
+      } else {
+        console.error('Unexpected API response structure:', response);
+      }
+    } catch (err) {
+      console.error('Error fetching stations:', err);
     }
-  } catch (err) {
-    console.error('Error fetching stations:', err);
-  }
-};
+  };
 
 
   const fetchOrders = async () => {
@@ -136,6 +139,17 @@ const OrdersPanel = () => {
       setError('Failed to save admin notes');
       console.error('Error saving admin notes:', err);
     }
+  };
+
+  const handleDeliveryUpdate = (updatedOrder) => {
+    setOrders(orders.map(order =>
+      order.id === updatedOrder.id ? updatedOrder : order
+    ));
+  };
+
+  const openDeliveryEditor = (order) => {
+    setCurrentEditingOrder(order);
+    setShowDeliveryEditor(true);
   };
 
   // Get customer information (handles both registered and guest users)
@@ -226,25 +240,25 @@ const OrdersPanel = () => {
   };
 
   const getStationNameById = (stationId) => {
-  console.log('Looking for station ID:', stationId, 'type:', typeof stationId);
-  console.log('Available stations:', stations);
+    console.log('Looking for station ID:', stationId, 'type:', typeof stationId);
+    console.log('Available stations:', stations);
 
-  
-  if (!stations.length) {
-    return 'Завантаження станцій...';
-  }
 
-  const station = stations.find(s => s.id == stationId);
-  console.log('Found station:', station);
-  
-  
-  if (station) {
-    console.log('Found station city:', station.city);
-    return station.city;
-  }
+    if (!stations.length) {
+      return 'Завантаження станцій...';
+    }
 
-  return `Station ID: ${stationId}`;
-};
+    const station = stations.find(s => s.id == stationId);
+    console.log('Found station:', station);
+
+
+    if (station) {
+      console.log('Found station city:', station.city);
+      return station.city;
+    }
+
+    return `Station ID: ${stationId}`;
+  };
 
   // Helper function for delivery details
   const getDeliveryDetails = (order) => {
@@ -304,12 +318,12 @@ const OrdersPanel = () => {
     const customerInfo = getCustomerInfo(order);
 
     if (order.deliveryType === 'RAILWAY_STATION' && !stations.length) {
-    return (
-      <Card key={order.id} className="mb-4">
-        <Card.Body>Завантаження станцій...</Card.Body>
-      </Card>
-    );
-  }
+      return (
+        <Card key={order.id} className="mb-4">
+          <Card.Body>Завантаження станцій...</Card.Body>
+        </Card>
+      );
+    }
 
     return (
       <Card key={order.id} className="mb-4">
@@ -383,6 +397,16 @@ const OrdersPanel = () => {
                 </Form.Select>
               </Form.Group>
 
+              {/* NEW DELIVERY EDIT BUTTON */}
+              <Button
+                variant="outline-success"
+                size="sm"
+                onClick={() => openDeliveryEditor(order)}
+                className="mb-2 w-100"
+              >
+                📦 Редагувати доставку
+              </Button>
+
               <Button
                 variant="outline-primary"
                 onClick={() => setExpandedOrder(expandedOrder === order.id ? null : order.id)}
@@ -390,6 +414,7 @@ const OrdersPanel = () => {
               >
                 {expandedOrder === order.id ? 'Приховати деталі' : 'Показати деталі'}
               </Button>
+              
             </Col>
           </Row>
 
@@ -561,6 +586,17 @@ const OrdersPanel = () => {
         </Modal.Footer>
       </Modal>
 
+      {/* Delivery Editor Modal */}
+      <DeliveryEditor
+        show={showDeliveryEditor}
+        onHide={() => {
+          setShowDeliveryEditor(false);
+          setCurrentEditingOrder(null);
+        }}
+        order={currentEditingOrder}
+        onDeliveryUpdate={handleDeliveryUpdate}
+        getAuthHeaders={getAuthHeaders}
+      />
     </Container>
   );
 };

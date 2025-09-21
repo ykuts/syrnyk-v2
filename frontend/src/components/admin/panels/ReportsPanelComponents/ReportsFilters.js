@@ -197,7 +197,7 @@ const ReportsFilters = ({ filters, onFiltersChange, onRefresh, loading }) => {
                   onChange={(e) => handleFilterChange('status', e.target.value)}
                 >
                   <option value="all">Всі статуси</option>
-                  <option value="PENDING">В обробці</option>
+                  <option value="PENDING">Нові</option>
                   <option value="CONFIRMED">Підтверджено</option>
                   <option value="DELIVERED">Доставлено</option>
                   <option value="CANCELLED">Скасовано</option>

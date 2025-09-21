@@ -452,3 +452,282 @@ export const getAvailableDeliveryDates = async (req, res) => {
     res.status(500).json({ error: 'Failed to get available delivery dates' });
   }
 };
+
+/**
+ * Update order delivery information
+ * Handles changing delivery type, address, station, date/time
+ */
+export const updateOrderDelivery = async (req, res) => {
+  try {
+    const { orderId } = req.params;
+    const { 
+      deliveryType, 
+      deliveryDate, 
+      deliveryTimeSlot,
+      // Address delivery fields
+      street, 
+      house, 
+      apartment, 
+      city, 
+      postalCode,
+      // Station delivery fields
+      deliveryStationId,
+      meetingTime,
+      // Pickup delivery fields
+      storeId,
+      pickupTime
+    } = req.body;
+
+    console.log(`Updating delivery for order ${orderId}:`, req.body);
+
+    // Start transaction to ensure data consistency
+    const result = await prisma.$transaction(async (tx) => {
+      // First, get current order with delivery info
+      const currentOrder = await tx.order.findUnique({
+        where: { id: parseInt(orderId) },
+        include: {
+          addressDelivery: true,
+          stationDelivery: true,
+          pickupDelivery: true
+        }
+      });
+
+      if (!currentOrder) {
+        throw new Error('Order not found');
+      }
+
+      // Clean up old delivery records if delivery type changed
+      if (currentOrder.deliveryType !== deliveryType) {
+        // Remove old delivery records
+        if (currentOrder.addressDelivery) {
+          await tx.addressDelivery.delete({
+            where: { orderId: parseInt(orderId) }
+          });
+        }
+        if (currentOrder.stationDelivery) {
+          await tx.stationDelivery.delete({
+            where: { orderId: parseInt(orderId) }
+          });
+        }
+        if (currentOrder.pickupDelivery) {
+          await tx.pickupDelivery.delete({
+            where: { orderId: parseInt(orderId) }
+          });
+        }
+      }
+
+      // Update main order fields
+      const orderUpdateData = {
+        deliveryType,
+        deliveryDate: deliveryDate ? new Date(deliveryDate) : null,
+        deliveryTimeSlot: deliveryTimeSlot || null,
+        deliveryStationId: deliveryType === 'RAILWAY_STATION' ? parseInt(deliveryStationId) : null,
+        deliveryPickupLocationId: deliveryType === 'PICKUP' ? parseInt(storeId) : null
+      };
+
+      const updatedOrder = await tx.order.update({
+        where: { id: parseInt(orderId) },
+        data: orderUpdateData
+      });
+
+      // Create or update specific delivery records based on type
+      let deliveryRecord = null;
+
+      switch (deliveryType) {
+        case 'ADDRESS':
+          deliveryRecord = await tx.addressDelivery.upsert({
+            where: { orderId: parseInt(orderId) },
+            update: {
+              street: street || '',
+              house: house || '',
+              apartment: apartment || null,
+              city: city || '',
+              postalCode: postalCode || ''
+            },
+            create: {
+              orderId: parseInt(orderId),
+              street: street || '',
+              house: house || '',
+              apartment: apartment || null,
+              city: city || '',
+              postalCode: postalCode || ''
+            }
+          });
+          break;
+
+        case 'RAILWAY_STATION':
+          if (deliveryStationId) {
+            deliveryRecord = await tx.stationDelivery.upsert({
+              where: { orderId: parseInt(orderId) },
+              update: {
+                stationId: parseInt(deliveryStationId),
+                meetingTime: meetingTime ? new Date(meetingTime) : new Date(deliveryDate)
+              },
+              create: {
+                orderId: parseInt(orderId),
+                stationId: parseInt(deliveryStationId),
+                meetingTime: meetingTime ? new Date(meetingTime) : new Date(deliveryDate)
+              }
+            });
+          }
+          break;
+
+        case 'PICKUP':
+          if (storeId) {
+            deliveryRecord = await tx.pickupDelivery.upsert({
+              where: { orderId: parseInt(orderId) },
+              update: {
+                storeId: parseInt(storeId),
+                pickupTime: pickupTime ? new Date(pickupTime) : new Date(deliveryDate)
+              },
+              create: {
+                orderId: parseInt(orderId),
+                storeId: parseInt(storeId),
+                pickupTime: pickupTime ? new Date(pickupTime) : new Date(deliveryDate)
+              }
+            });
+          }
+          break;
+      }
+
+      return { updatedOrder, deliveryRecord };
+    });
+
+    // Log the delivery change for admin tracking
+    const changeLog = `Admin updated delivery: ${deliveryType} on ${new Date().toISOString()}`;
+    
+    await prisma.order.update({
+      where: { id: parseInt(orderId) },
+      data: {
+        changes: {
+          push: changeLog
+        }
+      }
+    });
+
+    // Fetch complete updated order for response
+    const completeOrder = await prisma.order.findUnique({
+      where: { id: parseInt(orderId) },
+      include: {
+        addressDelivery: true,
+        stationDelivery: {
+          include: { station: true }
+        },
+        pickupDelivery: {
+          include: { store: true }
+        },
+        user: true,
+        guestInfo: true,
+        items: {
+          include: { product: true }
+        }
+      }
+    });
+
+    res.json({
+      success: true,
+      message: 'Delivery information updated successfully',
+      order: completeOrder
+    });
+
+  } catch (error) {
+    console.error('Error updating delivery:', error);
+    res.status(500).json({
+      success: false,
+      message: error.message || 'Failed to update delivery information'
+    });
+  }
+};
+
+/**
+ * Get available delivery options (stations, stores)
+ */
+export const getDeliveryOptions = async (req, res) => {
+  try {
+    // Get all available railway stations
+    const stations = await prisma.railwayStation.findMany({
+      include: {
+        translations: true
+      },
+      orderBy: {
+        city: 'asc'
+      }
+    });
+
+    // Get all available stores for pickup
+    const stores = await prisma.store.findMany({
+      orderBy: {
+        city: 'asc'
+      }
+    });
+
+    res.json({
+      success: true,
+      data: {
+        stations,
+        stores
+      }
+    });
+
+  } catch (error) {
+    console.error('Error fetching delivery options:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch delivery options'
+    });
+  }
+};
+
+/**
+ * Get delivery details for specific order
+ */
+export const getOrderDeliveryDetails = async (req, res) => {
+  try {
+    const { orderId } = req.params;
+
+    const order = await prisma.order.findUnique({
+      where: { id: parseInt(orderId) },
+      include: {
+        addressDelivery: true,
+        stationDelivery: {
+          include: { 
+            station: {
+              include: { translations: true }
+            }
+          }
+        },
+        pickupDelivery: {
+          include: { store: true }
+        }
+      }
+    });
+
+    if (!order) {
+      return res.status(404).json({
+        success: false,
+        message: 'Order not found'
+      });
+    }
+
+    res.json({
+      success: true,
+      delivery: {
+        type: order.deliveryType,
+        date: order.deliveryDate,
+        timeSlot: order.deliveryTimeSlot,
+        details: {
+          address: order.addressDelivery,
+          station: order.stationDelivery,
+          pickup: order.pickupDelivery
+        }
+      }
+    });
+
+  } catch (error) {
+    console.error('Error fetching delivery details:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch delivery details'
+    });
+  }
+};

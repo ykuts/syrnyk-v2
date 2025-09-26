@@ -8,6 +8,9 @@ import {
   sendWelcomeEmail,
 } from '../services/emailService.js';
 
+import axios from 'axios';
+
+
 const prisma = new PrismaClient();
 // Helper function to prepare time from time slot string
 const prepareTimeFromSlot = (dateString, timeSlotString) => {

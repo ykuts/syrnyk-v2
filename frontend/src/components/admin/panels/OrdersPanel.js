@@ -438,8 +438,9 @@ const OrdersPanel = () => {
                           size="sm"
                         >
                           <option value="PENDING">Нове</option>
+                          <option value="REQUIRES_AGREEMENT">Треба домовитись</option>
                           <option value="CONFIRMED">Підтверджено</option>
-                          <option value="DELIVERED">Доставлено</option>
+                          <option value="DELIVERED">Виконано</option>
                           <option value="CANCELLED">Відмінено</option>
                         </Form.Select>
                       </Form.Group>

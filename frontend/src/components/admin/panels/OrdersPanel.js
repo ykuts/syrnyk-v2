@@ -459,7 +459,7 @@ const OrdersPanel = () => {
                   <div className="d-flex align-items-center">
                     <MessageSquare className="me-2 text-muted flex-shrink-0" size={14} />
                     <span className="small text-muted" style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                      ID: {customerInfo.externalId}
+                      ID SendPulse: {customerInfo.externalId}
                     </span>
                     {/* <span className="d-inline-block ms-2">
                       {customerInfo.orderSource && (

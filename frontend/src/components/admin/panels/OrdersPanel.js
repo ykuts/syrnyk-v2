@@ -165,8 +165,15 @@ const OrdersPanel = () => {
   // Get customer information (handles both registered and guest users)
   const getCustomerInfo = (order) => {
     console.log('Order data:', order);
+
+    const baseInfo = {
+      externalId: order.sendpulseContactId || null,
+      orderSource: order.orderSource || null
+    };
+
     if (order.user) {
       return {
+        ...baseInfo,
         name: `${order.user.firstName} ${order.user.lastName}`,
         email: order.user.email,
         phone: order.user.phone,
@@ -176,6 +183,7 @@ const OrdersPanel = () => {
 
     if (order.guestInfo) {
       return {
+        ...baseInfo,
         name: `${order.guestInfo.firstName} ${order.guestInfo.lastName}`,
         email: order.guestInfo.email,
         phone: order.guestInfo.phone,
@@ -184,6 +192,7 @@ const OrdersPanel = () => {
     }
 
     return {
+      ...baseInfo,
       name: 'Unknown Customer',
       email: 'N/A',
       phone: 'N/A',
@@ -375,12 +384,27 @@ const OrdersPanel = () => {
           <div className="mb-3">
             {/* Перша лінія: номер замовлення та сума */}
             <div className="d-flex justify-content-between align-items-center mb-2">
-              <div className="d-flex align-items-center gap-2">
-                <Package size={18} />
-                <span className="fw-bold">#{order.id}</span>
-                {customerInfo.isGuest && (
-                  <Badge bg="secondary" style={{ fontSize: '0.7rem' }}>Гість</Badge>
-                )}
+              <div>
+                <div className="d-flex align-items-center gap-2 mb-1">
+                  <Package size={18} />
+                  <span className="fw-bold">#{order.id}</span>
+                </div>
+                {/* Badges під номером */}
+                <div className="d-flex gap-1 flex-wrap ms-4">
+                  {customerInfo.isGuest && (
+                    <Badge bg="secondary" style={{ fontSize: '0.7rem' }}>Гість</Badge>
+                  )}
+                  {customerInfo.orderSource && (
+                    <Badge bg="danger" style={{ fontSize: '0.7rem' }}>
+                      {customerInfo.orderSource}
+                    </Badge>
+                  )}
+                  {/* {customerInfo.externalId && (
+                    <small className="text-muted">
+                      ID: {customerInfo.externalId}
+                    </small>
+                  )} */}
+                </div>
               </div>
 
               <div className="h4 mb-0 text-primary">
@@ -431,6 +455,21 @@ const OrdersPanel = () => {
                     {customerInfo.name}
                   </span>
                 </div>
+                {customerInfo.externalId && (
+                  <div className="d-flex align-items-center">
+                    <MessageSquare className="me-2 text-muted flex-shrink-0" size={14} />
+                    <span className="small text-muted" style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      ID: {customerInfo.externalId}
+                    </span>
+                    {/* <span className="d-inline-block ms-2">
+                      {customerInfo.orderSource && (
+                        <Badge bg="info" className="ms-1" style={{ fontSize: '0.65rem' }}>
+                          {customerInfo.orderSource}
+                        </Badge>
+                      )}
+                    </span> */}
+                  </div>
+                )}
                 <div className="d-flex align-items-center">
                   <Phone className="me-2 text-muted flex-shrink-0" size={14} />
                   <a
@@ -441,6 +480,7 @@ const OrdersPanel = () => {
                     {customerInfo.phone}
                   </a>
                 </div>
+                
               </div>
             </Col>
 

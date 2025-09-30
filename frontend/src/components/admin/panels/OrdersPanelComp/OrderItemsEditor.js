@@ -10,6 +10,8 @@ import {
 } from 'react-bootstrap';
 import { Plus, Minus, Trash, PlusCircle } from 'lucide-react';
 import { apiClient } from '../../../../utils/api';
+import './OrderItemsEditor.css';
+
 
 const OrderItemsEditor = ({ 
   order, 
@@ -132,41 +134,47 @@ const OrderItemsEditor = ({
   };
 
   return (
-    <div className="order-items-editor">
-      {error && (
-        <Alert variant="danger" className="mb-3">
-          {error}
-        </Alert>
-      )}
+  <div className="order-items-editor">
+    {error && (
+      <Alert variant="danger" className="mb-3">
+        {error}
+      </Alert>
+    )}
 
-      <div className="d-flex justify-content-between align-items-center mb-3">
-        <h6 className="mb-0">Товари у замовленні:</h6>
-        <Button
-          variant="outline-success"
-          size="sm"
-          onClick={handleShowAddModal}
-          disabled={loading}
+    <div className="d-flex justify-content-between align-items-center mb-3">
+      <h6 className="mb-0">Товари:</h6>
+      <Button
+        variant="outline-success"
+        size="sm"
+        onClick={handleShowAddModal}
+        disabled={loading}
+        className="add-item-btn d-flex align-items-center"
+      >
+        <PlusCircle size={18} className="me-1" />
+        <span className="d-none d-sm-inline">Додати товар</span>
+        <span className="d-sm-none">Додати</span>
+      </Button>
+    </div>
+
+    <ListGroup>
+      {order.items?.map((item) => (
+        <ListGroup.Item 
+          key={item.id}
+          className="d-flex justify-content-between align-items-center"
         >
-          <PlusCircle size={18} className="me-1" />
-          Додати товар
-        </Button>
-      </div>
+          {/* Product info */}
+          <div className="item-info">
+            <div className="item-name">{item.product?.name}</div>
+            <div className="item-price">
+              Ціна: ${Number(item.price).toFixed(2)}
+            </div>
+          </div>
 
-      <ListGroup>
-        {order.items?.map((item) => (
-          <ListGroup.Item 
-            key={item.id}
-            className="d-flex justify-content-between align-items-center"
-          >
-            <div className="d-flex align-items-center flex-grow-1">
-              <div className="me-3">
-                <strong>{item.product?.name}</strong>
-                <div className="text-muted small">
-                  Ціна: ${Number(item.price).toFixed(2)}
-                </div>
-              </div>
-              
-              <InputGroup size="sm" style={{ width: '120px' }}>
+          {/* Controls: quantity + total + delete */}
+          <div className="item-controls">
+            {/* Quantity controls */}
+            <div className="quantity-controls">
+              <InputGroup size="sm">
                 <Button
                   variant="outline-secondary"
                   onClick={() => handleQuantityChange(item.id, item.quantity - 1)}
@@ -180,6 +188,7 @@ const OrderItemsEditor = ({
                   onChange={(e) => handleQuantityChange(item.id, parseInt(e.target.value))}
                   min="1"
                   style={{ textAlign: 'center' }}
+                  disabled={loading}
                 />
                 <Button
                   variant="outline-secondary"
@@ -191,8 +200,9 @@ const OrderItemsEditor = ({
               </InputGroup>
             </div>
 
-            <div className="ms-3 d-flex align-items-center">
-              <span className="me-3">
+            {/* Total and delete */}
+            <div className="item-actions">
+              <span className="item-total">
                 ${(item.quantity * Number(item.price)).toFixed(2)}
               </span>
               <Button
@@ -200,61 +210,64 @@ const OrderItemsEditor = ({
                 size="sm"
                 onClick={() => handleRemoveItem(item.id)}
                 disabled={loading}
+                className="btn-delete"
               >
                 <Trash size={14} />
               </Button>
             </div>
-          </ListGroup.Item>
-        ))}
-      </ListGroup>
+          </div>
+        </ListGroup.Item>
+      ))}
+    </ListGroup>
 
-      <Modal show={showAddModal} onHide={() => setShowAddModal(false)}>
-        <Modal.Header closeButton>
-          <Modal.Title>Додати товар до замовлення</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <Form.Group className="mb-3">
-            <Form.Label>Товар</Form.Label>
-            <Form.Select
-              value={newItem.productId}
-              onChange={(e) => setNewItem({ ...newItem, productId: e.target.value })}
-              required
-            >
-              <option value="">Оберіть товар...</option>
-              {availableProducts.map(product => (
-                <option key={product.id} value={product.id}>
-                  {product.name} - ${Number(product.price).toFixed(2)}
-                </option>
-              ))}
-            </Form.Select>
-          </Form.Group>
-
-          <Form.Group>
-            <Form.Label>Кількість</Form.Label>
-            <Form.Control
-              type="number"
-              value={newItem.quantity}
-              onChange={(e) => setNewItem({ ...newItem, quantity: parseInt(e.target.value) })}
-              min="1"
-              required
-            />
-          </Form.Group>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowAddModal(false)}>
-            Скасувати
-          </Button>
-          <Button 
-            variant="primary" 
-            onClick={handleAddItem}
-            disabled={loading || !newItem.productId || newItem.quantity < 1}
+    {/* Add item modal */}
+    <Modal show={showAddModal} onHide={() => setShowAddModal(false)}>
+      <Modal.Header closeButton>
+        <Modal.Title>Додати товар</Modal.Title>
+      </Modal.Header>
+      <Modal.Body>
+        <Form.Group className="mb-3">
+          <Form.Label>Товар</Form.Label>
+          <Form.Select
+            value={newItem.productId}
+            onChange={(e) => setNewItem({ ...newItem, productId: e.target.value })}
+            required
           >
-            Додати
-          </Button>
-        </Modal.Footer>
-      </Modal>
-    </div>
-  );
+            <option value="">Оберіть товар...</option>
+            {availableProducts.map(product => (
+              <option key={product.id} value={product.id}>
+                {product.name} - ${Number(product.price).toFixed(2)}
+              </option>
+            ))}
+          </Form.Select>
+        </Form.Group>
+
+        <Form.Group>
+          <Form.Label>Кількість</Form.Label>
+          <Form.Control
+            type="number"
+            value={newItem.quantity}
+            onChange={(e) => setNewItem({ ...newItem, quantity: parseInt(e.target.value) })}
+            min="1"
+            required
+          />
+        </Form.Group>
+      </Modal.Body>
+      <Modal.Footer>
+        <Button variant="secondary" onClick={() => setShowAddModal(false)}>
+          Скасувати
+        </Button>
+        <Button 
+          variant="primary" 
+          onClick={handleAddItem}
+          disabled={loading || !newItem.productId || newItem.quantity < 1}
+        >
+          Додати
+        </Button>
+      </Modal.Footer>
+    </Modal>
+  </div>
+);
 };
 
 export default OrderItemsEditor;

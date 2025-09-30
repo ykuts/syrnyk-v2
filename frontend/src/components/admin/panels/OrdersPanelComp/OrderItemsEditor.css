@@ -1,0 +1,91 @@
+/* OrderItemsEditor.css */
+
+/* Mobile optimization for order items */
+.order-items-editor .list-group-item {
+  padding: 0.75rem;
+}
+
+@media (max-width: 576px) {
+  /* Stack items vertically on mobile */
+  .order-items-editor .list-group-item {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    padding: 1rem 0.75rem;
+  }
+  
+  /* Product info section - full width */
+  .order-items-editor .item-info {
+    width: 100%;
+    margin-bottom: 0.75rem;
+  }
+  
+  .order-items-editor .item-name {
+    font-size: 0.95rem;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+    display: block;
+  }
+  
+  .order-items-editor .item-price {
+    font-size: 0.85rem;
+    color: #6c757d;
+    text-align: center;
+  }
+  
+  /* Controls section - full width with space between */
+  .order-items-editor .item-controls {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  /* Quantity controls - compact */
+  .order-items-editor .quantity-controls {
+    width: auto !important;
+  }
+  
+  .order-items-editor .quantity-controls .input-group {
+    width: 100px !important;
+  }
+  
+  .order-items-editor .quantity-controls .form-control {
+    font-size: 0.9rem;
+    padding: 0.25rem 0.5rem;
+  }
+  
+  .order-items-editor .quantity-controls .btn {
+    padding: 0.25rem 0.5rem;
+  }
+  
+  /* Item total and delete */
+  .order-items-editor .item-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.70rem;
+  }
+  
+  .order-items-editor .item-total {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #0d6efd;
+    margin-left: 5px;
+  }
+  
+  .order-items-editor .btn-delete {
+    min-width: 36px;
+    min-height: 36px;
+    padding: 0.5rem;
+  }
+  
+  /* Header button */
+  .order-items-editor .add-item-btn {
+    font-size: 0.85rem;
+    padding: 0.4rem 0.75rem;
+  }
+  
+  .order-items-editor .add-item-btn svg {
+    width: 16px;
+    height: 16px;
+  }
+}

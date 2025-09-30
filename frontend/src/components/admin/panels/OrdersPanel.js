@@ -11,16 +11,19 @@ import {
   Col,
   Modal,
   ListGroup,
-  Collapse, ButtonGroup
+  Collapse,
+  ButtonGroup,
+  Offcanvas
 } from 'react-bootstrap';
-import { 
-  User, Phone, Mail, Calendar, DollarSign, Truck, 
+import {
+  User, Phone, Mail, Calendar, DollarSign, Truck,
   Package, Edit3, MessageSquare, ChevronDown, ChevronUp,
-  MapPin, Clock, Store, Settings, Download
+  MapPin, Clock, Store, Settings, Download, Filter, X
 } from 'lucide-react';
 import { apiClient } from '../../../utils/api';
 import OrderItemsEditor from './OrdersPanelComp/OrderItemsEditor';
 import DeliveryEditor from './OrdersPanelComp/DeliveryEditor';
+import './OrdersPanel.css';
 
 const OrdersPanel = () => {
   const [orders, setOrders] = useState([]);
@@ -38,6 +41,8 @@ const OrdersPanel = () => {
   const [stations, setStations] = useState([]);
   const [showDeliveryEditor, setShowDeliveryEditor] = useState(false);
   const [currentEditingOrder, setCurrentEditingOrder] = useState(null);
+  const [showFilters, setShowFilters] = useState(false);
+  const [showHistory, setShowHistory] = useState({});
 
   // Auth headers for all requests
   const getAuthHeaders = () => ({
@@ -98,7 +103,6 @@ const OrdersPanel = () => {
         getAuthHeaders()
       );
 
-      // Обновляем заказ в состоянии
       const updatedOrders = orders.map(order => {
         if (order.id === currentOrderId) {
           return { ...order, lastNotificationSent: new Date() };
@@ -240,9 +244,32 @@ const OrdersPanel = () => {
       'PENDING': 'warning',
       'CONFIRMED': 'primary',
       'DELIVERED': 'success',
-      'CANCELLED': 'danger'
+      'CANCELLED': 'danger',
+      'REQUIRES_AGREEMENT': 'info'
     };
     return variants[status] || 'secondary';
+  };
+
+  // Translate order status to Ukrainian
+  const getStatusLabel = (status) => {
+    const labels = {
+      'PENDING': 'Нове',
+      'REQUIRES_AGREEMENT': 'Треба домовитись',
+      'CONFIRMED': 'Підтверджено',
+      'DELIVERED': 'Виконано',
+      'CANCELLED': 'Відмінено'
+    };
+    return labels[status] || status;
+  };
+
+  // Translate payment status to Ukrainian
+  const getPaymentStatusLabel = (paymentStatus) => {
+    const labels = {
+      'PENDING': 'Очікування',
+      'PAID': 'Сплачено',
+      'REFUNDED': 'Повернення'
+    };
+    return labels[paymentStatus] || paymentStatus;
   };
 
   const getStationNameById = (stationId) => {
@@ -321,331 +348,306 @@ const OrdersPanel = () => {
 
   // Render single order
   const renderOrder = (order) => {
-  const customerInfo = getCustomerInfo(order);
+    const customerInfo = getCustomerInfo(order);
+    const isExpanded = expandedOrder === order.id;
 
-  if (order.deliveryType === 'RAILWAY_STATION' && !stations.length) {
-    return (
-      <Card key={order.id} className="mb-4">
-        <Card.Body>Завантаження станцій...</Card.Body>
-      </Card>
-    );
-  }
-
-  const getDeliveryIcon = (deliveryType) => {
-    switch (deliveryType) {
-      case 'ADDRESS': return <MapPin size={16} className="text-info" />;
-      case 'RAILWAY_STATION': return <Truck size={16} className="text-primary" />;
-      case 'PICKUP': return <Store size={16} className="text-success" />;
-      default: return <Package size={16} />;
+    if (order.deliveryType === 'RAILWAY_STATION' && !stations.length) {
+      return (
+        <Card key={order.id} className="mb-4">
+          <Card.Body>Завантаження станцій...</Card.Body>
+        </Card>
+      );
     }
-  };
 
-  return (
-    <Card key={order.id} className="mb-4 border-0 shadow-sm order-card-v2">
-      <Card.Body className="p-0">
-        <Row className="g-0">
-          {/* ОСНОВНА ІНФОРМАЦІЯ */}
-          <Col lg={9} md={8}>
-            <div className="p-4">
-              {/* Заголовок заказа */}
-              <div className="d-flex justify-content-between align-items-start mb-3">
-                <div>
-                  <h5 className="mb-1 d-flex align-items-center">
-                    <Package className="me-2" size={20} />
-                    Замовлення #{order.id}
-                    {customerInfo.isGuest && (
-                      <Badge bg="secondary" className="ms-2 fs-6">Гість</Badge>
-                    )}
-                  </h5>
-                  <small className="text-muted">
-                    <Calendar className="me-1" size={14} />
-                    {formatDate(order.createdAt)}
-                  </small>
+    const getDeliveryIcon = (deliveryType) => {
+      switch (deliveryType) {
+        case 'ADDRESS': return <MapPin size={16} className="text-info" />;
+        case 'RAILWAY_STATION': return <Truck size={16} className="text-primary" />;
+        case 'PICKUP': return <Store size={16} className="text-success" />;
+        default: return <Package size={16} />;
+      }
+    };
+
+    return (
+      <Card key={order.id} className="mb-3 mb-md-4 border-0 shadow-sm order-card-v2">
+        <Card.Body className="p-3 p-md-4">
+          {/* COMPACT HEADER */}
+          <div className="mb-3">
+            {/* Перша лінія: номер замовлення та сума */}
+            <div className="d-flex justify-content-between align-items-center mb-2">
+              <div className="d-flex align-items-center gap-2">
+                <Package size={18} />
+                <span className="fw-bold">#{order.id}</span>
+                {customerInfo.isGuest && (
+                  <Badge bg="secondary" style={{ fontSize: '0.7rem' }}>Гість</Badge>
+                )}
+              </div>
+
+              <div className="h4 mb-0 text-primary">
+                ${Number(order.totalAmount).toFixed(2)}
+              </div>
+            </div>
+
+            {/* Друга лінія: дата зліва */}
+            <div className="mb-2">
+              <small className="text-muted d-flex align-items-center">
+                <Calendar className="me-1" size={12} />
+                {new Date(order.createdAt).toLocaleDateString('uk-UA', {
+                  day: 'numeric',
+                  month: 'short',
+                  year: 'numeric',
+                  hour: '2-digit',
+                  minute: '2-digit'
+                })}
+              </small>
+            </div>
+
+            {/* Третя лінія: статуси українською */}
+            <div className="d-flex gap-2 flex-wrap">
+              <Badge
+                bg={getStatusVariant(order.status)}
+                className="px-2 py-1"
+                style={{ fontSize: '0.75rem' }}
+              >
+                Статус: {getStatusLabel(order.status)}
+              </Badge>
+              <Badge
+                bg={order.paymentStatus === 'PAID' ? 'success' : 'warning'}
+                className="px-2 py-1"
+                style={{ fontSize: '0.75rem' }}
+              >
+                Оплата: {getPaymentStatusLabel(order.paymentStatus)}
+              </Badge>
+            </div>
+          </div>
+
+          {/* CUSTOMER & DELIVERY */}
+          <Row className="mb-3 g-2">
+            <Col xs={12} md={6}>
+              <div className="p-2 bg-light rounded">
+                <div className="d-flex align-items-center mb-1">
+                  <User className="me-2 text-muted flex-shrink-0" size={14} />
+                  <span className="small fw-medium" style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {customerInfo.name}
+                  </span>
                 </div>
-                
-                <div className="text-end">
-                  <div className="h4 mb-1 text-primary">
-                    ${Number(order.totalAmount).toFixed(2)}
-                  </div>
-                  <div>
-                    <Badge bg={getStatusVariant(order.status)} className="me-1">
-                      {order.status}
-                    </Badge>
-                    <Badge bg={order.paymentStatus === 'PAID' ? 'success' : 'warning'}>
-                      {order.paymentStatus}
-                    </Badge>
+                <div className="d-flex align-items-center">
+                  <Phone className="me-2 text-muted flex-shrink-0" size={14} />
+                  <a
+                    href={`tel:${customerInfo.phone}`}
+                    className="small text-decoration-none"
+                    style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
+                  >
+                    {customerInfo.phone}
+                  </a>
+                </div>
+              </div>
+            </Col>
+
+            <Col xs={12} md={6}>
+              <div className="p-2 bg-light rounded">
+                <div className="d-flex align-items-start">
+                  {getDeliveryIcon(order.deliveryType)}
+                  <div className="ms-2 flex-grow-1">
+                    <div className="small fw-medium">Доставка</div>
+                    <div className="small text-muted" style={{ wordBreak: 'break-word' }}>
+                      {getDeliveryDetails(order)}
+                    </div>
                   </div>
                 </div>
               </div>
+            </Col>
+          </Row>
 
-              {/* Информация о клиенте */}
-              <Row className="mb-3">
-                <Col md={6}>
-                  <div className="customer-info-compact">
-                    <div className="d-flex align-items-center mb-1">
-                      <User className="me-2 text-muted" size={16} />
-                      <span className="fw-medium">{customerInfo.name}</span>
-                    </div>
-                    <div className="d-flex align-items-center mb-1">
-                      <Mail className="me-2 text-muted" size={16} />
-                      <span className="small text-muted">{customerInfo.email}</span>
-                    </div>
-                    {customerInfo.phone && (
-                      <div className="d-flex align-items-center">
-                        <Phone className="me-2 text-muted" size={16} />
-                        <span className="small text-muted">{customerInfo.phone}</span>
-                      </div>
-                    )}
-                  </div>
+          {/* QUICK ACTIONS */}
+          <div className="d-grid gap-2 d-md-flex mb-3">
+            <Button
+              variant={isExpanded ? "outline-secondary" : "primary"}
+              size="sm"
+              onClick={() => setExpandedOrder(isExpanded ? null : order.id)}
+              className="d-flex align-items-center justify-content-center"
+            >
+              {isExpanded ? (
+                <>
+                  <ChevronUp className="me-2" size={16} />
+                  <span className="d-none d-md-inline">Згорнути деталі</span>
+                  <span className="d-md-none">Згорнути</span>
+                </>
+              ) : (
+                <>
+                  <ChevronDown className="me-2" size={16} />
+                  <span className="d-none d-md-inline">Розгорнути деталі</span>
+                  <span className="d-md-none">Детальніше</span>
+                </>
+              )}
+            </Button>
+
+            <Button
+              variant="success"
+              size="sm"
+              onClick={() => openDeliveryEditor(order)}
+              className="d-flex align-items-center justify-content-center"
+            >
+              <Truck className="me-2" size={16} />
+              <span className="d-none d-md-inline">Управління доставкою</span>
+              <span className="d-md-none">Доставка</span>
+            </Button>
+          </div>
+
+          {/* EXPANDED CONTENT */}
+          <Collapse in={isExpanded}>
+            <div className="expanded-content-v2">
+              <hr className="my-3" />
+
+              {/* Status Management */}
+              <Row className="mb-4 g-2">
+                <Col xs={12} md={6}>
+                  <Form.Group>
+                    <Form.Label className="small fw-medium text-muted">
+                      СТАТУС ЗАМОВЛЕННЯ
+                    </Form.Label>
+                    <Form.Select
+                      value={order.status}
+                      onChange={(e) => handleStatusChange(order.id, e.target.value)}
+                      size="sm"
+                    >
+                      <option value="PENDING">Нове</option>
+                      <option value="REQUIRES_AGREEMENT">Треба домовитись</option>
+                      <option value="CONFIRMED">Підтверджено</option>
+                      <option value="DELIVERED">Виконано</option>
+                      <option value="CANCELLED">Відмінено</option>
+                    </Form.Select>
+                  </Form.Group>
                 </Col>
-                
-                <Col md={6}>
-                  <div className="delivery-info-compact">
-                    <div className="d-flex align-items-start">
-                      {getDeliveryIcon(order.deliveryType)}
-                      <div className="ms-2">
-                        <div className="small fw-medium">Доставка</div>
-                        <div className="small text-muted">
-                          {getDeliveryDetails(order)}
-                        </div>
-                        {order.deliveryDate && (
-                          <div className="small text-muted mt-1">
-                            <Clock className="me-1" size={12} />
-                            {formatDate(order.deliveryDate)}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
+                <Col xs={12} md={6}>
+                  <Form.Group>
+                    <Form.Label className="small fw-medium text-muted">
+                      СТАТУС ОПЛАТИ
+                    </Form.Label>
+                    <Form.Select
+                      value={order.paymentStatus}
+                      onChange={(e) => handlePaymentStatusChange(order.id, e.target.value)}
+                      size="sm"
+                    >
+                      <option value="PENDING">Очікування</option>
+                      <option value="PAID">Сплачено</option>
+                      <option value="REFUNDED">Повернення</option>
+                    </Form.Select>
+                  </Form.Group>
                 </Col>
               </Row>
 
-              {/* Развернутая секция */}
-              <Collapse in={expandedOrder === order.id}>
-                <div className="expanded-content-v2">
-                  <hr className="my-3" />
-                  
-                  {/* Управление статусами */}
-                  <Row className="mb-4">
-                    <Col md={6}>
-                      <Form.Group className="mb-3">
-                        <Form.Label className="small fw-medium text-muted">
-                          СТАТУС ЗАМОВЛЕННЯ
-                        </Form.Label>
-                        <Form.Select
-                          value={order.status}
-                          onChange={(e) => handleStatusChange(order.id, e.target.value)}
-                          size="sm"
-                        >
-                          <option value="PENDING">Нове</option>
-                          <option value="REQUIRES_AGREEMENT">Треба домовитись</option>
-                          <option value="CONFIRMED">Підтверджено</option>
-                          <option value="DELIVERED">Виконано</option>
-                          <option value="CANCELLED">Відмінено</option>
-                        </Form.Select>
-                      </Form.Group>
-                    </Col>
-                    <Col md={6}>
-                      <Form.Group className="mb-3">
-                        <Form.Label className="small fw-medium text-muted">
-                          СТАТУС ОПЛАТИ
-                        </Form.Label>
-                        <Form.Select
-                          value={order.paymentStatus}
-                          onChange={(e) => handlePaymentStatusChange(order.id, e.target.value)}
-                          size="sm"
-                        >
-                          <option value="PENDING">Очікування</option>
-                          <option value="PAID">Сплачено</option>
-                          <option value="REFUNDED">Повернення</option>
-                        </Form.Select>
-                      </Form.Group>
-                    </Col>
-                  </Row>
+              {/* Order Items */}
+              <div className="items-section">
+                {/* <h6 className="mb-3">
+                  <Package className="me-2" size={16} />
+                  Товари в замовленні
+                </h6> */}
+                <div className="border rounded p-3 bg-light">
+                  <OrderItemsEditor
+                    order={order}
+                    onOrderUpdate={(updatedOrder) => {
+                      setOrders(orders.map(o =>
+                        o.id === updatedOrder.id ? updatedOrder : o
+                      ));
+                    }}
+                    getAuthHeaders={getAuthHeaders}
+                    onOrderChange={() => {
+                      setCurrentOrderId(order.id);
+                    }}
+                  />
+                </div>
+              </div>
 
-                  {/* Комментарий администратора */}
-                  <Form.Group className="mb-3">
-                    <Form.Label className="small fw-medium text-muted">
-                      КОМЕНТАР АДМІНІСТРАТОРА
-                    </Form.Label>
-                    <Form.Control
-                      as="textarea"
-                      rows={3}
-                      value={adminNotes[order.id] || ''}
-                      onChange={(e) => handleAdminNotesChange(order.id, e.target.value)}
-                      placeholder="Внутрішні нотатки..."
-                      size="sm"
-                    />
-                    <div className="mt-2">
-                      <Button
-                        variant="outline-primary"
-                        size="sm"
-                        onClick={() => saveAdminNotes(order.id)}
-                      >
-                        Зберегти
-                      </Button>
-                    </div>
-                  </Form.Group>
+              {/* Full contact info - mobile only */}
+              {/* <div className="mt-3 p-3 border rounded bg-light d-md-none">
+                <h6 className="small fw-medium mb-2">Повна інформація</h6>
+                <div className="small mb-2">
+                  <Mail className="me-2" size={14} />
+                  <a
+                    href={`mailto:${customerInfo.email}`}
+                    className="text-decoration-none"
+                    style={{ wordBreak: 'break-all' }}
+                  >
+                    {customerInfo.email}
+                  </a>
+                </div>
+              </div> */}
 
-                  {/* Товары в заказе */}
-                  <div className="items-section">
-                    <h6 className="mb-3">
-                      <Package className="me-2" size={16} />
-                      Товари в замовленні
+              {/* History - collapsible */}
+              {order.changes && order.changes.length > 0 && (
+                <div className="mt-4">
+                  <div className="d-flex justify-content-between align-items-center mb-2">
+                    <h6 className="mb-0">
+                      <Clock className="me-2" size={16} />
+                      Історія змін ({order.changes.length})
                     </h6>
-                    <div className="border rounded p-3 bg-light">
-                      <OrderItemsEditor
-                        order={order}
-                        onOrderUpdate={(updatedOrder) => {
-                          setOrders(orders.map(o =>
-                            o.id === updatedOrder.id ? updatedOrder : o
-                          ));
-                        }}
-                        getAuthHeaders={getAuthHeaders}
-                        onOrderChange={() => {
-                          setCurrentOrderId(order.id);
-                        }}
-                      />
-                    </div>
+                    <Button
+                      variant="link"
+                      size="sm"
+                      onClick={() => setShowHistory(prev => ({
+                        ...prev,
+                        [order.id]: !prev[order.id]
+                      }))}
+                      className="p-0 text-decoration-none"
+                    >
+                      {showHistory[order.id] ? (
+                        <>
+                          <ChevronUp size={16} className="me-1" />
+                          Приховати
+                        </>
+                      ) : (
+                        <>
+                          <ChevronDown size={16} className="me-1" />
+                          Показати
+                        </>
+                      )}
+                    </Button>
                   </div>
 
-                  {/* История изменений */}
-                  {order.changes && order.changes.length > 0 && (
-                    <div className="mt-4">
-                      <h6 className="mb-3">
-                        <Clock className="me-2" size={16} />
-                        Історія змін
-                      </h6>
+                  <Collapse in={showHistory[order.id]}>
+                    <div>
                       <ListGroup variant="flush" className="border rounded">
-                        {order.changes.slice(0, 3).map((change, index) => (
+                        {order.changes.map((change, index) => (
                           <ListGroup.Item key={index} className="small text-muted py-2">
                             {change}
                           </ListGroup.Item>
                         ))}
-                        {order.changes.length > 3 && (
-                          <ListGroup.Item className="text-center py-2">
-                            <Button variant="link" size="sm" className="p-0">
-                              Показати всі ({order.changes.length})
-                            </Button>
-                          </ListGroup.Item>
-                        )}
                       </ListGroup>
                     </div>
-                  )}
+                  </Collapse>
                 </div>
-              </Collapse>
+              )}
+
+              {/* Admin Notes */}
+              <Form.Group className="mb-3">
+                <Form.Label className="small fw-medium text-muted">
+                  КОМЕНТАР АДМІНІСТРАТОРА
+                </Form.Label>
+                <Form.Control
+                  as="textarea"
+                  rows={3}
+                  value={adminNotes[order.id] || ''}
+                  onChange={(e) => handleAdminNotesChange(order.id, e.target.value)}
+                  placeholder="Внутрішні нотатки..."
+                  size="sm"
+                />
+                <Button
+                  variant="outline-primary"
+                  size="sm"
+                  onClick={() => saveAdminNotes(order.id)}
+                  className="mt-2 w-100 w-md-auto"
+                >
+                  Зберегти
+                </Button>
+              </Form.Group>
+
             </div>
-          </Col>
-
-          {/* ПАНЕЛЬ ДЕЙСТВИЙ (БОКОВАЯ) */}
-          <Col lg={3} md={4} className="border-start bg-light">
-            <div className="p-3 d-flex flex-column h-100">
-              <div className="mb-3">
-                <small className="text-muted fw-medium">ШВИДКІ ДІЇ</small>
-              </div>
-              
-              {/* Основные действия */}
-              <div className="d-grid gap-2 mb-3">
-                <Button
-                  variant="success"
-                  size="sm"
-                  onClick={() => openDeliveryEditor(order)}
-                  className="d-flex align-items-center justify-content-start"
-                >
-                  <Truck className="me-2" size={16} />
-                  Управління доставкою
-                </Button>
-                
-                <Button
-                  variant="primary"
-                  size="sm"
-                  onClick={() => setExpandedOrder(expandedOrder === order.id ? null : order.id)}
-                  className="d-flex align-items-center justify-content-start"
-                >
-                  {expandedOrder === order.id ? (
-                    <>
-                      <ChevronUp className="me-2" size={16} />
-                      Згорнути деталі
-                    </>
-                  ) : (
-                    <>
-                      <ChevronDown className="me-2" size={16} />
-                      Розгорнути деталі
-                    </>
-                  )}
-                </Button>
-                
-                <Button
-                  variant="warning"
-                  size="sm"
-                  onClick={() => {
-                    setCurrentOrderId(order.id);
-                    setShowNotificationModal(true);
-                  }}
-                  className="d-flex align-items-center justify-content-start"
-                >
-                  <MessageSquare className="me-2" size={16} />
-                  Повідомити клієнта
-                </Button>
-              </div>
-
-              {/* <hr className="my-3" /> */}
-
-              {/* Дополнительные действия */}
-              {/* <div className="mb-3">
-                <small className="text-muted fw-medium">ДОДАТКОВО</small>
-              </div>
-              
-              <div className="d-grid gap-2">
-                <Button
-                  variant="outline-secondary"
-                  size="sm"
-                  className="d-flex align-items-center justify-content-start"
-                >
-                  <Download className="me-2" size={16} />
-                  Експорт
-                </Button>
-                
-                <Button
-                  variant="outline-secondary"
-                  size="sm"
-                  className="d-flex align-items-center justify-content-start"
-                >
-                  <Settings className="me-2" size={16} />
-                  Налаштування
-                </Button>
-              </div> */}
-
-              {/* Быстрая информация внизу */}
-              <div className="mt-auto pt-3 border-top">
-                <div className="small text-muted">
-                  <div className="d-flex justify-content-between mb-1">
-                    <span>Товарів:</span>
-                    <span className="fw-medium">{order.items?.length || 0}</span>
-                  </div>
-                  <div className="d-flex justify-content-between mb-1">
-                    <span>Сума:</span>
-                    <span className="fw-medium text-success">
-                      ${Number(order.totalAmount).toFixed(2)}
-                    </span>
-                  </div>
-                  {order.deliveryDate && (
-                    <div className="d-flex justify-content-between">
-                      <span>Доставка:</span>
-                      <span className="fw-medium">
-                        {new Date(order.deliveryDate).toLocaleDateString()}
-                      </span>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-          </Col>
-        </Row>
-      </Card.Body>
-    </Card>
-  );
-};
+          </Collapse>
+        </Card.Body>
+      </Card>
+    );
+  };
 
   if (loading && !orders.length) {
     return (
@@ -665,10 +667,23 @@ const OrdersPanel = () => {
         </Alert>
       )}
 
-      <h1 className="mb-4">Замовлення</h1>
+      <div className="d-flex justify-content-between align-items-center mb-3 mb-md-4">
+        <h1 className="mb-0 d-none d-md-block">Замовлення</h1>
+        <h4 className="mb-0 d-md-none">Замовлення</h4>
+
+        <Button
+          variant="outline-primary"
+          size="sm"
+          onClick={() => setShowFilters(true)}
+          className="d-md-none d-flex align-items-center"
+        >
+          <Filter size={16} className="me-2" />
+          Фільтри
+        </Button>
+      </div>
 
       {/* Filters section */}
-      <Row className="mb-4">
+      <Row className="mb-4 d-none d-md-flex">
         <Col md={3}>
           <Form.Group>
             <Form.Label>Статус замовлення</Form.Label>
@@ -716,17 +731,112 @@ const OrdersPanel = () => {
         </Col>
       </Row>
 
-      <div className="mb-3">
-        <p className="text-muted">
+      <div className="mb-3 d-flex justify-content-between align-items-center">
+        <small className="text-muted">
           {filteredOrders.length === orders.length
-            ? `Загальна кількість замовлень: ${orders.length}`
-            : `Показано ${filteredOrders.length} з ${orders.length} замовлень`
+            ? `Всього: ${orders.length}`
+            : `Показано ${filteredOrders.length} з ${orders.length}`
           }
-        </p>
+        </small>
+
+        {(filterStatus !== 'ALL' || filterPaymentStatus !== 'ALL') && (
+          <Button
+            variant="link"
+            size="sm"
+            className="text-decoration-none p-0 d-md-none"
+            onClick={() => {
+              setFilterStatus('ALL');
+              setFilterPaymentStatus('ALL');
+            }}
+          >
+            <X size={14} className="me-1" />
+            Скинути
+          </Button>
+        )}
       </div>
 
       {/* Orders list */}
       {filteredOrders.map(renderOrder)}
+
+      {/* MOBILE FILTERS OFFCANVAS */}
+      <Offcanvas
+        show={showFilters}
+        onHide={() => setShowFilters(false)}
+        placement="end"
+      >
+        <Offcanvas.Header closeButton>
+          <Offcanvas.Title>Фільтри і сортування</Offcanvas.Title>
+        </Offcanvas.Header>
+        <Offcanvas.Body>
+          <Form.Group className="mb-3">
+            <Form.Label>Статус замовлення</Form.Label>
+            <Form.Select
+              value={filterStatus}
+              onChange={(e) => {
+                setFilterStatus(e.target.value);
+              }}
+            >
+              <option value="ALL">Усі статуси</option>
+              <option value="PENDING">Нове</option>
+              <option value="CONFIRMED">Підтверджено</option>
+              <option value="DELIVERED">Доставлено</option>
+              <option value="CANCELLED">Відмінено</option>
+            </Form.Select>
+          </Form.Group>
+
+          <Form.Group className="mb-3">
+            <Form.Label>Статус оплати</Form.Label>
+            <Form.Select
+              value={filterPaymentStatus}
+              onChange={(e) => {
+                setFilterPaymentStatus(e.target.value);
+              }}
+            >
+              <option value="ALL">Усі статуси</option>
+              <option value="PENDING">Нові</option>
+              <option value="PAID">Оплачені</option>
+              <option value="REFUNDED">Повернення</option>
+            </Form.Select>
+          </Form.Group>
+
+          <Form.Group className="mb-3">
+            <Form.Label>Сортування</Form.Label>
+            <Form.Select
+              value={sortBy}
+              onChange={(e) => {
+                setSortBy(e.target.value);
+              }}
+            >
+              <option value="date_desc">Нові спочатку</option>
+              <option value="date_asc">Старі спочатку</option>
+              <option value="amount_desc">Найбільша вартість</option>
+              <option value="amount_asc">Найменша вартість</option>
+            </Form.Select>
+          </Form.Group>
+
+          <Button
+            variant="primary"
+            className="w-100 mb-2"
+            onClick={() => setShowFilters(false)}
+          >
+            Застосувати
+          </Button>
+
+          {(filterStatus !== 'ALL' || filterPaymentStatus !== 'ALL') && (
+            <Button
+              variant="outline-secondary"
+              className="w-100"
+              onClick={() => {
+                setFilterStatus('ALL');
+                setFilterPaymentStatus('ALL');
+                setSortBy('date_desc');
+              }}
+            >
+              Скинути всі фільтри
+            </Button>
+          )}
+        </Offcanvas.Body>
+      </Offcanvas>
 
       {/* Notification Modal */}
       <Modal

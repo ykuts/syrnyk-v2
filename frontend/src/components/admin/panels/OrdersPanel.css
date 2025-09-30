@@ -1,0 +1,101 @@
+/* OrdersPanel Mobile Styles */
+
+/* Mobile-first responsive improvements */
+@media (max-width: 576px) {
+  /* Container adjustments */
+  .container-fluid {
+    padding-left: 0.5rem !important;
+    padding-right: 0.5rem !important;
+  }
+  
+  /* Card improvements */
+  .order-card-v2 {
+    border-radius: 12px;
+  }
+  
+  .order-card-v2 .card-body {
+    padding: 0.75rem !important;
+  }
+  
+  /* Typography adjustments */
+  .order-card-v2 h4 {
+    font-size: 1.25rem;
+  }
+  
+  .order-card-v2 h5 {
+    font-size: 1rem;
+  }
+  
+  .order-card-v2 h6 {
+    font-size: 0.9rem;
+  }
+  
+  /* Button improvements for touch */
+  .order-card-v2 .btn-sm {
+    padding: 0.5rem 1rem;
+    min-height: 44px;
+    font-size: 0.875rem;
+  }
+  
+  /* Form improvements */
+  .order-card-v2 .form-select,
+  .order-card-v2 .form-control {
+    font-size: 0.9rem;
+  }
+}
+
+/* Tablet adjustments */
+@media (min-width: 577px) and (max-width: 768px) {
+  .order-card-v2 .card-body {
+    padding: 1rem !important;
+  }
+}
+
+/* Desktop */
+@media (min-width: 769px) {
+  .order-card-v2 {
+    border-radius: 16px;
+  }
+}
+
+/* Touch feedback */
+.order-card-v2 .btn:active {
+  transform: scale(0.98);
+  transition: transform 0.1s;
+}
+
+/* Better focus states */
+.order-card-v2 .btn:focus,
+.order-card-v2 .form-select:focus,
+.order-card-v2 .form-control:focus {
+  box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+}
+
+/* Offcanvas improvements */
+.offcanvas {
+  max-width: 85vw;
+}
+
+.offcanvas-body {
+  padding: 1.5rem;
+}
+
+.offcanvas-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+/* Better badge styling for mobile */
+@media (max-width: 576px) {
+  .order-card-v2 .badge {
+    font-size: 0.7rem !important;
+    padding: 0.35rem 0.6rem !important;
+    white-space: nowrap;
+  }
+  
+  /* Ensure date is fully visible */
+  .order-card-v2 small.text-muted {
+    font-size: 0.8rem;
+    line-height: 1.4;
+  }
+}

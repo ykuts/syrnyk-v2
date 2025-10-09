@@ -13,24 +13,24 @@ import { internalAuth } from '../middleware/internalAuth.js';
 
 const router = express.Router();
 
-// CORS headers
 router.use((req, res, next) => {
   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
   next();
 });
 
 // ============================================
-// PUBLIC ROUTES (with internal auth support)
+// PUBLIC ROUTES (with optional internal auth)
 // These support language parameter: ?lang=uk|en|fr|ru
+// internalAuth is OPTIONAL - doesn't block public requests
 // ============================================
 
-// Get available languages - NO AUTH (metadata endpoint)
+// Get available languages - NO AUTH
 router.get('/languages', getAvailableLanguages);
 
-// Get all products - supports both public and internal requests
+// Get all products - PUBLIC + optional internal auth
 router.get('/', internalAuth, getProducts);
 
-// Get product by ID - supports both public and internal requests
+// Get product by ID - PUBLIC + optional internal auth
 router.get('/:id', internalAuth, getProductById);
 
 // ============================================

@@ -11,7 +11,8 @@ const CustomLanguageDropdown = () => {
   const options = [
     { value: 'uk', label: 'UA', fullName: 'Українська' },
     { value: 'en', label: 'EN', fullName: 'English' },
-    { value: 'fr', label: 'FR', fullName: 'Français' }
+    { value: 'fr', label: 'FR', fullName: 'Français' },
+    { value: 'ru', label: 'RU', fullName: 'Русский' }
   ];
 
   // Set initial language based on browser or previously saved preference

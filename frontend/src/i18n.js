@@ -19,7 +19,7 @@ i18n
     fallbackLng: 'uk',
     
     // Supported languages
-    supportedLngs: ['uk', 'en', 'fr'],
+    supportedLngs: ['uk', 'en', 'fr', 'ru'],
     
     // Default namespace
     defaultNS: 'common',
@@ -44,6 +44,7 @@ i18n
       'fr-FR': ['fr'],
       'en-US': ['en'],
       'uk-UA': ['uk'],
+      'ru-RU': ['ru'],
       default: ['uk']
     },
 

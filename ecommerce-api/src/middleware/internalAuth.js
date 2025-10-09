@@ -22,7 +22,7 @@ export const internalAuth = (req, res, next) => {
       req.isInternal = true;
       req.internalService = 'crm_integration';
 
-      logger.debug('Internal API authentication successful', {
+      logger.info('Internal API authentication successful', {
         ip: req.ip,
         path: req.path,
         service: 'crm_integration'
@@ -54,7 +54,7 @@ export const internalAuth = (req, res, next) => {
       req.isInternal = true;
       req.internalService = 'crm_integration';
 
-      logger.debug('Internal Bearer authentication successful', {
+      logger.info('Internal Bearer authentication successful', {
         ip: req.ip,
         path: req.path
       });
@@ -64,7 +64,7 @@ export const internalAuth = (req, res, next) => {
   }
 
   // No internal auth provided - that's OK, continue as public request
-  logger.debug('Public request (no internal auth)', {
+  logger.info('Public request (no internal auth)', {
     path: req.path,
     method: req.method
   });

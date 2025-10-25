@@ -8,6 +8,8 @@ import {
   sendWelcomeEmail,
 } from '../services/emailService.js';
 
+import { updateDealStatus } from '../config/crmService.js';
+
 import axios from 'axios';
 
 
@@ -388,26 +390,90 @@ export const updateOrderStatus = async (req, res) => {
       }
     });
 
-    // Get recipient (user or guest)
+// Sync with SendPulse via CRM service (if deal ID exists)
     const recipient = updatedOrder.user || updatedOrder.guestInfo;
+    
+    if (currentOrder.sendpulseDealId) {
+      console.log(`[Order ${orderId}] Syncing status change to SendPulse...`);
+      
+      try {
+        // Prepare order data for CRM service
+        const orderDataForCrm = {
+          totalAmount: updatedOrder.totalAmount,
+          items: updatedOrder.items.map(item => ({
+            productId: item.productId,
+            quantity: item.quantity,
+            price: item.price,
+            product: {
+              name: item.product.name
+            }
+          })),
+          customer: recipient
+        };
 
-    try {
-      const recipientLanguage = recipient.preferredLanguage || 'uk';
-      // Send appropriate email based on status and changes
-      if (status === 'CONFIRMED' && hasChanges) {
-        // If confirming modified order
-        await sendModifiedOrderConfirmation(updatedOrder, recipient, recipientLanguage);
-      } else {
-        // For all other status changes
-        await sendOrderStatusUpdate(updatedOrder, recipient, recipientLanguage);
+        // Call CRM service to update deal status
+        const crmResponse = await updateDealStatus({
+          dealId: currentOrder.sendpulseDealId,
+          orderId: Number(orderId),
+          newStatus: status,
+          previousStatus: currentOrder.status,
+          orderData: orderDataForCrm
+        });
+
+        if (crmResponse) {
+          console.log(`[Order ${orderId}] Successfully synced to SendPulse deal ${currentOrder.sendpulseDealId}`);
+          
+          // If customer doesn't have email, SendPulse can notify them via other channels
+          if (!recipient?.email && recipient?.phone) {
+            console.log(`[Order ${orderId}] Customer has no email, but notified via SendPulse CRM (phone: ${recipient.phone})`);
+          }
+        } else {
+          console.warn(`[Order ${orderId}] Failed to sync with SendPulse, but order updated locally`);
+        }
+
+      } catch (crmError) {
+        // Log error but don't fail the main operation
+        console.error(`[Order ${orderId}] CRM sync error:`, crmError.message);
+        // The order status is still updated in our database
+        // CRM service can retry later if needed
       }
-    } catch (emailError) {
-      console.error('Error sending status update email:', emailError);
+    } else {
+      console.log(`[Order ${orderId}] No SendPulse deal ID found, skipping CRM sync`);
+    }    
+
+    // Get recipient (user or guest)
+    //const recipient = updatedOrder.user || updatedOrder.guestInfo;
+
+    if (recipient && recipient.email) {
+      try {
+        const recipientLanguage = recipient.preferredLanguage || 'uk';
+        
+        // Send appropriate email based on status and changes
+        if (status === 'CONFIRMED' && hasChanges) {
+          // If confirming modified order
+          await sendModifiedOrderConfirmation(updatedOrder, recipient, recipientLanguage);
+          console.log(`[Order ${orderId}] Modified order confirmation email sent to ${recipient.email}`);
+        } else {
+          // For all other status changes
+          await sendOrderStatusUpdate(updatedOrder, recipient, recipientLanguage);
+          console.log(`[Order ${orderId}] Status update email sent to ${recipient.email}`);
+        }
+      } catch (emailError) {
+        console.error(`[Order ${orderId}] Error sending status update email:`, emailError.message);
+        // Don't fail the request if email fails
+      }
+    } else {
+      console.log(`[Order ${orderId}] Skipping email notification - no email address available for recipient`);
+      // Consider alternative notification methods here if needed:
+      // - SMS notification via phone number
+      // - Push notification
+      // - SendPulse notification
     }
 
     res.json({
       message: 'Order status updated successfully',
-      order: updatedOrder
+      order: updatedOrder,
+      emailSent: !!(recipient && recipient.email)
     });
   } catch (error) {
     console.error('Error updating order status:', error);

@@ -15,7 +15,8 @@ import {
   updateOrderSyncData,
   createSyncLog,
   getOrderWithSync,
-  createOrderEnhanced
+  createOrderEnhanced,
+  getOrderByDealId
 } from '../controllers/orderController.js';
 
 const router = express.Router();
@@ -42,6 +43,7 @@ router.patch('/:orderId/sync-data', updateOrderSyncData);
 router.post('/:orderId/sync-log', createSyncLog);
 router.get('/:orderId/sync', getOrderWithSync);
 router.post('/enhanced', createOrderEnhanced);
+router.get('/by-deal/:dealId', getOrderByDealId);
 
 export default router;
 

@@ -1122,3 +1122,66 @@ export const createOrderEnhanced = async (req, res) => {
     });
   }
 };
+
+/**
+ * Get order by SendPulse deal ID
+ * GET /api/orders/by-deal/:dealId
+ */
+export const getOrderByDealId = async (req, res) => {
+  try {
+    const { dealId } = req.params;
+
+    logger.info('Finding order by SendPulse deal ID', { dealId });
+
+    const order = await prisma.order.findFirst({
+      where: {
+        sendpulseDealId: dealId.toString()
+      },
+      include: {
+        items: {
+          include: { product: true }
+        },
+        user: true,
+        guestInfo: true,
+        addressDelivery: true,
+        stationDelivery: {
+          include: { station: true }
+        },
+        pickupDelivery: {
+          include: { store: true }
+        }
+      }
+    });
+
+    if (!order) {
+      return res.status(404).json({
+        success: false,
+        message: 'Order not found',
+        dealId
+      });
+    }
+
+    logger.info('Order found by deal ID', {
+      orderId: order.id,
+      dealId,
+      status: order.status
+    });
+
+    res.json({
+      success: true,
+      order
+    });
+
+  } catch (error) {
+    logger.error('Error finding order by deal ID', {
+      error: error.message,
+      dealId: req.params?.dealId
+    });
+
+    res.status(500).json({
+      success: false,
+      error: 'Error finding order',
+      message: error.message
+    });
+  }
+};

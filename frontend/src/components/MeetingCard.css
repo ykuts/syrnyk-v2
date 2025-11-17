@@ -27,15 +27,15 @@
 .meeting-card {
   display: flex;
   border: 1px solid #070707;
-  border-radius: 1rem; /* Same border-radius as content-section-delivery */
+  border-radius: 1rem ; /* Rounded only on right side */
   overflow: hidden;
   background-color: #fff;
   /* box-shadow: 0 2px 4px rgba(0,0,0,0.05); */
-  height: 300px; 
+  height: 400px; 
 }
 
 .meeting-card .meeting-info {
-  flex: 0 0 66.666%; /* 2/3 width */
+  flex: 0 0 50%; /* 2/3 width */
   padding: 1.5rem;
   display: flex;
   flex-direction: column;
@@ -55,14 +55,16 @@
 }
 
 .meeting-card .meeting-image {
-  flex: 0 0 33.333%; /* 1/3 ширины */
+  flex: 0 0 50%; /* 1/3 ширины */
   height: 100%; /* Высота равна высоте карточки */
+  border-radius: 0;
 }
 
 .meeting-card .meeting-image img {
   width: 100%;
   height: 100%;
-  object-fit: contain;
+  object-fit: cover;
+  object-position: center;
   background-color: #f8f9fa;
   display: block;
 }
@@ -86,6 +88,7 @@
   /* Remove extra padding on mobile to match content sections */
   .meeting-cards {
     padding: 1rem; /* Keep consistent with content-sections-container */
+    border-radius: 1rem; /* Rounded only on top */
   }
 
   .meeting-card {
@@ -105,6 +108,7 @@
     flex: auto;
     height: 200px;
     order: 0; /* Изображение будет сверху */
+    border-radius: 0;
   }
 
   .city-stations {

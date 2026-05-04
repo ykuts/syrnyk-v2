@@ -1149,7 +1149,8 @@ const CheckoutPage = () => {
             house: formData.house,
             apartment: formData.apartment || null,
             city: formData.city,
-            postalCode: formData.postalCode
+            postalCode: formData.postalCode,
+            canton: formData.canton || 'VD'
           };
           break;
 

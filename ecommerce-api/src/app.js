@@ -12,6 +12,8 @@ import uploadRoutes from './routes/uploadRoutes.js';
 import sendpulseTestRoutes from './routes/sendpulseTest.js';
 import reportsRoutes from './routes/reportsRoutes.js';
 import pivotConfigRoutes from './routes/pivotConfigRoutes.js';
+import deliveryRouteRoutes from './routes/deliveryRouteRoutes.js';
+
 import { handleMulterError } from './middleware/upload.js';
 import cors from 'cors';
 import path from 'path';
@@ -66,7 +68,8 @@ app.use(cors({
         'https://app.sendpulse.com',
         'https://login.sendpulse.com',
         'https://chatapi.sendpulse.com',
-        'https://events.sendpulse.com'
+        'https://events.sendpulse.com',
+        'https://beta.syrnyk.ch'
     ],
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: [
@@ -120,6 +123,8 @@ app.use('/api/addresses', addressRoutes);
 app.use('/api/railway-stations', railwayStationsRouter);
 app.use('/api/upload', uploadRoutes); // Routes for files upload
 app.use('/api/delivery', deliveryRoutes);
+
+app.use('/api/admin', deliveryRouteRoutes);
 
 // Простой тест route прямо в app.js
 app.get('/api/test-direct', (req, res) => {

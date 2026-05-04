@@ -20,6 +20,8 @@ import AnimationWrapper from './components/AnimationWrapper'; // New import
 import CheckoutPage from './components/ChackoutPage';
 import DeliveryPage from './components/DeliveryPage';
 import DeliveryPanel from './components/admin/panels/DeliveryPanel';
+import DeliveryRoutes from './components/admin/panels/DeliveryRoutes/DeliveryRoutes';
+import ProductionReport from './components/admin/panels/ProductionReport/ProductionReport';
 import PrivateRoute from './components/PrivateRoute';
 import OrderHistory from './components/OrderHistory';
 import UserProfile from './components/UserProfile';
@@ -101,6 +103,8 @@ function App() {
                   <Route path="products" element={<ProductsPanel />} />
                   <Route path="reports" element={<ReportsPanel />} />
                   <Route path="delivery" element={<DeliveryPanel />} />
+                  <Route path="delivery-routes" element={<DeliveryRoutes />} />
+                  <Route path="production-report" element={<ProductionReport />} />
                   
                   
                 </Route>

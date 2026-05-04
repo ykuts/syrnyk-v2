@@ -74,6 +74,9 @@ model Order {
   deliveryStationId       Int?       // For railway station delivery
   deliveryPickupLocationId Int?      // For pickup
 
+  deliveryOrder           Int?       // Order in delivery route
+  deliveredAt             DateTime?  // Actual delivery completion timestamp
+
   sendpulseDealId         String?     @map("sendpulseDealId")
   sendpulseContactId      String?     @map("sendpulseContactId")
   orderSource             String      @default("WEB") @map("orderSource")
@@ -92,6 +95,8 @@ model Order {
   @@index([externalOrderId])      // New index
   @@index([syncStatus])           // New index
   @@index([orderSource])          // New index
+
+  @@index([deliveryDate, deliveryOrder])
 }
 
 // New model for guest information
@@ -126,6 +131,9 @@ model AddressDelivery {
   apartment   String?
   city        String
   postalCode  String
+
+  canton      String   // "VD" or "GE"
+
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }

@@ -1,5 +1,5 @@
 import { Container, Nav, Row, Col } from 'react-bootstrap';
-import { Boxes, Users, ShoppingCart, Truck, BarChart2  } from 'lucide-react';
+import { Boxes, Users, ShoppingCart, Truck, BarChart2, Map, ClipboardList } from 'lucide-react';
 import { useNavigate, useLocation, Outlet } from 'react-router-dom';
 
 const AdminDashboard = () => {
@@ -61,7 +61,27 @@ const AdminDashboard = () => {
                 Управління доставкою
               </Nav.Link>
             </Nav.Item>
-            
+
+            <Nav.Item>
+              <Nav.Link
+                eventKey="delivery-routes"
+                className="d-flex align-items-center gap-2 px-3 py-2"
+              >
+                <Map size={20} />
+                План доставок
+              </Nav.Link>
+            </Nav.Item>
+
+            <Nav.Item>
+              <Nav.Link
+                eventKey="production-report"
+                className="d-flex align-items-center gap-2 px-3 py-2"
+              >
+                <ClipboardList size={20} />
+                Виробничий звіт
+              </Nav.Link>
+            </Nav.Item>
+
             <Nav.Item>
               <Nav.Link
                 eventKey="reports"

@@ -82,7 +82,7 @@ const DeliveryPanel = () => {
     try {
       const formData = new FormData();
       formData.append('photo', file);
-  
+
       const response = await apiClient.upload('/upload/stations', formData);
 
       setFormData(prev => ({
@@ -111,14 +111,14 @@ const DeliveryPanel = () => {
         // Create new station
         await apiClient.post('/railway-stations', formData);
       }
-      
+
       await fetchStations();
       setShowModal(false);
       setSelectedStation(null);
-      setFormData({ 
-        city: '', 
-        name: '', 
-        meetingPoint: '', 
+      setFormData({
+        city: '',
+        name: '',
+        meetingPoint: '',
         photo: '',
         translations: {}
       });
@@ -137,13 +137,16 @@ const DeliveryPanel = () => {
 
         // Delete photo first if exists
         if (station.photo) {
-          const filename = station.photo.split('/').pop();
-          await apiClient.delete(`/upload/stations/${filename}`);
+          const matches = station.photo.match(/\/upload\/(?:v\d+\/)?(.+)\.[a-z]+$/i);
+          const publicId = matches ? matches[1] : null;
+          if (publicId) {
+            await apiClient.delete(`/upload/stations/${publicId}`);
+          }
         }
-  
+
         // Then delete the station
         await apiClient.delete(`/railway-stations/${id}`);
-        
+
         await fetchStations();
       } catch (err) {
         setError('Помилка при видаленні станції');
@@ -168,7 +171,7 @@ const DeliveryPanel = () => {
       // Fetch full station data with translations
       const stationData = await apiClient.get(`/railway-stations/${station.id}`);
       setSelectedStation(stationData);
-      
+
       // Format data for the form
       setFormData({
         city: stationData.city,
@@ -177,7 +180,7 @@ const DeliveryPanel = () => {
         photo: stationData.photo ? stationData.photo.replace(/^\/+/, '') : '',
         translations: stationData.translations || {}
       });
-      
+
       setShowModal(true);
     } catch (err) {
       setError('Помилка при завантаженні деталей станції');
@@ -198,10 +201,10 @@ const DeliveryPanel = () => {
             variant="primary"
             onClick={() => {
               setSelectedStation(null);
-              setFormData({ 
-                city: '', 
-                name: '', 
-                meetingPoint: '', 
+              setFormData({
+                city: '',
+                name: '',
+                meetingPoint: '',
                 photo: '',
                 translations: {}
               });
@@ -250,8 +253,8 @@ const DeliveryPanel = () => {
                     )}
                   </td>
                   <td>
-                    {station.translations ? 
-                      Object.keys(station.translations).join(', ') : 
+                    {station.translations ?
+                      Object.keys(station.translations).join(', ') :
                       'No translations'}
                   </td>
                   <td>

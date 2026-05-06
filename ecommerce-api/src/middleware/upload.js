@@ -1,73 +1,73 @@
 import multer from 'multer';
-import path from 'path';
-import { fileURLToPath } from 'url';
+import { v2 as cloudinary } from 'cloudinary';
+import { CloudinaryStorage } from 'multer-storage-cloudinary';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-// Configuration for different file types
-const createStorage = (folder) => {
-    return multer.diskStorage({
-        destination: function (req, file, cb) {
-            const uploadPath = path.join(__dirname, `../../uploads/${folder}`);
-            cb(null, uploadPath);
-        },
-        filename: function (req, file, cb) {
-            const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-            cb(null, uniqueSuffix + path.extname(file.originalname));
-        }
-    });
-};
-
-// Check file type
-const fileFilter = (req, file, cb) => {
-    // Allowed Types
-    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
-    
-    if (allowedTypes.includes(file.mimetype)) {
-        cb(null, true);
-    } else {
-        cb(new Error('Неподдерживаемый формат файла. Разрешены только JPEG, JPG, PNG и WebP'), false);
-    }
-};
-
-// Iploader for different file types
-const uploadProducts = multer({
-    storage: createStorage('products'),
-    fileFilter: fileFilter,
-    limits: {
-        fileSize: 10 * 2048 * 2048, // 10MB
-        files: 10 // max files
-    }
+// Configure Cloudinary with environment variables
+cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-const uploadStations = multer({
-    storage: createStorage('stations'),
-    fileFilter: fileFilter,
-    limits: {
-        fileSize: 10 * 2048 * 2048, // 10MB
-        files: 1 // for stations only one file
+// Allowed image formats
+const allowedFormats = ['jpg', 'jpeg', 'png', 'webp'];
+
+// Storage for product images (folder: syrnyk/products)
+const productStorage = new CloudinaryStorage({
+    cloudinary,
+    params: {
+        folder: 'syrnyk/products',
+        allowed_formats: allowedFormats,
+        transformation: [{ quality: 'auto', fetch_format: 'auto' }],
+    },
+});
+
+// Storage for station images (folder: syrnyk/stations)
+const stationStorage = new CloudinaryStorage({
+    cloudinary,
+    params: {
+        folder: 'syrnyk/stations',
+        allowed_formats: allowedFormats,
+        transformation: [{ quality: 'auto', fetch_format: 'auto' }],
+    },
+});
+
+// File filter — allow only images
+const fileFilter = (req, file, cb) => {
+    const allowedMimeTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+    if (allowedMimeTypes.includes(file.mimetype)) {
+        cb(null, true);
+    } else {
+        cb(new Error('Unsupported file format. Only JPEG, JPG, PNG and WebP are allowed.'), false);
     }
+};
+
+// Uploader for product images (up to 10 files)
+const uploadProducts = multer({
+    storage: productStorage,
+    fileFilter,
+    limits: { fileSize: 10 * 1024 * 1024 }, // 10MB
+});
+
+// Uploader for station images (single file)
+const uploadStations = multer({
+    storage: stationStorage,
+    fileFilter,
+    limits: { fileSize: 10 * 1024 * 1024 }, // 10MB
 });
 
 // Handle Multer errors
 const handleMulterError = (err, req, res, next) => {
     if (err instanceof multer.MulterError) {
         if (err.code === 'LIMIT_FILE_SIZE') {
-            return res.status(400).json({
-                message: 'Файл слишком большой. Максимальный размер - 10MB. Рекомендуется оптимизировать изображение.'
-            });
+            return res.status(400).json({ message: 'File is too large. Maximum size is 10MB.' });
         }
         if (err.code === 'LIMIT_FILE_COUNT') {
-            return res.status(400).json({
-                message: 'Превышено максимальное количество файлов.'
-            });
+            return res.status(400).json({ message: 'Too many files uploaded at once.' });
         }
-        return res.status(400).json({
-            message: 'Ошибка при загрузке файла.'
-        });
+        return res.status(400).json({ message: 'Error uploading file.' });
     }
     next(err);
 };
 
-export { uploadProducts, uploadStations, handleMulterError };
+export { uploadProducts, uploadStations, handleMulterError, cloudinary };

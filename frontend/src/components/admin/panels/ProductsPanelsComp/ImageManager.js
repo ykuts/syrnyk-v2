@@ -52,20 +52,27 @@ const ImageManager = ({ images, mainImage, onImagesChange, onMainImageChange }) 
 
   const handleDeleteImage = async (imageUrl) => {
     try {
-      const filename = imageUrl.split('/').pop();
-      await apiClient.delete(`/upload/products/${filename}`);
-  
-      const newImages = (images || []).filter(img => img !== imageUrl);
-      onImagesChange(newImages);
-  
-      if (imageUrl === mainImage) {
-        onMainImageChange(newImages[0] || '');
-      }
+        // Extract Cloudinary public_id from URL
+        // e.g. https://res.cloudinary.com/xxx/image/upload/v123/syrnyk/products/abc123.jpg
+        // → public_id = "syrnyk/products/abc123"
+        const matches = imageUrl.match(/\/upload\/(?:v\d+\/)?(.+)\.[a-z]+$/i);
+        const publicId = matches ? matches[1] : null;
+
+        if (!publicId) throw new Error('Cannot extract public_id from URL');
+
+        await apiClient.delete(`/upload/products/${publicId}`);
+
+        const newImages = (images || []).filter(img => img !== imageUrl);
+        onImagesChange(newImages);
+
+        if (imageUrl === mainImage) {
+            onMainImageChange(newImages[0] || '');
+        }
     } catch (err) {
-      setError('Failed to delete image');
-      console.error(err);
+        setError('Failed to delete image');
+        console.error(err);
     }
-  };
+};
 
   const handleSetMainImage = (imageUrl) => {
     onMainImageChange(imageUrl);
